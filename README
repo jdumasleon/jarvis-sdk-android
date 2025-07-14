@@ -1,0 +1,310 @@
+![Jarvis Banner](./img/readme.banner.png)
+
+# Jarvis
+
+- [Getting Started 👣](#getting-started-)
+- [Features 🧰](#features-)
+  - [Configure 🎨](#configure-)
+  - [General](#general)
+  - [API Calls Monitoring](#api-calls-monitoring)
+  - [Force fail API calls](#force-fail-api-calls)
+  - [Change Environment](#change-environment)
+  - [Notification Permission 🔔](#notification-permission-for-chucker-)
+
+Unleash the power of advanced development like a Avengers with Jarvis, the ultimate toolkit for Android developers. Designed to elevate your coding experience, Jarvis offers a suite of powerful features to enhance your productivity and streamline your development workflow.
+
+Key Features:
+- Request Interception: Seamlessly intercept and analyze network requests to debug and optimize your applications with ease.
+- Form Filling with Faker Service: Automate form completion using our integrated Faker service, saving time and ensuring consistent test data.
+- Dynamic Environment Switching: Effortlessly switch between different environments to test and deploy your applications in various settings.
+- App Template Controls: Utilize a range of pre-built templates to kickstart your projects and maintain consistent design standards.
+
+With Jarvis, you have the power to develop, debug, and deploy like never before. Transform your development process and become the hero of your own coding journey.
+
+**Important**: In order to activate the Jarvis Mode, it is necessary to be in the Debug Build Variant and shake the mobile device while the app is open.
+
+## Getting Started 👣
+
+The initial step involves incorporating essential external dependencies into our project to ensure the proper functioning of the library.
+
+- Navigate to the build.gradle file (Project) and integrate the following plugins:
+
+``` kotlin
+id("com.google.devtools.ksp") version "1.9.22-1.0.16" apply false
+id("com.google.dagger.hilt.android") version "2.48.1" apply false
+```
+
+- Subsequently, include the following plugins in the build.gradle file (Module app):
+
+``` kotlin
+id("com.google.devtools.ksp")
+id("com.google.dagger.hilt.android")
+```
+
+- Within the same file, introduce the following dependencies:
+
+``` kotlin
+// Hilt
+implementation("com.google.dagger:hilt-android:2.48.1")
+implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+ksp("com.google.dagger:hilt-android-compiler:2.48.1")
+
+// Preferences Datastore
+implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+// Extended Material Icons
+implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
+// Lifecycle Compose
+implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+
+// Chucker library
+debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
+releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.0.0")
+```
+
+- Furthermore, it is necessary to include the following repository in settings.gradle:
+
+``` kotlin
+maven {
+    url = uri("https://maven.pkg.github.com/vueling/AndroidGodMode")
+    credentials {
+        username = "hiberus"
+        password = "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"
+    }
+}
+```
+
+## Features 🧰
+
+* Compatible with **OkHTTP 3**
+* Compatible only with Jetpack Compose project
+* Compatible only with single Activity architecture
+* **API >= 24** compatible
+* Works **out of the box**, no customization needed.
+
+### Configure 🎨
+
+#### General
+
+To enable the functionality of the library, the first step is to integrate Hilt into the project.
+
+Initial steps for setting up Hilt in the project (Hilt configuration can also be found online):
+
+- In our MainActivity class, add the annotation:
+
+``` kotlin
+@AndroidEntryPoint
+class MainActivity: ComponentActivity()
+```
+- Create a class named after the app followed by "Application" (Example: JarvisDemo) and add an annotation, making it extend Application():
+``` kotlin
+@HiltAndroidApp
+class JarvisDemoApplication : Application()
+```
+- Navigate to the AndroidManifest.xml file, and within the "application" element, add this line:
+``` xml
+<application
+    android:name=".JarvisDemoApplication">
+</application>
+```
+
+The following steps are to display the God Mode view in the application:
+
+-   The first step is to make MainActivity extend the following class:
+``` kotlin
+@AndroidEntryPoint  
+class MainActivity : ComponentActivityShakingGodMode()
+```
+
+- Finally, add the "setContent" override function, where you will include the Navigation class responsible for managing navigation between different screens. It should look like this:
+
+``` kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivityShakingGodMode() {
+
+    @Composable
+    override fun SetContent() {
+        Navigation()
+    }
+}
+```
+
+#### API Calls Monitoring
+
+To configure this feature, add the Chucker Interceptor to the Retrofit instance. Typically, in a DataModule file (can be named differently), you would add the Retrofit instance with Hilt. The DataModule file would look something like this:
+
+``` kotlin
+private const val BASE_URL = "https://test.es"  
+  
+@Module  
+@InstallIn(SingletonComponent::class)  
+class DataModule {  
+  
+	@Singleton  
+	@Provides  
+	fun providesRetrofit(  
+		chuckerManager: ChuckerManager
+	): Retrofit {  
+		val client = OkHttpClient.Builder()   
+			.addInterceptor(chuckerManager.chuckerInterceptor)
+			.build()  
+	  
+		return Retrofit.Builder()  
+			.baseUrl(BASE_URL)  
+			.client(client)  
+			.addConverterFactory(GsonConverterFactory.create())  
+			.build()  
+	}  
+}
+
+```
+A client with OkHttp has been created, and the Chucker Interceptor has been added. This configures the feature.
+
+#### Force fail API calls
+
+For this feature, simply add another Interceptor, specifically the Failing API Call Interceptor:
+
+```kotlin
+private const val BASE_URL = "https://test.es"  
+
+@Module  
+@InstallIn(SingletonComponent::class)  
+class DataModule {  
+  
+	@Singleton  
+	@Provides  
+	fun providesRetrofit(  
+		chuckerManager: ChuckerManager,
+		failingInterceptor: FailingInterceptor,
+	): Retrofit {  
+		val client = OkHttpClient.Builder()   
+			.addInterceptor(chuckerManager.chuckerInterceptor)
+			.addInterceptor(failingInterceptor)
+			.build()  
+	  
+		return Retrofit.Builder()  
+			.baseUrl(BASE_URL)  
+			.client(client)  
+			.addConverterFactory(GsonConverterFactory.create())  
+			.build()  
+	}  
+}
+```
+It's important to note that the order of interceptors matters, and this order is correct. This configures the feature.
+
+#### Change Environment
+
+For this feature, add another Interceptor, specifically the Change Environment Interceptor for Retrofit's base URL:
+
+``` kotlin
+private const val BASE_URL = "https://test.es"  
+
+@Module  
+@InstallIn(SingletonComponent::class)  
+class DataModule {  
+  
+	@Singleton  
+	@Provides  
+	fun providesRetrofit(  
+		chuckerManager: ChuckerManager,
+		failingInterceptor: FailingInterceptor,
+		changeEnvironmentInterceptor: ChangeEnvironmentInterceptor
+	): Retrofit {  
+		val client = OkHttpClient.Builder()
+			.addInterceptor(changeEnvironmentInterceptor)
+			.addInterceptor(chuckerManager.chuckerInterceptor)
+			.addInterceptor(failingInterceptor)
+			.build()  
+	  
+		return Retrofit.Builder()  
+			.baseUrl(BASE_URL)  
+			.client(client)  
+			.addConverterFactory(GsonConverterFactory.create())  
+			.build()  
+	}  
+}
+```
+
+Additionally, add an interface to the MainActivity class:
+
+``` kotlin
+@AndroidEntryPoint  
+class MainActivity : ComponentActivityShakingGodMode(), EnvironmentsProvider {
+// ...
+```
+
+This requires adding an override function where you will include your environments.
+
+**Important**: Always add the production environment in the first position.
+
+``` kotlin
+override fun provideEnvironmentsList(): List<Pair<String, String>> {  
+	return listOf(  
+		Pair("PRO", "https://test.es/api/v1/"),  
+		Pair("PRE", "https://test-pre.es/api/v1/"),  
+		Pair("INT", "https://test-int.es/api/v1/"),  
+		Pair("QA-01", "https://test-qa01.es/api/v1/"),  
+		Pair("QA-02", "https://test-qa02.es/api/v1/"),  
+		Pair("QA-03", "https://test-qa03.es/api/v1/"),  
+		Pair("QA-04", "https://test-qa04.es/api/v1/")  
+	)  
+}
+```
+
+Once done, only the following function needs to be added in MainActivity.kt:
+
+``` kotlin
+override fun onCreate(savedInstanceState: Bundle?) {  
+	setEnvironmentsProvider(this)  
+	super.onCreate(savedInstanceState)  
+}
+```
+
+The complete class would look like this:
+
+``` kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivityShakingGodMode(), EnvironmentsProvider {
+
+    @Composable
+    override fun SetContent() {
+        Navigation()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setEnvironmentsProvider(this)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun provideEnvironmentsList(): List<Pair<String, String>> {
+        return listOf(  
+            Pair("PRO", "https://test.es/api/v1/"),  
+		    Pair("PRE", "https://test-pre.es/api/v1/"),  
+		    Pair("INT", "https://test-int.es/api/v1/"),  
+		    Pair("QA-01", "https://test-qa01.es/api/v1/"),  
+		    Pair("QA-02", "https://test-qa02.es/api/v1/"),  
+		    Pair("QA-03", "https://test-qa03.es/api/v1/"),  
+		    Pair("QA-04", "https://test-qa04.es/api/v1/")  
+        )
+    }
+}
+```
+
+Once added, shaking the device will display the Jarvis Mode view.
+
+### Notification Permission for Chucker 🔔
+
+Starting with Android 13, your apps needs to request the `android.permission.POST_NOTIFICATIONS` permission to the user in order to show notifications.
+As Chucker also shows notifications to show network activity you need to handle permission request depending on your app features.
+Without this permission Chucker will track network activity, but there will be no notifications on devices with Android 13 and newer.
+
+There are 2 possible cases:
+1. If your app is already sending notifications, you don't need to do anything as Chucker will
+   show a notification as soon as the `android.permission.POST_NOTIFICATIONS` permission is granted to your app.
+2. If your app does not send notifications you would need to open Chucker directly (can be done via shortcut, which is added to your app by default when Chucker is added)
+   and click `Allow` in the dialog with permission request. In case you don't allow this permission or dismiss that dialog by mistake, on every Chucker launch there will be
+   a snackbar with a button to open your app settings where you can change permissions settings. Note, you need to grant `android.permission.POST_NOTIFICATIONS` to your app in Settings as there
+   will be no separate app in Apps list in Settings.
+
+If you're looking for the **latest stable version**, you can always find it in `Releases` section.

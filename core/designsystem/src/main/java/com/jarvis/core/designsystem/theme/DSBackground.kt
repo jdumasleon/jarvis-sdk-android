@@ -1,0 +1,20 @@
+package com.jarvis.core.designsystem.theme
+
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+
+/**
+ * A class to model background color and tonal elevation values for Jarvis theme
+ */
+@Immutable
+data class DSBackgroundTheme(
+    val color: Color = Color.Unspecified,
+    val tonalElevation: Dp = Dp.Unspecified,
+)
+
+/**
+ * A composition local for [DSBackgroundTheme].
+ */
+val LocalDSBackgroundTheme = staticCompositionLocalOf { DSBackgroundTheme() }
