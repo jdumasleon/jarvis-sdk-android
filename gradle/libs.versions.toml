@@ -72,6 +72,8 @@ robolectric = "4.12.2"
 roborazzi = "1.7.0"
 kotlinVersion = "1.9.0"
 stdlib = "1.9.23"
+detekt = "1.23.6"
+ktlint = "0.50.0"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -201,6 +203,8 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 module-graph = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraph" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 
 # Plugins defined by this project
 jarvis-android-application = { id = "jarvis.android.application", version = "unspecified" }
