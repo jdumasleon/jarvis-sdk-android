@@ -8,10 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.presentation.navigation.EntryProviderInstaller
+import com.jarvis.core.presentation.navigation.Navigator
 import com.jarvis.demo.presentation.navigation.TopLevelDestination
 import com.jarvis.demo.presentation.ui.JarvisDemoApp
-import com.jarvis.demo.presentation.ui.rememberJarvisDemoAppState
-import com.jarvis.demo.viewmodel.SplashViewModel
+import com.jarvis.demo.presentation.splash.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -21,12 +22,16 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var splashViewModel: SplashViewModel
 
+    @Inject
+    lateinit var navigator: Navigator
+
+    @Inject
+    lateinit var entryProviderBuilders: Set<@JvmSuppressWildcards EntryProviderInstaller>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val lightTransparentStyle = SystemBarStyle.light(
-            scrim = TRANSPARENT,
-            darkScrim = TRANSPARENT
-        )
+
+        val lightTransparentStyle = SystemBarStyle.light(scrim = TRANSPARENT, darkScrim = TRANSPARENT)
 
         installSplashScreen().setKeepOnScreenCondition {
             !splashViewModel.isSplashShow.value
@@ -37,15 +42,22 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = lightTransparentStyle
         )
 
-        setContent {
-            val appState = rememberJarvisDemoAppState()
+        // Register this activity for shake detection
+        // TODO: ActivityJarvisMode.register(this) - check if needed
 
+        setContent {
             DSJarvisTheme {
                 JarvisDemoApp(
-                    appState = appState,
-                    startDestination = TopLevelDestination.Home.destination,
+                    navigator = navigator,
+                    entryProviderBuilders = entryProviderBuilders
                 )
             }
         }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Unregister shake detection
+        // TODO: ActivityJarvisMode.unregister(this) - check if needed
     }
 }

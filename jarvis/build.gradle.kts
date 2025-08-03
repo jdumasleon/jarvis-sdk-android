@@ -25,10 +25,16 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.common)
+    implementation(projects.core.designsystem)
+
+    implementation(projects.features.inspector.lib)
+    
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
 

@@ -1,5 +1,8 @@
 package com.jarvis.core.designsystem.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
@@ -17,15 +20,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.theme.LocalDSContentEmphasis
+import com.jarvis.core.designsystem.theme.Neutral100
 import com.jarvis.core.designsystem.theme.applyEmphasis
 
 @Composable
-public fun DSText(
+fun DSText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    color: Color = Neutral100,
     emphasis: Float = LocalDSContentEmphasis.current.normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
@@ -66,7 +72,7 @@ public fun DSText(
 }
 
 @Composable
-public fun DSText(
+fun DSText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -116,4 +122,24 @@ public fun DSText(
         minLines,
         inlineContent,
     )
+}
+
+@Preview(showBackground = true, name = "DSText")
+@Composable
+private fun DSTextPreview() {
+    DSJarvisTheme {
+        Column(
+            modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xxs)
+        ) {
+            DSText(
+                text = "DSText",
+                modifier = Modifier
+            )
+            DSText(
+                text = AnnotatedString("DSText AnnotatedString"),
+                modifier = Modifier
+            )
+        }
+    }
 }

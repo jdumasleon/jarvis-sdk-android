@@ -1,305 +1,171 @@
 package com.jarvis.core.designsystem.component
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.jarvis.core.designsystem.icons.DSIcons
+import androidx.compose.ui.unit.Dp
+import com.jarvis.core.designsystem.component.DSButtonStyle.*
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.designsystem.theme.Neutral0
+import com.jarvis.core.designsystem.theme.Neutral40
+import com.jarvis.core.designsystem.theme.Neutral80
+import com.jarvis.core.designsystem.theme.Primary100
 
-/**
- * Jarvis filled button with generic content slot. Wraps Material 3 [Button].
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param contentPadding The spacing values to apply internally between the container and the
- * content.
- * @param content The button content.
- */
+enum class DSButtonStyle {
+    PRIMARY, SECONDARY, OUTLINE, TEXT, LINK
+}
+
+enum class DSButtonSize {
+    SMALL, MEDIUM, LARGE;
+
+    val height: Dp
+        @Composable
+        get() = when(this) {
+            SMALL -> DSJarvisTheme.dimensions.xxxl
+            MEDIUM -> DSJarvisTheme.dimensions.xxxxl
+            LARGE -> DSJarvisTheme.dimensions.xxxxxl
+        }
+
+    val cornerRadius: CornerBasedShape
+        @Composable
+        get() = when(this) {
+            SMALL -> DSJarvisTheme.shapes.xs
+            LARGE, MEDIUM -> DSJarvisTheme.shapes.s
+        }
+}
+
 @Composable
 fun DSButton(
-    onClick: () -> Unit,
+    text: String,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit,
+    style: DSButtonStyle = PRIMARY,
+    size: DSButtonSize = DSButtonSize.MEDIUM,
+    textColor: Color? = null,
+    elevation: Dp? = null,
+    disabled: Boolean = false,
+    @DrawableRes leftIcon: Int? = null,
+    @DrawableRes rightIcon: Int? = null,
+    onClick: () -> Unit
 ) {
+    val backgroundColor = when (style) {
+        PRIMARY -> if (disabled) Neutral40 else Primary100
+        SECONDARY -> if (disabled) Neutral40 else Neutral0
+        OUTLINE, TEXT, LINK -> Color.Transparent
+    }
+    val _textColor = textColor ?: when (style) {
+        PRIMARY -> if (disabled) Neutral80 else Neutral0
+        SECONDARY, OUTLINE -> if (disabled) Neutral80 else Primary100
+        TEXT, LINK -> if (disabled) Neutral80 else Primary100
+    }
+
+    val borderColor = if (style == OUTLINE) Neutral80 else Color.Transparent
+    val textDecoration = if (style == LINK) TextDecoration.Underline else TextDecoration.None
+
     Button(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
+        onClick = { if (!disabled) onClick() },
+        modifier = modifier
+            .height(size.height)
+            .shadow(elevation = elevation ?: DSJarvisTheme.elevations.none, shape = size.cornerRadius)
+            .background(backgroundColor, size.cornerRadius)
+            .border(DSJarvisTheme.dimensions.xxs, borderColor, size.cornerRadius),
+        enabled = !disabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = DSJarvisTheme.colors.primary.primary100,
+            containerColor = backgroundColor,
+            contentColor = _textColor,
+            disabledContainerColor = backgroundColor,
+            disabledContentColor = _textColor
         ),
-        contentPadding = contentPadding,
-        content = content,
-    )
-}
-
-/**
- * Jarvis filled button with text and icon content slots.
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param text The button text label content.
- * @param leadingIcon The button leading icon content. Pass `null` here for no leading icon.
- */
-@Composable
-fun DSButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: @Composable () -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-) {
-    DSButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        contentPadding = if (leadingIcon != null) {
-            ButtonDefaults.ButtonWithIconContentPadding
-        } else {
-            ButtonDefaults.ContentPadding
-        },
+        shape = size.cornerRadius
     ) {
-        DSButtonContent(
-            text = text,
-            leadingIcon = leadingIcon,
-        )
-    }
-}
-
-/**
- * Jarvis outlined button with generic content slot. Wraps Material 3 [OutlinedButton].
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param contentPadding The spacing values to apply internally between the container and the
- * content.
- * @param content The button content.
- */
-@Composable
-fun DSOutlinedButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit,
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = DSJarvisTheme.colors.primary.primary100,
-        ),
-        border = BorderStroke(
-            width = NiaButtonDefaults.OutlinedButtonBorderWidth,
-            color = if (enabled) {
-                DSJarvisTheme.colors.neutral.neutral100
-            } else {
-                DSJarvisTheme.colors.primary.primary100.copy(
-                    alpha = NiaButtonDefaults.DISABLED_OUTLINED_BUTTON_BORDER_ALPHA,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            leftIcon?.let {
+                DSIcon(
+                    imageVector = ImageVector.vectorResource(id = it),
+                    contentDescription = "DSButton left icon",
+                    tint = _textColor
                 )
-            },
-        ),
-        contentPadding = contentPadding,
-        content = content,
-    )
-}
-
-/**
- * Jarvis outlined button with text and icon content slots.
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param text The button text label content.
- * @param leadingIcon The button leading icon content. Pass `null` here for no leading icon.
- */
-@Composable
-fun DSOutlinedButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: @Composable () -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-) {
-    DSOutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        contentPadding = if (leadingIcon != null) {
-            ButtonDefaults.ButtonWithIconContentPadding
-        } else {
-            ButtonDefaults.ContentPadding
-        },
-    ) {
-        DSButtonContent(
-            text = text,
-            leadingIcon = leadingIcon,
-        )
-    }
-}
-
-/**
- * Jarvis text button with generic content slot. Wraps Material 3 [TextButton].
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param content The button content.
- */
-@Composable
-fun DSTextButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    content: @Composable RowScope.() -> Unit,
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        colors = ButtonDefaults.textButtonColors(
-            contentColor = DSJarvisTheme.colors.primary.primary100,
-        ),
-        content = content,
-    )
-}
-
-/**
- * Jarvis text button with text and icon content slots.
- *
- * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- * clickable and will appear disabled to accessibility services.
- * @param text The button text label content.
- * @param leadingIcon The button leading icon content. Pass `null` here for no leading icon.
- */
-@Composable
-fun DSTextButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: @Composable () -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-) {
-    DSTextButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-    ) {
-        DSButtonContent(
-            text = text,
-            leadingIcon = leadingIcon,
-        )
-    }
-}
-
-/**
- * Internal Jarvis button content layout for arranging the text label and leading icon.
- *
- * @param text The button text label content.
- * @param leadingIcon The button leading icon content. Default is `null` for no leading icon.Ï
- */
-@Composable
-private fun DSButtonContent(
-    text: @Composable () -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-) {
-    if (leadingIcon != null) {
-        Box(Modifier.sizeIn(maxHeight = ButtonDefaults.IconSize)) {
-            leadingIcon()
+            }
+            Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
+            DSText(
+                text = text,
+                color = _textColor,
+                style = DSJarvisTheme.typography.body.medium,
+                textDecoration = textDecoration,
+            )
+            Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
+            rightIcon?.let {
+                DSIcon(
+                    imageVector = ImageVector.vectorResource(id = it),
+                    contentDescription = "DSButton right icon",
+                    tint = _textColor
+                )
+            }
         }
     }
-    Box(
-        Modifier
-            .padding(
-                start = if (leadingIcon != null) {
-                    ButtonDefaults.IconSpacing
-                } else {
-                    0.dp
-                },
-            ),
-    ) {
-        text()
-    }
 }
 
-@Preview
+@Preview(showBackground = true, name = "All DSButton styles")
 @Composable
 fun DSButtonPreview() {
     DSJarvisTheme {
-        DSBackground(modifier = Modifier.size(150.dp, 50.dp)) {
-            DSButton(onClick = {}, text = { Text("Test button") })
-        }
-    }
-}
-
-@Preview
-@Composable
-fun DSOutlinedButtonPreview() {
-    DSJarvisTheme {
-        DSBackground(modifier = Modifier.size(150.dp, 50.dp)) {
-            DSOutlinedButton(onClick = {}, text = { Text("Test button") })
-        }
-    }
-}
-
-@Preview
-@Composable
-fun DSButtonLeadingIconPreview() {
-    DSJarvisTheme {
-        DSBackground(modifier = Modifier.size(150.dp, 50.dp)) {
+        Column(
+            modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
+            Text("Primary Buttons", fontWeight = FontWeight.Bold)
             DSButton(
-                onClick = {},
-                text = { Text("Test button") },
-                leadingIcon = { Icon(imageVector = DSIcons.Add, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                elevation = DSJarvisTheme.elevations.level2,
+                text = "Primary",
+                style = PRIMARY,
+                onClick = {}
             )
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = PRIMARY, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+
+            Text("Secondary Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = "Secondary", style = SECONDARY, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = SECONDARY, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+
+            Text("Outline Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Outline", style = OUTLINE, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = OUTLINE, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+
+            Text("Text Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Text", style = TEXT, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = TEXT, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+
+            Text("Link Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Link", style = LINK, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = LINK, disabled = true, onClick = {})
         }
     }
-}
-
-@Preview
-@Composable
-fun DSTextButtonPreview() {
-    DSJarvisTheme {
-        DSBackground(modifier = Modifier.size(150.dp, 50.dp)) {
-            DSTextButton(
-                onClick = {},
-                text = { Text("Test button") }
-            )
-        }
-    }
-}
-
-/**
- * Jarvis button default values.
- */
-object NiaButtonDefaults {
-    const val DISABLED_OUTLINED_BUTTON_BORDER_ALPHA = 0.12f
-    val OutlinedButtonBorderWidth = 1.dp
 }

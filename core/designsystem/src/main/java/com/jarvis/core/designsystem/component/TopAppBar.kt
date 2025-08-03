@@ -2,8 +2,6 @@
 
 package com.jarvis.core.designsystem.component
 
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import androidx.annotation.StringRes
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,25 +16,32 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.jarvis.core.designsystem.R
+import com.jarvis.core.designsystem.icons.DSIcons
+import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DSTopAppBar(
-    @StringRes titleRes: Int,
     modifier: Modifier = Modifier,
+    @StringRes titleRes: Int? = null,
     navigationIcon: ImageVector? = null,
     navigationIconContentDescription: String? = null,
     actionIcon: ImageVector? = null,
     actionIconContentDescription: String? = null,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
-    onNavigationClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(id = titleRes)) },
+        title = {
+            titleRes?.let {
+                Text(text = stringResource(id = it))
+            }
+        },
         navigationIcon = {
             navigationIcon?.let {
-                IconButton(onClick = onNavigationClick) {
+                IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = it,
                         contentDescription = navigationIconContentDescription,
@@ -56,7 +61,12 @@ fun DSTopAppBar(
                 }
             }
         },
-        colors = colors,
+        colors = colors.copy(
+            containerColor = DSJarvisTheme.colors.neutral.neutral0,
+            navigationIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
+            actionIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
+            titleContentColor = DSJarvisTheme.colors.neutral.neutral100,
+        ),
         modifier = modifier.testTag("niaTopAppBar"),
     )
 }
@@ -67,10 +77,10 @@ fun DSTopAppBar(
 private fun DSTopAppBarPreview() {
     DSJarvisTheme {
         DSTopAppBar(
-            titleRes = android.R.string.untitled,
-            navigationIcon = DSIcons.Search,
+            titleRes = R.string.core_design_system_top_app_bar_title,
+            navigationIcon = DSIcons.Rounded.search,
             navigationIconContentDescription = "Navigation icon",
-            actionIcon = DSIcons.MoreVert,
+            actionIcon = DSIcons.moreVert,
             actionIconContentDescription = "Action icon",
         )
     }
@@ -81,6 +91,15 @@ private fun DSTopAppBarPreview() {
 @Composable
 private fun DSTopAppBarPreviewWithoutIcons() {
     DSJarvisTheme {
-        DSTopAppBar(titleRes = android.R.string.untitled)
+        DSTopAppBar(titleRes = R.string.core_design_system_top_app_bar_title)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview("Top App Bar without icons")
+@Composable
+private fun DSTopAppBarPreviewDefault() {
+    DSJarvisTheme {
+        DSTopAppBar()
     }
 }

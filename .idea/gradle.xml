@@ -30,9 +30,13 @@
             <option value="$PROJECT_DIR$/core/data" />
             <option value="$PROJECT_DIR$/core/designsystem" />
             <option value="$PROJECT_DIR$/core/domain" />
-            <option value="$PROJECT_DIR$/core/navigation" />
+            <option value="$PROJECT_DIR$/core/presentation" />
             <option value="$PROJECT_DIR$/features" />
             <option value="$PROJECT_DIR$/features/inspector" />
+            <option value="$PROJECT_DIR$/features/inspector/data" />
+            <option value="$PROJECT_DIR$/features/inspector/domain" />
+            <option value="$PROJECT_DIR$/features/inspector/lib" />
+            <option value="$PROJECT_DIR$/features/inspector/presentation" />
             <option value="$PROJECT_DIR$/jarvis" />
           </set>
         </option>

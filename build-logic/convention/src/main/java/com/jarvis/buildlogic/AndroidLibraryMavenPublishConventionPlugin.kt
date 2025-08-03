@@ -29,13 +29,13 @@ class AndroidLibraryMavenPublishConventionPlugin : Plugin<Project> {
                         groupId = "com.jarvis"
                         artifactId = "jarvis-mode-debug"
                         version = libs.findVersion("jarvisVersion").get().toString()
-                        artifact("${project.buildDir}/outputs/aar/jarvis-mode-debug.aar")
+                        artifact("${project.layout.buildDirectory}/outputs/aar/jarvis-mode-debug.aar")
                     }
                     create<MavenPublication>("release") {
                         groupId = "com.jarvis"
                         artifactId = "jarvis-mode-release"
                         version = libs.findVersion("jarvisVersion").get().toString()
-                        artifact("${project.buildDir}/outputs/aar/jarvis-mode-release.aar")
+                        artifact("${project.layout.buildDirectory}/outputs/aar/jarvis-mode-release.aar")
                     }
                 }
 

@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".presentation.JarvisDemoApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -14,8 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Jarvis.Splash"
         tools:targetApi="34">
+        <profileable android:shell="true" tools:targetApi="q" />
         <activity
             android:name=".presentation.MainActivity"
+            android:configChanges="uiMode"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

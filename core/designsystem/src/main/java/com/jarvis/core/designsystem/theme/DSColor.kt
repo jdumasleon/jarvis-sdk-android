@@ -1,5 +1,6 @@
 package com.jarvis.core.designsystem.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
@@ -34,9 +35,9 @@ val Warning60 = Color(0xFFF0D0BD)
 val Warning40 = Color(0xFFF4E0BD)
 val Warning20 = Color(0xFFF4F4DE)
 
-val Error100 = Color(0xFFEB5C5C)
-val Error80 = Color(0xFFE57D7D)
-val Error60 = Color(0xFFF18D8D)
+val Error100 = Color(0xFFE84141)
+val Error80 = Color(0xFFE05353)
+val Error60 = Color(0xFFEF7979)
 val Error40 = Color(0xFFF3BEBE)
 val Error20 = Color(0xFFF9EDE9)
 
@@ -46,6 +47,7 @@ val Info60 = Color(0xFF70B8D7)
 val Info40 = Color(0xFFA5CCE2)
 val Info20 = Color(0xFFDEF2F4)
 
+@Immutable
 data class DSColors(
     val primary: Primary = Primary(),
     val secondary: Secondary = Secondary(),
@@ -56,6 +58,7 @@ data class DSColors(
     val info: Info = Info()
 )
 
+@Immutable
 data class Primary(
     val primary100: Color = Primary100,
     val primary80: Color = Primary80,
@@ -64,6 +67,7 @@ data class Primary(
     val primary20: Color = Primary20
 )
 
+@Immutable
 data class Secondary(
     val secondary100: Color = Secondary100,
     val secondary80: Color = Secondary80,
@@ -72,6 +76,7 @@ data class Secondary(
     val secondary20: Color = Secondary20
 )
 
+@Immutable
 data class Neutral(
     val neutral100: Color = Neutral100,
     val neutral80: Color = Neutral80,
@@ -81,6 +86,7 @@ data class Neutral(
     val neutral0: Color = Neutral0
 )
 
+@Immutable
 data class Success(
     val success100: Color = Success100,
     val success80: Color = Success80,
@@ -89,6 +95,7 @@ data class Success(
     val success20: Color = Success20
 )
 
+@Immutable
 data class Warning(
     val warning100: Color = Warning100,
     val warning80: Color = Warning80,
@@ -97,6 +104,7 @@ data class Warning(
     val warning20: Color = Warning20
 )
 
+@Immutable
 data class Error(
     val error100: Color = Error100,
     val error80: Color = Error80,
@@ -105,6 +113,7 @@ data class Error(
     val error20: Color = Error20
 )
 
+@Immutable
 data class Info(
     val info100: Color = Info100,
     val info80: Color = Info80,

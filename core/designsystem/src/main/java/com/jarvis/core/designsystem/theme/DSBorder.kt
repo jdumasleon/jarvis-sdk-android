@@ -1,5 +1,6 @@
 package com.jarvis.core.designsystem.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -13,6 +14,7 @@ val RadiusL = 24.dp
 val RadiusXL = 32.dp
 val RadiusPill = 100.dp
 
+@Immutable
 data class DSBorder(
     val thickness: DSBorderThickness = DSBorderThickness(),
     val radius: DSRadius = DSRadius()

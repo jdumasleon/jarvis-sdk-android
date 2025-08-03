@@ -7,50 +7,75 @@ import androidx.compose.runtime.CompositionLocalProvider
 fun DSJarvisTheme(
     content: @Composable () -> Unit
 ) {
+    val dsBackgroundTheme = DSBackgroundTheme(
+        color = DSJarvisTheme.colors.primary.primary100,
+        tonalElevation = DSJarvisTheme.elevations.level1
+    )
+
     CompositionLocalProvider(
-        LocalDSColors provides DSColors(),
-        LocalDSTypography provides DSTypography(),
-        LocalDSSpacing provides DSSpacing(),
+        LocalDSBackgroundTheme provides dsBackgroundTheme,
         LocalDSBorder provides DSBorder(),
-        LocalDSGradientColors provides DSGradientColors(),
-        LocalDSBackgroundTheme provides DSBackgroundTheme(),
-        LocalDSTintTheme provides DSTintTheme(),
+        LocalDSColors provides DSColors(),
         LocalDSContentEmphasis provides DSContentEmphasis(),
+        LocalDSDimensions provides DSDimensions(),
+        LocalDSElevations provides DSElevations(),
+        LocalDSGradientColors provides DSGradientColors(),
+        LocalDSShapes provides DSShape(),
+        LocalDSSpacing provides DSSpacing(),
+        LocalDSTint provides DSTint(),
+        LocalDSTypography provides DSTypography(),
+        LocalDSMotionScheme provides DSMotionScheme(),
         content = content
     )
 }
 
 object DSJarvisTheme {
 
-    val colors: DSColors
+    val background: DSBackgroundTheme
         @Composable
-        get() = LocalDSColors.current
-
-    val typography: DSTypography
-        @Composable
-        get() = LocalDSTypography.current
-
-    val spacing: DSSpacing
-        @Composable
-        get() = LocalDSSpacing.current
+        get() = LocalDSBackgroundTheme.current
 
     val border: DSBorder
         @Composable
         get() = LocalDSBorder.current
 
-    val gradient: DSGradientColors
+    val colors: DSColors
         @Composable
-        get() = LocalDSGradientColors.current
-
-    val background: DSBackgroundTheme
-        @Composable
-        get() = LocalDSBackgroundTheme.current
-
-    val tint: DSTintTheme
-        @Composable
-        get() = LocalDSTintTheme.current
+        get() = LocalDSColors.current
 
     val contentEmphasis: DSContentEmphasis
         @Composable
         get() = LocalDSContentEmphasis.current
+
+    val dimensions: DSDimensions
+        @Composable
+        get() = LocalDSDimensions.current
+
+    val elevations: DSElevations
+        @Composable
+        get() = LocalDSElevations.current
+
+    val gradient: DSGradientColors
+        @Composable
+        get() = LocalDSGradientColors.current
+
+    val shapes: DSShape
+        @Composable
+        get() = LocalDSShapes.current
+
+    val spacing: DSSpacing
+        @Composable
+        get() = LocalDSSpacing.current
+
+    val tint: DSTint
+        @Composable
+        get() = LocalDSTint.current
+
+    val typography: DSTypography
+        @Composable
+        get() = LocalDSTypography.current
+
+    val motionScheme: DSMotionScheme
+        @Composable
+        get() = LocalDSMotionScheme.current
 }

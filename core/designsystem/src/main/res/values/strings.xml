@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_design_system_top_app_bar_title">Interview</string>
+    <string name="core_design_system_error_incorrect_password">La contraseña es incorrecta</string>
+    <string name="core_design_system_search_placeholder">Buscar</string>
+</resources>

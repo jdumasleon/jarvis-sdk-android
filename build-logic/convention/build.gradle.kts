@@ -41,19 +41,19 @@ tasks {
 gradlePlugin {
     plugins {
         register("androidApplicationCompose") {
-            id = "jarvis.android.application.compose"
+            id = libs.plugins.jarvis.android.application.compose.get().pluginId
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
         register("androidApplication") {
-            id = "jarvis.android.application"
+            id = libs.plugins.jarvis.android.application.asProvider().get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("androidApplicationJacoco") {
-            id = "jarvis.android.application.jacoco"
+            id = libs.plugins.jarvis.android.application.jacoco.get().pluginId
             implementationClass = "AndroidApplicationJacocoConventionPlugin"
         }
         register("androidLibraryCompose") {
-            id = "jarvis.android.library.compose"
+            id = libs.plugins.jarvis.android.library.compose.get().pluginId
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
         register("androidLibrary") {
@@ -61,41 +61,40 @@ gradlePlugin {
             implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("androidFeature") {
-            id = "jarvis.android.feature"
+            id = libs.plugins.jarvis.android.feature.get().pluginId
             implementationClass = "AndroidFeatureConventionPlugin"
         }
         register("androidLibraryJacoco") {
-            id = "jarvis.android.library.jacoco"
+            id = libs.plugins.jarvis.android.library.jacoco.get().pluginId
             implementationClass = "AndroidLibraryJacocoConventionPlugin"
         }
         register("androidLibraryMavenPublish") {
-            id = "jarvis.android.library.maven.publish"
+            id = libs.plugins.jarvis.android.library.maven.publish.get().pluginId
             implementationClass = "AndroidLibraryMavenPublishConventionPlugin"
         }
         register("androidTest") {
-            id = "jarvis.android.test"
+            id = libs.plugins.jarvis.android.test.get().pluginId
             implementationClass = "AndroidTestConventionPlugin"
         }
         register("hilt") {
-            id = "jarvis.hilt"
+            id = libs.plugins.jarvis.hilt.get().pluginId
             implementationClass = "HiltConventionPlugin"
         }
         register("androidRoom") {
-            id = "jarvis.android.room"
+            id = libs.plugins.jarvis.android.room.get().pluginId
             implementationClass = "AndroidRoomConventionPlugin"
         }
         register("androidFirebase") {
-            id = "jarvis.android.application.firebase"
+            id = libs.plugins.jarvis.android.application.firebase.get().pluginId
             implementationClass = "AndroidApplicationFirebaseConventionPlugin"
         }
         register("androidFlavors") {
-            id = "jarvis.android.application.flavors"
+            id = libs.plugins.jarvis.android.application.flavors.get().pluginId
             implementationClass = "AndroidApplicationFlavorsConventionPlugin"
         }
         register("jvmLibrary") {
-            id = "jarvis.jvm.library"
+            id = libs.plugins.jarvis.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
         }
     }
-
 }

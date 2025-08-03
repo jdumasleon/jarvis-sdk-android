@@ -1,5 +1,6 @@
 package com.jarvis.core.designsystem.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -8,6 +9,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.jarvis.core.designsystem.R
 
+@Immutable
 class DSTypography(
     val heading: Heading = Heading(),
     val body: Body = Body(),
@@ -23,11 +25,11 @@ class DSTypography(
     )
 
     data class Body(
-        val extraLargeTextMedium: TextStyle = getTextStyle(R.font.sf_mono_medium, 18.sp, 26.sp),  // Medium, 145% line height
-        val largeTextMedium: TextStyle = getTextStyle(R.font.sf_mono_medium, 16.sp, 22.sp),       // Medium, 140% line height
-        val mediumTextMedium: TextStyle = getTextStyle(R.font.sf_mono_medium, 14.sp, 20.sp),      // Medium, 145% line height
-        val smallTextMedium: TextStyle = getTextStyle(R.font.sf_mono_medium, 12.sp, 18.sp),       // Medium, 150% line height
-        val extraSmallTextMedium: TextStyle = getTextStyle(R.font.sf_mono_medium, 10.sp, 16.sp)   // Medium, 160% line height
+        val extraLarge: TextStyle = getTextStyle(R.font.sf_mono_medium, 18.sp, 26.sp),  // Medium, 145% line height
+        val large: TextStyle = getTextStyle(R.font.sf_mono_medium, 16.sp, 22.sp),       // Medium, 140% line height
+        val medium: TextStyle = getTextStyle(R.font.sf_mono_medium, 14.sp, 20.sp),      // Medium, 145% line height
+        val small: TextStyle = getTextStyle(R.font.sf_mono_medium, 12.sp, 18.sp),       // Medium, 150% line height
+        val extraSmall: TextStyle = getTextStyle(R.font.sf_mono_medium, 10.sp, 16.sp)   // Medium, 160% line height
     )
 
     data class Display(

@@ -1,5 +1,6 @@
 package com.jarvis.core.designsystem.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -15,6 +16,7 @@ val SpacingXXXL = 48.dp
 val SpacingXXXXL = 56.dp
 val SpacingXXXXXL = 64.dp
 
+@Immutable
 data class DSSpacing(
     val xxs: Dp = SpacingXXS,
     val xs: Dp = SpacingXS,

@@ -23,13 +23,6 @@ import com.jarvis.core.designsystem.theme.LocalDSBackgroundTheme
 import com.jarvis.core.designsystem.theme.LocalDSGradientColors
 import kotlin.math.tan
 
-/**
- * The main background for the app.
- * Uses [LocalDSBackgroundTheme] to set the color and tonal elevation of a [Surface].
- *
- * @param modifier Modifier to be applied to the background.
- * @param content The background content.
- */
 @Composable
 fun DSBackground(
     modifier: Modifier = Modifier,
@@ -48,14 +41,6 @@ fun DSBackground(
     }
 }
 
-/**
- * A gradient background for select screens. Uses [LocalDSBackgroundTheme] to set the gradient colors
- * of a [Box] within a [Surface].
- *
- * @param modifier Modifier to be applied to the background.
- * @param gradientColors The gradient colors to be rendered.
- * @param content The background content.
- */
 @Composable
 fun DSGradientBackground(
     modifier: Modifier = Modifier,
@@ -122,7 +107,7 @@ fun DSGradientBackground(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun BackgroundDefault() {
     DSJarvisTheme {
@@ -130,7 +115,7 @@ fun BackgroundDefault() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun GradientBackgroundDefault() {
     DSJarvisTheme {

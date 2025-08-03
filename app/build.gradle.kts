@@ -1,3 +1,4 @@
+import com.jarvis.buildlogic.extensions.JarvisBuildType
 
 plugins {
     alias(libs.plugins.jarvis.android.application)
@@ -26,11 +27,11 @@ android {
 
     buildTypes {
         debug {
-            //applicationIdSuffix = JarvisBuildType.DEBUG.applicationIdSuffix
+            applicationIdSuffix = JarvisBuildType.DEBUG.applicationIdSuffix
         }
         release {
             isMinifyEnabled = true
-            //applicationIdSuffix = JarvisBuildType.RELEASE.applicationIdSuffix
+            applicationIdSuffix = JarvisBuildType.RELEASE.applicationIdSuffix
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
             // To publish on the Play store a private signing key is required, but to allow anyone
@@ -38,7 +39,7 @@ android {
             // TODO: Abstract the signing configuration to a separate file to avoid hardcoding this.
             signingConfig = signingConfigs.named("debug").get()
             // Ensure Baseline Profile is fresh for release builds.
-            //baselineProfile.automaticGenerationDuringBuild = true
+            baselineProfile.automaticGenerationDuringBuild = true
         }
     }
 
@@ -57,9 +58,12 @@ android {
 
 dependencies {
     api(projects.core.common)
-    api(projects.core.navigation)
     api(projects.core.designsystem)
+    api(projects.core.presentation)
+    api(projects.jarvis)
+    api(projects.features.inspector.lib)
 
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)
@@ -76,6 +80,13 @@ dependencies {
     implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.window.core)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation3.ui.android)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3.android)
+    
+    // Network dependencies for demo API calls
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofitConverterGson)
+    implementation(libs.okhttp.logging.interceptor)
 
     ksp(libs.hilt.compiler)
 
@@ -85,8 +96,8 @@ dependencies {
 
     testImplementation(libs.hilt.android.testing)
 
-    testDemoImplementation(libs.robolectric)
-    testDemoImplementation(libs.roborazzi)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(libs.androidx.test.espresso.core)
@@ -99,4 +110,11 @@ baselineProfile {
     // Don't build on every iteration of a full assemble.
     // Instead enable generation directly for the release build variant.
     automaticGenerationDuringBuild = false
+
+    // Make use of Dex Layout Optimizations via Startup Profiles
+    dexLayoutOptimization = true
+}
+
+dependencyGuard {
+    configuration("prodReleaseRuntimeClasspath")
 }

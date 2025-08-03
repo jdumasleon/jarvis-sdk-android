@@ -1,16 +1,17 @@
 package com.jarvis.demo.presentation.home
 
-import com.jarvis.core.navigation.Destination
+import com.jarvis.core.presentation.navigation.NavigationRoute
+import com.jarvis.demo.R
 import kotlinx.serialization.Serializable
 
-internal sealed interface HomeDestinationsGraph : Destination {
+/**
+ * Home feature destinations following android-clean-config.yml patterns.
+ * Simple destination (no parameters) for the Home screen.
+ */
+object HomeDestinations {
     @Serializable
-    data object Home : HomeDestinationsGraph {
-        override val titleTextId: Int
-            get() = TODO("Not yet implemented")
-        override val route: String
-            get() = TODO("Not yet implemented")
-        override val destination: Destination
-            get() = TODO("Not yet implemented")
+    data object Home : NavigationRoute {
+        override val titleTextId: Int = R.string.home
+        override val shouldShowTopAppBar: Boolean = true
     }
 }
