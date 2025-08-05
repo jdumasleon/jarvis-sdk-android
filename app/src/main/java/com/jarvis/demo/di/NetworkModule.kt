@@ -2,10 +2,12 @@ package com.jarvis.demo.di
 
 import com.jarvis.demo.data.api.FakeStoreApiService
 import com.jarvis.demo.data.api.RestfulApiService
+import com.jarvis.features.inspector.lib.api.JarvisNetworkInspector
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -27,10 +29,19 @@ object NetworkModule {
     
     @Provides
     @Singleton
+    @Named("jarvis")
+    fun provideJarvisNetworkInterceptor(jarvisNetworkInspector: JarvisNetworkInspector): Interceptor {
+        return jarvisNetworkInspector.createInterceptor()
+    }
+    
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        @Named("jarvis") jarvisNetworkInterceptor: Interceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(jarvisNetworkInterceptor) // Add Jarvis inspector first
             .addInterceptor(loggingInterceptor)
             .build()
     }

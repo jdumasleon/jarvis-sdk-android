@@ -1,0 +1,12 @@
+package com.jarvis.features.preferences.domain.usecase
+
+import com.jarvis.features.preferences.domain.repository.PreferencesRepository
+import javax.inject.Inject
+
+class ClearAllPreferencesUseCase @Inject constructor(
+    private val repository: PreferencesRepository
+) {
+    suspend operator fun invoke() {
+        repository.clearAllPreferences()
+    }
+}

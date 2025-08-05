@@ -62,6 +62,7 @@ dependencies {
     api(projects.core.presentation)
     api(projects.jarvis)
     api(projects.features.inspector.lib)
+    api(projects.features.preferences.lib)
 
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.compose)
@@ -72,7 +73,6 @@ dependencies {
     implementation(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.compose.runtime.tracing)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.navigation.compose)
@@ -82,6 +82,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3.android)
+    implementation(libs.androidx.dataStore)
+    implementation(libs.androidx.dataStore.preferences)
+    implementation(libs.androidx.dataStore.preferences.core)
     
     // Network dependencies for demo API calls
     implementation(libs.squareup.retrofit)

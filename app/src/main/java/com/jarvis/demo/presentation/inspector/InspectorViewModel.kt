@@ -2,6 +2,7 @@ package com.jarvis.demo.presentation.inspector
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.data.repository.ApiCallResult
 import com.jarvis.demo.data.repository.DemoApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,28 +20,55 @@ class InspectorViewModel @Inject constructor(
     private val demoApiRepository: DemoApiRepository
 ) : ViewModel() {
     
-    private val _uiState = MutableStateFlow(InspectorUiState())
+    private val _uiState = MutableStateFlow<InspectorUiState>(ResourceState.Idle)
     val uiState: StateFlow<InspectorUiState> = _uiState.asStateFlow()
     
-    private val _apiCalls = MutableStateFlow<List<ApiCallResult>>(emptyList())
-    val apiCalls: StateFlow<List<ApiCallResult>> = _apiCalls.asStateFlow()
-    
     init {
-        performInitialApiCalls()
+        onEvent(InspectorEvent.PerformInitialApiCalls)
     }
     
-    fun performInitialApiCalls() {
+    fun onEvent(event: InspectorEvent) {
+        when (event) {
+            is InspectorEvent.PerformInitialApiCalls -> performInitialApiCalls()
+            is InspectorEvent.AddRandomApiCall -> addRandomApiCall()
+            is InspectorEvent.ClearApiCalls -> clearApiCalls()
+            is InspectorEvent.RefreshCalls -> refreshCalls()
+            is InspectorEvent.CallSelected -> selectCall(event.call)
+            is InspectorEvent.ShowClearConfirmation -> showClearConfirmation(event.show)
+            is InspectorEvent.ClearError -> clearError()
+        }
+    }
+    
+    private fun performInitialApiCalls() {
+        _uiState.update { ResourceState.Loading }
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            
             try {
+                // Start with empty data but show we're performing calls
+                val initialData = InspectorUiData(
+                    apiCalls = emptyList(),
+                    isPerformingCalls = true
+                )
+                _uiState.update { ResourceState.Success(initialData) }
+                
                 // Perform 10-20 random API calls concurrently
                 val numberOfCalls = (10..20).random()
+                val completedCalls = mutableListOf<ApiCallResult>()
+                
                 val apiCallJobs = (1..numberOfCalls).map {
                     async { 
                         val result = demoApiRepository.performRandomApiCall()
                         // Add to the list as each call completes
-                        _apiCalls.value = _apiCalls.value + result
+                        synchronized(completedCalls) {
+                            completedCalls.add(result)
+                            val currentData = _uiState.value.getDataOrNull() ?: initialData
+                            val updatedData = currentData.copy(
+                                apiCalls = completedCalls.sortedByDescending { it.startTime },
+                                totalCallsPerformed = completedCalls.size,
+                                successfulCalls = completedCalls.count { it.isSuccess },
+                                failedCalls = completedCalls.count { !it.isSuccess }
+                            )
+                            _uiState.update { ResourceState.Success(updatedData) }
+                        }
                         result
                     }
                 }
@@ -47,42 +76,78 @@ class InspectorViewModel @Inject constructor(
                 // Wait for all calls to complete
                 apiCallJobs.awaitAll()
                 
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = null
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = e.message ?: "Unknown error occurred"
-                )
+                // Final update to mark we're done performing calls
+                val finalData = _uiState.value.getDataOrNull()?.copy(
+                    isPerformingCalls = false
+                ) ?: initialData.copy(isPerformingCalls = false)
+                
+                _uiState.update { ResourceState.Success(finalData) }
+                
+            } catch (exception: Exception) {
+                _uiState.update { 
+                    ResourceState.Error(exception, "Failed to perform API calls")
+                }
             }
         }
     }
     
-    fun addRandomApiCall() {
+    private fun addRandomApiCall() {
         viewModelScope.launch {
             try {
+                val currentData = _uiState.value.getDataOrNull() ?: return@launch
+                
                 val result = demoApiRepository.performRandomApiCall()
-                _apiCalls.value = _apiCalls.value + result
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = e.message ?: "Failed to perform API call"
+                val updatedCalls = listOf(result) + currentData.apiCalls
+                val updatedData = currentData.copy(
+                    apiCalls = updatedCalls,
+                    totalCallsPerformed = updatedCalls.size,
+                    successfulCalls = updatedCalls.count { it.isSuccess },
+                    failedCalls = updatedCalls.count { !it.isSuccess }
                 )
+                
+                _uiState.update { ResourceState.Success(updatedData) }
+                
+            } catch (exception: Exception) {
+                _uiState.update { 
+                    ResourceState.Error(exception, "Failed to perform API call")
+                }
             }
         }
     }
     
-    fun clearApiCalls() {
-        _apiCalls.value = emptyList()
+    private fun clearApiCalls() {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        val clearedData = currentData.copy(
+            apiCalls = emptyList(),
+            totalCallsPerformed = 0,
+            successfulCalls = 0,
+            failedCalls = 0
+        )
+        _uiState.update { ResourceState.Success(clearedData) }
     }
     
-    fun dismissError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
+    private fun refreshCalls() {
+        onEvent(InspectorEvent.PerformInitialApiCalls)
+    }
+    
+    private fun selectCall(call: ApiCallResult) {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        val updatedData = currentData.copy(selectedCall = call)
+        _uiState.update { ResourceState.Success(updatedData) }
+    }
+    
+    private fun showClearConfirmation(show: Boolean) {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        val updatedData = currentData.copy(showClearConfirmation = show)
+        _uiState.update { ResourceState.Success(updatedData) }
+    }
+    
+    private fun clearError() {
+        val currentData = _uiState.value.getDataOrNull()
+        if (currentData != null) {
+            _uiState.update { ResourceState.Success(currentData) }
+        } else {
+            onEvent(InspectorEvent.PerformInitialApiCalls)
+        }
     }
 }
-
-data class InspectorUiState(
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null
-)

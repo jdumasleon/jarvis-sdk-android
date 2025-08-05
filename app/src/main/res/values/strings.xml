@@ -6,9 +6,11 @@
     <string name="home">Home</string>
     <string name="inspector">Inspector</string>
     <string name="preferences">Preferences</string>
+    <string name="sdk_preferences">SDK Preferences</string>
     
     <!-- Actions -->
     <string name="add_random_request">Add Random Request</string>
+    <string name="refresh_home">Refresh Home</string>
     
     <!-- Welcome messages -->
     <string name="welcome_message">Welcome to Jarvis Demo</string>

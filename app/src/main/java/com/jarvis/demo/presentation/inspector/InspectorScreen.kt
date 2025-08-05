@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.demo.R
 import com.jarvis.demo.data.repository.ApiCallResult
 
@@ -40,7 +42,16 @@ fun InspectorScreen(
     viewModel: InspectorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val apiCalls by viewModel.apiCalls.collectAsState()
+    
+    // Register the action callback when the screen is composed
+    DisposableEffect(viewModel) {
+        ActionRegistry.registerAction(InspectorDestinations.Inspector.actionKey) {
+            viewModel.onEvent(InspectorEvent.AddRandomApiCall)
+        }
+        onDispose {
+            ActionRegistry.unregisterAction(InspectorDestinations.Inspector.actionKey)
+        }
+    }
     
     Column(
         modifier = modifier
@@ -62,8 +73,11 @@ fun InspectorScreen(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                items(apiCalls) { apiCall ->
-                    ApiCallItem(apiCall = apiCall)
+
+                uiState.getDataOrNull()?.apiCalls?.let {
+                    items(it) { apiCall ->
+                        ApiCallItem(apiCall = apiCall)
+                    }
                 }
             }
         }

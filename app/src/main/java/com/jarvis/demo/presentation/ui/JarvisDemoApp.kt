@@ -1,13 +1,17 @@
 package com.jarvis.demo.presentation.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
@@ -23,20 +27,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import com.jarvis.core.designsystem.component.DSBackground
+import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.core.presentation.navigation.Navigator
 import com.jarvis.core.designsystem.component.DSDrawer
 import com.jarvis.core.designsystem.component.DSDrawerValue
-import com.jarvis.core.designsystem.component.DSGradientBackground
+import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSTopAppBar
 import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.rememberCardDrawerState
+import com.jarvis.core.designsystem.component.rememberDSDrawerState
 import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.designsystem.theme.DSGradientColors
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.designsystem.theme.LocalDSGradientColors
 import com.jarvis.core.presentation.navigation.EntryProviderInstaller
 import com.jarvis.core.presentation.navigation.NavigationRoute
 import com.jarvis.demo.R
@@ -45,6 +50,7 @@ import com.jarvis.demo.presentation.inspector.InspectorDestinations
 import com.jarvis.demo.presentation.navigation.JarvisDemoNavDisplay
 import com.jarvis.demo.presentation.navigation.TopLevelDestination
 import com.jarvis.demo.presentation.preferences.PreferencesDestinations
+import com.jarvis.features.preferences.lib.navigation.PreferencesInspectorRoute
 import kotlinx.coroutines.launch
 
 //region .: Jarvis Demo App :.
@@ -76,15 +82,18 @@ internal fun JarvisDemoApp(
     entryProviderBuilders: Set<@JvmSuppressWildcards EntryProviderInstaller>,
     snackBarHostState: SnackbarHostState,
 ) {
-    val drawerState = rememberCardDrawerState(DSDrawerValue.Closed)
+    val drawerState = rememberDSDrawerState(DSDrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentDestination by remember { mutableStateOf(navigator.currentDestination) }
 
     DSDrawer(
         drawerState = drawerState,
+        drawerBackgroundColor = DSJarvisTheme.colors.primary.primary100,
+        contentCornerSize = DSJarvisTheme.dimensions.m,
         drawerContent = {
             DrawerContent(
                 currentDestination = currentDestination,
+                onClose = { scope.launch { drawerState.close() } },
                 onDestinationSelected = { destination ->
                     currentDestination = destination.destination
                     // Navigate using the modular navigator
@@ -130,81 +139,114 @@ internal fun JarvisDemoApp(
 //region .: Private components :.
 @Composable
 fun DrawerContent(
+    modifier: Modifier = Modifier,
     currentDestination: NavigationRoute?,
     onDestinationSelected: (TopLevelDestination) -> Unit,
-    modifier: Modifier = Modifier
+    onClose: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(DSJarvisTheme.spacing.m)
+            .padding(
+                top = DSJarvisTheme.spacing.m,
+                bottom = DSJarvisTheme.spacing.m,
+                start = DSJarvisTheme.spacing.m,
+            )
     ) {
         // Header
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l)
+            modifier = Modifier.padding(
+                top = DSJarvisTheme.spacing.l,
+                bottom = DSJarvisTheme.spacing.l,
+                start = DSJarvisTheme.spacing.l,
+            ),
+            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                DSIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "Jarvis Logo",
+                    modifier = Modifier
+                        .padding(vertical = DSJarvisTheme.spacing.m)
+                        .background(DSJarvisTheme.colors.neutral.neutral0, DSJarvisTheme.shapes.xxl)
+                )
+
+                DSIcon(
+                    imageVector = DSIcons.Rounded.close,
+                    contentDescription = "Drawer close",
+                    tint = DSJarvisTheme.colors.neutral.neutral0,
+                    modifier = Modifier
+                        .padding(vertical = DSJarvisTheme.spacing.m)
+                        .clickable(onClick = { onClose() })
+                )
+            }
+
             DSText(
                 text = stringResource(R.string.app_name),
                 style = DSJarvisTheme.typography.heading.heading5,
                 fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.primary.primary60
+                color = DSJarvisTheme.colors.neutral.neutral0
             )
-            
+
             DSText(
                 text = stringResource(R.string.jarvis_description),
                 style = DSJarvisTheme.typography.body.medium,
-                color = DSJarvisTheme.colors.neutral.neutral60
+                color = DSJarvisTheme.colors.neutral.neutral20
             )
-            
+
             DSText(
                 text = stringResource(R.string.version),
                 style = DSJarvisTheme.typography.body.small,
                 color = DSJarvisTheme.colors.neutral.neutral40
             )
         }
-        
+
         HorizontalDivider(
             modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.m),
-            color = DSJarvisTheme.colors.neutral.neutral20
+            color = DSJarvisTheme.colors.neutral.neutral0
         )
-        
+
         // Navigation items
         DSText(
             text = "Tools",
             style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Bold,
-            color = DSJarvisTheme.colors.neutral.neutral40,
+            color = DSJarvisTheme.colors.neutral.neutral20,
             modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m, vertical = DSJarvisTheme.spacing.s)
         )
-        
+
         TopLevelDestination.entries.forEach { destination ->
             NavigationDrawerItem(
                 icon = {
-                    Icon(
+                    DSIcon(
                         imageVector = destination.icon,
                         contentDescription = stringResource(destination.titleRes),
-                        modifier = Modifier.size(DSJarvisTheme.dimensions.l)
+                        modifier = Modifier.size(DSJarvisTheme.dimensions.l),
+                        tint = if (currentDestination == destination.destination) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral40,
                     )
                 },
                 label = {
                     DSText(
                         text = stringResource(destination.titleRes),
-                        style = DSJarvisTheme.typography.body.medium
+                        style = DSJarvisTheme.typography.body.medium,
+                        color = if (currentDestination == destination.destination) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral40,
                     )
                 },
                 selected = currentDestination == destination.destination,
                 onClick = { onDestinationSelected(destination) },
                 colors = NavigationDrawerItemDefaults.colors(
-                    selectedContainerColor = DSJarvisTheme.colors.primary.primary100,
-                    selectedIconColor = DSJarvisTheme.colors.primary.primary60,
-                    selectedTextColor = DSJarvisTheme.colors.primary.primary60,
-                    unselectedIconColor = DSJarvisTheme.colors.neutral.neutral60,
-                    unselectedTextColor = DSJarvisTheme.colors.neutral.neutral80
+                    selectedContainerColor = Color.Transparent,
+                    unselectedContainerColor = Color.Transparent,
+                    selectedIconColor = DSJarvisTheme.colors.neutral.neutral0,
+                    unselectedIconColor = DSJarvisTheme.colors.neutral.neutral40,
                 ),
                 modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.xs)
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
     }
 }
@@ -227,15 +269,9 @@ private fun JarvisTopBar(
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
             onActionClick = {
-                // Handle action based on current screen
-                when (destination) {
-                    is InspectorDestinations.Inspector -> {
-                        // Add random API call - we'll need to get the viewModel
-                    }
-                    else -> {
-                        destination.onActionNavigate?.let { navigator.goTo(it) }
-                    }
-                }
+                destination.actionKey?.let { actionKey ->
+                    ActionRegistry.executeAction(actionKey)
+                } ?: destination.onActionNavigate?.let { navigator.goTo(it) }
             },
             onBackClick = onMenuClick // Use menu click instead of back
         )

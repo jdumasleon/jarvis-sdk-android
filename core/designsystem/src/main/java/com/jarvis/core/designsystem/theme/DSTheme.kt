@@ -8,7 +8,7 @@ fun DSJarvisTheme(
     content: @Composable () -> Unit
 ) {
     val dsBackgroundTheme = DSBackgroundTheme(
-        color = DSJarvisTheme.colors.primary.primary100,
+        color = DSJarvisTheme.colors.neutral.neutral0,
         tonalElevation = DSJarvisTheme.elevations.level1
     )
 

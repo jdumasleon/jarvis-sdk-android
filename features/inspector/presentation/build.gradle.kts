@@ -14,6 +14,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.presentation)
     implementation(projects.features.inspector.domain)
     implementation(projects.core.designsystem)
 
@@ -21,6 +22,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.kotlinx.serialization.json)
+    
+    // Image loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    
+    // JSON parsing (already available through Android)
+    // org.json.* classes are part of Android SDK
     
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

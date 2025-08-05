@@ -9,6 +9,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.presentation)
     implementation(projects.features.inspector.domain)
     implementation(projects.features.inspector.data)
     implementation(projects.features.inspector.presentation)

@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import com.jarvis.core.designsystem.component.DSCard
+import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -72,10 +72,10 @@ fun TransactionOverviewTab(
         // Error Information
         transaction.error?.let { error ->
             InfoCard(title = "Error") {
-                Text(
+                DSText(
                     text = error,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.error.error100
                 )
             }
         }
@@ -96,9 +96,9 @@ fun TransactionRequestTab(
     ) {
         // Request Line
         InfoCard(title = "Request Line") {
-            Text(
+            DSText(
                 text = "${request.method.name} ${request.path}",
-                style = MaterialTheme.typography.bodyMedium,
+                style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Bold
             )
             InfoRow("Host", request.host)
@@ -147,9 +147,9 @@ fun TransactionResponseTab(
         if (response != null) {
             // Status Line
             InfoCard(title = "Status Line") {
-                Text(
+                DSText(
                     text = "${response.statusCode} ${response.statusMessage}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = DSJarvisTheme.typography.body.medium,
                     fontWeight = FontWeight.Bold
                 )
                 response.contentType?.let { contentType ->
@@ -177,10 +177,10 @@ fun TransactionResponseTab(
             }
         } else {
             InfoCard(title = "Response") {
-                Text(
+                DSText(
                     text = "No response received",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
         }
@@ -199,46 +199,26 @@ fun TransactionBodyTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Request Body
-        InfoCard(title = "Request Body") {
-            if (transaction.request.hasBody) {
-                Text(
-                    text = transaction.request.body ?: "No body content",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                Text(
-                    text = "No request body",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+        // Request Body with Enhanced Viewer
+        EnhancedBodyViewer(
+            title = "Request Body",
+            body = if (transaction.request.hasBody) transaction.request.body else null,
+            contentType = transaction.request.contentType
+        )
 
-        // Response Body
-        InfoCard(title = "Response Body") {
-            transaction.response?.let { response ->
-                if (response.hasBody) {
-                    Text(
-                        text = response.body ?: "No body content",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    Text(
-                        text = "No response body",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } ?: run {
-                Text(
-                    text = "No response received",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        // Response Body with Enhanced Viewer
+        transaction.response?.let { response ->
+            EnhancedBodyViewer(
+                title = "Response Body",
+                body = if (response.hasBody) response.body else null,
+                contentType = response.contentType
+            )
+        } ?: run {
+            EnhancedBodyViewer(
+                title = "Response Body",
+                body = null,
+                contentType = null
+            )
         }
     }
 }
@@ -248,18 +228,19 @@ private fun InfoCard(
     title: String,
     content: @Composable () -> Unit
 ) {
-    Card(
+    DSCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = DSJarvisTheme.shapes.s,
+        elevation = DSJarvisTheme.elevations.level1
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
+            DSText(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                style = DSJarvisTheme.typography.heading.heading4,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -279,15 +260,15 @@ private fun InfoRow(
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
+        DSText(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = DSJarvisTheme.typography.body.medium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f)
         )
-        Text(
+        DSText(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
+            style = DSJarvisTheme.typography.body.medium,
             modifier = Modifier.weight(2f)
         )
     }

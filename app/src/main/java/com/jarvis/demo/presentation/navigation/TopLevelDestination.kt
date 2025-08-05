@@ -37,5 +37,5 @@ enum class TopLevelDestination(
         titleRes = R.string.preferences,
         icon = DSIcons.Settings,
         selectedIcon = DSIcons.SettingsFilled
-    ),
+    )
 }

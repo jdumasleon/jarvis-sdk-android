@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Wifi
@@ -48,6 +49,7 @@ object DSIcons {
     val NetworkWifi = Icons.Default.Wifi
     val Add = Icons.Rounded.Add
     val Menu = Icons.Default.Menu
+    val Refresh = Icons.Default.Refresh
 
     object Rounded {
         val add = Icons.Rounded.Add

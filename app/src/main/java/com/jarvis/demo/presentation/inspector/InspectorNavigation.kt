@@ -17,5 +17,6 @@ object InspectorDestinations {
         override val shouldShowTopAppBar: Boolean = true
         override val actionIcon: ImageVector = DSIcons.Add
         override val actionIconContentDescription: Int = R.string.add_random_request
+        override val actionKey: String = "inspector_add_random_api_call"
     }
 }

@@ -37,6 +37,11 @@
             <option value="$PROJECT_DIR$/features/inspector/domain" />
             <option value="$PROJECT_DIR$/features/inspector/lib" />
             <option value="$PROJECT_DIR$/features/inspector/presentation" />
+            <option value="$PROJECT_DIR$/features/preferences" />
+            <option value="$PROJECT_DIR$/features/preferences/data" />
+            <option value="$PROJECT_DIR$/features/preferences/domain" />
+            <option value="$PROJECT_DIR$/features/preferences/lib" />
+            <option value="$PROJECT_DIR$/features/preferences/presentation" />
             <option value="$PROJECT_DIR$/jarvis" />
           </set>
         </option>

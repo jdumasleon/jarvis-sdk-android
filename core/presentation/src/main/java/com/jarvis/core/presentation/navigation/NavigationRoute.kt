@@ -39,6 +39,12 @@ interface NavigationRoute {
     @get:StringRes
     val actionIconContentDescription: Int? get() = null
     val onActionNavigate: NavigationRoute? get() = null
+    
+    /**
+     * Custom action callback key for handling non-navigation actions
+     * Use this to identify which action should be performed when the action icon is clicked
+     */
+    val actionKey: String? get() = null
     //endregion
 
     //region .: BottomBar properties :.
