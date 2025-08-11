@@ -1,5 +1,7 @@
 package com.jarvis.features.inspector.presentation.ui
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,27 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import com.jarvis.core.designsystem.component.DSButton
 import com.jarvis.core.designsystem.component.DSButtonStyle
 import com.jarvis.core.designsystem.component.DSCard
+import com.jarvis.core.designsystem.component.DSDialog
+import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,22 +29,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSSearchBar
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.presentation.components.EmptyContent
+import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.inspector.domain.entity.NetworkTransaction
 import com.jarvis.features.inspector.domain.entity.TransactionStatus
 
+/**
+ * Network Inspector screen route with state management
+ */
 @Composable
 fun NetworkInspectorRoute(
-    onNavigateToDetail: (String) -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToDetail: (String) -> Unit,
     viewModel: NetworkInspectorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -61,8 +55,7 @@ fun NetworkInspectorRoute(
         modifier = modifier,
         uiState = uiState,
         onEvent = viewModel::onEvent,
-        onNavigateToDetail = onNavigateToDetail,
-        onNavigateBack = onNavigateBack
+        onNavigateToDetail = onNavigateToDetail
     )
 }
 
@@ -72,63 +65,29 @@ internal fun NetworkInspectorScreen(
     uiState: NetworkInspectorUiState,
     onEvent: (NetworkInspectorEvent) -> Unit,
     onNavigateToDetail: (String) -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { DSText("Network Inspector") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        DSIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { onEvent(NetworkInspectorEvent.ShowClearConfirmation(true)) }) {
-                        DSIcon(Icons.Default.Clear, contentDescription = "Clear All")
-                    }
-                    IconButton(onClick = { /* TODO: Toggle search visibility */ }) {
-                        DSIcon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
         Box(
-            modifier = Modifier
+            modifier = modifier
+                .padding(top = DSJarvisTheme.spacing.m)
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
-            when (uiState) {
-                is ResourceState.Idle -> {
-                    EmptyStateContent(
-                        message = "Pull to refresh to load transactions",
-                        actionText = "Load Transactions",
-                        onAction = { onEvent(NetworkInspectorEvent.LoadTransactions) }
-                    )
-                }
-                is ResourceState.Loading -> {
-                    LoadingStateContent(message = "Loading transactions...")
-                }
-                is ResourceState.Success -> {
-                    NetworkInspectorContent(
-                        uiData = uiState.data,
-                        onEvent = onEvent,
-                        onNavigateToDetail = onNavigateToDetail
-                    )
-                }
-                is ResourceState.Error -> {
-                    ErrorStateContent(
-                        error = uiState.exception.message ?: "Unknown error",
-                        message = uiState.message,
-                        onRetry = { onEvent(NetworkInspectorEvent.LoadTransactions) },
-                        onDismiss = { onEvent(NetworkInspectorEvent.ClearError) }
-                    )
-                }
+            ResourceStateContent(
+                resourceState = uiState,
+                onRetry = { onEvent(NetworkInspectorEvent.LoadTransactions) },
+                onDismiss = { onEvent(NetworkInspectorEvent.ClearError) },
+                loadingMessage = "Loading transactions...",
+                emptyMessage = "No network transactions recorded yet",
+                emptyActionText = "Load Transactions",
+                onEmptyAction = { onEvent(NetworkInspectorEvent.LoadTransactions) }
+            ) { uiData ->
+                NetworkInspectorContent(
+                    uiData = uiData,
+                    onEvent = onEvent,
+                    onNavigateToDetail = onNavigateToDetail
+                )
             }
-            
+
             // Confirmation Dialog
             if (uiState is ResourceState.Success && uiState.data.showClearConfirmation) {
                 ClearConfirmationDialog(
@@ -140,7 +99,6 @@ internal fun NetworkInspectorScreen(
                 )
             }
         }
-    }
 }
 
 @Composable
@@ -150,36 +108,60 @@ private fun NetworkInspectorContent(
     onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    DSPullToRefresh(
+        isRefreshing = uiData.isRefreshing,
+        onRefresh = { onEvent(NetworkInspectorEvent.RefreshTransactions) }
     ) {
-        // Search and Filters
-        NetworkInspectorFilters(
-            uiData = uiData,
-            onEvent = onEvent
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Transactions List
-        if (uiData.transactions.isEmpty()) {
-            EmptyStateContent(
-                message = "No network transactions recorded yet",
-                actionText = "Refresh",
-                onAction = { onEvent(NetworkInspectorEvent.LoadTransactions) }
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = DSJarvisTheme.spacing.m)
+        ) {
+            // Search and Filters
+            NetworkInspectorFilters(
+                uiData = uiData,
+                onEvent = onEvent
             )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+
+            Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m))
+
+            DSText(
+                text = "Transactions",
+                style = DSJarvisTheme.typography.body.medium,
+                fontWeight = FontWeight.Medium,
+                modifier = modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+            )
+
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(DSJarvisTheme.spacing.m)
             ) {
-                items(uiData.transactions) { transaction ->
-                    NetworkTransactionItem(
-                        transaction = transaction,
-                        onClick = { onNavigateToDetail(transaction.id) }
+                // Transactions List
+                if (uiData.transactions.isEmpty()) {
+                    EmptyContent(
+                        message = "No network transactions recorded yet",
+                        actionText = "Refresh",
+                        onAction = { onEvent(NetworkInspectorEvent.LoadTransactions) }
                     )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+                    ) {
+                        item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs)) }
+
+                        items(uiData.transactions) { transaction ->
+                            NetworkTransactionItem(
+                                transaction = transaction,
+                                onClick = {
+                                    onNavigateToDetail(transaction.id)
+                                }
+                            )
+                        }
+
+                        item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m)) }
+                    }
                 }
             }
         }
@@ -198,55 +180,71 @@ private fun NetworkInspectorFilters(
             searchText = uiData.searchQuery,
             onValueChange = { onEvent(NetworkInspectorEvent.SearchQueryChanged(it)) },
             onTextClean = { onEvent(NetworkInspectorEvent.SearchQueryChanged("")) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(horizontal = DSJarvisTheme.spacing.m)
+                .fillMaxWidth()
         )
         
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m))
         
         // Method Filters
         DSText(
             text = "HTTP Methods",
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            modifier = modifier.padding(horizontal = DSJarvisTheme.spacing.m)
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Row {
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
+
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = DSJarvisTheme.spacing.m),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
             uiData.availableMethods.forEach { method ->
-                FilterChip(
-                    onClick = { 
-                        val newMethod = if (uiData.selectedMethod == method) null else method
+                val selected = uiData.selectedMethod == method
+                val label = if (selected) "$method (${uiData.transactions.size})" else method
+                DSFilterChip(
+                    onClick = {
+                        val newMethod = if (selected) null else method
                         onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
                     },
-                    label = { DSText(method) },
-                    selected = uiData.selectedMethod == method,
-                    modifier = Modifier.padding(end = 8.dp)
+                    label = label,
+                    selected = selected
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m))
+
         // Status Filters
         DSText(
             text = "Status",
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            modifier = modifier.padding(horizontal = DSJarvisTheme.spacing.m)
         )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Row {
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
+
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = DSJarvisTheme.spacing.m),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
             uiData.availableStatuses.forEach { status ->
-                FilterChip(
-                    onClick = { 
-                        val newStatus = if (uiData.selectedStatus == status) null else status
+                val selected = uiData.selectedStatus == status
+                val label = if (selected) "$status (${uiData.transactions.size})" else status
+                DSFilterChip(
+                    onClick = {
+                        val newStatus = if (selected) null else status
                         onEvent(NetworkInspectorEvent.StatusFilterChanged(newStatus))
                     },
-                    label = { DSText(status) },
-                    selected = uiData.selectedStatus == status,
-                    modifier = Modifier.padding(end = 8.dp)
+                    label = label,
+                    selected = selected
                 )
             }
         }
@@ -261,10 +259,13 @@ private fun NetworkTransactionItem(
 ) {
     DSCard(
         modifier = modifier
-            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .fillMaxWidth(),
+        shape = DSJarvisTheme.shapes.m,
+        elevation = DSJarvisTheme.elevations.level2,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(DSJarvisTheme.spacing.s),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -284,7 +285,7 @@ private fun NetworkTransactionItem(
                 )
             }
             
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs))
             
             DSText(
                 text = transaction.request.url,
@@ -293,8 +294,8 @@ private fun NetworkTransactionItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            
-            Spacer(modifier = Modifier.height(4.dp))
+
+            Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -324,7 +325,7 @@ private fun ClearConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    DSDialog(
         onDismissRequest = onDismiss,
         title = { DSText("Clear All Transactions") },
         text = { DSText("Are you sure you want to clear all network transactions? This action cannot be undone.") },
@@ -338,94 +339,14 @@ private fun ClearConfirmationDialog(
         dismissButton = {
             DSButton(
                 text = "Cancel",
-                style = DSButtonStyle.TEXT,
+                style = DSButtonStyle.SECONDARY,
                 onClick = onDismiss
             )
         }
     )
 }
 
-@Composable
-private fun EmptyStateContent(
-    message: String,
-    actionText: String,
-    onAction: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSText(
-            text = message,
-            style = DSJarvisTheme.typography.body.large,
-            textAlign = TextAlign.Center,
-            color = DSJarvisTheme.colors.neutral.neutral60
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        DSButton(
-            text = actionText,
-            style = DSButtonStyle.OUTLINE,
-            onClick = onAction
-        )
-    }
-}
-
-@Composable
-private fun LoadingStateContent(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSCircularProgressIndicator()
-        Spacer(modifier = Modifier.height(16.dp))
-        DSText(
-            text = message,
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral60
-        )
-    }
-}
-
-@Composable
-private fun ErrorStateContent(
-    error: String,
-    message: String?,
-    onRetry: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSText(
-            text = "Error loading network transactions",
-            style = DSJarvisTheme.typography.body.large,
-            fontWeight = FontWeight.Medium,
-            color = DSJarvisTheme.colors.error.error100
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        DSText(
-            text = message ?: error,
-            style = DSJarvisTheme.typography.body.medium,
-            textAlign = TextAlign.Center,
-            color = DSJarvisTheme.colors.neutral.neutral60
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        DSButton(
-            text = "Retry",
-            style = DSButtonStyle.OUTLINE,
-            onClick = onRetry
-        )
-    }
-}
+// Removed duplicate state components - now using BaseScreenComponents.ResourceStateContent
 
 // Helper functions
 private fun getMethodColor(method: String): Color {
@@ -473,8 +394,7 @@ private fun NetworkInspectorScreenPreview() {
         NetworkInspectorScreen(
             uiState = ResourceState.Success(NetworkInspectorUiData.mockNetworkInspectorUiData),
             onEvent = {},
-            onNavigateToDetail = {},
-            onNavigateBack = {}
+            onNavigateToDetail = {}
         )
     }
 }
@@ -486,8 +406,7 @@ private fun NetworkInspectorScreenLoadingPreview() {
         NetworkInspectorScreen(
             uiState = ResourceState.Loading,
             onEvent = {},
-            onNavigateToDetail = {},
-            onNavigateBack = {}
+            onNavigateToDetail = {}
         )
     }
 }
@@ -499,8 +418,7 @@ private fun NetworkInspectorScreenEmptyPreview() {
         NetworkInspectorScreen(
             uiState = ResourceState.Success(NetworkInspectorUiData()),
             onEvent = {},
-            onNavigateToDetail = {},
-            onNavigateBack = {}
+            onNavigateToDetail = {}
         )
     }
 }
@@ -515,8 +433,7 @@ private fun NetworkInspectorScreenErrorPreview() {
                 message = "Failed to load transactions"
             ),
             onEvent = {},
-            onNavigateToDetail = {},
-            onNavigateBack = {}
+            onNavigateToDetail = {}
         )
     }
 }

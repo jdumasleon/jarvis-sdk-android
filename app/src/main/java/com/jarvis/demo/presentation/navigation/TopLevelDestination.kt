@@ -5,37 +5,37 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.presentation.navigation.NavigationRoute
 import com.jarvis.demo.R
-import com.jarvis.demo.presentation.home.HomeDestinations
-import com.jarvis.demo.presentation.inspector.InspectorDestinations
-import com.jarvis.demo.presentation.preferences.PreferencesDestinations
+import com.jarvis.demo.presentation.home.HomeGraph
+import com.jarvis.demo.presentation.inspector.InspectorGraph
+import com.jarvis.demo.presentation.preferences.PreferencesGraph
 import kotlin.reflect.KClass
 
 enum class TopLevelDestination(
     val destination: NavigationRoute,
     val route: KClass<*>,
-    @StringRes val titleRes: Int,
+    @param:StringRes val titleRes: Int,
     val icon: ImageVector,
     val selectedIcon: ImageVector = icon
 ) {
     HOME(
-        destination = HomeDestinations.Home,
-        route = HomeDestinations.Home::class,
+        destination = HomeGraph.Home,
+        route = HomeGraph.Home::class,
         titleRes = R.string.home,
-        icon = DSIcons.Home,
-        selectedIcon = DSIcons.HomeFilled
+        icon = DSIcons.home,
+        selectedIcon = DSIcons.homeFilled
     ),
     INSPECTOR(
-        destination = InspectorDestinations.Inspector,
-        route = InspectorDestinations.Inspector::class,
+        destination = InspectorGraph.Inspector,
+        route = InspectorGraph.Inspector::class,
         titleRes = R.string.inspector,
-        icon = DSIcons.NetworkWifi,
-        selectedIcon = DSIcons.NetworkWifi
+        icon = DSIcons.networkWifi,
+        selectedIcon = DSIcons.networkWifi
     ),
     PREFERENCES(
-        destination = PreferencesDestinations.Preferences,
-        route = PreferencesDestinations.Preferences::class,
+        destination = PreferencesGraph.Preferences,
+        route = PreferencesGraph.Preferences::class,
         titleRes = R.string.preferences,
-        icon = DSIcons.Settings,
-        selectedIcon = DSIcons.SettingsFilled
+        icon = DSIcons.settings,
+        selectedIcon = DSIcons.settingsFilled
     )
 }

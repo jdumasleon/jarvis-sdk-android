@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class InspectorDataModule {
+abstract class JarvisInspectorDataModule {
 
     @Binds
     @Singleton

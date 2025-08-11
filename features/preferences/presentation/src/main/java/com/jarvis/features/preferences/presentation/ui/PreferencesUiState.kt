@@ -7,9 +7,9 @@ import com.jarvis.features.preferences.domain.entity.PreferenceGroup
 import com.jarvis.features.preferences.domain.entity.PreferenceStorageType
 import com.jarvis.features.preferences.domain.entity.PreferenceType
 
-typealias PreferencesInspectorUiState = ResourceState<PreferencesInspectorUiData>
+typealias PreferencesUiState = ResourceState<PreferencesUiData>
 
-data class PreferencesInspectorUiData(
+data class PreferencesUiData(
     val sharedPreferencesGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.SHARED_PREFERENCES),
     val dataStorePreferencesGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.PREFERENCES_DATASTORE),
     val protoDataStoreGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.PROTO_DATASTORE),
@@ -24,7 +24,8 @@ data class PreferencesInspectorUiData(
     val showDetailDialog: Boolean = false,
     val exportData: String? = null,
     val importError: String? = null,
-    val globalError: String? = null
+    val globalError: String? = null,
+    val isRefreshing: Boolean = false
 ) {
     val currentGroup: PreferenceGroup
         get() = when (selectedTab) {
@@ -55,8 +56,8 @@ data class PreferencesInspectorUiData(
         }
 
     companion object {
-        val mockPreferencesInspectorUiData: PreferencesInspectorUiData
-            get() = PreferencesInspectorUiData(
+        val mockPreferencesInspectorUiData: PreferencesUiData
+            get() = PreferencesUiData(
                 sharedPreferencesGroup = PreferenceGroup(
                     storageType = PreferenceStorageType.SHARED_PREFERENCES,
                     preferences = listOf(
@@ -131,25 +132,26 @@ data class PreferencesInspectorUiData(
     }
 }
 
-sealed interface PreferencesInspectorEvent {
-    data class SelectTab(val storageType: PreferenceStorageType) : PreferencesInspectorEvent
-    data class UpdateSearchQuery(val query: String) : PreferencesInspectorEvent
-    data class UpdateTypeFilter(val type: PreferenceType?) : PreferencesInspectorEvent
-    data class UpdateSystemPreferencesVisibility(val show: Boolean) : PreferencesInspectorEvent
-    data class SelectPreference(val preference: AppPreference) : PreferencesInspectorEvent
-    data class UpdatePreference(val preference: AppPreference, val newValue: Any) : PreferencesInspectorEvent
-    data class DeletePreference(val preference: AppPreference) : PreferencesInspectorEvent
-    data class AddPreference(val key: String, val value: Any, val type: PreferenceType, val storageType: PreferenceStorageType) : PreferencesInspectorEvent
-    data class ClearPreferences(val storageType: PreferenceStorageType) : PreferencesInspectorEvent
-    data class ExportPreferences(val storageType: PreferenceStorageType?) : PreferencesInspectorEvent
-    data class ImportPreferences(val data: String, val targetStorageType: PreferenceStorageType) : PreferencesInspectorEvent
-    data class ShowAddDialog(val show: Boolean) : PreferencesInspectorEvent
-    data class ShowEditDialog(val show: Boolean) : PreferencesInspectorEvent
-    data class ShowDeleteDialog(val show: Boolean) : PreferencesInspectorEvent
-    data class ShowDetailDialog(val show: Boolean) : PreferencesInspectorEvent
-    data class ShowExportDialog(val show: Boolean) : PreferencesInspectorEvent
-    data class ShowImportDialog(val show: Boolean) : PreferencesInspectorEvent
-    object LoadAllPreferences : PreferencesInspectorEvent
-    object RefreshCurrentTab : PreferencesInspectorEvent
-    object ClearError : PreferencesInspectorEvent
+sealed interface PreferencesEvent {
+    data class SelectTab(val storageType: PreferenceStorageType) : PreferencesEvent
+    data class UpdateSearchQuery(val query: String) : PreferencesEvent
+    data class UpdateTypeFilter(val type: PreferenceType?) : PreferencesEvent
+    data class UpdateSystemPreferencesVisibility(val show: Boolean) : PreferencesEvent
+    data class SelectPreference(val preference: AppPreference) : PreferencesEvent
+    data class UpdatePreference(val preference: AppPreference, val newValue: Any) : PreferencesEvent
+    data class DeletePreference(val preference: AppPreference) : PreferencesEvent
+    data class AddPreference(val key: String, val value: Any, val type: PreferenceType, val storageType: PreferenceStorageType) : PreferencesEvent
+    data class ClearPreferences(val storageType: PreferenceStorageType) : PreferencesEvent
+    data class ExportPreferences(val storageType: PreferenceStorageType?) : PreferencesEvent
+    data class ImportPreferences(val data: String, val targetStorageType: PreferenceStorageType) : PreferencesEvent
+    data class ShowAddDialog(val show: Boolean) : PreferencesEvent
+    data class ShowEditDialog(val show: Boolean) : PreferencesEvent
+    data class ShowDeleteDialog(val show: Boolean) : PreferencesEvent
+    data class ShowDetailDialog(val show: Boolean) : PreferencesEvent
+    data class ShowExportDialog(val show: Boolean) : PreferencesEvent
+    data class ShowImportDialog(val show: Boolean) : PreferencesEvent
+    object LoadAllPreferences : PreferencesEvent
+    object RefreshCurrentTab : PreferencesEvent
+    object RefreshPreferences : PreferencesEvent
+    object ClearError : PreferencesEvent
 }

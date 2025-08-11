@@ -15,7 +15,7 @@ object InspectorModule {
     @IntoSet
     @Provides
     fun provideEntryProviderInstaller() : EntryProviderInstaller = {
-        entry<PreferencesDestinations.Preferences>{
+        entry<PreferencesGraph.Preferences>{
             PreferencesScreen()
         }
     }

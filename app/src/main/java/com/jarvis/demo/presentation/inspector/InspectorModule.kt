@@ -15,7 +15,7 @@ object InspectorModule {
     @IntoSet
     @Provides
     fun provideEntryProviderInstaller() : EntryProviderInstaller = {
-        entry<InspectorDestinations.Inspector>{
+        entry<InspectorGraph.Inspector>{
             InspectorScreen()
         }
     }

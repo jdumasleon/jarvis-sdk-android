@@ -29,13 +29,34 @@ class PreferencesRepositoryImpl @Inject constructor(
     
     override fun getAllPreferences(): Flow<List<AppPreference>> {
         return combine(
-            flow { emit(sharedPreferencesScanner.scanAllSharedPreferences()) },
-            flow { emit(preferencesDataStoreScanner.scanAllPreferencesDataStores()) },
-            flow { emit(protoDataStoreScanner.scanAllProtoDataStores()) }
+            flow { 
+                val sharedPrefs = sharedPreferencesScanner.scanAllSharedPreferences()
+                android.util.Log.d("PreferencesRepository", "SharedPreferences scanner found ${sharedPrefs.size} items")
+                emit(sharedPrefs) 
+            },
+            flow { 
+                val dataStorePrefs = preferencesDataStoreScanner.scanAllPreferencesDataStores()
+                android.util.Log.d("PreferencesRepository", "PreferencesDataStore scanner found ${dataStorePrefs.size} items")
+                emit(dataStorePrefs) 
+            },
+            flow { 
+                val protoPrefs = protoDataStoreScanner.scanAllProtoDataStores()
+                android.util.Log.d("PreferencesRepository", "ProtoDataStore scanner found ${protoPrefs.size} items")
+                emit(protoPrefs) 
+            }
         ) { sharedPrefs, dataStorePrefs, protoPrefs ->
-            (sharedPrefs + dataStorePrefs + protoPrefs)
+            val combined = (sharedPrefs + dataStorePrefs + protoPrefs)
                 .distinctBy { "${it.storageType.name}:${it.key}" }
                 .sortedBy { it.key }
+            
+            android.util.Log.d("PreferencesRepository", """
+                Combined preferences: ${combined.size} total
+                - SharedPreferences: ${sharedPrefs.size}
+                - PreferencesDataStore: ${dataStorePrefs.size}
+                - ProtoDataStore: ${protoPrefs.size}
+            """.trimIndent())
+            
+            combined
         }
     }
     
@@ -49,12 +70,14 @@ class PreferencesRepositoryImpl @Inject constructor(
                     ))
                     try {
                         val preferences = sharedPreferencesScanner.scanAllSharedPreferences()
+                        android.util.Log.d("PreferencesRepository", "SharedPreferences scanner returned ${preferences.size} preferences: ${preferences.map { it.key }}")
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = preferences,
                             isLoading = false
                         ))
                     } catch (e: Exception) {
+                        android.util.Log.e("PreferencesRepository", "SharedPreferences scanning failed", e)
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = emptyList(),
@@ -72,12 +95,14 @@ class PreferencesRepositoryImpl @Inject constructor(
                     ))
                     try {
                         val preferences = preferencesDataStoreScanner.scanAllPreferencesDataStores()
+                        android.util.Log.d("PreferencesRepository", "PreferencesDataStore scanner returned ${preferences.size} preferences: ${preferences.map { it.key }}")
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = preferences,
                             isLoading = false
                         ))
                     } catch (e: Exception) {
+                        android.util.Log.e("PreferencesRepository", "PreferencesDataStore scanning failed", e)
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = emptyList(),
@@ -95,12 +120,14 @@ class PreferencesRepositoryImpl @Inject constructor(
                     ))
                     try {
                         val preferences = protoDataStoreScanner.scanAllProtoDataStores()
+                        android.util.Log.d("PreferencesRepository", "ProtoDataStore scanner returned ${preferences.size} preferences: ${preferences.map { it.key }}")
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = preferences,
                             isLoading = false
                         ))
                     } catch (e: Exception) {
+                        android.util.Log.e("PreferencesRepository", "ProtoDataStore scanning failed", e)
                         emit(PreferenceGroup(
                             storageType = storageType,
                             preferences = emptyList(),

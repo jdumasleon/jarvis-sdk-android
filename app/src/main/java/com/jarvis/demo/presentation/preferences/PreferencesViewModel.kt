@@ -3,31 +3,27 @@ package com.jarvis.demo.presentation.preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.presentation.state.ResourceState
-import com.jarvis.demo.data.preferences.PreferencesDataStore
+import com.jarvis.demo.data.preferences.DemoPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    private val preferencesDataStore: PreferencesDataStore
+    private val demoPreferencesRepository: DemoPreferencesRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<PreferencesUiState>(ResourceState.Idle)
     val uiState: StateFlow<PreferencesUiState> = _uiState.asStateFlow()
     
-    // Backward compatibility
-    val preferencesList: StateFlow<List<PreferenceItem>> = MutableStateFlow(
-        _uiState.value.getDataOrNull()?.currentPreferences ?: emptyList()
-    ).asStateFlow()
-    
     init {
-        onEvent(PreferencesEvent.LoadPreferences)
+        loadPreferences()
     }
     
     fun onEvent(event: PreferencesEvent) {
@@ -53,8 +49,24 @@ class PreferencesViewModel @Inject constructor(
         _uiState.update { ResourceState.Loading }
         viewModelScope.launch {
             try {
-                // Generate sample data for all three tabs
-                generateSamplePreferencesForAllTabs()
+                // Set up reactive subscription to all three preference stores
+                combine(
+                    demoPreferencesRepository.getSharedPreferencesFlow(),
+                    demoPreferencesRepository.getDataStorePreferencesFlow(),
+                    demoPreferencesRepository.getProtoDataStorePreferencesFlow()
+                ) { sharedPrefs, dataStorePrefs, protoPrefs ->
+                    PreferencesUiData(
+                        sharedPreferences = sharedPrefs,
+                        dataStorePreferences = dataStorePrefs,
+                        protoDataStorePreferences = protoPrefs
+                    )
+                }.catch { exception ->
+                    _uiState.update { 
+                        ResourceState.Error(exception, "Failed to load preferences")
+                    }
+                }.collect { uiData ->
+                    _uiState.update { ResourceState.Success(uiData) }
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to load preferences")
@@ -66,12 +78,9 @@ class PreferencesViewModel @Inject constructor(
     private fun generateSamplePreferencesForAllTabs() {
         viewModelScope.launch {
             try {
-                // Generate DataStore preferences
-                preferencesDataStore.generateSamplePreferences()
-                
-                // Create mock data for all tabs
-                val uiData = PreferencesUiData.mockPreferencesUiData
-                _uiState.update { ResourceState.Success(uiData) }
+                // Generate sample data for all three storage types
+                demoPreferencesRepository.generateAllSampleData()
+                // The reactive flow will automatically update the UI state
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to generate sample preferences")
@@ -123,31 +132,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun generateRandomPreferences() {
-        generateRandomPreferencesInternal()
-    }
-    
-    private fun generateRandomPreferencesInternal() {
-        viewModelScope.launch {
-            try {
-                preferencesDataStore.generateSamplePreferences()
-                
-                // Load the generated preferences
-                preferencesDataStore.getAllPreferences()
-                    .catch { exception ->
-                        _uiState.update { 
-                            ResourceState.Error(exception, "Failed to generate preferences")
-                        }
-                    }
-                    .collect { prefItems ->
-                        val uiData = PreferencesUiData(dataStorePreferences = prefItems)
-                        _uiState.update { ResourceState.Success(uiData) }
-                    }
-            } catch (exception: Exception) {
-                _uiState.update { 
-                    ResourceState.Error(exception, "Failed to generate preferences")
-                }
-            }
-        }
+        generateSamplePreferencesForAllTabs()
     }
     
     private fun refreshPreferences() {
@@ -157,9 +142,21 @@ class PreferencesViewModel @Inject constructor(
     private fun clearAllPreferences() {
         viewModelScope.launch {
             try {
-                preferencesDataStore.clearAll()
-                val uiData = PreferencesUiData(dataStorePreferences = emptyList())
-                _uiState.update { ResourceState.Success(uiData) }
+                val currentData = _uiState.value.getDataOrNull() ?: return@launch
+                
+                // Clear based on selected tab
+                when (currentData.selectedTab) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> {
+                        demoPreferencesRepository.clearSharedPreferences()
+                    }
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> {
+                        demoPreferencesRepository.clearDataStorePreferences()
+                    }
+                    PreferenceStorageType.PROTO_DATASTORE -> {
+                        demoPreferencesRepository.clearProtoDataStorePreferences()
+                    }
+                }
+                // The reactive flow will automatically update the UI state
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to clear preferences")
@@ -171,11 +168,36 @@ class PreferencesViewModel @Inject constructor(
     private fun deletePreference(key: String) {
         viewModelScope.launch {
             try {
-                preferencesDataStore.removePreference(key)
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
-                val updatedPreferences = currentData.currentPreferences.filter { it.key != key }
-                val updatedData = currentData.copy(dataStorePreferences = updatedPreferences)
-                _uiState.update { ResourceState.Success(updatedData) }
+                
+                // Delete based on selected tab - simplified approach since we can't easily
+                // map specific keys back to storage types without more complex implementation
+                when (currentData.selectedTab) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> {
+                        // For SharedPreferences, we'd need to know which file the key belongs to
+                        // This is a limitation of the current approach - would need more complex logic
+                        _uiState.update { 
+                            ResourceState.Error(Exception("Delete operation not supported for SharedPreferences in this demo"), 
+                                               "Delete not supported for SharedPreferences")
+                        }
+                    }
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> {
+                        // Extract the actual key without file prefix
+                        val actualKey = key.substringAfterLast(".")
+                        demoPreferencesRepository.getDataStorePreferencesFlow()
+                        // DataStore deletion is complex, would need repository enhancement
+                        _uiState.update { 
+                            ResourceState.Error(Exception("Delete operation requires repository enhancement"), 
+                                               "Delete operation not fully implemented")
+                        }
+                    }
+                    PreferenceStorageType.PROTO_DATASTORE -> {
+                        _uiState.update { 
+                            ResourceState.Error(Exception("Proto preferences cannot be individually deleted"), 
+                                               "Proto preferences deletion not supported")
+                        }
+                    }
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to delete preference")
@@ -187,27 +209,55 @@ class PreferencesViewModel @Inject constructor(
     private fun updatePreference(key: String, value: String, type: PreferenceType) {
         viewModelScope.launch {
             try {
-                preferencesDataStore.updatePreference(key, value, type)
-                
-                // Update the list
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
-                val updatedList = currentData.currentPreferences.map { pref ->
-                    if (pref.key == key) {
-                        pref.copy(value = value)
-                    } else {
-                        pref
-                    }
-                }.let { list ->
-                    // Add new preference if it doesn't exist
-                    if (list.none { it.key == key }) {
-                        list + PreferenceItem(key, value, type)
-                    } else {
-                        list
-                    }
-                }.sortedBy { it.key }
                 
-                val updatedData = currentData.copy(dataStorePreferences = updatedList)
-                _uiState.update { ResourceState.Success(updatedData) }
+                // Update based on selected tab
+                when (currentData.selectedTab) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> {
+                        // For SharedPreferences updates, we'd need more complex logic to determine
+                        // which file and handle different value types properly
+                        _uiState.update { 
+                            ResourceState.Error(Exception("Update operation not supported for SharedPreferences in this demo"), 
+                                               "Update not supported for SharedPreferences")
+                        }
+                    }
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> {
+                        // For DataStore updates, delegate to repository methods
+                        when (type) {
+                            PreferenceType.STRING -> demoPreferencesRepository.updateDataStorePreference(key, value)
+                            PreferenceType.BOOLEAN -> demoPreferencesRepository.updateDataStorePreference(key, value.toBoolean())
+                            PreferenceType.NUMBER -> {
+                                if (value.contains(".")) {
+                                    demoPreferencesRepository.updateDataStorePreference(key, value.toFloat())
+                                } else {
+                                    demoPreferencesRepository.updateDataStorePreference(key, value.toInt())
+                                }
+                            }
+                            PreferenceType.PROTO -> {
+                                _uiState.update { 
+                                    ResourceState.Error(Exception("Proto type not supported in DataStore"), 
+                                                       "Proto type not supported")
+                                }
+                            }
+                        }
+                        // The reactive flow will automatically update the UI state
+                    }
+                    PreferenceStorageType.PROTO_DATASTORE -> {
+                        // For Proto updates, use specific proto methods
+                        when (key) {
+                            "username" -> demoPreferencesRepository.updateProtoUsername(value)
+                            "theme_preference" -> demoPreferencesRepository.updateProtoTheme(value)
+                            "analytics_enabled" -> demoPreferencesRepository.updateProtoAnalytics(value.toBoolean())
+                            else -> {
+                                _uiState.update { 
+                                    ResourceState.Error(Exception("Update for key '$key' not supported in Proto DataStore"), 
+                                                       "Proto update not supported for this key")
+                                }
+                            }
+                        }
+                        // The reactive flow will automatically update the UI state
+                    }
+                }
                 
             } catch (exception: Exception) {
                 _uiState.update { 

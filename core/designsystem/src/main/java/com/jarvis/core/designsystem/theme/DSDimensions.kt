@@ -16,6 +16,7 @@ val DimensionsXXL = 40.dp
 val DimensionsXXXL = 48.dp
 val DimensionsXXXXL = 56.dp
 val DimensionsXXXXXL = 64.dp
+val DimensionsXXXXXXL = 200.dp
 
 @Immutable
 data class DSDimensions(
@@ -29,7 +30,8 @@ data class DSDimensions(
     val xxl: Dp = DimensionsXXL,
     val xxxl: Dp = DimensionsXXXL,
     val xxxxl: Dp = DimensionsXXXXL,
-    val xxxxxl: Dp = DimensionsXXXXXL
+    val xxxxxl: Dp = DimensionsXXXXXL,
+    val xxxxxxl: Dp = DimensionsXXXXXXL
 )
 
 val LocalDSDimensions = staticCompositionLocalOf { DSDimensions() }

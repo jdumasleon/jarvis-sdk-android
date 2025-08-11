@@ -1,12 +1,13 @@
 package com.jarvis.api.di
 
-import com.jarvis.core.presentation.navigation.JarvisEntryProviderInstaller
+import com.jarvis.core.presentation.navigation.EntryProviderInstaller
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.components.ActivityComponent
 
 @EntryPoint
-@InstallIn(ActivityRetainedComponent::class)
+@InstallIn(ActivityComponent
+::class)
 interface JarvisOverlayEntryPoint {
-    fun entryProviderBuilders(): Set<@JvmSuppressWildcards JarvisEntryProviderInstaller>
+    fun entryProviderBuilders(): Set<@JvmSuppressWildcards EntryProviderInstaller>
 }

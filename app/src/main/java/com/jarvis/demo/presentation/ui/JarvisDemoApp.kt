@@ -3,6 +3,7 @@ package com.jarvis.demo.presentation.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.NavigationDrawerItem
@@ -24,13 +26,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.component.DSBackground
 import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.core.presentation.navigation.Navigator
@@ -39,18 +42,19 @@ import com.jarvis.core.designsystem.component.DSDrawerValue
 import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSTopAppBar
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.DynamicOrbCanvas
+import com.jarvis.core.designsystem.component.StateConfig
 import com.jarvis.core.designsystem.component.rememberDSDrawerState
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.navigation.EntryProviderInstaller
 import com.jarvis.core.presentation.navigation.NavigationRoute
 import com.jarvis.demo.R
-import com.jarvis.demo.presentation.home.HomeDestinations
-import com.jarvis.demo.presentation.inspector.InspectorDestinations
+import com.jarvis.demo.presentation.home.HomeGraph
+import com.jarvis.demo.presentation.inspector.InspectorGraph
 import com.jarvis.demo.presentation.navigation.JarvisDemoNavDisplay
 import com.jarvis.demo.presentation.navigation.TopLevelDestination
-import com.jarvis.demo.presentation.preferences.PreferencesDestinations
-import com.jarvis.features.preferences.lib.navigation.PreferencesInspectorRoute
+import com.jarvis.demo.presentation.preferences.PreferencesGraph
 import kotlinx.coroutines.launch
 
 //region .: Jarvis Demo App :.
@@ -98,9 +102,9 @@ internal fun JarvisDemoApp(
                     currentDestination = destination.destination
                     // Navigate using the modular navigator
                     when (destination) {
-                        TopLevelDestination.HOME -> navigator.goTo(HomeDestinations.Home)
-                        TopLevelDestination.INSPECTOR -> navigator.goTo(InspectorDestinations.Inspector)
-                        TopLevelDestination.PREFERENCES -> navigator.goTo(PreferencesDestinations.Preferences)
+                        TopLevelDestination.HOME -> navigator.goTo(HomeGraph.Home)
+                        TopLevelDestination.INSPECTOR -> navigator.goTo(InspectorGraph.Inspector)
+                        TopLevelDestination.PREFERENCES -> navigator.goTo(PreferencesGraph.Preferences)
                     }
                     scope.launch { drawerState.close() }
                 }
@@ -166,13 +170,28 @@ fun DrawerContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                DSIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "Jarvis Logo",
+                Box(
                     modifier = Modifier
-                        .padding(vertical = DSJarvisTheme.spacing.m)
-                        .background(DSJarvisTheme.colors.neutral.neutral0, DSJarvisTheme.shapes.xxl)
-                )
+                        .padding(top = DSJarvisTheme.spacing.m)
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    DynamicOrbCanvas(
+                        config = StateConfig(
+                            name = "Initializing",
+                            colors = listOf(
+                                DSJarvisTheme.colors.primary.primary40,
+                                DSJarvisTheme.colors.primary.primary60,
+                                DSJarvisTheme.colors.primary.primary80
+                            ),
+                            speed = 1.2f,
+                            morphIntensity = 2.0f
+                        ),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
                 DSIcon(
                     imageVector = DSIcons.Rounded.close,
@@ -261,7 +280,7 @@ private fun JarvisTopBar(
     currentDestination?.takeIf { it.shouldShowTopAppBar }?.let { destination ->
         DSTopAppBar(
             titleRes = destination.titleTextId,
-            navigationIcon = DSIcons.Menu,
+            navigationIcon = DSIcons.menu,
             navigationIconContentDescription = "Menu",
             actionIcon = destination.actionIcon,
             actionIconContentDescription = destination.actionIconContentDescription?.let {

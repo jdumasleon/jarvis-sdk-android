@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="jarvis_inspector">Inspector</string>
+    <string name="jarvis_inspector_bottom_bar_icon_content_description">Inspector bottom navigation icon</string>
+    <string name="jarvis_inspector_transaction_detail">Transaction</string>
+    <string name="jarvis_inspector_transaction_detail_back">Go back navigation</string>
 </resources>

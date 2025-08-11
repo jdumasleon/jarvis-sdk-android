@@ -23,9 +23,14 @@ import javax.inject.Singleton
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "demo_preferences")
 
 @Singleton
-class PreferencesDataStore @Inject constructor(
+class PreferencesDataStoreManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
+    
+    /**
+     * Get the DataStore instance for external access (e.g., Jarvis SDK registration)
+     */
+    fun getDataStore(): DataStore<Preferences> = context.dataStore
     
     fun getAllPreferences(): Flow<List<PreferenceItem>> {
         return context.dataStore.data.map { preferences ->

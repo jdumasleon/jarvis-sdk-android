@@ -16,7 +16,7 @@ data class NetworkTransactionDetailUiData(
     val transaction: NetworkTransaction,
     val selectedTab: Int = 0,
     val showDeleteConfirmation: Boolean = false,
-    val availableTabs: List<String> = listOf("Overview", "Request", "Response", "Body")
+    val availableTabs: List<String> = listOf("Overview", "Request", "Response")
 ) {
     companion object {
         val mockNetworkTransactionDetailUiData = NetworkTransactionDetailUiData(

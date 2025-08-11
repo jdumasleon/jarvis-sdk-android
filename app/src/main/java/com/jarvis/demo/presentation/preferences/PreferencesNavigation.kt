@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Preferences feature destinations following android-clean-config.yml patterns.
  * Simple destination (no parameters) for the Preferences screen.
  */
-object PreferencesDestinations {
+object PreferencesGraph {
     @Serializable
     data object Preferences : NavigationRoute {
         override val titleTextId: Int = R.string.preferences

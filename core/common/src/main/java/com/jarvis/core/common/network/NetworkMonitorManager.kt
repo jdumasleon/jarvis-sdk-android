@@ -19,8 +19,8 @@ import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import javax.inject.Inject
 
 class NetworkMonitorManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:ApplicationContext private val context: Context,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : NetworkMonitor {
     override val isOnline: Flow<Boolean> = callbackFlow {
         trace("NetworkMonitor.callbackFlow") {

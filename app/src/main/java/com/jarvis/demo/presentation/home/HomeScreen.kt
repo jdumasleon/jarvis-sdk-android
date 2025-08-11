@@ -12,7 +12,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +27,6 @@ import com.jarvis.core.designsystem.component.DSTagStyle
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.navigation.ActionRegistry
-import com.jarvis.demo.R
 
 @Composable
 internal fun HomeScreen(
@@ -40,11 +38,11 @@ internal fun HomeScreen(
     
     // Register the refresh action when the screen is composed
     DisposableEffect(viewModel) {
-        ActionRegistry.registerAction(HomeDestinations.Home.actionKey) {
+        ActionRegistry.registerAction(HomeGraph.Home.actionKey) {
             viewModel.onEvent(HomeEvent.RefreshData)
         }
         onDispose {
-            ActionRegistry.unregisterAction(HomeDestinations.Home.actionKey)
+            ActionRegistry.unregisterAction(HomeGraph.Home.actionKey)
         }
     }
     
@@ -180,19 +178,8 @@ private fun HomeContent(
     }
 }
 
-// Preview Templates
-@Preview(showBackground = true, name = "Home - Success")
-@Composable
-fun HomeScreenSuccessPreview() {
-    DSJarvisTheme {
-        HomeScreen(
-            uiState = ResourceState.Success(HomeUiData.mockHomeUiData),
-            onEvent = { }
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Home - Loading")
+// Preview Templates - Comprehensive State Coverage
+@Preview(showBackground = true, name = "Loading - Initial State")
 @Composable
 fun HomeScreenLoadingPreview() {
     DSJarvisTheme {
@@ -203,21 +190,7 @@ fun HomeScreenLoadingPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Home - Error")
-@Composable
-fun HomeScreenErrorPreview() {
-    DSJarvisTheme {
-        HomeScreen(
-            uiState = ResourceState.Error(
-                RuntimeException("Network error"),
-                "Failed to load home data"
-            ),
-            onEvent = { }
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Home - Idle")
+@Preview(showBackground = true, name = "Idle - Welcome State")
 @Composable
 fun HomeScreenIdlePreview() {
     DSJarvisTheme {
@@ -228,13 +201,96 @@ fun HomeScreenIdlePreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Home - Inactive Jarvis")
+@Preview(showBackground = true, name = "Success - Jarvis Active")
 @Composable
-fun HomeScreenInactivePreview() {
+fun HomeScreenActiveJarvisPreview() {
     DSJarvisTheme {
-        val uiData = HomeUiData.mockHomeUiData.copy(isJarvisActive = false)
         HomeScreen(
-            uiState = ResourceState.Success(uiData),
+            uiState = ResourceState.Success(HomeUiData.mockHomeUiData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Success - Jarvis Inactive")
+@Composable
+fun HomeScreenInactiveJarvisPreview() {
+    DSJarvisTheme {
+        val inactiveData = HomeUiData.mockHomeUiData.copy(isJarvisActive = false)
+        HomeScreen(
+            uiState = ResourceState.Success(inactiveData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Success - Fresh Start")
+@Composable
+fun HomeScreenFreshStartPreview() {
+    DSJarvisTheme {
+        val freshData = HomeUiData(
+            welcomeMessage = "Welcome to Jarvis Demo",
+            description = "Your network inspection and debugging companion",
+            version = "v1.0.0",
+            isJarvisActive = false,
+            lastRefreshTime = null
+        )
+        HomeScreen(
+            uiState = ResourceState.Success(freshData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Success - Recently Updated")
+@Composable
+fun HomeScreenRecentlyUpdatedPreview() {
+    DSJarvisTheme {
+        val recentData = HomeUiData.mockHomeUiData.copy(
+            lastRefreshTime = System.currentTimeMillis() - 30000, // 30 seconds ago
+            isJarvisActive = true
+        )
+        HomeScreen(
+            uiState = ResourceState.Success(recentData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Error - Network Failure")
+@Composable
+fun HomeScreenNetworkErrorPreview() {
+    DSJarvisTheme {
+        HomeScreen(
+            uiState = ResourceState.Error(
+                RuntimeException("Network connection failed"),
+                "Failed to load home data"
+            ),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Error - Server Error")
+@Composable
+fun HomeScreenServerErrorPreview() {
+    DSJarvisTheme {
+        HomeScreen(
+            uiState = ResourceState.Error(
+                RuntimeException("Server returned 500"),
+                "Server is temporarily unavailable"
+            ),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Theme - Active Jarvis", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun HomeScreenDarkThemePreview() {
+    DSJarvisTheme {
+        HomeScreen(
+            uiState = ResourceState.Success(HomeUiData.mockHomeUiData),
             onEvent = { }
         )
     }

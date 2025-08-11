@@ -1,46 +1,42 @@
 package com.jarvis.features.inspector.presentation.ui
 
+import android.content.ClipData
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.DSDropdownMenuItem
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSSearchableJsonViewerDialog
+import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.DSThreeDotsMenu
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.jarvis.features.inspector.domain.entity.NetworkRequest
-import com.jarvis.features.inspector.domain.entity.NetworkResponse
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.File
-import java.io.FileOutputStream
 
 /**
  * Enhanced body viewer component with support for:
@@ -57,17 +53,17 @@ fun EnhancedBodyViewer(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(true) }
+    var showSearchDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
 
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.s,
         elevation = DSJarvisTheme.elevations.level2
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column {
             // Header with expand/collapse and actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -80,45 +76,43 @@ fun EnhancedBodyViewer(
                     DSText(
                         text = title,
                         style = DSJarvisTheme.typography.heading.heading4,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f, fill = false)
                     )
-                    if (!body.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        DSText(
-                            text = getContentTypeLabel(contentType),
-                            style = DSJarvisTheme.typography.body.small,
-                            color = DSJarvisTheme.colors.primary.primary100
-                        )
-                    }
                 }
-                
+
                 if (!body.isNullOrBlank()) {
                     Row {
-                        // Copy button
-                        IconButton(
-                            onClick = {
-                                clipboardManager.setText(AnnotatedString(body))
-                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                        // Three dots menu with copy and search options
+                        DSThreeDotsMenu(
+                            items = buildList {
+                                add(
+                                    DSDropdownMenuItem(
+                                        text = "Copy to clipboard",
+                                        icon = Icons.Default.ContentCopy,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Body content", body)))
+                                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    )
+                                )
+                                
+                                if (isJsonContent(contentType)) {
+                                    add(
+                                        DSDropdownMenuItem(
+                                            text = "Search content",
+                                            icon = Icons.Default.Search,
+                                            onClick = {
+                                                showSearchDialog = true
+                                            }
+                                        )
+                                    )
+                                }
                             }
-                        ) {
-                            DSIcon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Copy to clipboard"
-                            )
-                        }
-                        
-                        // Download button
-                        IconButton(
-                            onClick = {
-                                downloadContent(context, body, contentType, title)
-                            }
-                        ) {
-                            DSIcon(
-                                imageVector = Icons.Default.Download,
-                                contentDescription = "Download content"
-                            )
-                        }
-                        
+                        )
+
                         // Expand/collapse button
                         IconButton(
                             onClick = { isExpanded = !isExpanded }
@@ -133,8 +127,8 @@ fun EnhancedBodyViewer(
             }
 
             if (isExpanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                
+                Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
+
                 if (body.isNullOrBlank()) {
                     DSText(
                         text = "No content",
@@ -143,36 +137,59 @@ fun EnhancedBodyViewer(
                     )
                 } else {
                     when {
-                        isJsonContent(contentType) -> JsonViewer(body)
+                        isJsonContent(contentType) -> JsonViewer(contentType, body)
                         isImageContent(contentType) -> ImageViewer(body, context)
-                        else -> TextViewer(body)
+                        else -> TextViewer(contentType, body)
                     }
                 }
             }
         }
     }
+    
+    // Search dialog for JSON content
+    if (showSearchDialog && !body.isNullOrBlank() && isJsonContent(contentType)) {
+        DSSearchableJsonViewerDialog(
+            jsonContent = body,
+            title = title,
+            onDismiss = { showSearchDialog = false }
+        )
+    }
 }
 
 @Composable
-private fun JsonViewer(jsonString: String) {
+private fun JsonViewer(
+    contentType: String?,
+    jsonString: String
+) {
     val formattedJson = remember(jsonString) { formatJson(jsonString) }
-    
+
     SelectionContainer {
-        DSText(
-            text = formattedJson,
-            style = DSJarvisTheme.typography.body.small.copy(
-                fontFamily = FontFamily.Monospace
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = DSJarvisTheme.colors.neutral.neutral20,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(12.dp)
-                .verticalScroll(rememberScrollState())
-                .horizontalScroll(rememberScrollState())
-        )
+        Box {
+            DSText(
+                text = formattedJson,
+                style = DSJarvisTheme.typography.body.small.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                color = DSJarvisTheme.colors.neutral.neutral0,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = DSJarvisTheme.colors.neutral.neutral100,
+                        shape = DSJarvisTheme.shapes.s
+                    )
+                    .padding(DSJarvisTheme.dimensions.m)
+                    .horizontalScroll(rememberScrollState())
+            )
+
+            DSText(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(DSJarvisTheme.spacing.s),
+                text = getContentTypeLabel(contentType),
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.primary.primary100
+            )
+        }
     }
 }
 
@@ -183,7 +200,7 @@ private fun ImageViewer(imageData: String, context: Context) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(DSJarvisTheme.dimensions.xxxxxxl),
         contentAlignment = Alignment.Center
     ) {
         when {
@@ -217,25 +234,39 @@ private fun ImageViewer(imageData: String, context: Context) {
 }
 
 @Composable
-private fun TextViewer(text: String) {
+private fun TextViewer(
+    contentType: String?,
+    text: String
+) {
     SelectionContainer {
-        DSText(
-            text = text,
-            style = DSJarvisTheme.typography.body.small.copy(
-                fontFamily = FontFamily.Monospace
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = DSJarvisTheme.colors.neutral.neutral20,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(12.dp)
-                .verticalScroll(rememberScrollState())
-                .horizontalScroll(rememberScrollState()),
-            maxLines = 50,
-            overflow = TextOverflow.Ellipsis
-        )
+        Box {
+            DSText(
+                text = text,
+                style = DSJarvisTheme.typography.body.small.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                color = DSJarvisTheme.colors.neutral.neutral0,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = DSJarvisTheme.colors.neutral.neutral100,
+                        shape = DSJarvisTheme.shapes.s
+                    )
+                    .padding(DSJarvisTheme.dimensions.m)
+                    .horizontalScroll(rememberScrollState()),
+                maxLines = 50,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            DSText(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(DSJarvisTheme.spacing.s),
+                text = getContentTypeLabel(contentType),
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.primary.primary100
+            )
+        }
     }
 }
 
@@ -277,45 +308,50 @@ private fun getContentTypeLabel(contentType: String?): String {
     }
 }
 
-private fun downloadContent(
-    context: Context,
-    content: String,
-    contentType: String?,
-    title: String
-) {
-    try {
-        val fileName = generateFileName(title, contentType)
-        val file = File(context.getExternalFilesDir(null), fileName)
-        
-        FileOutputStream(file).use { output ->
-            output.write(content.toByteArray())
-        }
-        
-        // Create intent to share/open the file
-        val uri = Uri.fromFile(file)
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, contentType ?: "text/plain")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "File saved to: ${file.absolutePath}", Toast.LENGTH_LONG).show()
-        }
-    } catch (e: Exception) {
-        Toast.makeText(context, "Failed to download: ${e.message}", Toast.LENGTH_SHORT).show()
+@Preview(showBackground = true, name = "JSON Content")
+@Composable
+private fun EnhancedBodyViewerJsonPreview() {
+    DSJarvisTheme {
+        EnhancedBodyViewer(
+            title = "User Data",
+            body = """{"name":"John Doe","age":30,"email":"john@example.com"}""",
+            contentType = "application/json"
+        )
     }
 }
 
-private fun generateFileName(title: String, contentType: String?): String {
-    val sanitizedTitle = title.replace(Regex("[^a-zA-Z0-9.-]"), "_")
-    val extension = when {
-        isJsonContent(contentType) -> "json"
-        isImageContent(contentType) -> contentType?.substringAfter("/") ?: "img"
-        contentType?.contains("xml") == true -> "xml"
-        contentType?.contains("html") == true -> "html"
-        else -> "txt"
+@Preview(showBackground = true, name = "Text Content")
+@Composable
+private fun EnhancedBodyViewerTextPreview() {
+    DSJarvisTheme {
+        EnhancedBodyViewer(
+            title = "Log Output",
+            body = "This is a plain text log entry.\nLine 2 of the log.\nLine 3 of the log.",
+            contentType = "text/plain"
+        )
     }
-    return "${sanitizedTitle}.${extension}"
+}
+
+@Preview(showBackground = true, name = "Image Content (URL)")
+@Composable
+private fun EnhancedBodyViewerImagePreview() {
+    DSJarvisTheme {
+        EnhancedBodyViewer(
+            title = "Profile Picture",
+            body = "https://developer.android.com/images/brand/Android_Robot.png",
+            contentType = "image/png"
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "No Content")
+@Composable
+private fun EnhancedBodyViewerEmptyPreview() {
+    DSJarvisTheme {
+        EnhancedBodyViewer(
+            title = "Empty Body",
+            body = null,
+            contentType = null
+        )
+    }
 }

@@ -31,14 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
 import com.jarvis.core.designsystem.component.DSSearchBar
+import com.jarvis.core.designsystem.component.DSTabBar
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DSTextField
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.R
 
@@ -48,35 +51,55 @@ fun PreferencesScreen(
     viewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
+    PreferencesScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Composable
+fun PreferencesScreen(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(DSJarvisTheme.spacing.l)
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
+        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
+
         // Header
         DSText(
             text = "Demo App Preferences",
             style = DSJarvisTheme.typography.heading.heading5,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
         )
         
         DSText(
             text = "View and manage different types of preferences used in this demo app",
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral60,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.l)
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
         )
-        
-        when (val currentState = uiState) {
-            is ResourceState.Loading -> LoadingIndicator()
-            is ResourceState.Error -> ErrorMessage(currentState.message ?: "Unknown error", currentState.exception)
-            is ResourceState.Success -> PreferencesContent(
-                data = currentState.data,
-                onEvent = viewModel::onEvent
+
+        ResourceStateContent(
+            resourceState = uiState,
+            modifier = Modifier.weight(1f),
+            onRetry = { onEvent(PreferencesEvent.RefreshPreferences) },
+            onDismiss = { onEvent(PreferencesEvent.ClearError) },
+            loadingMessage = "Loading preferences...",
+            emptyMessage = "No preferences found",
+            emptyActionText = "Reload",
+            onEmptyAction = { onEvent(PreferencesEvent.RefreshPreferences) }
+        ) { uiData ->
+            PreferencesContent(
+                data = uiData,
+                onEvent = onEvent
             )
-            else -> LoadingIndicator()
         }
     }
 }
@@ -94,38 +117,32 @@ private fun PreferencesContent(
             onTextClean = { onEvent(PreferencesEvent.SearchQueryChanged("")) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = DSJarvisTheme.spacing.m)
+                .padding(DSJarvisTheme.spacing.m)
         )
-        
-        // Tab Row
-        TabRow(
+
+        DSTabBar(
             selectedTabIndex = data.selectedTab.ordinal,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            PreferenceStorageType.values().forEach { storageType ->
-                Tab(
-                    selected = data.selectedTab == storageType,
-                    onClick = { onEvent(PreferencesEvent.SelectTab(storageType)) },
-                    text = {
-                        Text(
-                            text = when (storageType) {
-                                PreferenceStorageType.SHARED_PREFERENCES -> "SharedPrefs"
-                                PreferenceStorageType.PREFERENCES_DATASTORE -> "DataStore"
-                                PreferenceStorageType.PROTO_DATASTORE -> "Proto"
-                            },
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+            tabCount = PreferenceStorageType.entries.size,
+            onTabSelected = { index ->
+                onEvent(PreferencesEvent.SelectTab(PreferenceStorageType.entries[index]))
+            },
+            backgroundColor = DSJarvisTheme.colors.extra.surface
+        ) { index, selected ->
+            Box (
+                modifier = Modifier.padding(DSJarvisTheme.spacing.m)
+            ) {
+                DSText(
+                    text = getPreferenceTypeName(index),
+                    style = DSJarvisTheme.typography.body.medium,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                    color = if (selected) {
+                        DSJarvisTheme.colors.primary.primary100
+                    } else {
+                        DSJarvisTheme.colors.neutral.neutral100
                     }
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-        
-        // Tab Content Info
-        TabContentHeader(storageType = data.selectedTab)
-        
-        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
         
         // Preferences List
         if (data.filteredPreferences.isEmpty()) {
@@ -134,8 +151,13 @@ private fun PreferencesContent(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
+                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
+
+                item { TabContentHeader(storageType = data.selectedTab) }
+
                 items(data.filteredPreferences) { preference ->
                     PreferenceItem(
+                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
                         preference = preference,
                         onValueChanged = { newValue ->
                             onEvent(PreferencesEvent.UpdatePreference(
@@ -146,9 +168,18 @@ private fun PreferencesContent(
                         }
                     )
                 }
+
+                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
             }
         }
     }
+}
+
+@Composable
+private fun getPreferenceTypeName(index: Int): String = when (PreferenceStorageType.entries[index]) {
+    PreferenceStorageType.SHARED_PREFERENCES -> "SharedPrefs"
+    PreferenceStorageType.PREFERENCES_DATASTORE -> "DataStore"
+    PreferenceStorageType.PROTO_DATASTORE -> "Proto"
 }
 
 @Composable
@@ -167,9 +198,13 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
             "Structured data storage using Protocol Buffers. Type-safe schema-based storage."
         )
     }
-    
+
     DSCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .padding(horizontal = DSJarvisTheme.spacing.m)
+            .fillMaxWidth(),
+        shape = DSJarvisTheme.shapes.m,
+        elevation = DSJarvisTheme.elevations.level3
     ) {
         Column(
             modifier = Modifier.padding(DSJarvisTheme.spacing.m)
@@ -180,9 +215,9 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
                 fontWeight = FontWeight.Medium,
                 color = DSJarvisTheme.colors.primary.primary40
             )
-            
+
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
-            
+
             DSText(
                 text = description,
                 style = DSJarvisTheme.typography.body.small,
@@ -195,7 +230,9 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
 @Composable
 private fun EmptyState() {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .padding(DSJarvisTheme.spacing.m)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -214,56 +251,6 @@ private fun EmptyState() {
 }
 
 @Composable
-private fun LoadingIndicator() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSCircularProgressIndicator(
-            modifier = Modifier.size(DSJarvisTheme.dimensions.xxxl),
-            color = DSJarvisTheme.colors.primary.primary40
-        )
-        
-        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-        
-        DSText(
-            text = stringResource(R.string.loading),
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral60
-        )
-    }
-}
-
-@Composable
-private fun ErrorMessage(
-    message: String?,
-    throwable: Throwable?
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSText(
-            text = "Error loading preferences",
-            style = DSJarvisTheme.typography.body.large,
-            color = DSJarvisTheme.colors.error.error40,
-            fontWeight = FontWeight.Medium
-        )
-        
-        message?.let {
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-            DSText(
-                text = it,
-                style = DSJarvisTheme.typography.body.medium,
-                color = DSJarvisTheme.colors.neutral.neutral60
-            )
-        }
-    }
-}
-
-@Composable
 private fun PreferenceItem(
     preference: PreferenceItem,
     onValueChanged: (String) -> Unit,
@@ -273,7 +260,9 @@ private fun PreferenceItem(
     var isEditing by remember { mutableStateOf(false) }
     
     DSCard(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        shape = DSJarvisTheme.shapes.m,
+        elevation = DSJarvisTheme.elevations.level3
     ) {
         Column(
             modifier = Modifier.padding(DSJarvisTheme.spacing.m)
@@ -447,6 +436,81 @@ private fun TypeIndicator(
             style = DSJarvisTheme.typography.body.small,
             color = Color.White,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Loading - Initial State")
+@Composable
+fun PreferencesScreenLoadingPreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Loading,
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Idle State")
+@Composable
+fun PreferencesScreenIdlePreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Idle,
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Error State")
+@Composable
+fun PreferencesScreenErrorPreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Error(
+                RuntimeException("Server error"),
+                "Unable to load preferences"
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Empty Preferences")
+@Composable
+fun PreferencesScreenEmptyPreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Success(
+                PreferencesUiData.mockPreferencesUiData.copy(
+                    sharedPreferences = emptyList(),
+                    dataStorePreferences = emptyList(),
+                    protoDataStorePreferences = emptyList()
+                )
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "With Data")
+@Composable
+fun PreferencesScreenWithDataPreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Success(PreferencesUiData.mockPreferencesUiData),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Theme", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreferencesScreenDarkThemePreview() {
+    DSJarvisTheme {
+        PreferencesScreen(
+            uiState = ResourceState.Success(PreferencesUiData.mockPreferencesUiData),
+            onEvent = {}
         )
     }
 }

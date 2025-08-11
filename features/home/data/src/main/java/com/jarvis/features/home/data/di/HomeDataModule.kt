@@ -1,0 +1,40 @@
+package com.jarvis.features.home.data.di
+
+import com.jarvis.features.home.data.repository.DashboardRepositoryImpl
+import com.jarvis.features.home.domain.repository.DashboardRepository
+import com.jarvis.features.home.domain.usecase.GetDashboardMetricsUseCase
+import com.jarvis.features.home.domain.usecase.RefreshDashboardMetricsUseCase
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class HomeDataModule {
+    
+    @Binds
+    @Singleton
+    abstract fun bindDashboardRepository(
+        dashboardRepositoryImpl: DashboardRepositoryImpl
+    ): DashboardRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object HomeUseCaseModule {
+    
+    @Provides
+    @Singleton
+    fun provideGetDashboardMetricsUseCase(
+        repository: DashboardRepository
+    ): GetDashboardMetricsUseCase = GetDashboardMetricsUseCase(repository)
+    
+    @Provides
+    @Singleton
+    fun provideRefreshDashboardMetricsUseCase(
+        repository: DashboardRepository
+    ): RefreshDashboardMetricsUseCase = RefreshDashboardMetricsUseCase(repository)
+}

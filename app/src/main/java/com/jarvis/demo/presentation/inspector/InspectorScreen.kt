@@ -27,14 +27,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.navigation.ActionRegistry
+import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.R
 import com.jarvis.demo.data.repository.ApiCallResult
+import com.jarvis.demo.presentation.inspector.InspectorUiData.Companion.mockInspectorUiData
 
 @Composable
 fun InspectorScreen(
@@ -42,67 +46,65 @@ fun InspectorScreen(
     viewModel: InspectorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     // Register the action callback when the screen is composed
     DisposableEffect(viewModel) {
-        ActionRegistry.registerAction(InspectorDestinations.Inspector.actionKey) {
+        ActionRegistry.registerAction(InspectorGraph.Inspector.actionKey) {
             viewModel.onEvent(InspectorEvent.AddRandomApiCall)
         }
         onDispose {
-            ActionRegistry.unregisterAction(InspectorDestinations.Inspector.actionKey)
+            ActionRegistry.unregisterAction(InspectorGraph.Inspector.actionKey)
         }
     }
-    
-    Column(
+
+    InspectorScreen(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
         modifier = modifier
-            .fillMaxSize()
-            .padding(DSJarvisTheme.spacing.l)
+    )
+}
+@Composable
+private fun InspectorScreen(
+    uiState: InspectorUiState,
+    onEvent: (InspectorEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
     ) {
         // Header
         DSText(
             text = stringResource(R.string.inspector_description),
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral60,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.m)
+            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
         )
-        
-        if (uiState.isLoading) {
-            LoadingIndicator()
-        } else {
-            // API Calls List
+
+        ResourceStateContent(
+            resourceState = uiState,
+            modifier = Modifier.weight(1f),
+            onRetry = { onEvent(InspectorEvent.RefreshCalls) },
+            onDismiss = { onEvent(InspectorEvent.ClearError) },
+            loadingMessage = stringResource(R.string.generating_requests),
+            emptyMessage = stringResource(R.string.no_api_calls),
+            emptyActionText = stringResource(R.string.inspector_reload),
+            onEmptyAction = { onEvent(InspectorEvent.PerformInitialApiCalls) }
+        ) { uiData ->
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
+                item { Spacer(Modifier.height(DSJarvisTheme.spacing.xs)) }
 
-                uiState.getDataOrNull()?.apiCalls?.let {
-                    items(it) { apiCall ->
-                        ApiCallItem(apiCall = apiCall)
-                    }
+                items(uiData.apiCalls) { apiCall ->
+                    ApiCallItem(
+                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+                        apiCall = apiCall
+                    )
                 }
+
+                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
             }
         }
-    }
-}
-
-@Composable
-private fun LoadingIndicator() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        DSCircularProgressIndicator(
-            modifier = Modifier.size(DSJarvisTheme.dimensions.xxxl),
-            color = DSJarvisTheme.colors.primary.primary40
-        )
-        
-        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-        
-        DSText(
-            text = stringResource(R.string.generating_requests),
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral60
-        )
     }
 }
 
@@ -112,7 +114,9 @@ private fun ApiCallItem(
     modifier: Modifier = Modifier
 ) {
     DSCard(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        shape = DSJarvisTheme.shapes.m,
+        elevation = DSJarvisTheme.elevations.level3
     ) {
         Column(
             modifier = Modifier.padding(DSJarvisTheme.spacing.m)
@@ -272,5 +276,52 @@ private fun getMethodColor(method: String): Color {
         "PATCH" -> Color(0xFF8B5CF6) // Purple
         "DELETE" -> Color(0xFFDC2626) // Red
         else -> Color(0xFF6B7280) // Gray
+    }
+}
+
+@Preview(showBackground = true, name = "Loading State")
+@Composable
+fun InspectorScreenLoadingPreview() {
+    DSJarvisTheme {
+        InspectorScreen(
+            uiState = ResourceState.Loading,
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Empty State")
+@Composable
+fun InspectorScreenEmptyPreview() {
+    DSJarvisTheme {
+        InspectorScreen(
+            uiState = ResourceState.Success(InspectorUiData(apiCalls = emptyList())),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "With Data")
+@Composable
+fun InspectorScreenWithDataPreview() {
+    DSJarvisTheme {
+        InspectorScreen(
+            uiState = ResourceState.Success(mockInspectorUiData),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Error State")
+@Composable
+fun InspectorScreenErrorPreview() {
+    DSJarvisTheme {
+        InspectorScreen(
+            uiState = ResourceState.Error(
+                RuntimeException("Network error"),
+                "Failed to load API calls"
+            ),
+            onEvent = {}
+        )
     }
 }

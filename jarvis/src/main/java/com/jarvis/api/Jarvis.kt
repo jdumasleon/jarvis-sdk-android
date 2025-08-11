@@ -1,11 +1,9 @@
 package com.jarvis.api
 
 import android.app.Application
-import android.content.Context
-import androidx.compose.runtime.Composable
-import com.jarvis.api.core.JarvisSDK
-import com.jarvis.api.core.JarvisConfiguration
-import com.jarvis.api.core.JarvisProvider
+import com.jarvis.api.core.JarvisSDKProvider
+import com.jarvis.config.JarvisConfig
+import com.jarvis.config.JarvisConfigHolder
 
 /**
  * Main Jarvis API entry point
@@ -18,23 +16,13 @@ object Jarvis {
      */
     fun initialize(
         application: Application,
-        config: JarvisConfiguration = JarvisConfiguration.development()
+        config: JarvisConfig = JarvisConfig()
     ) {
-        val context = application.applicationContext
-        val sdk = JarvisSDK(context)
-        sdk.initialize(application, config)
+        // Store configuration globally for DI access
+        JarvisConfigHolder.updateConfiguration(config)
+        
+        // Initialize through static method that will use DI
+        JarvisSDKProvider.initialize(application, config)
     }
     
-    /**
-     * Composable wrapper for easy integration
-     */
-    @Composable
-    fun WithJarvis(
-        sdk: JarvisSDK,
-        content: @Composable () -> Unit
-    ) {
-        JarvisProvider(sdk = sdk) {
-            content()
-        }
-    }
 }

@@ -110,7 +110,7 @@ private fun PreviewDSTag() {
         modifier = Modifier.padding(DSJarvisTheme.dimensions.m)
     ) {
         DSTag(
-            icon = DSIcons.Home,
+            icon = DSIcons.home,
             tag = "Primary Tag",
             style = DSTagStyle.Primary
         )

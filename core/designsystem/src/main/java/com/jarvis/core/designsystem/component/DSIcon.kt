@@ -133,7 +133,7 @@ private data class DefaultSizeModifier(
 @Composable
 internal fun IconPreview() {
     DSJarvisTheme {
-        val calendarIcon = DSIcons.Home
+        val calendarIcon = DSIcons.home
         val sparklesIcon = DSIcons.person
 
         Column {

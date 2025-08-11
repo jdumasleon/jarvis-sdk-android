@@ -5,6 +5,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+val NONE = 0.dp
 val SpacingXXS = 2.dp
 val SpacingXS = 4.dp
 val SpacingS = 8.dp
@@ -18,6 +19,7 @@ val SpacingXXXXXL = 64.dp
 
 @Immutable
 data class DSSpacing(
+    val none: Dp = NONE,
     val xxs: Dp = SpacingXXS,
     val xs: Dp = SpacingXS,
     val s: Dp = SpacingS,

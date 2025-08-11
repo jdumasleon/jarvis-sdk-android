@@ -6,16 +6,16 @@ import androidx.navigation3.runtime.EntryProviderBuilder
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import javax.inject.Inject
 
-typealias EntryProviderInstaller = EntryProviderBuilder<NavigationRoute>.() -> Unit
+typealias EntryProviderInstaller = EntryProviderBuilder<NavigationRoute>.(Navigator) -> Unit
 
 /**
  * Central navigator for modular navigation system based on android-clean-config.yml template.
  * Manages navigation stack and provides type-safe navigation methods.
  */
 @ActivityRetainedScoped
-class Navigator @Inject constructor(startDestination: NavigationRoute) {
+class Navigator @Inject constructor() {
 
-    private val _backStack: SnapshotStateList<NavigationRoute> = mutableStateListOf(startDestination)
+    private val _backStack: SnapshotStateList<NavigationRoute> = mutableStateListOf()
     val backStack: SnapshotStateList<NavigationRoute> = _backStack
 
     fun initialize(startDestination: NavigationRoute) {
@@ -59,7 +59,11 @@ class Navigator @Inject constructor(startDestination: NavigationRoute) {
             }
         }
     }
-    
+
+    fun clear() {
+        _backStack.clear()
+    }
+
     val currentDestination: NavigationRoute?
         get() = _backStack.lastOrNull()
         

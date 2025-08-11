@@ -19,6 +19,7 @@ fun DSSearchBar(
     modifier: Modifier = Modifier,
     searchText: String,
     onValueChange: (String) -> Unit,
+    placeholder: String = stringResource(R.string.core_design_system_search_placeholder),
     onTextClean: () -> Unit
 ) {
     Box {
@@ -35,14 +36,16 @@ fun DSSearchBar(
                     tint = Gray
                 )
             },
-            placeholder = stringResource(R.string.core_design_system_search_placeholder),
+            placeholder = placeholder,
             trailingIcon = {
-                DSIcon(
-                    modifier = Modifier.clickable { onTextClean() },
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "",
-                    tint = Gray
-                )
+                if (searchText.isNotEmpty()) {
+                    DSIcon(
+                        modifier = Modifier.clickable { onTextClean() },
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "",
+                        tint = Gray
+                    )
+                }
             }
         )
     }

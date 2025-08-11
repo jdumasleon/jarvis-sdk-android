@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.common.di.CoroutineDispatcherModule
 import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.demo.data.preferences.DemoPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     @param:CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val demoPreferencesRepository: DemoPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SplashUiState>(ResourceState.Idle)
@@ -48,13 +50,25 @@ class SplashViewModel @Inject constructor(
                 // Simulate initialization phases
                 val phases = listOf(
                     "Initializing Jarvis SDK..." to 0.2f,
-                    "Setting up network monitoring..." to 0.5f,
-                    "Loading configuration..." to 0.8f,
+                    "Setting up network monitoring..." to 0.4f,
+                    "Loading preferences..." to 0.6f,
+                    "Generating sample data..." to 0.8f,
                     "Ready!" to 1f
                 )
                 
-                phases.forEach { (message, progress) ->
-                    delay(500) // Each phase takes 500ms
+                phases.forEachIndexed { index, (message, progress) ->
+                    delay(400) // Each phase takes 400ms
+                    
+                    // Generate sample preferences data during the "Loading preferences" phase
+                    if (index == 2) { // "Loading preferences..." phase
+                        try {
+                            demoPreferencesRepository.generateAllSampleData()
+                        } catch (e: Exception) {
+                            // Log error but continue initialization
+                            android.util.Log.w("SplashViewModel", "Failed to generate sample preferences", e)
+                        }
+                    }
+                    
                     val currentData = _uiState.value.getDataOrNull() ?: initialData
                     val updatedData = currentData.copy(
                         loadingProgress = progress,

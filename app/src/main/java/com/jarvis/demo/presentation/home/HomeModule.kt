@@ -15,9 +15,9 @@ object HomeModule {
 
     @IntoSet
     @Provides
-    fun provideEntryProviderInstaller(navigator: Navigator): EntryProviderInstaller =
+    fun provideEntryProviderInstaller(): EntryProviderInstaller =
         {
-            entry<HomeDestinations.Home> {
+            entry<HomeGraph.Home> {
                 HomeScreen()
             }
         }

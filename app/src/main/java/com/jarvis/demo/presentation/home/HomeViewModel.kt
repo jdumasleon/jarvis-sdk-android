@@ -22,7 +22,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val fakeStoreApiService: FakeStoreApiService,
     private val restfulApiService: RestfulApiService,
-    @CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val jarvisSDK: com.jarvis.api.core.JarvisSDK,
+    @param:CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<HomeUiState>(ResourceState.Idle)
@@ -68,7 +69,7 @@ class HomeViewModel @Inject constructor(
                 
                 val uiData = HomeUiData(
                     lastRefreshTime = System.currentTimeMillis(),
-                    isJarvisActive = _uiState.value.getDataOrNull()?.isJarvisActive ?: false
+                    isJarvisActive = jarvisSDK.isActive()
                 )
                 
                 _uiState.update { ResourceState.Success(uiData) }
@@ -82,11 +83,12 @@ class HomeViewModel @Inject constructor(
     }
     
     private fun toggleJarvisMode() {
+        val newActiveState = jarvisSDK.toggle()
         val currentData = _uiState.value.getDataOrNull() ?: return
-        val updatedData = currentData.copy(isJarvisActive = !currentData.isJarvisActive)
+        val updatedData = currentData.copy(isJarvisActive = newActiveState)
         _uiState.update { ResourceState.Success(updatedData) }
         
-        Log.d("HomeViewModel", "Jarvis mode toggled: ${updatedData.isJarvisActive}")
+        Log.d("HomeViewModel", "Jarvis mode toggled: $newActiveState")
     }
     
     private fun clearError() {

@@ -3,6 +3,7 @@ package com.jarvis.api.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import com.jarvis.api.detector.ShakeDetectorEffect
+import com.jarvis.api.ui.components.JarvisFabButton
 
 /**
  * Main Jarvis SDK overlay component
@@ -17,74 +19,36 @@ import com.jarvis.api.detector.ShakeDetectorEffect
  */
 @Composable
 fun JarvisSDKOverlay(
-    onShowOverlay: () -> Unit,
     modifier: Modifier = Modifier,
-    enableShakeDetection: Boolean = true
+    onShowOverlay: () -> Unit,
+    onShowInspector: () -> Unit = {},
+    onShowPreferences: () -> Unit = {},
+    isJarvisActive: Boolean = false,
+    enableShakeDetection: Boolean = true,
+    onToggleJarvisActive: () -> Unit = {}
 ) {
-    var isJarvisVisible by remember { mutableStateOf(false) }
-    var isFloatingExpanded by remember { mutableStateOf(false) }
+    var isJarvisVisible by remember { mutableStateOf(isJarvisActive) }
     
-    // Shake detection to show/hide Jarvis
+    // Update visibility when active state changes
+    LaunchedEffect(isJarvisActive) {
+        isJarvisVisible = isJarvisActive
+    }
+    
+    // Shake detection to toggle Jarvis visibility and SDK state
     if (enableShakeDetection) {
         ShakeDetectorEffect(
             onShakeDetected = {
-                isJarvisVisible = !isJarvisVisible
-                if (!isJarvisVisible) {
-                    isFloatingExpanded = false
-                }
+                onToggleJarvisActive()
             }
         )
     }
     
     Box(modifier = modifier.fillMaxSize()) {
-        // Floating actions overlay
         if (isJarvisVisible) {
-            JarvisFloatingActions(
-                isExpanded = isFloatingExpanded,
-                onToggle = { 
-                    isFloatingExpanded = !isFloatingExpanded 
-                },
-                onNetworkInspectorClick = {
-                    onShowOverlay()
-                    isFloatingExpanded = false
-                },
-                onPreferencesClick = {
-                    onShowOverlay()
-                    isFloatingExpanded = false
-                },
-                modifier = Modifier.zIndex(Float.MAX_VALUE)
-            )
-        }
-    }
-}
-
-/**
- * Simplified version for manual control
- */
-@Composable
-fun JarvisFloatingOverlay(
-    onShowOverlay: () -> Unit,
-    isVisible: Boolean,
-    onToggleVisibility: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isFloatingExpanded by remember { mutableStateOf(false) }
-    
-    Box(modifier = modifier.fillMaxSize()) {
-        if (isVisible) {
-            JarvisFloatingActions(
-                isExpanded = isFloatingExpanded,
-                onToggle = { 
-                    isFloatingExpanded = !isFloatingExpanded 
-                },
-                onNetworkInspectorClick = {
-                    onShowOverlay()
-                    isFloatingExpanded = false
-                },
-                onPreferencesClick = {
-                    onShowOverlay()
-                    isFloatingExpanded = false
-                },
+            JarvisFabButton(
+                onInspectorClick = onShowInspector,
+                onPreferencesClick = onShowPreferences,
+                onHomeClick = onShowOverlay,
                 modifier = Modifier.zIndex(Float.MAX_VALUE)
             )
         }

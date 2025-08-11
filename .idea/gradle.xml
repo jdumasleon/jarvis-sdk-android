@@ -32,6 +32,11 @@
             <option value="$PROJECT_DIR$/core/domain" />
             <option value="$PROJECT_DIR$/core/presentation" />
             <option value="$PROJECT_DIR$/features" />
+            <option value="$PROJECT_DIR$/features/home" />
+            <option value="$PROJECT_DIR$/features/home/data" />
+            <option value="$PROJECT_DIR$/features/home/domain" />
+            <option value="$PROJECT_DIR$/features/home/lib" />
+            <option value="$PROJECT_DIR$/features/home/presentation" />
             <option value="$PROJECT_DIR$/features/inspector" />
             <option value="$PROJECT_DIR$/features/inspector/data" />
             <option value="$PROJECT_DIR$/features/inspector/domain" />

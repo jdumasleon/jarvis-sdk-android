@@ -21,7 +21,8 @@ data class NetworkInspectorUiData(
     val availableMethods: List<String> = emptyList(),
     val availableStatuses: List<String> = emptyList(),
     val showClearConfirmation: Boolean = false,
-    val selectedTransaction: NetworkTransaction? = null
+    val selectedTransaction: NetworkTransaction? = null,
+    val isRefreshing: Boolean = false
 ) {
     companion object {
         val mockNetworkInspectorUiData = NetworkInspectorUiData(
@@ -76,11 +77,49 @@ data class NetworkInspectorUiData(
                     status = TransactionStatus.FAILED,
                     startTime = System.currentTimeMillis() - 1000,
                     endTime = null
+                ),
+                NetworkTransaction(
+                    id = "4",
+                    request = NetworkRequest(
+                        url = "https://api.example.com/users",
+                        method = HttpMethod.GET,
+                        headers = mapOf("Authorization" to "Bearer token123"),
+                        body = null
+                    ),
+                    response = NetworkResponse(
+                        statusCode = 200,
+                        statusMessage = "OK",
+                        headers = mapOf("Content-Type" to "application/json"),
+                        body = """{"users": [{"id": 1, "name": "John"}]}""",
+                        contentType = "application/json"
+                    ),
+                    status = TransactionStatus.PENDING,
+                    startTime = System.currentTimeMillis() - 5000,
+                    endTime = null
+                ),
+                NetworkTransaction(
+                    id = "5",
+                    request = NetworkRequest(
+                        url = "https://api.example.com/",
+                        method = HttpMethod.POST,
+                        headers = mapOf("Content-Type" to "application/json"),
+                        body = """{"title": "New Post", "content": "Post content"}"""
+                    ),
+                    response = NetworkResponse(
+                        statusCode = 20,
+                        statusMessage = "Created",
+                        headers = mapOf("Content-Type" to "application/json"),
+                        body = """{"id": 123, "status": "created"}""",
+                        contentType = "application/json"
+                    ),
+                    status = TransactionStatus.COMPLETED,
+                    startTime = System.currentTimeMillis() - 3000,
+                    endTime = System.currentTimeMillis() - 2844
                 )
             ),
             searchQuery = "api.example.com",
             selectedMethod = "GET",
-            availableMethods = listOf("GET", "POST", "PUT", "DELETE"),
+            availableMethods = listOf("GET", "PATCH", "POST", "PUT", "DELETE"),
             availableStatuses = listOf("COMPLETED", "FAILED", "PENDING"),
             showClearConfirmation = false,
             selectedTransaction = null

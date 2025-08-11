@@ -22,6 +22,7 @@ import kotlin.reflect.KClass
  * ```
  */
 interface NavigationRoute {
+
     @get:StringRes
     val titleTextId: Int? get() = null
     val kclass: KClass<*> get() = this::class
@@ -33,7 +34,6 @@ interface NavigationRoute {
     val navigationIcon: ImageVector? get() = null
     @get:StringRes
     val navigationIconContentDescription: Int? get() = null
-    val onBackNavigate: NavigationRoute? get() = null
 
     val actionIcon: ImageVector? get() = null
     @get:StringRes
@@ -51,14 +51,16 @@ interface NavigationRoute {
     val shouldShowBottomBar: Boolean get() = false
 
     val bottomBarSelectedIcon: ImageVector? get() = null
-    val bottomBarSelectedIconContentDescription: String get() = ""
+    val bottomBarSelectedIconContentDescription: Int? get() = null
 
     val bottomBarIcon: ImageVector? get() = null
-    val bottomBarIconContentDescription: String get() = ""
+    val bottomBarIconContentDescription: Int? get() = null
 
     @get:StringRes
     val bottomBarIconTextId: Int? get() = null
     //endregion
+
+    val dismissable: Boolean get() = false
 
     //endregion
 }

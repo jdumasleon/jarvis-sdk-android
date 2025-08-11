@@ -47,6 +47,8 @@ val Info60 = Color(0xFF70B8D7)
 val Info40 = Color(0xFFA5CCE2)
 val Info20 = Color(0xFFDEF2F4)
 
+val surfaceColor = Color(0xFFFFFBFE)
+
 @Immutable
 data class DSColors(
     val primary: Primary = Primary(),
@@ -55,7 +57,8 @@ data class DSColors(
     val success: Success = Success(),
     val warning: Warning = Warning(),
     val error: Error = Error(),
-    val info: Info = Info()
+    val info: Info = Info(),
+    val extra: Extra = Extra()
 )
 
 @Immutable
@@ -120,6 +123,11 @@ data class Info(
     val info60: Color = Info60,
     val info40: Color = Info40,
     val info20: Color = Info20
+)
+
+@Immutable
+data class Extra(
+    val surface: Color = surfaceColor
 )
 
 val LocalDSColors = staticCompositionLocalOf { DSColors() }

@@ -14,6 +14,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.presentation)
     implementation(projects.features.preferences.domain)
     implementation(projects.core.designsystem)
 

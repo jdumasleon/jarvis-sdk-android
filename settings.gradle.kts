@@ -48,6 +48,11 @@ include(":features:preferences:domain")
 include(":features:preferences:data")
 include(":features:preferences:presentation")
 include(":features:preferences:lib")
+include(":features:home")
+include(":features:home:domain")
+include(":features:home:data")
+include(":features:home:presentation")
+include(":features:home:lib")
 
 check(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
     """
