@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option java_package = "com.jarvis.demo.data.preferences.proto";
+option java_multiple_files = true;
+option java_outer_classname = "UserSettingsProto";
+
+// User settings stored in Proto DataStore
+message UserSettings {
+  // Basic user information
+  string username = 1;
+  bool is_premium = 2;
+  string preferred_language = 3;
+  
+  // Notification settings
+  bool email_notifications = 4;
+  bool push_notifications = 5;
+  bool marketing_notifications = 6;
+  
+  // App preferences
+  string theme_preference = 7; // "light", "dark", "auto"
+  float font_size_multiplier = 8;
+  bool dark_mode_enabled = 9;
+  
+  // Privacy settings
+  bool analytics_enabled = 10;
+  bool crash_reporting_enabled = 11;
+  bool location_sharing = 12;
+  
+  // Sync settings
+  bool auto_sync = 13;
+  int32 sync_interval_minutes = 14;
+  bool wifi_only_sync = 15;
+  
+  // Cache settings
+  int32 max_cache_size_mb = 16;
+  int64 cache_expiry_hours = 17;
+  
+  // Session settings
+  int32 session_timeout_minutes = 18;
+  bool remember_login = 19;
+  
+  // Feature flags
+  bool beta_features_enabled = 20;
+  bool developer_mode = 21;
+  
+  // User stats (read-only)
+  int32 login_count = 22;
+  int64 last_login_timestamp = 23;
+  int64 account_creation_timestamp = 24;
+  
+  // App version info
+  string app_version = 25;
+  int32 build_number = 26;
+}

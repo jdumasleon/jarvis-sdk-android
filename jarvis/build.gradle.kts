@@ -29,8 +29,14 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.presentation)
 
+    implementation(projects.features.home.lib)
     implementation(projects.features.inspector.lib)
     implementation(projects.features.preferences.lib)
+    implementation(projects.features.preferences.domain)
+    
+    implementation(libs.androidx.dataStore.core)
+    implementation(libs.androidx.dataStore.preferences.core)
+    implementation(libs.protobuf.kotlin.lite)
     
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

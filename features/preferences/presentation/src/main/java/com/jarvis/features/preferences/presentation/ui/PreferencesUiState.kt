@@ -1,12 +1,15 @@
 package com.jarvis.features.preferences.presentation.ui
 
+import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.preferences.domain.entity.AppPreference
 import com.jarvis.features.preferences.domain.entity.PreferenceFilter
 import com.jarvis.features.preferences.domain.entity.PreferenceGroup
 import com.jarvis.features.preferences.domain.entity.PreferenceStorageType
 import com.jarvis.features.preferences.domain.entity.PreferenceType
 
-data class PreferencesInspectorUiState(
+typealias PreferencesInspectorUiState = ResourceState<PreferencesInspectorUiData>
+
+data class PreferencesInspectorUiData(
     val sharedPreferencesGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.SHARED_PREFERENCES),
     val dataStorePreferencesGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.PREFERENCES_DATASTORE),
     val protoDataStoreGroup: PreferenceGroup = PreferenceGroup(PreferenceStorageType.PROTO_DATASTORE),
@@ -50,6 +53,82 @@ data class PreferencesInspectorUiState(
             
             matchesSearch && matchesType && matchesSystemFilter
         }
+
+    companion object {
+        val mockPreferencesInspectorUiData: PreferencesInspectorUiData
+            get() = PreferencesInspectorUiData(
+                sharedPreferencesGroup = PreferenceGroup(
+                    storageType = PreferenceStorageType.SHARED_PREFERENCES,
+                    preferences = listOf(
+                        AppPreference(
+                            key = "user_name",
+                            value = "John Doe",
+                            type = PreferenceType.STRING,
+                            storageType = PreferenceStorageType.SHARED_PREFERENCES,
+                            displayName = "User Name",
+                            description = "The current user's display name",
+                            isSystemPreference = false
+                        ),
+                        AppPreference(
+                            key = "is_first_launch",
+                            value = false,
+                            type = PreferenceType.BOOLEAN,
+                            storageType = PreferenceStorageType.SHARED_PREFERENCES,
+                            displayName = "Is First Launch",
+                            description = "Indicates if this is the first app launch",
+                            isSystemPreference = false
+                        ),
+                        AppPreference(
+                            key = "notification_count",
+                            value = 42,
+                            type = PreferenceType.INTEGER,
+                            storageType = PreferenceStorageType.SHARED_PREFERENCES,
+                            displayName = "Notification Count",
+                            description = "Number of unread notifications",
+                            isSystemPreference = false
+                        ),
+                        AppPreference(
+                            key = "app_version",
+                            value = "1.0.0",
+                            type = PreferenceType.STRING,
+                            storageType = PreferenceStorageType.SHARED_PREFERENCES,
+                            displayName = "App Version",
+                            description = "Current application version",
+                            isSystemPreference = true
+                        )
+                    )
+                ),
+                dataStorePreferencesGroup = PreferenceGroup(
+                    storageType = PreferenceStorageType.PREFERENCES_DATASTORE,
+                    preferences = listOf(
+                        AppPreference(
+                            key = "user_score",
+                            value = 98.5f,
+                            type = PreferenceType.FLOAT,
+                            storageType = PreferenceStorageType.PREFERENCES_DATASTORE,
+                            displayName = "User Score",
+                            description = "User's current score in the app",
+                            isSystemPreference = false
+                        ),
+                        AppPreference(
+                            key = "selected_themes",
+                            value = setOf("dark", "blue", "minimal"),
+                            type = PreferenceType.STRING_SET,
+                            storageType = PreferenceStorageType.PREFERENCES_DATASTORE,
+                            displayName = "Selected Themes",
+                            description = "User's preferred UI themes",
+                            isSystemPreference = false
+                        )
+                    )
+                ),
+                filter = PreferenceFilter(
+                    searchQuery = "",
+                    typeFilter = null,
+                    showSystemPreferences = true
+                ),
+                selectedTab = PreferenceStorageType.SHARED_PREFERENCES
+            )
+    }
 }
 
 sealed interface PreferencesInspectorEvent {

@@ -13,6 +13,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.dataStore.core)
+    implementation(libs.androidx.dataStore.preferences.core)
     implementation(libs.kotlinx.coroutines.core)
     
     testImplementation(libs.junit)

@@ -2,7 +2,7 @@ package com.jarvis.features.preferences.lib.api
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.jarvis.features.preferences.presentation.ui.PreferencesInspectorScreen
+import com.jarvis.features.preferences.presentation.ui.PreferencesInspectorRoute
 
 /**
  * Main API for Jarvis Preferences Inspector feature.
@@ -26,13 +26,18 @@ object JarvisPreferencesInspector {
      * - Clear all preferences
      * - Distinguish between user and system preferences
      * 
+     * @param onNavigateBack Callback for back navigation
      * @param modifier Modifier to be applied to the screen
      * @return Composable screen for preferences inspection
      */
     @Composable
     fun PreferencesInspectorScreen(
+        onNavigateBack: () -> Unit = {},
         modifier: Modifier = Modifier
     ) {
-        PreferencesInspectorScreen(modifier = modifier)
+        PreferencesInspectorRoute(
+            onNavigateBack = onNavigateBack,
+            modifier = modifier
+        )
     }
 }

@@ -9,6 +9,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.dataStore.core)
+    implementation(libs.androidx.dataStore.preferences.core)
+    implementation(libs.protobuf.kotlin.lite)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext)
 }

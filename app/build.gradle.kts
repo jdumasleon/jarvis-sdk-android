@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -85,6 +86,8 @@ dependencies {
     implementation(libs.androidx.dataStore)
     implementation(libs.androidx.dataStore.preferences)
     implementation(libs.androidx.dataStore.preferences.core)
+    implementation(libs.protobuf.javalite)
+    implementation(libs.protobuf.kotlin.lite)
     
     // Network dependencies for demo API calls
     implementation(libs.squareup.retrofit)
@@ -120,4 +123,22 @@ baselineProfile {
 
 dependencyGuard {
     configuration("prodReleaseRuntimeClasspath")
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
