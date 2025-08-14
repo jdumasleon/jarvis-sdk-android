@@ -2,6 +2,7 @@ package com.jarvis.demo.presentation.preferences
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
+import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSSearchBar
 import com.jarvis.core.designsystem.component.DSTabBar
 import com.jarvis.core.designsystem.component.DSText
@@ -44,6 +48,7 @@ import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.R
+import com.jarvis.features.inspector.presentation.ui.transactions.NetworkInspectorEvent
 
 @Composable
 fun PreferencesScreen(
@@ -69,23 +74,6 @@ fun PreferencesScreen(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
-        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-
-        // Header
-        DSText(
-            text = "Demo App Preferences",
-            style = DSJarvisTheme.typography.heading.heading5,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
-        )
-        
-        DSText(
-            text = "View and manage different types of preferences used in this demo app",
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral60,
-            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
-        )
-
         ResourceStateContent(
             resourceState = uiState,
             modifier = Modifier.weight(1f),
@@ -110,66 +98,82 @@ private fun PreferencesContent(
     onEvent: (PreferencesEvent) -> Unit
 ) {
     Column {
+
         // Search Bar
         DSSearchBar(
             searchText = data.searchQuery,
             onValueChange = { onEvent(PreferencesEvent.SearchQueryChanged(it)) },
             onTextClean = { onEvent(PreferencesEvent.SearchQueryChanged("")) },
             modifier = Modifier
+                .padding(horizontal = DSJarvisTheme.spacing.m)
                 .fillMaxWidth()
-                .padding(DSJarvisTheme.spacing.m)
         )
 
-        DSTabBar(
-            selectedTabIndex = data.selectedTab.ordinal,
-            tabCount = PreferenceStorageType.entries.size,
-            onTabSelected = { index ->
-                onEvent(PreferencesEvent.SelectTab(PreferenceStorageType.entries[index]))
-            },
-            backgroundColor = DSJarvisTheme.colors.extra.surface
-        ) { index, selected ->
-            Box (
-                modifier = Modifier.padding(DSJarvisTheme.spacing.m)
-            ) {
-                DSText(
-                    text = getPreferenceTypeName(index),
-                    style = DSJarvisTheme.typography.body.medium,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (selected) {
-                        DSJarvisTheme.colors.primary.primary100
-                    } else {
-                        DSJarvisTheme.colors.neutral.neutral100
-                    }
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m))
+
+        // Preferences storage type
+        DSText(
+            text = "Storages",
+            style = DSJarvisTheme.typography.body.medium,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+        )
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
+
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = DSJarvisTheme.spacing.m),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
+            PreferenceStorageType.entries.forEach { preferencesType ->
+                val selected = data.selectedTab == preferencesType
+                val preference = getPreferenceTypeName(preferencesType.ordinal)
+                val label = if (selected) "$preference (${data.filteredPreferences.size})" else preference
+                DSFilterChip(
+                    onClick = {
+                        onEvent(PreferencesEvent.SelectTab(preferencesType))
+                    },
+                    label = label.uppercase(),
+                    selected = selected
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
         
-        // Preferences List
-        if (data.filteredPreferences.isEmpty()) {
-            EmptyState()
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-            ) {
-                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
+        // Preferences List with Pull-to-Refresh
+        DSPullToRefresh(
+            isRefreshing = data.isRefreshing,
+            onRefresh = { onEvent(PreferencesEvent.RefreshPreferences) }
+        ) {
+            if (data.filteredPreferences.isEmpty()) {
+                EmptyState()
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+                ) {
+                    item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
 
-                item { TabContentHeader(storageType = data.selectedTab) }
+                    item { TabContentHeader(storageType = data.selectedTab) }
 
-                items(data.filteredPreferences) { preference ->
-                    PreferenceItem(
-                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
-                        preference = preference,
-                        onValueChanged = { newValue ->
-                            onEvent(PreferencesEvent.UpdatePreference(
-                                preference.key,
-                                newValue,
-                                preference.type
-                            ))
-                        }
-                    )
+                    items(data.filteredPreferences) { preference ->
+                        PreferenceItem(
+                            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+                            preference = preference,
+                            onValueChanged = { newValue ->
+                                onEvent(PreferencesEvent.UpdatePreference(
+                                    preference.key,
+                                    newValue,
+                                    preference.type
+                                ))
+                            }
+                        )
+                    }
+
+                    item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
                 }
-
-                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
             }
         }
     }
@@ -177,8 +181,8 @@ private fun PreferencesContent(
 
 @Composable
 private fun getPreferenceTypeName(index: Int): String = when (PreferenceStorageType.entries[index]) {
-    PreferenceStorageType.SHARED_PREFERENCES -> "SharedPrefs"
-    PreferenceStorageType.PREFERENCES_DATASTORE -> "DataStore"
+    PreferenceStorageType.SHARED_PREFERENCES -> "Shared"
+    PreferenceStorageType.PREFERENCES_DATASTORE -> "Datastore"
     PreferenceStorageType.PROTO_DATASTORE -> "Proto"
 }
 
@@ -207,13 +211,13 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
         elevation = DSJarvisTheme.elevations.level3
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
+            modifier = Modifier.padding(DSJarvisTheme.spacing.s)
         ) {
             DSText(
                 text = title,
                 style = DSJarvisTheme.typography.body.large,
                 fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.primary.primary40
+                color = DSJarvisTheme.colors.primary.primary60
             )
 
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
@@ -221,7 +225,7 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
             DSText(
                 text = description,
                 style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.neutral.neutral60
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
         }
     }
@@ -239,13 +243,13 @@ private fun EmptyState() {
         DSText(
             text = "No preferences found",
             style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral40
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
         
         DSText(
             text = "Try adjusting your search query",
             style = DSJarvisTheme.typography.body.small,
-            color = DSJarvisTheme.colors.neutral.neutral40
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
     }
 }
@@ -262,28 +266,29 @@ private fun PreferenceItem(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3
+        elevation = DSJarvisTheme.elevations.level2
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
+            modifier = Modifier.padding(DSJarvisTheme.spacing.s)
         ) {
             // Key and Type
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     DSText(
+                        modifier = Modifier.padding(end = DSJarvisTheme.spacing.xs),
                         text = preference.key,
                         style = DSJarvisTheme.typography.body.medium,
                         fontWeight = FontWeight.Medium
                     )
-                    
+
                     DSText(
                         text = preference.type.name.lowercase(),
                         style = DSJarvisTheme.typography.body.small,
-                        color = DSJarvisTheme.colors.neutral.neutral40
+                        color = DSJarvisTheme.colors.neutral.neutral80
                     )
                 }
                 
@@ -291,7 +296,7 @@ private fun PreferenceItem(
                 TypeIndicator(type = preference.type)
             }
             
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
             
             // Value editor based on type
             when (preference.type) {
@@ -309,14 +314,14 @@ private fun PreferenceItem(
                     DSText(
                         text = preference.value,
                         style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral40,
+                        color = DSJarvisTheme.colors.neutral.neutral100,
                         fontWeight = FontWeight.Light
                     )
                     
                     DSText(
                         text = "(Read-only)",
                         style = DSJarvisTheme.typography.body.small,
-                        color = DSJarvisTheme.colors.neutral.neutral40
+                        color = DSJarvisTheme.colors.neutral.neutral100
                     )
                 }
                 
@@ -339,7 +344,7 @@ private fun PreferenceItem(
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        DSJarvisTheme.colors.primary.primary40,
+                                        DSJarvisTheme.colors.primary.primary80,
                                         DSJarvisTheme.shapes.xs
                                     )
                                     .clickable {
@@ -361,7 +366,7 @@ private fun PreferenceItem(
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        DSJarvisTheme.colors.neutral.neutral20,
+                                        DSJarvisTheme.colors.neutral.neutral40,
                                         DSJarvisTheme.shapes.xs
                                     )
                                     .clickable {
@@ -373,7 +378,7 @@ private fun PreferenceItem(
                                 DSText(
                                     text = "Cancel",
                                     style = DSJarvisTheme.typography.body.small,
-                                    color = DSJarvisTheme.colors.neutral.neutral60
+                                    color = DSJarvisTheme.colors.neutral.neutral100
                                 )
                             }
                         }
@@ -403,7 +408,7 @@ private fun PreferenceItem(
                                 DSText(
                                     text = "Edit",
                                     style = DSJarvisTheme.typography.body.small,
-                                    color = DSJarvisTheme.colors.neutral.neutral60
+                                    color = DSJarvisTheme.colors.neutral.neutral100
                                 )
                             }
                         }

@@ -13,6 +13,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.data)
+
     implementation(projects.features.home.domain)
     implementation(projects.features.inspector.domain)
     implementation(projects.features.preferences.domain)

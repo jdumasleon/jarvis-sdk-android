@@ -2,6 +2,7 @@ package com.jarvis.features.home.presentation.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.home.domain.usecase.GetDashboardMetricsUseCase
 import com.jarvis.features.home.domain.usecase.RefreshDashboardMetricsUseCase
@@ -10,7 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getDashboardMetricsUseCase: GetDashboardMetricsUseCase,
-    private val refreshDashboardMetricsUseCase: RefreshDashboardMetricsUseCase
+    private val refreshDashboardMetricsUseCase: RefreshDashboardMetricsUseCase,
+    private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(ResourceState.Idle)
@@ -45,37 +49,60 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { ResourceState.Loading }
             
-            getDashboardMetricsUseCase()
-                .map { metrics ->
-                    HomeUiData(
-                        dashboardMetrics = metrics,
-                        selectedTab = _uiState.value.getDataOrNull()?.selectedTab ?: HomeTab.DASHBOARD
-                    )
+            combine(
+                getDashboardMetricsUseCase(),
+                getPerformanceMetricsUseCase()
+            ) { dashboardMetrics, performanceSnapshot ->
+                HomeUiData(
+                    dashboardMetrics = dashboardMetrics,
+                    performanceSnapshot = performanceSnapshot,
+                    selectedTab = _uiState.value.getDataOrNull()?.selectedTab ?: HomeTab.DASHBOARD
+                )
+            }
+            .onStart { }
+            .catch { exception ->
+                _uiState.update { 
+                    ResourceState.Error(exception, "Failed to load dashboard and performance metrics")
                 }
-                .catch { exception ->
-                    _uiState.update { 
-                        ResourceState.Error(exception, "Failed to load dashboard metrics")
-                    }
-                }
-                .collect { homeUiData ->
-                    _uiState.update { ResourceState.Success(homeUiData) }
-                }
+            }
+            .collect { homeUiData ->
+                _uiState.update { ResourceState.Success(homeUiData) }
+            }
         }
     }
 
     private fun refreshDashboard() {
         viewModelScope.launch {
-            try {
-                _uiState.update { ResourceState.Loading }
-                val metrics = refreshDashboardMetricsUseCase()
-                val currentData = _uiState.value.getDataOrNull()
-                val updatedData = currentData?.copy(dashboardMetrics = metrics) 
-                    ?: HomeUiData(dashboardMetrics = metrics)
-                _uiState.update { ResourceState.Success(updatedData) }
-            } catch (exception: Exception) {
+            val currentData = _uiState.value.getDataOrNull()
+            if (currentData != null) {
                 _uiState.update { 
-                    ResourceState.Error(exception, "Failed to refresh dashboard")
+                    ResourceState.Success(currentData.copy(isRefreshing = true))
                 }
+            }
+            
+            combine(
+                getDashboardMetricsUseCase(),
+                getPerformanceMetricsUseCase()
+            ) { dashboardMetrics, performanceSnapshot ->
+                HomeUiData(
+                    dashboardMetrics = dashboardMetrics,
+                    performanceSnapshot = performanceSnapshot,
+                    selectedTab = currentData?.selectedTab ?: HomeTab.DASHBOARD,
+                    isRefreshing = false
+                )
+            }
+            .catch { exception ->
+                val errorData = currentData?.copy(isRefreshing = false)
+                if (errorData != null) {
+                    _uiState.update { ResourceState.Success(errorData) }
+                } else {
+                    _uiState.update { 
+                        ResourceState.Error(exception, "Failed to refresh dashboard and performance metrics")
+                    }
+                }
+            }
+            .collect { homeUiData ->
+                _uiState.update { ResourceState.Success(homeUiData) }
             }
         }
     }

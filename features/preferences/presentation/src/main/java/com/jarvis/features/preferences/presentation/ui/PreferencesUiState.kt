@@ -19,6 +19,7 @@ data class PreferencesUiData(
     val showAddDialog: Boolean = false,
     val showEditDialog: Boolean = false,
     val showDeleteDialog: Boolean = false,
+    val showClearAllDialog: Boolean = false,
     val showExportDialog: Boolean = false,
     val showImportDialog: Boolean = false,
     val showDetailDialog: Boolean = false,
@@ -133,7 +134,7 @@ data class PreferencesUiData(
 }
 
 sealed interface PreferencesEvent {
-    data class SelectTab(val storageType: PreferenceStorageType) : PreferencesEvent
+    data class ChangeStorageType(val storageType: PreferenceStorageType) : PreferencesEvent
     data class UpdateSearchQuery(val query: String) : PreferencesEvent
     data class UpdateTypeFilter(val type: PreferenceType?) : PreferencesEvent
     data class UpdateSystemPreferencesVisibility(val show: Boolean) : PreferencesEvent
@@ -147,6 +148,7 @@ sealed interface PreferencesEvent {
     data class ShowAddDialog(val show: Boolean) : PreferencesEvent
     data class ShowEditDialog(val show: Boolean) : PreferencesEvent
     data class ShowDeleteDialog(val show: Boolean) : PreferencesEvent
+    data class ShowClearAllDialog(val show: Boolean) : PreferencesEvent
     data class ShowDetailDialog(val show: Boolean) : PreferencesEvent
     data class ShowExportDialog(val show: Boolean) : PreferencesEvent
     data class ShowImportDialog(val show: Boolean) : PreferencesEvent

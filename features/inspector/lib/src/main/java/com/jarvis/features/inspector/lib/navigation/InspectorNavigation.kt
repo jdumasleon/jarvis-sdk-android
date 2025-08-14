@@ -24,4 +24,16 @@ object JarvisSDKInspectorGraph : NavigationRoute {
         override val navigationIconContentDescription: Int? = R.string.jarvis_inspector_transaction_detail_back
         override val route: String = "network_transaction_detail/$transactionId"
     }
+    
+    @Serializable
+    data object JarvisInspectorRules : NavigationRoute {
+        override val titleTextId: Int = R.string.jarvis_inspector_rules
+        override val shouldShowTopAppBar: Boolean = true
+        override val shouldShowBottomBar: Boolean = true
+        override val navigationIcon: ImageVector? = DSIcons.Rounded.arrowBack
+        override val navigationIconContentDescription: Int? = R.string.jarvis_inspector_rules_back
+        override val actionIcon: ImageVector? = DSIcons.add
+        override val actionIconContentDescription: Int? = R.string.jarvis_inspector_rules_add
+        override val actionKey: String = "inspector_rules_add_action"
+    }
 }

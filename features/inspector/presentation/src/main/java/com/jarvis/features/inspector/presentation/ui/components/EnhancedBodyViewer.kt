@@ -1,4 +1,4 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.components
 
 import android.content.ClipData
 import android.content.Context
@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.jarvis.core.designsystem.component.DSButton
+import com.jarvis.core.designsystem.component.DSIconButton
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
@@ -58,101 +60,108 @@ fun EnhancedBodyViewer(
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
 
-    DSCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.s,
-        elevation = DSJarvisTheme.elevations.level2
-    ) {
-        Column {
-            // Header with expand/collapse and actions
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+    Column {
+        DSText(
+            text = title,
+            style = DSJarvisTheme.typography.body.medium,
+            fontWeight = FontWeight.Thin,
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(
+                start = DSJarvisTheme.spacing.m,
+                bottom = DSJarvisTheme.spacing.s
+            )
+        )
+
+        DSCard(
+            modifier = modifier.fillMaxWidth(),
+            shape = DSJarvisTheme.shapes.s,
+            elevation = DSJarvisTheme.elevations.level1
+        ) {
+            Column {
+                // Header with expand/collapse and actions
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    DSText(
-                        text = title,
-                        style = DSJarvisTheme.typography.heading.heading4,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
+
+                    if (!body.isNullOrBlank()) {
+                        Row {
+                            if (isJsonContent(contentType)) {
+                                DSIconButton(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search JSON",
+                                    onClick = {
+                                        showSearchDialog = true
+                                    },
+                                    tint = DSJarvisTheme.colors.primary.primary60
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            DSIconButton(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = "Copy to clipboard",
+                                onClick = {
+                                    coroutineScope.launch {
+                                        clipboard.setClipEntry(
+                                            ClipEntry(
+                                                ClipData.newPlainText(
+                                                    "Body content",
+                                                    body
+                                                )
+                                            )
+                                        )
+                                        Toast.makeText(
+                                            context,
+                                            "Copied to clipboard",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                },
+                                tint = DSJarvisTheme.colors.primary.primary60
+                            )
+
+                            // Expand/collapse button
+                            IconButton(
+                                onClick = { isExpanded = !isExpanded }
+                            ) {
+                                DSIcon(
+                                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                                )
+                            }
+                        }
+                    }
                 }
 
-                if (!body.isNullOrBlank()) {
-                    Row {
-                        // Three dots menu with copy and search options
-                        DSThreeDotsMenu(
-                            items = buildList {
-                                add(
-                                    DSDropdownMenuItem(
-                                        text = "Copy to clipboard",
-                                        icon = Icons.Default.ContentCopy,
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Body content", body)))
-                                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-                                            }
-                                        }
-                                    )
-                                )
-                                
-                                if (isJsonContent(contentType)) {
-                                    add(
-                                        DSDropdownMenuItem(
-                                            text = "Search content",
-                                            icon = Icons.Default.Search,
-                                            onClick = {
-                                                showSearchDialog = true
-                                            }
-                                        )
-                                    )
-                                }
-                            }
-                        )
+                if (isExpanded) {
+                    if (body.isNullOrBlank()) {
+                        DSText(
+                            text = "No content",
+                            style = DSJarvisTheme.typography.body.medium,
+                            color = DSJarvisTheme.colors.neutral.neutral60,
+                            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
 
-                        // Expand/collapse button
-                        IconButton(
-                            onClick = { isExpanded = !isExpanded }
-                        ) {
-                            DSIcon(
-                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (isExpanded) "Collapse" else "Expand"
-                            )
+                        )
+                    } else {
+                        when {
+                            isJsonContent(contentType) -> JsonViewer(contentType, body)
+                            isImageContent(contentType) -> ImageViewer(body, context)
+                            else -> TextViewer(contentType, body)
                         }
                     }
                 }
             }
-
-            if (isExpanded) {
-                Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
-
-                if (body.isNullOrBlank()) {
-                    DSText(
-                        text = "No content",
-                        style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral60
-                    )
-                } else {
-                    when {
-                        isJsonContent(contentType) -> JsonViewer(contentType, body)
-                        isImageContent(contentType) -> ImageViewer(body, context)
-                        else -> TextViewer(contentType, body)
-                    }
-                }
-            }
         }
-    }
-    
-    // Search dialog for JSON content
-    if (showSearchDialog && !body.isNullOrBlank() && isJsonContent(contentType)) {
-        DSSearchableJsonViewerDialog(
-            jsonContent = body,
-            title = title,
-            onDismiss = { showSearchDialog = false }
-        )
+
+        // Search dialog for JSON content
+        if (showSearchDialog && !body.isNullOrBlank() && isJsonContent(contentType)) {
+            DSSearchableJsonViewerDialog(
+                jsonContent = body,
+                title = title,
+                onDismiss = { showSearchDialog = false }
+            )
+        }
     }
 }
 
@@ -170,11 +179,11 @@ private fun JsonViewer(
                 style = DSJarvisTheme.typography.body.small.copy(
                     fontFamily = FontFamily.Monospace
                 ),
-                color = DSJarvisTheme.colors.neutral.neutral0,
+                color = DSJarvisTheme.colors.neutral.neutral100,
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = DSJarvisTheme.colors.neutral.neutral100,
+                        color = DSJarvisTheme.colors.extra.background,
                         shape = DSJarvisTheme.shapes.s
                     )
                     .padding(DSJarvisTheme.dimensions.m)
@@ -187,7 +196,7 @@ private fun JsonViewer(
                     .padding(DSJarvisTheme.spacing.s),
                 text = getContentTypeLabel(contentType),
                 style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.primary.primary100
+                color = DSJarvisTheme.colors.primary.primary60
             )
         }
     }
@@ -219,14 +228,14 @@ private fun ImageViewer(imageData: String, context: Context) {
                 DSText(
                     text = "Base64 Image\n(${imageData.length} characters)",
                     style = DSJarvisTheme.typography.body.medium,
-                    color = DSJarvisTheme.colors.neutral.neutral60
+                    color = DSJarvisTheme.colors.neutral.neutral100
                 )
             }
             else -> {
                 DSText(
                     text = "Image Content\n(${imageData.length} characters)\nPreview not available",
                     style = DSJarvisTheme.typography.body.medium,
-                    color = DSJarvisTheme.colors.neutral.neutral60
+                    color = DSJarvisTheme.colors.neutral.neutral100
                 )
             }
         }
@@ -245,11 +254,11 @@ private fun TextViewer(
                 style = DSJarvisTheme.typography.body.small.copy(
                     fontFamily = FontFamily.Monospace
                 ),
-                color = DSJarvisTheme.colors.neutral.neutral0,
+                color = DSJarvisTheme.colors.neutral.neutral100,
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = DSJarvisTheme.colors.neutral.neutral100,
+                        color = DSJarvisTheme.colors.extra.background,
                         shape = DSJarvisTheme.shapes.s
                     )
                     .padding(DSJarvisTheme.dimensions.m)
@@ -264,7 +273,7 @@ private fun TextViewer(
                     .padding(DSJarvisTheme.spacing.s),
                 text = getContentTypeLabel(contentType),
                 style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.primary.primary100
+                color = DSJarvisTheme.colors.primary.primary60
             )
         }
     }
@@ -312,11 +321,19 @@ private fun getContentTypeLabel(contentType: String?): String {
 @Composable
 private fun EnhancedBodyViewerJsonPreview() {
     DSJarvisTheme {
-        EnhancedBodyViewer(
-            title = "User Data",
-            body = """{"name":"John Doe","age":30,"email":"john@example.com"}""",
-            contentType = "application/json"
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EnhancedBodyViewer(
+                title = "User Data",
+                body = """{"name":"John Doe","age":30,"email":"john@example.com"}""",
+                contentType = "application/json"
+            )
+        }
     }
 }
 
@@ -324,11 +341,19 @@ private fun EnhancedBodyViewerJsonPreview() {
 @Composable
 private fun EnhancedBodyViewerTextPreview() {
     DSJarvisTheme {
-        EnhancedBodyViewer(
-            title = "Log Output",
-            body = "This is a plain text log entry.\nLine 2 of the log.\nLine 3 of the log.",
-            contentType = "text/plain"
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EnhancedBodyViewer(
+                title = "Log Output",
+                body = "This is a plain text log entry.\nLine 2 of the log.\nLine 3 of the log.",
+                contentType = "text/plain"
+            )
+        }
     }
 }
 
@@ -336,11 +361,19 @@ private fun EnhancedBodyViewerTextPreview() {
 @Composable
 private fun EnhancedBodyViewerImagePreview() {
     DSJarvisTheme {
-        EnhancedBodyViewer(
-            title = "Profile Picture",
-            body = "https://developer.android.com/images/brand/Android_Robot.png",
-            contentType = "image/png"
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EnhancedBodyViewer(
+                title = "Profile Picture",
+                body = "https://developer.android.com/images/brand/Android_Robot.png",
+                contentType = "image/png"
+            )
+        }
     }
 }
 
@@ -348,10 +381,18 @@ private fun EnhancedBodyViewerImagePreview() {
 @Composable
 private fun EnhancedBodyViewerEmptyPreview() {
     DSJarvisTheme {
-        EnhancedBodyViewer(
-            title = "Empty Body",
-            body = null,
-            contentType = null
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EnhancedBodyViewer(
+                title = "Empty Body",
+                body = null,
+                contentType = null
+            )
+        }
     }
 }

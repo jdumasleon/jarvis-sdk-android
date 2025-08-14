@@ -24,7 +24,7 @@ fun JarvisSDKOverlay(
     onShowInspector: () -> Unit = {},
     onShowPreferences: () -> Unit = {},
     isJarvisActive: Boolean = false,
-    enableShakeDetection: Boolean = true,
+    enableShakeDetection: Boolean = false,
     onToggleJarvisActive: () -> Unit = {}
 ) {
     var isJarvisVisible by remember { mutableStateOf(isJarvisActive) }
@@ -34,7 +34,7 @@ fun JarvisSDKOverlay(
         isJarvisVisible = isJarvisActive
     }
     
-    // Shake detection to toggle Jarvis visibility and SDK state
+    // Shake detection to show Jarvis (only activate when not active)
     if (enableShakeDetection) {
         ShakeDetectorEffect(
             onShakeDetected = {

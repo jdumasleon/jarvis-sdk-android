@@ -127,7 +127,50 @@ class InspectorViewModel @Inject constructor(
     }
     
     private fun refreshCalls() {
-        onEvent(InspectorEvent.PerformInitialApiCalls)
+        viewModelScope.launch {
+            val currentData = _uiState.value.getDataOrNull() ?: InspectorUiData()
+            
+            // Set refresh state
+            _uiState.update { ResourceState.Success(currentData.copy(isRefreshing = true)) }
+            
+            try {
+                // Perform new API calls
+                val apiCallJobs = (1..3).map { // Fewer calls for refresh
+                    async {
+                        val result = demoApiRepository.performRandomApiCall()
+                        
+                        // Update state with each new call
+                        _uiState.value.getDataOrNull()?.let { data ->
+                            val updatedCalls = (listOf(result) + data.apiCalls).sortedByDescending { it.startTime }
+                            val updatedData = data.copy(
+                                apiCalls = updatedCalls,
+                                totalCallsPerformed = data.totalCallsPerformed + 1,
+                                successfulCalls = data.successfulCalls + if (result.isSuccess) 1 else 0,
+                                failedCalls = data.failedCalls + if (!result.isSuccess) 1 else 0
+                            )
+                            _uiState.update { ResourceState.Success(updatedData) }
+                        }
+                        result
+                    }
+                }
+                
+                // Wait for all calls to complete
+                apiCallJobs.awaitAll()
+                
+                // Turn off refresh indicator
+                val finalData = _uiState.value.getDataOrNull()?.copy(isRefreshing = false)
+                if (finalData != null) {
+                    _uiState.update { ResourceState.Success(finalData) }
+                }
+                
+            } catch (exception: Exception) {
+                // Turn off refresh indicator even on error
+                val errorData = _uiState.value.getDataOrNull()?.copy(isRefreshing = false)
+                if (errorData != null) {
+                    _uiState.update { ResourceState.Success(errorData) }
+                }
+            }
+        }
     }
     
     private fun selectCall(call: ApiCallResult) {

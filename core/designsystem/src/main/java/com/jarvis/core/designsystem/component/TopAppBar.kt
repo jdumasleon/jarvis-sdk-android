@@ -6,7 +6,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -29,6 +31,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +42,7 @@ fun DSTopAppBar(
     navigationIconContentDescription: String? = null,
     actionIcon: ImageVector? = null,
     actionIconContentDescription: String? = null,
+    logo: (@Composable () -> Unit)? = null,
     dismissable: Boolean = false,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
     onBackClick: () -> Unit = {},
@@ -48,10 +52,34 @@ fun DSTopAppBar(
     CenterAlignedTopAppBar(
         title = {
             titleRes?.let {
-                DSText(
-                    text = stringResource(id = it),
-                    style = DSJarvisTheme.typography.heading.heading5,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (logo != null && navigationIcon == null) {
+                        Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
+                        Box(Modifier.size(DSJarvisTheme.dimensions.xl)) { logo() }
+                        Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
+                    }
+                    DSText(
+                        modifier = modifier
+                            .padding(
+                                start = if (logo != null) DSJarvisTheme.spacing.none else DSJarvisTheme.spacing.xxxl,
+                                end = if (actionIcon != null && !dismissable) {
+                                    DSJarvisTheme.spacing.xxxl
+                                } else if (actionIcon == null && !dismissable) {
+                                    DSJarvisTheme.spacing.l
+                                } else {
+                                    DSJarvisTheme.spacing.none
+                                }
+                            )
+                            .weight(1f),
+                        textAlign = TextAlign.Center,
+                        text = stringResource(id = it),
+                        style = DSJarvisTheme.typography.heading.heading5,
+                        color = DSJarvisTheme.colors.extra.black
+                    )
+                }
             }
         },
         navigationIcon = {
@@ -60,9 +88,10 @@ fun DSTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = navigationIconContentDescription,
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
+
             }
         },
         actions = {
@@ -71,28 +100,27 @@ fun DSTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
-                if (dismissable) {
-                    IconButton(onClick = onDismiss) {
-                        DSIcon(
-                            imageVector = DSIcons.Rounded.close,
-                            contentDescription = "Close",
-                            tint = DSJarvisTheme.colors.neutral.neutral100,
-                        )
-                    }
+            }
+            if (dismissable) {
+                IconButton(onClick = onDismiss) {
+                    DSIcon(
+                        imageVector = DSIcons.Rounded.close,
+                        contentDescription = "Close",
+                        tint = DSJarvisTheme.colors.extra.black,
+                    )
                 }
             }
         },
         colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.neutral.neutral0,
-            navigationIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            actionIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            titleContentColor = DSJarvisTheme.colors.neutral.neutral100,
+            containerColor = DSJarvisTheme.colors.extra.background,
+            navigationIconContentColor = DSJarvisTheme.colors.extra.black,
+            actionIconContentColor = DSJarvisTheme.colors.extra.black,
+            titleContentColor = DSJarvisTheme.colors.extra.black,
         ),
         modifier = modifier.testTag("niaTopAppBar")
-
     )
 }
 
@@ -133,8 +161,9 @@ fun DSMediumTopAppBar(
                     }
                     DSText(
                         text = titleText,
-                        style = DSJarvisTheme.typography.heading.heading4,
+                        style = DSJarvisTheme.typography.heading.heading5,
                         textAlign = TextAlign.Start,
+                        color = DSJarvisTheme.colors.extra.black,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -147,7 +176,7 @@ fun DSMediumTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = navigationIconContentDescription,
-                            tint = DSJarvisTheme.colors.neutral.neutral100,
+                            tint = DSJarvisTheme.colors.extra.black,
                         )
                     }
                 }
@@ -164,7 +193,7 @@ fun DSMediumTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
             }
@@ -173,16 +202,17 @@ fun DSMediumTopAppBar(
                     DSIcon(
                         imageVector = DSIcons.Rounded.close,
                         contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
             }
         },
         colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.neutral.neutral0,
-            navigationIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            actionIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            titleContentColor = DSJarvisTheme.colors.neutral.neutral100,
+            containerColor = DSJarvisTheme.colors.extra.background,
+            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
+            navigationIconContentColor = DSJarvisTheme.colors.extra.black,
+            actionIconContentColor = DSJarvisTheme.colors.extra.black,
+            titleContentColor = DSJarvisTheme.colors.extra.black,
         ),
         modifier = modifier.testTag("niaMediumTopAppBar"),
         scrollBehavior = scrollBehavior
@@ -226,8 +256,9 @@ fun DSLargeTopAppBar(
                     }
                     DSText(
                         text = titleText,
-                        style = DSJarvisTheme.typography.heading.heading2,
+                        style = DSJarvisTheme.typography.heading.heading4,
                         textAlign = TextAlign.Start,
+                        color = DSJarvisTheme.colors.extra.black,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -240,7 +271,7 @@ fun DSLargeTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = navigationIconContentDescription,
-                            tint = DSJarvisTheme.colors.neutral.neutral100,
+                            tint = DSJarvisTheme.colors.extra.black,
                         )
                     }
                 }
@@ -256,7 +287,7 @@ fun DSLargeTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
             }
@@ -265,16 +296,17 @@ fun DSLargeTopAppBar(
                     DSIcon(
                         imageVector = DSIcons.Rounded.close,
                         contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.neutral.neutral100,
+                        tint = DSJarvisTheme.colors.extra.black,
                     )
                 }
             }
         },
         colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.neutral.neutral0,
-            navigationIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            actionIconContentColor = DSJarvisTheme.colors.neutral.neutral100,
-            titleContentColor = DSJarvisTheme.colors.neutral.neutral100,
+            containerColor = DSJarvisTheme.colors.extra.background,
+            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
+            navigationIconContentColor = DSJarvisTheme.colors.extra.black,
+            actionIconContentColor = DSJarvisTheme.colors.extra.black,
+            titleContentColor = DSJarvisTheme.colors.extra.black,
         ),
         modifier = modifier.testTag("niaLargeTopAppBar"),
         scrollBehavior = scrollBehavior
@@ -306,8 +338,53 @@ private fun DSTopAppBarDismissablePreview() {
             navigationIcon = DSIcons.Rounded.search,
             navigationIconContentDescription = "Navigation icon",
             actionIcon = DSIcons.moreVert,
+            logo = {
+                DynamicOrbCanvas(
+                    config = StateConfig(
+                        name = "Initializing",
+                        colors = listOf(
+                            DSJarvisTheme.colors.primary.primary40,
+                            DSJarvisTheme.colors.primary.primary60,
+                            DSJarvisTheme.colors.primary.primary80
+                        ),
+                        speed = 1.2f,
+                        morphIntensity = 2.0f
+                    ),
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
             actionIconContentDescription = "Action icon",
             dismissable = true,
+            onDismiss = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview("Top App Bar")
+@Composable
+private fun DSTopAppBaPreview() {
+    DSJarvisTheme {
+        DSTopAppBar(
+            titleRes = R.string.core_design_system_top_app_bar_title,
+            navigationIcon = DSIcons.Rounded.search,
+            navigationIconContentDescription = "Navigation icon",
+            logo = {
+                DynamicOrbCanvas(
+                    config = StateConfig(
+                        name = "Initializing",
+                        colors = listOf(
+                            DSJarvisTheme.colors.primary.primary40,
+                            DSJarvisTheme.colors.primary.primary60,
+                            DSJarvisTheme.colors.primary.primary80
+                        ),
+                        speed = 1.2f,
+                        morphIntensity = 2.0f
+                    ),
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            actionIconContentDescription = "Action icon",
             onDismiss = {}
         )
     }
@@ -318,7 +395,25 @@ private fun DSTopAppBarDismissablePreview() {
 @Composable
 private fun DSTopAppBarPreviewWithoutIcons() {
     DSJarvisTheme {
-        DSTopAppBar(titleRes = R.string.core_design_system_top_app_bar_title)
+        DSTopAppBar(
+            titleRes = R.string.core_design_system_top_app_bar_title,
+            logo = {
+                DynamicOrbCanvas(
+                    config = StateConfig(
+                        name = "Initializing",
+                        colors = listOf(
+                            DSJarvisTheme.colors.primary.primary40,
+                            DSJarvisTheme.colors.primary.primary60,
+                            DSJarvisTheme.colors.primary.primary80
+                        ),
+                        speed = 1.2f,
+                        morphIntensity = 2.0f
+                    ),
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            dismissable = true
+        )
     }
 }
 
@@ -356,6 +451,21 @@ private fun DSMediumTopAppBarDismissablePreview() {
             navigationIconContentDescription = "Back",
             actionIcon = DSIcons.moreVert,
             actionIconContentDescription = "Menu",
+            logo = {
+                DynamicOrbCanvas(
+                    config = StateConfig(
+                        name = "Initializing",
+                        colors = listOf(
+                            DSJarvisTheme.colors.primary.primary40,
+                            DSJarvisTheme.colors.primary.primary60,
+                            DSJarvisTheme.colors.primary.primary80
+                        ),
+                        speed = 1.2f,
+                        morphIntensity = 2.0f
+                    ),
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
             dismissable = true,
             onDismiss = {}
         )

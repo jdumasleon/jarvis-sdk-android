@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
 
         // Initialize Jarvis SDK with comprehensive demo app configuration
         val demoConfig = JarvisConfig.builder()
+            .enableShakeDetection(true)
             .enableDebugLogging(true)
             .preferences {
                 // Enable all auto-discovery for maximum data extraction

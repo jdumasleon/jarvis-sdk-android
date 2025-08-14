@@ -4,11 +4,19 @@ import com.jarvis.features.inspector.domain.entity.HttpMethod
 import com.jarvis.features.inspector.domain.entity.NetworkRequest
 import com.jarvis.features.inspector.domain.entity.NetworkResponse
 import com.jarvis.features.inspector.domain.entity.NetworkTransaction
+import com.jarvis.features.inspector.domain.entity.RuleMode
+import com.jarvis.features.inspector.domain.usecase.rules.ApplyNetworkRulesUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import java.io.IOException
 import javax.inject.Inject
@@ -16,7 +24,8 @@ import javax.inject.Singleton
 
 @Singleton
 class JarvisNetworkInterceptor @Inject constructor(
-    private val collector: JarvisNetworkCollector
+    private val collector: JarvisNetworkCollector,
+    private val applyNetworkRulesUseCase: ApplyNetworkRulesUseCase
 ) : Interceptor {
     
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -35,41 +44,97 @@ class JarvisNetworkInterceptor @Inject constructor(
     
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
+        val originalRequest = chain.request()
         val startTime = System.currentTimeMillis()
         
         // Create NetworkRequest
-        val networkRequest = createNetworkRequest(request, startTime)
+        val networkRequest = createNetworkRequest(originalRequest, startTime)
         
-        // Create initial transaction
+        // Create transaction for rule matching
         val transaction = NetworkTransaction(
             request = networkRequest,
             startTime = startTime
         )
         
+        // Find matching rules
+        val matchingRules = runBlocking {
+            applyNetworkRulesUseCase.findMatchingRules(transaction)
+        }
+        
+        // Get the first matching rule (if any)
+        val firstRule = matchingRules.firstOrNull()
+        
+        // Check if this request should be mocked (Mock mode)
+        if (firstRule?.mode == RuleMode.MOCK) {
+            val mockNetworkResponse = applyNetworkRulesUseCase.createMockResponse(networkRequest, firstRule)
+            val mockResponse = createMockOkHttpResponse(originalRequest, mockNetworkResponse)
+            val finalNetworkResponse = createNetworkResponse(mockResponse, System.currentTimeMillis())
+            
+            // Create transaction with mock response
+            val mockTransaction = transaction.withResponse(finalNetworkResponse)
+            
+            // Collect mock transaction
+            coroutineScope.launch {
+                collector.onRequestSent(mockTransaction)
+                collector.onResponseReceived(mockTransaction)
+            }
+            
+            return mockResponse
+        }
+        
+        // Apply request modifications if in Inspect mode
+        val modifiedNetworkRequest = if (firstRule?.mode == RuleMode.INSPECT) {
+            applyNetworkRulesUseCase.applyRequestModifications(networkRequest, firstRule)
+        } else {
+            networkRequest
+        }
+        
+        // Use modified request
+        val requestToSend = if (modifiedNetworkRequest != networkRequest) {
+            buildModifiedOkHttpRequest(originalRequest, modifiedNetworkRequest)
+        } else {
+            originalRequest
+        }
+        
+        // Update transaction with potentially modified request
+        val updatedTransaction = transaction.copy(request = modifiedNetworkRequest)
+        
         // Collect request
         coroutineScope.launch {
-            collector.onRequestSent(transaction)
+            collector.onRequestSent(updatedTransaction)
         }
         
         return try {
-            val response = chain.proceed(request)
+            val response = chain.proceed(requestToSend)
             val endTime = System.currentTimeMillis()
             
             // Create NetworkResponse
             val networkResponse = createNetworkResponse(response, endTime)
             
+            // Apply response modifications if in Inspect mode
+            val finalNetworkResponse = if (firstRule?.mode == RuleMode.INSPECT) {
+                applyNetworkRulesUseCase.applyResponseModifications(networkResponse, firstRule)
+            } else {
+                networkResponse
+            }
+            
+            val finalResponse = if (finalNetworkResponse != networkResponse) {
+                createOkHttpResponseFromNetworkResponse(response, finalNetworkResponse)
+            } else {
+                response
+            }
+            
             // Update transaction with response
-            val completedTransaction = transaction.withResponse(networkResponse)
+            val completedTransaction = updatedTransaction.withResponse(finalNetworkResponse)
             
             // Collect response
             coroutineScope.launch {
                 collector.onResponseReceived(completedTransaction)
             }
             
-            response
+            finalResponse
         } catch (e: Exception) {
-            val errorTransaction = transaction.withError(e.message ?: "Unknown error")
+            val errorTransaction = updatedTransaction.withError(e.message ?: "Unknown error")
             
             // Collect error
             coroutineScope.launch {
@@ -125,8 +190,8 @@ class JarvisNetworkInterceptor @Inject constructor(
             statusMessage = response.message,
             headers = redactedHeaders,
             body = body,
-            contentType = response.body?.contentType()?.toString(),
-            bodySize = response.body?.contentLength() ?: 0L,
+            contentType = response.body.contentType()?.toString(),
+            bodySize = response.body.contentLength() ?: 0L,
             timestamp = endTime
         )
     }
@@ -141,13 +206,88 @@ class JarvisNetworkInterceptor @Inject constructor(
         }
     }
     
+    private fun createMockOkHttpResponse(
+        originalRequest: Request,
+        networkResponse: NetworkResponse
+    ): Response {
+        val builder = Response.Builder()
+            .request(originalRequest)
+            .protocol(Protocol.HTTP_1_1)
+            .code(networkResponse.statusCode)
+            .message(networkResponse.statusMessage)
+        
+        // Add headers
+        networkResponse.headers.forEach { (key, value) ->
+            builder.addHeader(key, value)
+        }
+        
+        // Set response body
+        val responseBody = networkResponse.body ?: ""
+        val mediaType = networkResponse.contentType?.toMediaType()
+        builder.body(responseBody.toResponseBody(mediaType))
+        
+        return builder.build()
+    }
+    
+    private fun buildModifiedOkHttpRequest(
+        originalRequest: Request,
+        modifiedNetworkRequest: NetworkRequest
+    ): Request {
+        val builder = originalRequest.newBuilder()
+        
+        // Clear existing headers and add modified ones
+        modifiedNetworkRequest.headers.forEach { (key, value) ->
+            builder.removeHeader(key)
+            builder.addHeader(key, value)
+        }
+        
+        // Update body if modified
+        modifiedNetworkRequest.body?.let { bodyContent ->
+            val mediaType = modifiedNetworkRequest.contentType?.toMediaType()
+            val requestBody = bodyContent.toByteArray().toRequestBody(mediaType)
+            builder.method(modifiedNetworkRequest.method.name, requestBody)
+        }
+        
+        return builder.build()
+    }
+    
+    private fun createOkHttpResponseFromNetworkResponse(
+        originalResponse: Response,
+        networkResponse: com.jarvis.features.inspector.domain.entity.NetworkResponse
+    ): Response {
+        val builder = originalResponse.newBuilder()
+            .code(networkResponse.statusCode)
+            .message(networkResponse.statusMessage)
+        
+        // Clear existing headers and add modified ones
+        networkResponse.headers.forEach { (key, value) ->
+            builder.removeHeader(key)
+            builder.addHeader(key, value)
+        }
+        
+        // Update body if specified
+        networkResponse.body?.let { newBody ->
+            val mediaType = networkResponse.contentType?.toMediaType()
+                ?: originalResponse.body?.contentType()
+            builder.body(newBody.toResponseBody(mediaType))
+        }
+        
+        return builder.build()
+    }
+    
+    
     class Builder {
         private var collector: JarvisNetworkCollector? = null
+        private var applyNetworkRulesUseCase: ApplyNetworkRulesUseCase? = null
         private var maxContentLength: Long = MAX_CONTENT_LENGTH
         private var headersToRedact: Set<String> = DEFAULT_REDACTED_HEADERS
         
         fun collector(collector: JarvisNetworkCollector) = apply {
             this.collector = collector
+        }
+        
+        fun rulesUseCase(useCase: ApplyNetworkRulesUseCase) = apply {
+            this.applyNetworkRulesUseCase = useCase
         }
         
         fun maxContentLength(length: Long) = apply {
@@ -160,7 +300,8 @@ class JarvisNetworkInterceptor @Inject constructor(
         
         fun build(): JarvisNetworkInterceptor {
             val networkCollector = collector ?: throw IllegalStateException("Collector must be set")
-            return JarvisNetworkInterceptor(networkCollector)
+            val rulesUseCase = applyNetworkRulesUseCase ?: throw IllegalStateException("ApplyNetworkRulesUseCase must be set")
+            return JarvisNetworkInterceptor(networkCollector, rulesUseCase)
         }
     }
 }

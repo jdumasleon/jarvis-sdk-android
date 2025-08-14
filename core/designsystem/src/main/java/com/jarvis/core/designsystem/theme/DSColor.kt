@@ -6,9 +6,10 @@ import androidx.compose.ui.graphics.Color
 
 val Primary100 = Color(0xFF2752E7)
 val Primary80 = Color(0xFF3756EC)
-val Primary60 = Color(0xFF7D99F1)
-val Primary40 = Color(0xFFD0D8FF)
-val Primary20 = Color(0xFFF5F8FE)
+val Primary60 = Color(0xFF007AFF)
+val Primary40 = Color(0xFF7D99F1)
+val Primary20 = Color(0xFFD0D8FF)
+val Primary0 = Color(0xFFF5F8FE)
 
 val Secondary100 = Color(0xFF3F8A5F)
 val Secondary80 = Color(0xFFFDB989)
@@ -16,12 +17,12 @@ val Secondary60 = Color(0xFFFEE8B6)
 val Secondary40 = Color(0xFFFFF2D0)
 val Secondary20 = Color(0xFFFFF8EF)
 
-val Neutral100 = Color(0xFF000000)
-val Neutral80 = Color(0xFF333333)
-val Neutral60 = Color(0xFF666666)
-val Neutral40 = Color(0xFF999999)
-val Neutral20 = Color(0xFFD9D9D9)
-val Neutral0 = Color(0xFFFFFFFF)
+val Neutral100 = Color(0xFF8E8E93)
+val Neutral80 = Color(0xFFAEAEB2)
+val Neutral60 = Color(0xFFC7C7CC)
+val Neutral40 = Color(0xFFD1D1D6)
+val Neutral20 = Color(0xFFE5E5EA)
+val Neutral0 = Color(0xFFF2F2F7)
 
 val Success100 = Color(0xFF3F8A5F)
 val Success80 = Color(0xFF55977F)
@@ -47,7 +48,7 @@ val Info60 = Color(0xFF70B8D7)
 val Info40 = Color(0xFFA5CCE2)
 val Info20 = Color(0xFFDEF2F4)
 
-val surfaceColor = Color(0xFFFFFBFE)
+val background0 = Color(0xFFF2F2F7)
 
 @Immutable
 data class DSColors(
@@ -127,7 +128,10 @@ data class Info(
 
 @Immutable
 data class Extra(
-    val surface: Color = surfaceColor
+    val background: Color = background0,
+    val white: Color = Color.White,
+    val black: Color = Color.Black,
+    val transparent: Color = Color.Transparent
 )
 
 val LocalDSColors = staticCompositionLocalOf { DSColors() }

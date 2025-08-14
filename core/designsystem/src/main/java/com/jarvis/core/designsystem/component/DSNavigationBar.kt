@@ -102,7 +102,7 @@ fun RowScope.DSNavigationBarItem(
 fun DSNavigationBar(
     modifier: Modifier = Modifier,
     topCornerRadius: Dp = DSJarvisTheme.dimensions.none,
-    containerColor: Color = DSJarvisTheme.colors.neutral.neutral0,
+    containerColor: Color = DSJarvisTheme.colors.extra.background,
     contentColor: Color = DSNavigationDefaults.navigationContentColor(),
     tonalElevation: Dp = DSJarvisTheme.elevations.none,
     content: @Composable RowScope.() -> Unit,
@@ -157,7 +157,9 @@ fun DSNavigationBarPreview() {
             items.forEachIndexed { index, item ->
                 DSNavigationBarItem(
                     icon = { DSIcon(imageVector = icons[index], contentDescription = item) },
-                    selectedIcon = { DSIcon(imageVector = iconsFilled[index], contentDescription = item) },
+                    selectedIcon = {
+                        DSIcon(imageVector = iconsFilled[index], contentDescription = item)
+                    },
                     label = { Text(item) },
                     selected = index == 0,
                     onClick = { /* noop */ },
@@ -168,8 +170,8 @@ fun DSNavigationBarPreview() {
 }
 
 object DSNavigationDefaults {
-    @Composable fun navigationContentColor() = DSJarvisTheme.colors.neutral.neutral0
-    @Composable fun navigationSelectedItemColor() = DSJarvisTheme.colors.primary.primary100
-    @Composable fun navigationUnSelectedItemColor() = DSJarvisTheme.colors.neutral.neutral40
+    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.background
+    @Composable fun navigationSelectedItemColor() = DSJarvisTheme.colors.primary.primary60
+    @Composable fun navigationUnSelectedItemColor() = DSJarvisTheme.colors.neutral.neutral60
     @Composable fun navigationIndicatorColor() = Color.Transparent
 }

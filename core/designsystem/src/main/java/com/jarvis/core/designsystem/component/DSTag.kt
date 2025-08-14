@@ -17,38 +17,55 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.theme.Neutral0
+import com.jarvis.core.designsystem.theme.Neutral100
 import com.jarvis.core.designsystem.theme.Neutral20
 import com.jarvis.core.designsystem.theme.Neutral60
 import com.jarvis.core.designsystem.theme.Primary100
+import com.jarvis.core.designsystem.theme.Success100
+import com.jarvis.core.designsystem.theme.Warning100
 
 enum class DSTagStyle(
     val backgroundColor: Color,
     val tagTextColor: Color,
     val iconColor: Color,
 ) {
-    Primary(
+    Info(
         backgroundColor = Primary100,
         tagTextColor = Neutral0,
         iconColor = Neutral0
     ),
-    Secondary(
+    Neutral(
         backgroundColor = Neutral20,
         tagTextColor = Neutral60,
         iconColor = Neutral60
+    ),
+    Success (
+        backgroundColor = Success100,
+        tagTextColor = Neutral0,
+        iconColor = Neutral60
+    ),
+    Warning(
+        backgroundColor = Warning100,
+        tagTextColor = Neutral100,
+        iconColor = Neutral100
     );
 
     val corners: RoundedCornerShape
         @Composable
         get() = when(this) {
-            Primary -> DSJarvisTheme.shapes.m
-            Secondary -> DSJarvisTheme.shapes.m
+            Info -> DSJarvisTheme.shapes.m
+            Neutral -> DSJarvisTheme.shapes.m
+            Success -> DSJarvisTheme.shapes.m
+            Warning -> DSJarvisTheme.shapes.m
         }
 
     val fontStyle: TextStyle
         @Composable
         get() = when(this) {
-            Primary -> DSJarvisTheme.typography.body.small
-            Secondary -> DSJarvisTheme.typography.body.small
+            Info -> DSJarvisTheme.typography.body.small
+            Neutral -> DSJarvisTheme.typography.body.small
+            Success -> DSJarvisTheme.typography.body.small
+            Warning -> DSJarvisTheme.typography.body.small
         }
 }
 
@@ -57,7 +74,7 @@ fun DSTag(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     tag: String,
-    style: DSTagStyle = DSTagStyle.Primary
+    style: DSTagStyle = DSTagStyle.Info
 ) {
     DSTag(
         modifier = modifier,
@@ -83,7 +100,7 @@ fun DSTag(
     Row(
         modifier = modifier
             .background(backgroundColor, shape)
-            .padding(DSJarvisTheme.spacing.xs),
+            .padding(DSJarvisTheme.spacing.s),
         verticalAlignment = Alignment.CenterVertically) {
         icon?.let {
             DSIcon(
@@ -111,17 +128,31 @@ private fun PreviewDSTag() {
     ) {
         DSTag(
             icon = DSIcons.home,
-            tag = "Primary Tag",
-            style = DSTagStyle.Primary
-        )
-        DSTag(
-            icon = DSIcons.person,
-            tag = "Secondary Tag with icon",
-            style = DSTagStyle.Secondary
+            tag = "Info tag with icon",
+            style = DSTagStyle.Info
         )
         DSTag(
             tag = "Secondary Tag",
-            style = DSTagStyle.Secondary
+            style = DSTagStyle.Info
         )
+        DSTag(
+            icon = DSIcons.person,
+            tag = "Neutral tag with icon",
+            style = DSTagStyle.Neutral
+        )
+        DSTag(
+            tag = "Neutral Tag",
+            style = DSTagStyle.Neutral
+        )
+        DSTag(
+            tag = "Success Tag",
+            style = DSTagStyle.Success
+        )
+        DSTag(
+            tag = "Warning Tag",
+            style = DSTagStyle.Warning
+        )
+
+
     }
 }

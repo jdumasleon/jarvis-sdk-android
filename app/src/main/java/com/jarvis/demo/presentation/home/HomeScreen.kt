@@ -94,7 +94,7 @@ private fun HomeContent(
         DSCard(
             modifier = Modifier.fillMaxWidth(),
             shape = DSJarvisTheme.shapes.m,
-            elevation = DSJarvisTheme.elevations.level3,
+            elevation = DSJarvisTheme.elevations.none,
         ) {
             Column(
                 modifier = Modifier
@@ -118,10 +118,10 @@ private fun HomeContent(
                     text = uiData.description,
                     style = DSJarvisTheme.typography.body.large,
                     textAlign = TextAlign.Center,
-                    color = DSJarvisTheme.colors.neutral.neutral60
+                    color = DSJarvisTheme.colors.neutral.neutral100
                 )
                 
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
                 
                 // Version and Status
                 Column(
@@ -131,27 +131,26 @@ private fun HomeContent(
                         text = uiData.version,
                         style = DSJarvisTheme.typography.body.small,
                         textAlign = TextAlign.Center,
-                        color = DSJarvisTheme.colors.neutral.neutral40
+                        color = DSJarvisTheme.colors.neutral.neutral80
                     )
                     
                     if (uiData.isJarvisActive) {
-                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
+                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
                         DSTag(
                             tag = "ACTIVE",
-                            style = DSTagStyle.Primary
+                            style = DSTagStyle.Info
                         )
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.l))
+                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
                 
                 // Instructions
                 DSText(
                     text = uiData.shakeInstructions,
                     style = DSJarvisTheme.typography.body.medium,
                     textAlign = TextAlign.Center,
-                    color = DSJarvisTheme.colors.neutral.neutral80,
-                    lineHeight = DSJarvisTheme.typography.body.medium.lineHeight * 1.3f
+                    color = DSJarvisTheme.colors.neutral.neutral100,
                 )
                 
                 Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.l))
@@ -170,7 +169,7 @@ private fun HomeContent(
                     DSText(
                         text = "Last updated: ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(timestamp))}",
                         style = DSJarvisTheme.typography.body.small,
-                        color = DSJarvisTheme.colors.neutral.neutral40
+                        color = DSJarvisTheme.colors.neutral.neutral80
                     )
                 }
             }

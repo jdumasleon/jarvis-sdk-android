@@ -31,7 +31,7 @@ import com.jarvis.core.designsystem.theme.applyEmphasis
 fun DSText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Neutral100,
+    color: Color = DSJarvisTheme.colors.extra.black,
     emphasis: Float = LocalDSContentEmphasis.current.normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,

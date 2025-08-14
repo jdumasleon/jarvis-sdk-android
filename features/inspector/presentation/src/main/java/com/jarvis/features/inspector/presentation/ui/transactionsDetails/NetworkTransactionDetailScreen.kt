@@ -1,4 +1,4 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.transactionsDetails
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,9 @@ import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.ConfirmationDialog
 import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.features.inspector.presentation.ui.components.TransactionOverviewTab
+import com.jarvis.features.inspector.presentation.ui.components.TransactionRequestTab
+import com.jarvis.features.inspector.presentation.ui.components.TransactionResponseTab
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,7 +135,7 @@ private fun TransactionsDetailSectionsTabs(
         selectedTabIndex = selectedTab,
         tabCount = tabLabels.size,
         onTabSelected = { index -> onTabSelected(index) },
-        backgroundColor = DSJarvisTheme.colors.extra.surface
+        backgroundColor = DSJarvisTheme.colors.extra.white
     ) { index, selected ->
         Box (
             modifier = Modifier.padding(DSJarvisTheme.spacing.m)
@@ -142,7 +145,7 @@ private fun TransactionsDetailSectionsTabs(
                 style = DSJarvisTheme.typography.body.medium,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                 color = if (selected) {
-                    DSJarvisTheme.colors.primary.primary100
+                    DSJarvisTheme.colors.primary.primary60
                 } else {
                     DSJarvisTheme.colors.neutral.neutral100
                 }

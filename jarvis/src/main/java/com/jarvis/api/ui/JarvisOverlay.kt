@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -123,16 +124,12 @@ private fun JarvisOverlayContent(
     onDismiss: () -> Unit = {}
 ) {
     var currentDestination by remember { mutableStateOf(navigator.currentDestination) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        rememberTopAppBarState()
-    )
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = DSJarvisTheme.colors.extra.background,
         topBar = {
             JarvisSDKTopBar(
                 currentDestination = currentDestination,
-                scrollBehavior = scrollBehavior,
                 navigator = navigator,
                 onDismiss = onDismiss,
             )
@@ -161,12 +158,11 @@ private fun JarvisOverlayContent(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun JarvisSDKTopBar(
     currentDestination: NavigationRoute?,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
     navigator: Navigator,
     onDismiss: () -> Unit = {}
 ) {
     currentDestination?.takeIf { it.shouldShowTopAppBar }?.let { destination ->
-        DSMediumTopAppBar(
+        DSTopAppBar(
             titleRes = destination.titleTextId,
             navigationIcon = destination.navigationIcon,
             navigationIconContentDescription = destination.navigationIconContentDescription?.let {
@@ -198,8 +194,7 @@ private fun JarvisSDKTopBar(
             },
             onBackClick = { navigator.goBack() },
             dismissable = destination.dismissable,
-            onDismiss = onDismiss,
-            scrollBehavior = scrollBehavior
+            onDismiss = onDismiss
         )
     }
 }
@@ -220,20 +215,85 @@ private fun JarvisSDKBottomBar(
                         DSIcon(
                             imageVector = item.icon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
+                            tint = DSJarvisTheme.colors.neutral.neutral100
                         )
                     },
                     selectedIcon = {
                         DSIcon(
                             imageVector = item.selectedIcon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
+                            tint = DSJarvisTheme.colors.primary.primary60
                         )
                     },
-                    selected = currentDestination == item.destination,
+                    selected = isDestinationSelected(currentDestination, item.destination),
                     onClick = {
-                        navigator.replace(item.destination)
+                        navigateToTab(navigator, item.destination)
                     }
                 )
             }
         }
+    }
+}
+
+/**
+ * Handles tab navigation with intelligent stack management and history preservation.
+ * If we're already in the same tab, pop to the root of that tab.
+ * If switching tabs, preserve current tab's stack and restore target tab's stack.
+ */
+private fun navigateToTab(navigator: Navigator, tabDestination: NavigationRoute) {
+    val currentDestination = navigator.currentDestination
+    
+    if (currentDestination != null && isDestinationSelected(currentDestination, tabDestination)) {
+        // Already in this tab - pop to root of this tab
+        if (currentDestination != tabDestination) {
+            // Find the tab's root in the back stack and pop to it
+            navigator.popTo(tabDestination)
+        }
+        // If already at root, do nothing (don't reset the tab)
+    } else {
+        // Switching to different tab - use tab-aware navigation to preserve history
+        val currentTabKey = currentDestination?.let { navigator.getTabKey(it) }
+        val targetTabKey = navigator.getTabKey(tabDestination)
+        
+        if (currentTabKey != null && targetTabKey != null) {
+            navigator.switchToTab(tabDestination, currentTabKey, targetTabKey)
+        } else {
+            // Fallback to original behavior if tab keys can't be determined
+            navigator.replace(tabDestination)
+        }
+    }
+}
+
+/**
+ * Determines if a destination should be considered "selected" in the bottom navigation.
+ * This handles the case where we're on a detail screen but want to highlight the parent tab.
+ */
+private fun isDestinationSelected(
+    currentDestination: NavigationRoute?,
+    tabDestination: NavigationRoute
+): Boolean {
+    if (currentDestination == null) return false
+    
+    // Direct match
+    if (currentDestination == tabDestination) return true
+    
+    // Check if current destination belongs to the same feature module
+    val currentRoute = currentDestination::class.qualifiedName ?: ""
+    val tabRoute = tabDestination::class.qualifiedName ?: ""
+    
+    return when {
+        // Inspector tab: select if we're on any inspector screen
+        tabRoute.contains("inspector", ignoreCase = true) && 
+        currentRoute.contains("inspector", ignoreCase = true) -> true
+        
+        // Preferences tab: select if we're on any preferences screen  
+        tabRoute.contains("preferences", ignoreCase = true) && 
+        currentRoute.contains("preferences", ignoreCase = true) -> true
+        
+        // Home tab: select if we're on any home screen
+        tabRoute.contains("home", ignoreCase = true) && 
+        currentRoute.contains("home", ignoreCase = true) -> true
+        
+        else -> false
     }
 }

@@ -54,23 +54,25 @@ fun DSDropdownMenu(
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = DSJarvisTheme.spacing.l)
                     ) {
+                        DSText(
+                            modifier = Modifier.weight(1f),
+                            text = item.text,
+                            style = DSJarvisTheme.typography.body.small,
+                            color = item.textColor ?: DSJarvisTheme.colors.extra.black
+                        )
+                        Spacer(modifier = Modifier.width(DSJarvisTheme.dimensions.l))
                         if (item.icon != null) {
                             DSIcon(
                                 imageVector = item.icon,
                                 contentDescription = item.text,
                                 modifier = Modifier.size(DSJarvisTheme.dimensions.m),
-                                tint = item.iconTint ?: DSJarvisTheme.colors.neutral.neutral80
+                                tint = item.iconTint ?: DSJarvisTheme.colors.extra.black
                             )
-                            Spacer(modifier = Modifier.width(DSJarvisTheme.dimensions.m))
                         }
-
-                        DSText(
-                            text = item.text,
-                            style = DSJarvisTheme.typography.body.small,
-                            color = item.textColor ?: DSJarvisTheme.colors.neutral.neutral100
-                        )
                     }
                 },
                 onClick = {
@@ -90,8 +92,8 @@ fun DSDropdownMenu(
 fun DSThreeDotsMenu(
     items: List<DSDropdownMenuItem>,
     modifier: Modifier = Modifier,
-    iconTint: Color = DSJarvisTheme.colors.neutral.neutral80,
-    backgroundColor: Color = DSJarvisTheme.colors.neutral.neutral0
+    iconTint: Color = DSJarvisTheme.colors.extra.black,
+    backgroundColor: Color = DSJarvisTheme.colors.extra.white
 ) {
     var expanded by remember { mutableStateOf(false) }
 

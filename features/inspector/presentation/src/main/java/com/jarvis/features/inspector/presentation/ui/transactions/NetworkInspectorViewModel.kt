@@ -1,8 +1,9 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.features.inspector.domain.entity.NetworkTransaction
 import com.jarvis.features.inspector.domain.repository.NetworkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,7 +83,7 @@ class NetworkInspectorViewModel @Inject constructor(
         refreshFilters()
     }
 
-    private fun selectTransaction(transaction: com.jarvis.features.inspector.domain.entity.NetworkTransaction) {
+    private fun selectTransaction(transaction: NetworkTransaction) {
         val currentData = _uiState.value.getDataOrNull() ?: return
         val updatedData = currentData.copy(selectedTransaction = transaction)
         _uiState.update { ResourceState.Success(updatedData) }
@@ -145,7 +146,7 @@ class NetworkInspectorViewModel @Inject constructor(
         }
     }
 
-    private fun applyFilters(transactions: List<com.jarvis.features.inspector.domain.entity.NetworkTransaction>): List<com.jarvis.features.inspector.domain.entity.NetworkTransaction> {
+    private fun applyFilters(transactions: List<NetworkTransaction>): List<NetworkTransaction> {
         val currentData = _uiState.value.getDataOrNull() ?: return transactions
         var filteredTransactions = transactions
 

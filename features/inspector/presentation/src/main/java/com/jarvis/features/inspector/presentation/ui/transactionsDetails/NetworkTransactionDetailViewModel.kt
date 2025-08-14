@@ -1,4 +1,4 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.transactionsDetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

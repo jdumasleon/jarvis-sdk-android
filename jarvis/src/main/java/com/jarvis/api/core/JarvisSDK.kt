@@ -11,6 +11,7 @@ import com.jarvis.api.ui.JarvisOverlay
 import com.jarvis.api.ui.JarvisSDKOverlay
 import com.jarvis.config.JarvisConfig
 import com.jarvis.config.ConfigurationSynchronizer
+import com.jarvis.core.data.performance.PerformanceManager
 import com.jarvis.features.home.lib.navigation.JarvisSDKHomeGraph
 import com.jarvis.features.inspector.lib.navigation.JarvisSDKInspectorGraph
 import com.jarvis.features.preferences.lib.navigation.JarvisSDKPreferencesGraph
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 @Singleton
 class JarvisSDK @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val configurationSynchronizer: ConfigurationSynchronizer
+    private val configurationSynchronizer: ConfigurationSynchronizer,
+    private val performanceManager: PerformanceManager
 ) {
     private var isInitialized = false
     private var configuration = JarvisConfig()
@@ -48,6 +50,9 @@ class JarvisSDK @Inject constructor(
         
         // Synchronize configuration with all feature modules
         configurationSynchronizer.updateConfigurations(config)
+        
+        // Initialize performance monitoring for real-time metrics
+        performanceManager.initialize()
         
         // Perform any necessary initialization
         // This could include setting up crash reporting, analytics, etc.
@@ -170,6 +175,18 @@ class JarvisSDK @Inject constructor(
         return _isJarvisActive
     }
     
+    /**
+     * Activate Jarvis only if not already active (for shake detection)
+     * This prevents multiple activations when shake is detected
+     */
+    fun activateIfInactive(): Boolean {
+        if (!_isJarvisActive && isInitialized) {
+            activate()
+            return true
+        }
+        return false
+    }
+    
 }
 
 
@@ -191,8 +208,8 @@ fun JarvisProvider(
             onShowInspector = { sdk.showInspector() },
             onShowPreferences = { sdk.showPreferences() },
             isJarvisActive = sdk.isActive(),
-            enableShakeDetection = true, // TODO: Add to config if needed
-            onToggleJarvisActive = { sdk.toggle() }
+            enableShakeDetection = sdk.getConfiguration().enableShakeDetection,
+            onToggleJarvisActive = { sdk.activateIfInactive() }
         )
     }
 }

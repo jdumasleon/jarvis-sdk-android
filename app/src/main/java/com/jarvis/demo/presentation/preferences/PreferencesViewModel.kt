@@ -136,7 +136,42 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun refreshPreferences() {
-        loadPreferences()
+        viewModelScope.launch {
+            val currentData = _uiState.value.getDataOrNull() ?: PreferencesUiData()
+            
+            // Set refresh state
+            _uiState.update { ResourceState.Success(currentData.copy(isRefreshing = true)) }
+            
+            try {
+                // Collect the combined preferences flow
+                combine(
+                    demoPreferencesRepository.getSharedPreferencesFlow(),
+                    demoPreferencesRepository.getDataStorePreferencesFlow(),
+                    demoPreferencesRepository.getProtoDataStorePreferencesFlow()
+                ) { sharedPrefs, dataStorePrefs, protoPrefs ->
+                    PreferencesUiData(
+                        sharedPreferences = sharedPrefs,
+                        dataStorePreferences = dataStorePrefs,
+                        protoDataStorePreferences = protoPrefs,
+                        selectedTab = currentData.selectedTab,
+                        searchQuery = currentData.searchQuery,
+                        filterType = currentData.filterType,
+                        isRefreshing = false // Turn off refresh indicator
+                    )
+                }.catch { exception ->
+                    // Turn off refresh indicator even on error
+                    val errorData = currentData.copy(isRefreshing = false)
+                    _uiState.update { ResourceState.Success(errorData) }
+                }.collect { combinedData ->
+                    _uiState.update { ResourceState.Success(combinedData) }
+                }
+                
+            } catch (exception: Exception) {
+                // Turn off refresh indicator on error
+                val errorData = currentData.copy(isRefreshing = false)
+                _uiState.update { ResourceState.Success(errorData) }
+            }
+        }
     }
     
     private fun clearAllPreferences() {

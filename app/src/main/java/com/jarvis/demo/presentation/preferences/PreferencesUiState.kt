@@ -17,7 +17,8 @@ data class PreferencesUiData(
     val showAddDialog: Boolean = false,
     val showEditDialog: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
-    val filterType: PreferenceTypeFilter = PreferenceTypeFilter.ALL
+    val filterType: PreferenceTypeFilter = PreferenceTypeFilter.ALL,
+    val isRefreshing: Boolean = false
 ) {
     val currentPreferences: List<PreferenceItem>
         get() = when (selectedTab) {
@@ -50,7 +51,7 @@ data class PreferencesUiData(
         val mockPreferencesUiData = PreferencesUiData(
             sharedPreferences = listOf(
                 PreferenceItem("user_name", "JohnDoe123", PreferenceType.STRING),
-                PreferenceItem("is_notifications_enabled", "true", PreferenceType.BOOLEAN),
+                PreferenceItem("is_notifications_enabled_large_text", "true", PreferenceType.BOOLEAN),
                 PreferenceItem("theme_mode", "dark", PreferenceType.STRING),
                 PreferenceItem("max_cache_size", "256", PreferenceType.NUMBER),
                 PreferenceItem("api_timeout", "15000", PreferenceType.NUMBER),

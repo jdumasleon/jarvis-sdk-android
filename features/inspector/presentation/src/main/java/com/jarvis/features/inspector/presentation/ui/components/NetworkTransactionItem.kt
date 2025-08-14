@@ -1,4 +1,4 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

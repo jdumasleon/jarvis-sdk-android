@@ -317,7 +317,7 @@ data class DSTextFieldAppearance(
                 disabledBackgroundColor = DSJarvisTheme.colors.neutral.neutral20,
                 disabledColor = DSJarvisTheme.colors.neutral.neutral20,
                 disabledTextColor = DSJarvisTheme.colors.neutral.neutral40,
-                backgroundColor = DSJarvisTheme.colors.neutral.neutral0,
+                backgroundColor = DSJarvisTheme.colors.extra.white,
                 errorTextColor = DSJarvisTheme.colors.error.error100,
                 trailingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
                 leadingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
@@ -381,7 +381,9 @@ fun DSTextFieldPreview() {
     val errorMessage = UiText.StringResource(R.string.core_design_system_error_incorrect_password)
 
     Column(
-        modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+        modifier = Modifier
+            .background(DSJarvisTheme.colors.extra.background)
+            .padding(DSJarvisTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
     ) {
         DSTextField(

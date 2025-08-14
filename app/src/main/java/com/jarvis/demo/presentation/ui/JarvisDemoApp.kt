@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -92,7 +93,7 @@ internal fun JarvisDemoApp(
 
     DSDrawer(
         drawerState = drawerState,
-        drawerBackgroundColor = DSJarvisTheme.colors.primary.primary100,
+        drawerBackgroundColor = DSJarvisTheme.colors.extra.white,
         contentCornerSize = DSJarvisTheme.dimensions.m,
         drawerContent = {
             DrawerContent(
@@ -112,6 +113,7 @@ internal fun JarvisDemoApp(
         }
     ) {
         Scaffold(
+            containerColor = DSJarvisTheme.colors.extra.background,
             topBar = { 
                 JarvisTopBar(
                     currentDestination = currentDestination,
@@ -175,16 +177,16 @@ fun DrawerContent(
                         .padding(top = DSJarvisTheme.spacing.m)
                         .size(150.dp)
                         .clip(CircleShape)
-                        .background(Color.White),
+                        .background(DSJarvisTheme.colors.extra.background),
                     contentAlignment = Alignment.Center
                 ) {
                     DynamicOrbCanvas(
                         config = StateConfig(
                             name = "Initializing",
                             colors = listOf(
-                                DSJarvisTheme.colors.primary.primary40,
                                 DSJarvisTheme.colors.primary.primary60,
-                                DSJarvisTheme.colors.primary.primary80
+                                DSJarvisTheme.colors.primary.primary80,
+                                DSJarvisTheme.colors.primary.primary100
                             ),
                             speed = 1.2f,
                             morphIntensity = 2.0f
@@ -196,7 +198,7 @@ fun DrawerContent(
                 DSIcon(
                     imageVector = DSIcons.Rounded.close,
                     contentDescription = "Drawer close",
-                    tint = DSJarvisTheme.colors.neutral.neutral0,
+                    tint = DSJarvisTheme.colors.extra.black,
                     modifier = Modifier
                         .padding(vertical = DSJarvisTheme.spacing.m)
                         .clickable(onClick = { onClose() })
@@ -207,33 +209,35 @@ fun DrawerContent(
                 text = stringResource(R.string.app_name),
                 style = DSJarvisTheme.typography.heading.heading5,
                 fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral0
+                color = DSJarvisTheme.colors.extra.black
             )
 
             DSText(
                 text = stringResource(R.string.jarvis_description),
                 style = DSJarvisTheme.typography.body.medium,
-                color = DSJarvisTheme.colors.neutral.neutral20
+                color = DSJarvisTheme.colors.neutral.neutral100
             )
 
             DSText(
                 text = stringResource(R.string.version),
                 style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.neutral.neutral40
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.m),
-            color = DSJarvisTheme.colors.neutral.neutral0
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+            color = DSJarvisTheme.colors.neutral.neutral40
         )
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
 
         // Navigation items
         DSText(
             text = "Tools",
             style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Bold,
-            color = DSJarvisTheme.colors.neutral.neutral20,
+            color = DSJarvisTheme.colors.extra.black,
             modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m, vertical = DSJarvisTheme.spacing.s)
         )
 
@@ -244,14 +248,14 @@ fun DrawerContent(
                         imageVector = destination.icon,
                         contentDescription = stringResource(destination.titleRes),
                         modifier = Modifier.size(DSJarvisTheme.dimensions.l),
-                        tint = if (currentDestination == destination.destination) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral40,
+                        tint = if (currentDestination == destination.destination) DSJarvisTheme.colors.primary.primary60  else DSJarvisTheme.colors.neutral.neutral60,
                     )
                 },
                 label = {
                     DSText(
                         text = stringResource(destination.titleRes),
                         style = DSJarvisTheme.typography.body.medium,
-                        color = if (currentDestination == destination.destination) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral40,
+                        color = if (currentDestination == destination.destination) DSJarvisTheme.colors.primary.primary60 else DSJarvisTheme.colors.neutral.neutral60,
                     )
                 },
                 selected = currentDestination == destination.destination,
@@ -259,8 +263,8 @@ fun DrawerContent(
                 colors = NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = Color.Transparent,
                     unselectedContainerColor = Color.Transparent,
-                    selectedIconColor = DSJarvisTheme.colors.neutral.neutral0,
-                    unselectedIconColor = DSJarvisTheme.colors.neutral.neutral40,
+                    selectedIconColor = DSJarvisTheme.colors.extra.black,
+                    unselectedIconColor = DSJarvisTheme.colors.neutral.neutral80,
                 ),
                 modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.xs)
             )

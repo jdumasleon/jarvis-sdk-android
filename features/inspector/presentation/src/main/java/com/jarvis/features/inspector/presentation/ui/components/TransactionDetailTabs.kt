@@ -1,7 +1,6 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.HorizontalDivider
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.jarvis.features.inspector.domain.entity.NetworkRequest
 import com.jarvis.features.inspector.domain.entity.NetworkResponse
 import com.jarvis.features.inspector.domain.entity.NetworkTransaction
-import java.nio.file.WatchEvent
+import com.jarvis.features.inspector.presentation.ui.transactionsDetails.NetworkTransactionDetailUiData
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,37 +38,40 @@ fun TransactionOverviewTab(
             .fillMaxSize()
             .padding(horizontal = DSJarvisTheme.spacing.m)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.l)
     ) {
         Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s))
 
         // General Information
         InfoCard(title = "General") {
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = DSJarvisTheme.spacing.s),
-                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
-            ) {
-                DSText(
-                    text = "URL:",
-                    style = DSJarvisTheme.typography.body.medium,
-                    fontWeight = FontWeight.Bold
-                )
-                DSText(
-                    text = transaction.request.url,
-                    style = DSJarvisTheme.typography.body.medium,
-                    color = DSJarvisTheme.colors.primary.primary100
-                )
-
-            }
+            InfoRow("URL:", transaction.request.url)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                color = DSJarvisTheme.colors.neutral.neutral0
+            )
             InfoRow("Method:", transaction.request.method.name)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                color = DSJarvisTheme.colors.neutral.neutral0
+            )
             InfoRow("Protocol:", transaction.request.protocol)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                color = DSJarvisTheme.colors.neutral.neutral0
+            )
             InfoRow("Status:", transaction.status.name)
             transaction.response?.let { response ->
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
                 InfoRow("Status Code:", "${response.statusCode} ${response.statusMessage}")
             }
             transaction.duration?.let { duration ->
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
                 InfoRow("Duration:", "${duration}ms")
             }
         }
@@ -78,10 +80,22 @@ fun TransactionOverviewTab(
         InfoCard(title = "Timing") {
             InfoRow("Start Time:", formatTimestamp(transaction.startTime))
             transaction.endTime?.let { endTime ->
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
                 InfoRow("End Time:", formatTimestamp(endTime))
             }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                color = DSJarvisTheme.colors.neutral.neutral0
+            )
             InfoRow("Request tms:", formatTimestamp(transaction.request.timestamp))
             transaction.response?.let { response ->
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
                 InfoRow("Response tms:", formatTimestamp(response.timestamp))
             }
         }
@@ -89,6 +103,10 @@ fun TransactionOverviewTab(
         // Size Information
         InfoCard(title = "Size") {
             InfoRow("Request Body Size:", "${transaction.request.bodySize} bytes")
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                color = DSJarvisTheme.colors.neutral.neutral0
+            )
             transaction.response?.let { response ->
                 InfoRow("Response Body Size:", "${response.bodySize} bytes")
             }
@@ -118,25 +136,49 @@ fun TransactionRequestTab(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = DSJarvisTheme.spacing.m),
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.l)
     ) {
         item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s)) }
 
         item {
             InfoCard(title = "Request Line") {
-                DSText(
-                    text = "${request.method.name} ${request.path}",
-                    style = DSJarvisTheme.typography.body.medium,
-                    fontWeight = FontWeight.Bold
+                InfoRow("Method:", request.method.name)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
+                InfoRow("Path:", request.path)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
+                )
+                InfoRow("Protocol:", request.protocol)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                    color = DSJarvisTheme.colors.neutral.neutral0
                 )
                 InfoRow("Host:", request.host)
-                request.contentType?.let { InfoRow("Content-Type", it) }
+                request.contentType?.let {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
+                    InfoRow("Content-Type", it)
+                }
             }
         }
         if (request.headers.isNotEmpty()) {
             item {
                 InfoCard(title = "Headers") {
-                    request.headers.forEach { (k, v) -> InfoRow("$k: ", v) }
+                    request.headers.onEachIndexed { index, (k, v) ->
+                        InfoRow("$k: ", v)
+                        if (index < request.headers.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                                color = DSJarvisTheme.colors.neutral.neutral0
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -145,13 +187,22 @@ fun TransactionRequestTab(
             item {
                 InfoCard(title = "Query Parameters") {
                     val queryString = url.substringAfter("?")
-                    queryString.split("&").forEach { param ->
+                    queryString.split("&").onEachIndexed { index, param ->
                         val parts = param.split("=", limit = 2)
-                        if (parts.size == 2) InfoRow(parts[0], parts[1])
+                        if (parts.size == 2) {
+                            InfoRow(parts[0], parts[1])
+                            if (index < request.headers.size - 1) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                                    color = DSJarvisTheme.colors.neutral.neutral0
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+
         item {
             EnhancedBodyViewer(
                 title = "Request Body",
@@ -173,36 +224,75 @@ fun TransactionResponseTab(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = DSJarvisTheme.spacing.m),
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.l)
     ) {
         item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.s)) }
 
         if (response != null) {
             item {
                 InfoCard(title = "Status Line") {
-                    DSText(
-                        text = "${response.statusCode} ${response.statusMessage}",
-                        style = DSJarvisTheme.typography.body.medium,
-                        fontWeight = FontWeight.Bold
+                    InfoRow("Status code", "${response.statusCode}")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
                     )
-                    response.contentType?.let { InfoRow("Content-Type: ", it) }
+                    InfoRow("Status message", response.statusMessage)
+                    response.contentType?.let {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                            color = DSJarvisTheme.colors.neutral.neutral0
+                        )
+                        InfoRow("Content-Type: ", it)
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                     InfoRow("Body Size: ", "${response.bodySize} bytes")
                 }
             }
             if (response.headers.isNotEmpty()) {
                 item {
                     InfoCard(title = "Headers") {
-                        response.headers.forEach { (k, v) -> InfoRow("$k: ", v) }
+                        response.headers.onEachIndexed { index, (k, v) ->
+                            InfoRow("$k: ", v)
+                            if (index < response.headers.size - 1) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                                    color = DSJarvisTheme.colors.neutral.neutral0
+                                )
+                            }
+                        }
                     }
                 }
             }
             item {
                 InfoCard(title = "Response Info") {
                     InfoRow("Success: ", if (response.isSuccessful) "Yes" else "No")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                     InfoRow("Content Type:", response.contentType ?: "Unknown")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                     InfoRow("Is JSON: ", if (response.isJson) "Yes" else "No")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                     InfoRow("Is XML: ", if (response.isXml) "Yes" else "No")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                     InfoRow("Is Image: ", if (response.isImage) "Yes" else "No")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
+                        color = DSJarvisTheme.colors.neutral.neutral0
+                    )
                 }
             }
             item {
@@ -233,23 +323,27 @@ private fun InfoCard(
     title: String,
     content: @Composable () -> Unit
 ) {
-    DSCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.s,
-        elevation = DSJarvisTheme.elevations.level2
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(DSJarvisTheme.spacing.s)
+    Column {
+        DSText(
+            text = title,
+            style = DSJarvisTheme.typography.body.medium,
+            fontWeight = FontWeight.Thin,
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.m, bottom = DSJarvisTheme.spacing.s)
+        )
+
+        DSCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = DSJarvisTheme.shapes.s,
+            elevation = DSJarvisTheme.elevations.level1
         ) {
-            DSText(
-                text = title,
-                style = DSJarvisTheme.typography.heading.heading4,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
-            )
-            content()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DSJarvisTheme.spacing.s)
+            ) {
+                content()
+            }
         }
     }
 }
@@ -274,7 +368,7 @@ private fun InfoRow(
         DSText(
             text = value,
             style = DSJarvisTheme.typography.body.medium,
-
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
     }
 }

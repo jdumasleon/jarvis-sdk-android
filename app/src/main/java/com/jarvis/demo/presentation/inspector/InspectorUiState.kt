@@ -11,6 +11,7 @@ typealias InspectorUiState = ResourceState<InspectorUiData>
 data class InspectorUiData(
     val apiCalls: List<ApiCallResult> = emptyList(),
     val isPerformingCalls: Boolean = false,
+    val isRefreshing: Boolean = false,
     val totalCallsPerformed: Int = 0,
     val successfulCalls: Int = 0,
     val failedCalls: Int = 0,

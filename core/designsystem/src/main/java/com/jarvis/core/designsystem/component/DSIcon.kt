@@ -44,7 +44,7 @@ fun DSIcon(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    tint: Color = DSJarvisTheme.colors.primary.primary100,
+    tint: Color = DSJarvisTheme.colors.primary.primary60,
 ) {
     DSIcon(
         painter = rememberVectorPainter(imageVector),

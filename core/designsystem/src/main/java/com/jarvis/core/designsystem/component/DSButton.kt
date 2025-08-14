@@ -1,6 +1,5 @@
 package com.jarvis.core.designsystem.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -33,11 +31,12 @@ enum class DSButtonStyle {
 }
 
 enum class DSButtonSize {
-    SMALL, MEDIUM, LARGE;
+    EXTRA_SMALL, SMALL, MEDIUM, LARGE;
 
     val height: Dp
         @Composable
         get() = when(this) {
+            EXTRA_SMALL -> DSJarvisTheme.dimensions.xl
             SMALL -> DSJarvisTheme.dimensions.xxxl
             MEDIUM -> DSJarvisTheme.dimensions.xxxxl
             LARGE -> DSJarvisTheme.dimensions.xxxxxl
@@ -46,7 +45,7 @@ enum class DSButtonSize {
     val cornerRadius: CornerBasedShape
         @Composable
         get() = when(this) {
-            SMALL -> DSJarvisTheme.shapes.xs
+            EXTRA_SMALL, SMALL -> DSJarvisTheme.shapes.xs
             LARGE, MEDIUM -> DSJarvisTheme.shapes.s
         }
 }
@@ -60,8 +59,8 @@ fun DSButton(
     textColor: Color? = null,
     elevation: Dp? = null,
     disabled: Boolean = false,
-    @DrawableRes leftIcon: Int? = null,
-    @DrawableRes rightIcon: Int? = null,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
     onClick: () -> Unit
 ) {
     val backgroundColor = when (style) {
@@ -69,7 +68,7 @@ fun DSButton(
         SECONDARY -> if (disabled) Neutral40 else Neutral0
         OUTLINE, TEXT, LINK -> Color.Transparent
     }
-    val _textColor = textColor ?: when (style) {
+    val color = textColor ?: when (style) {
         PRIMARY -> if (disabled) Neutral80 else Neutral0
         SECONDARY, OUTLINE -> if (disabled) Neutral80 else Primary100
         TEXT, LINK -> if (disabled) Neutral80 else Primary100
@@ -88,9 +87,9 @@ fun DSButton(
         enabled = !disabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
-            contentColor = _textColor,
+            contentColor = color,
             disabledContainerColor = backgroundColor,
-            disabledContentColor = _textColor
+            disabledContentColor = color
         ),
         shape = size.cornerRadius
     ) {
@@ -98,26 +97,26 @@ fun DSButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            leftIcon?.let {
+            leadingIcon?.let {
                 DSIcon(
-                    imageVector = ImageVector.vectorResource(id = it),
+                    imageVector = it,
                     contentDescription = "DSButton left icon",
-                    tint = _textColor
+                    tint = color
                 )
             }
             Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
             DSText(
                 text = text,
-                color = _textColor,
+                color = color,
                 style = DSJarvisTheme.typography.body.medium,
                 textDecoration = textDecoration,
             )
             Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
-            rightIcon?.let {
+            trailingIcon?.let {
                 DSIcon(
-                    imageVector = ImageVector.vectorResource(id = it),
+                    imageVector = it,
                     contentDescription = "DSButton right icon",
-                    tint = _textColor
+                    tint = color
                 )
             }
         }
@@ -158,6 +157,8 @@ fun DSButtonPreview() {
 
             Text("Text Buttons", fontWeight = FontWeight.Bold)
             DSButton(modifier = Modifier.fillMaxWidth(), text = "Text", style = TEXT, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = "Text", style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
             DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = TEXT, disabled = true, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))

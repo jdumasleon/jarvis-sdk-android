@@ -17,6 +17,9 @@ class Navigator @Inject constructor() {
 
     private val _backStack: SnapshotStateList<NavigationRoute> = mutableStateListOf()
     val backStack: SnapshotStateList<NavigationRoute> = _backStack
+    
+    // Tab navigation stacks to preserve history per tab
+    private val tabStacks = mutableMapOf<String, List<NavigationRoute>>()
 
     fun initialize(startDestination: NavigationRoute) {
         if (_backStack.isEmpty()) {
@@ -69,4 +72,40 @@ class Navigator @Inject constructor() {
         
     val canGoBack: Boolean
         get() = _backStack.size > 1
+        
+    /**
+     * Switch to a tab, preserving the current tab's navigation stack and restoring the target tab's stack.
+     * @param tabDestination The root destination of the tab
+     * @param currentTabKey Identifier for the current tab (e.g., "inspector", "preferences")
+     * @param targetTabKey Identifier for the target tab
+     */
+    fun switchToTab(tabDestination: NavigationRoute, currentTabKey: String, targetTabKey: String) {
+        // Save current tab's navigation stack
+        tabStacks[currentTabKey] = _backStack.toList()
+        
+        // Restore target tab's navigation stack or start with tab root
+        val targetStack = tabStacks[targetTabKey]
+        _backStack.clear()
+        
+        if (targetStack != null && targetStack.isNotEmpty()) {
+            // Restore the saved stack for this tab
+            _backStack.addAll(targetStack)
+        } else {
+            // First time visiting this tab, start with root
+            _backStack.add(tabDestination)
+        }
+    }
+    
+    /**
+     * Determines the tab key based on the navigation route.
+     */
+    fun getTabKey(route: NavigationRoute): String? {
+        val routeName = route::class.qualifiedName ?: ""
+        return when {
+            routeName.contains("inspector", ignoreCase = true) -> "inspector"
+            routeName.contains("preferences", ignoreCase = true) -> "preferences"
+            routeName.contains("home", ignoreCase = true) -> "home"
+            else -> null
+        }
+    }
 }

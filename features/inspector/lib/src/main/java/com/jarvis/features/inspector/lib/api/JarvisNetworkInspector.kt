@@ -11,13 +11,12 @@ import javax.inject.Singleton
 @Singleton
 class JarvisNetworkInspector @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val networkCollector: JarvisNetworkCollector
+    private val networkCollector: JarvisNetworkCollector,
+    private val networkInterceptor: JarvisNetworkInterceptor
 ) {
     
     fun createInterceptor(): Interceptor {
-        return JarvisNetworkInterceptor.Builder()
-            .collector(networkCollector)
-            .build()
+        return networkInterceptor
     }
     
     fun clearTransactions() {

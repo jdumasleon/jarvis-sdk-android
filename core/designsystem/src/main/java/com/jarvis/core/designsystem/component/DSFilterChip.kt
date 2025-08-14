@@ -36,7 +36,7 @@ fun DSFilterChip(
     val backgroundColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral20
         selected -> DSJarvisTheme.colors.primary.primary100
-        else -> Color.Transparent
+        else -> DSJarvisTheme.colors.extra.white
     }
     
     val borderColor = when {

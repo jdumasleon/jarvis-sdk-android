@@ -6,12 +6,14 @@ package com.jarvis.config
 data class JarvisConfig(
     val preferences: PreferencesConfig = PreferencesConfig(),
     val networkInspection: NetworkInspectionConfig = NetworkInspectionConfig(),
-    val enableDebugLogging: Boolean = false
+    val enableDebugLogging: Boolean = false,
+    val enableShakeDetection: Boolean = false
 ) {
     class Builder {
         private var preferences: PreferencesConfig = PreferencesConfig()
         private var networkInspection: NetworkInspectionConfig = NetworkInspectionConfig()
         private var enableDebugLogging: Boolean = false
+        private var enableShakeDetection: Boolean = false
 
         fun preferences(block: PreferencesConfig.Builder.() -> Unit): Builder {
             preferences = PreferencesConfig.Builder().apply(block).build()
@@ -28,10 +30,16 @@ data class JarvisConfig(
             return this
         }
 
+        fun enableShakeDetection(enabled: Boolean): Builder {
+            enableShakeDetection = enabled
+            return this
+        }
+
         fun build(): JarvisConfig = JarvisConfig(
             preferences = preferences,
             networkInspection = networkInspection,
-            enableDebugLogging = enableDebugLogging
+            enableDebugLogging = enableDebugLogging,
+            enableShakeDetection = enableShakeDetection
         )
     }
 

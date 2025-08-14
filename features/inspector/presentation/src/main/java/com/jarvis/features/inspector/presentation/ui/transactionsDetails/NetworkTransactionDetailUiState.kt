@@ -1,4 +1,4 @@
-package com.jarvis.features.inspector.presentation.ui
+package com.jarvis.features.inspector.presentation.ui.transactionsDetails
 
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.inspector.domain.entity.NetworkTransaction

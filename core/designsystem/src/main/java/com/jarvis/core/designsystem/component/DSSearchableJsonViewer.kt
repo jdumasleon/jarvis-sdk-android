@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.designsystem.theme.background0
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -88,54 +89,56 @@ fun DSSearchableJsonViewerDialog(
         )
     ) {
         Box(
-            modifier = Modifier
+            modifier = Modifier.background(Color.Black.copy(alpha = 0.3f))
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
+                .padding(DSJarvisTheme.spacing.m)
         ) {
             DSCard(
                 modifier = modifier.fillMaxSize(),
                 shape = DSJarvisTheme.shapes.l,
-                elevation = DSJarvisTheme.elevations.level5
+                elevation = DSJarvisTheme.elevations.level1
             ) {
+                Row(
+                    modifier = Modifier
+                        .padding(start = DSJarvisTheme.spacing.s)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DSText(
+                        text = title,
+                        style = DSJarvisTheme.typography.body.large,
+                        fontWeight = FontWeight.Thin,
+                        color = DSJarvisTheme.colors.extra.black
+                    )
+
+                    DSIconButton(
+                        onClick = onDismiss,
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = DSJarvisTheme.colors.extra.black
+                    )
+                }
+
                 Column (
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+                    modifier = modifier.padding(DSJarvisTheme.spacing.s),
+                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ){
-                    // Header with title and close button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        DSText(
-                            text = title,
-                            style = DSJarvisTheme.typography.heading.heading5,
-                            fontWeight = FontWeight.Bold,
-                            color = DSJarvisTheme.colors.neutral.neutral100
-                        )
-
-                        DSIconButton(
-                            onClick = onDismiss,
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close"
-                        )
-                    }
-
                     // Search Bar
                     DSSearchBar(
                         searchText = searchQuery,
                         onValueChange = { searchQuery = it },
                         onTextClean = { searchQuery = "" },
                         placeholder = "Search in JSON content...",
-                        modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     // JSON content with search highlighting
                     SelectionContainer {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
-                                    color = DSJarvisTheme.colors.neutral.neutral100,
+                                    color = DSJarvisTheme.colors.extra.background,
                                     shape = DSJarvisTheme.shapes.s
                                 )
                                 .padding(DSJarvisTheme.dimensions.m)
@@ -145,11 +148,15 @@ fun DSSearchableJsonViewerDialog(
                                 style = DSJarvisTheme.typography.body.small.copy(
                                     fontFamily = FontFamily.Monospace
                                 ),
+                                color = DSJarvisTheme.colors.neutral.neutral100,
                                 modifier = Modifier
+                                    .background(
+                                        color = DSJarvisTheme.colors.extra.background,
+                                        shape = DSJarvisTheme.shapes.s
+                                    )
                                     .fillMaxSize()
                                     .verticalScroll(rememberScrollState())
                                     .horizontalScroll(rememberScrollState()),
-                                color = DSJarvisTheme.colors.neutral.neutral0
                             )
                         }
                     }
@@ -217,7 +224,7 @@ fun DSSearchableJsonViewer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = DSJarvisTheme.colors.neutral.neutral100,
+                        color = DSJarvisTheme.colors.extra.background,
                         shape = DSJarvisTheme.shapes.s
                     )
                     .padding(DSJarvisTheme.dimensions.m)
@@ -227,12 +234,16 @@ fun DSSearchableJsonViewer(
                     style = DSJarvisTheme.typography.body.small.copy(
                         fontFamily = FontFamily.Monospace
                     ),
+                    color = DSJarvisTheme.colors.neutral.neutral100,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(
+                            color = DSJarvisTheme.colors.extra.background,
+                            shape = DSJarvisTheme.shapes.s
+                        )
                         .horizontalScroll(rememberScrollState()),
                     maxLines = maxLines,
-                    overflow = TextOverflow.Ellipsis,
-                    color = DSJarvisTheme.colors.neutral.neutral0
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

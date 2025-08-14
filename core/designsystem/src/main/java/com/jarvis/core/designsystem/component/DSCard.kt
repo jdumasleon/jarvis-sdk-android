@@ -41,7 +41,7 @@ import kotlin.math.min
 fun DSCard(
     modifier: Modifier = Modifier,
     shape: CornerBasedShape = DSJarvisTheme.shapes.none,
-    color: Color = Neutral0,
+    color: Color = DSJarvisTheme.colors.extra.white,
     elevation: Dp = DSJarvisTheme.elevations.none,
     border: BorderStroke? = null,
     isDisabled: Boolean = false,
@@ -140,7 +140,7 @@ fun DSCard(
         border = border,
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+            modifier = modifier.padding(DSJarvisTheme.spacing.s),
             content = content
         )
     }

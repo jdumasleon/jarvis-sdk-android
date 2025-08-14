@@ -1,5 +1,7 @@
 package com.jarvis.features.home.data.di
 
+import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
+import com.jarvis.core.domain.performance.PerformanceRepository
 import com.jarvis.features.home.data.repository.DashboardRepositoryImpl
 import com.jarvis.features.home.domain.repository.DashboardRepository
 import com.jarvis.features.home.domain.usecase.GetDashboardMetricsUseCase
@@ -37,4 +39,10 @@ object HomeUseCaseModule {
     fun provideRefreshDashboardMetricsUseCase(
         repository: DashboardRepository
     ): RefreshDashboardMetricsUseCase = RefreshDashboardMetricsUseCase(repository)
+    
+    @Provides
+    @Singleton
+    fun provideGetPerformanceMetricsUseCase(
+        repository: PerformanceRepository
+    ): GetPerformanceMetricsUseCase = GetPerformanceMetricsUseCase(repository)
 }

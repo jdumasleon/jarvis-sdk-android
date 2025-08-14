@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
+import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.ResourceStateContent
@@ -76,7 +77,7 @@ private fun InspectorScreen(
         DSText(
             text = stringResource(R.string.inspector_description),
             style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral60,
+            color = DSJarvisTheme.colors.extra.black,
             modifier = Modifier.padding(DSJarvisTheme.spacing.m)
         )
 
@@ -90,19 +91,24 @@ private fun InspectorScreen(
             emptyActionText = stringResource(R.string.inspector_reload),
             onEmptyAction = { onEvent(InspectorEvent.PerformInitialApiCalls) }
         ) { uiData ->
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+            DSPullToRefresh(
+                isRefreshing = uiData.isRefreshing,
+                onRefresh = { onEvent(InspectorEvent.RefreshCalls) }
             ) {
-                item { Spacer(Modifier.height(DSJarvisTheme.spacing.xs)) }
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+                ) {
+                    item { Spacer(Modifier.height(DSJarvisTheme.spacing.xs)) }
 
-                items(uiData.apiCalls) { apiCall ->
-                    ApiCallItem(
-                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
-                        apiCall = apiCall
-                    )
+                    items(uiData.apiCalls) { apiCall ->
+                        ApiCallItem(
+                            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+                            apiCall = apiCall
+                        )
+                    }
+
+                    item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
                 }
-
-                item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
             }
         }
     }
@@ -116,10 +122,10 @@ private fun ApiCallItem(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3
+        elevation = DSJarvisTheme.elevations.level2
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
+            modifier = Modifier.padding(DSJarvisTheme.spacing.s)
         ) {
             // URL and Method
             Row(
@@ -138,7 +144,7 @@ private fun ApiCallItem(
                     DSText(
                         text = apiCall.host,
                         style = DSJarvisTheme.typography.body.small,
-                        color = DSJarvisTheme.colors.neutral.neutral40
+                        color = DSJarvisTheme.colors.neutral.neutral100
                     )
                 }
                 
@@ -169,7 +175,7 @@ private fun ApiCallItem(
                     DSText(
                         text = apiCall.method,
                         style = DSJarvisTheme.typography.body.small,
-                        color = Color.White,
+                        color = DSJarvisTheme.colors.extra.white,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -180,7 +186,7 @@ private fun ApiCallItem(
                 DSText(
                     text = apiCall.timestamp,
                     style = DSJarvisTheme.typography.body.small,
-                    color = DSJarvisTheme.colors.neutral.neutral40
+                    color = DSJarvisTheme.colors.neutral.neutral80
                 )
                 
                 Spacer(modifier = Modifier.weight(1f))
@@ -189,7 +195,7 @@ private fun ApiCallItem(
                 DSText(
                     text = "${apiCall.duration}ms",
                     style = DSJarvisTheme.typography.body.small,
-                    color = DSJarvisTheme.colors.neutral.neutral60,
+                    color = DSJarvisTheme.colors.neutral.neutral80,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -208,9 +214,9 @@ private fun ApiCallItem(
                         .height(DSJarvisTheme.dimensions.xs)
                         .clip(DSJarvisTheme.shapes.xs),
                     color = if (apiCall.isSuccess) {
-                        DSJarvisTheme.colors.success.success40
+                        DSJarvisTheme.colors.success.success60
                     } else {
-                        DSJarvisTheme.colors.error.error40
+                        DSJarvisTheme.colors.error.error60
                     }
                 )
             }
@@ -221,7 +227,7 @@ private fun ApiCallItem(
                 DSText(
                     text = error,
                     style = DSJarvisTheme.typography.body.small,
-                    color = DSJarvisTheme.colors.error.error40
+                    color = DSJarvisTheme.colors.error.error60
                 )
             }
         }
@@ -244,9 +250,9 @@ private fun StatusIndicator(
                 .size(DSJarvisTheme.dimensions.s)
                 .background(
                     color = if (isSuccess) {
-                        DSJarvisTheme.colors.success.success40
+                        DSJarvisTheme.colors.success.success60
                     } else {
-                        DSJarvisTheme.colors.error.error40
+                        DSJarvisTheme.colors.error.error60
                     },
                     shape = CircleShape
                 )

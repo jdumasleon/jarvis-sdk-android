@@ -46,7 +46,7 @@ class PreferencesViewModel @Inject constructor(
         when (event) {
             is PreferencesEvent.LoadAllPreferences -> loadAllPreferences()
             is PreferencesEvent.RefreshCurrentTab -> refreshCurrentTab()
-            is PreferencesEvent.SelectTab -> selectTab(event.storageType)
+            is PreferencesEvent.ChangeStorageType -> selectTab(event.storageType)
             is PreferencesEvent.UpdateSearchQuery -> updateSearchQuery(event.query)
             is PreferencesEvent.UpdateTypeFilter -> updateTypeFilter(event.type)
             is PreferencesEvent.UpdateSystemPreferencesVisibility -> updateSystemPreferencesVisibility(event.show)
@@ -60,10 +60,11 @@ class PreferencesViewModel @Inject constructor(
             is PreferencesEvent.ShowAddDialog -> showAddDialog(event.show)
             is PreferencesEvent.ShowEditDialog -> showEditDialog(event.show)
             is PreferencesEvent.ShowDeleteDialog -> showDeleteDialog(event.show)
+            is PreferencesEvent.ShowClearAllDialog -> showClearAllDialog(event.show)
             is PreferencesEvent.ShowDetailDialog -> showDetailDialog(event.show)
             is PreferencesEvent.ShowExportDialog -> showExportDialog(event.show)
             is PreferencesEvent.ShowImportDialog -> showImportDialog(event.show)
-            is PreferencesEvent.RefreshPreferences -> loadAllPreferences()
+            is PreferencesEvent.RefreshPreferences -> refreshCurrentTab()
             is PreferencesEvent.ClearError -> clearError()
         }
     }
@@ -74,16 +75,7 @@ class PreferencesViewModel @Inject constructor(
                 val isFirstLoad = currentState !is ResourceState.Success
                 if (isFirstLoad) {
                     // First load - show initial loading state
-                    ResourceState.Success(
-                        PreferencesUiData(
-                            sharedPreferencesGroup = PreferenceGroup(PreferenceStorageType.SHARED_PREFERENCES, isLoading = true),
-                            dataStorePreferencesGroup = PreferenceGroup(PreferenceStorageType.PREFERENCES_DATASTORE, isLoading = true),
-                            protoDataStoreGroup = PreferenceGroup(PreferenceStorageType.PROTO_DATASTORE, isLoading = true),
-                            selectedTab = PreferenceStorageType.SHARED_PREFERENCES,
-                            filter = PreferenceFilter(),
-                            isRefreshing = false
-                        )
-                    )
+                    ResourceState.Loading
                 } else {
                     // Refresh - show pull-to-refresh state
                     ResourceState.Success(
@@ -92,10 +84,16 @@ class PreferencesViewModel @Inject constructor(
                 }
             }
 
-            // Kick off the three loads in parallel
-            loadSharedPrefs()
-            loadPrefsDataStore()
-            loadProtoDataStore()
+            try {
+                // Kick off the three loads in parallel
+                loadSharedPrefs()
+                loadPrefsDataStore()
+                loadProtoDataStore()
+            } catch (e: Exception) {
+                _uiState.update { 
+                    ResourceState.Error(e, "Failed to load preferences")
+                }
+            }
         }
     }
 
@@ -135,12 +133,8 @@ class PreferencesViewModel @Inject constructor(
                             current.data.copy(protoDataStoreGroup = group)
                     }
                     
-                    // Check if all groups are done loading and turn off refresh indicator
-                    val allGroupsLoaded = !updatedData.sharedPreferencesGroup.isLoading &&
-                                        !updatedData.dataStorePreferencesGroup.isLoading &&
-                                        !updatedData.protoDataStoreGroup.isLoading
-                    
-                    val finalData = if (allGroupsLoaded) {
+                    // Turn off refresh indicator when the current group finishes loading
+                    val finalData = if (!group.isLoading) {
                         updatedData.copy(isRefreshing = false)
                     } else {
                         updatedData
@@ -148,58 +142,40 @@ class PreferencesViewModel @Inject constructor(
                     
                     ResourceState.Success(finalData)
                 }
+                is ResourceState.Loading -> {
+                    // First load - create initial success state with this group
+                    val initialData = PreferencesUiData(
+                        sharedPreferencesGroup = if (storageType == PreferenceStorageType.SHARED_PREFERENCES) group else PreferenceGroup(PreferenceStorageType.SHARED_PREFERENCES, isLoading = true),
+                        dataStorePreferencesGroup = if (storageType == PreferenceStorageType.PREFERENCES_DATASTORE) group else PreferenceGroup(PreferenceStorageType.PREFERENCES_DATASTORE, isLoading = true),
+                        protoDataStoreGroup = if (storageType == PreferenceStorageType.PROTO_DATASTORE) group else PreferenceGroup(PreferenceStorageType.PROTO_DATASTORE, isLoading = true),
+                        selectedTab = PreferenceStorageType.SHARED_PREFERENCES,
+                        filter = PreferenceFilter(),
+                        isRefreshing = false
+                    )
+                    
+                    ResourceState.Success(initialData)
+                }
                 else -> current
             }
         }
     }
 
-    fun loadSharedPrefs() {
+    private fun loadSharedPrefs() {
         viewModelScope.launch {
-            // optional: set loading flag for this group while keeping others intact
-            _uiState.update { current ->
-                if (current is ResourceState.Success) {
-                    ResourceState.Success(
-                        current.data.copy(
-                            sharedPreferencesGroup = current.data.sharedPreferencesGroup.copy(isLoading = true, error = null)
-                        )
-                    )
-                } else current
-            }
-
             val group = fetchGroup(PreferenceStorageType.SHARED_PREFERENCES)
             updateGroupInState(PreferenceStorageType.SHARED_PREFERENCES, group)
         }
     }
 
-    fun loadPrefsDataStore() {
+    private fun loadPrefsDataStore() {
         viewModelScope.launch {
-            _uiState.update { current ->
-                if (current is ResourceState.Success) {
-                    ResourceState.Success(
-                        current.data.copy(
-                            dataStorePreferencesGroup = current.data.dataStorePreferencesGroup.copy(isLoading = true, error = null)
-                        )
-                    )
-                } else current
-            }
-
             val group = fetchGroup(PreferenceStorageType.PREFERENCES_DATASTORE)
             updateGroupInState(PreferenceStorageType.PREFERENCES_DATASTORE, group)
         }
     }
 
-    fun loadProtoDataStore() {
+    private fun loadProtoDataStore() {
         viewModelScope.launch {
-            _uiState.update { current ->
-                if (current is ResourceState.Success) {
-                    ResourceState.Success(
-                        current.data.copy(
-                            protoDataStoreGroup = current.data.protoDataStoreGroup.copy(isLoading = true, error = null)
-                        )
-                    )
-                } else current
-            }
-
             val group = fetchGroup(PreferenceStorageType.PROTO_DATASTORE)
             updateGroupInState(PreferenceStorageType.PROTO_DATASTORE, group)
         }
@@ -208,6 +184,12 @@ class PreferencesViewModel @Inject constructor(
     private fun refreshCurrentTab() {
         val state = _uiState.value
         if (state is ResourceState.Success) {
+            // Set refresh indicator
+            _uiState.update { 
+                ResourceState.Success(state.data.copy(isRefreshing = true))
+            }
+            
+            // Load data for current tab
             when (state.data.selectedTab) {
                 PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
                 PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
@@ -330,7 +312,7 @@ class PreferencesViewModel @Inject constructor(
     private fun clearPreferences(storageType: PreferenceStorageType) {
         viewModelScope.launch {
             try {
-                clearAllPreferencesUseCase()
+                clearAllPreferencesUseCase(storageType)
                 loadAllPreferences() // Reload all preferences
             } catch (exception: Exception) {
                 _uiState.update { 
@@ -430,6 +412,17 @@ class PreferencesViewModel @Inject constructor(
             when (currentState) {
                 is ResourceState.Success -> {
                     ResourceState.Success(currentState.data.copy(showDeleteDialog = show))
+                }
+                else -> currentState
+            }
+        }
+    }
+    
+    private fun showClearAllDialog(show: Boolean) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is ResourceState.Success -> {
+                    ResourceState.Success(currentState.data.copy(showClearAllDialog = show))
                 }
                 else -> currentState
             }

@@ -1,5 +1,6 @@
 package com.jarvis.features.home.presentation.ui
 
+import com.jarvis.core.domain.performance.PerformanceSnapshot
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.home.domain.entity.DashboardMetrics
 import com.jarvis.features.home.domain.entity.NetworkMetrics
@@ -17,6 +18,7 @@ typealias HomeUiState = ResourceState<HomeUiData>
  */
 data class HomeUiData(
     val dashboardMetrics: DashboardMetrics,
+    val performanceSnapshot: PerformanceSnapshot? = null,
     val selectedTab: HomeTab = HomeTab.DASHBOARD,
     val isRefreshing: Boolean = false
 )

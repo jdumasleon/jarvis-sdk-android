@@ -28,9 +28,10 @@ object JarvisSDKProvider {
         )
         
         val configurationSynchronizer = entryPoint.getConfigurationSynchronizer()
+        val performanceManager = entryPoint.getPerformanceManager()
         
         // Create SDK instance manually with injected dependencies
-        sdkInstance = JarvisSDK(application.applicationContext, configurationSynchronizer)
+        sdkInstance = JarvisSDK(application.applicationContext, configurationSynchronizer, performanceManager)
         sdkInstance?.initialize(application, config)
     }
     

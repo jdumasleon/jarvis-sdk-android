@@ -20,6 +20,9 @@ dependencies {
     // Retrofit
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofitConverterGson)
+    
+    // Gson for JSON serialization
+    implementation(libs.gson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

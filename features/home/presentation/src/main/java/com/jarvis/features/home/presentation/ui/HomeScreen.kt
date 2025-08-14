@@ -33,6 +33,9 @@ import com.jarvis.features.home.domain.entity.NetworkMetrics
 import com.jarvis.features.home.domain.entity.PerformanceMetrics
 import com.jarvis.features.home.domain.entity.PerformanceRating
 import com.jarvis.features.home.domain.entity.PreferencesMetrics
+import com.jarvis.features.home.presentation.ui.components.CpuChart
+import com.jarvis.features.home.presentation.ui.components.MemoryChart
+import com.jarvis.features.home.presentation.ui.components.PerformanceOverviewChart
 
 /**
  * Home screen route with state management
@@ -116,9 +119,24 @@ private fun HomeContent(
             }
 
             item {
-                PerformanceMetricsCard(
-                    performanceMetrics = uiData.dashboardMetrics.performanceMetrics
+                PerformanceOverviewChart(
+                    performanceSnapshot = uiData.performanceSnapshot
                 )
+            }
+
+            // Show detailed performance charts if data is available
+            if (uiData.performanceSnapshot != null) {
+                item {
+                    CpuChart(
+                        cpuMetrics = uiData.performanceSnapshot.cpuUsage
+                    )
+                }
+                
+                item {
+                    MemoryChart(
+                        memoryMetrics = uiData.performanceSnapshot.memoryUsage
+                    )
+                }
             }
 
             item { Spacer(Modifier.height(DSJarvisTheme.spacing.m)) }
@@ -134,7 +152,7 @@ private fun DashboardOverview(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3,
+        elevation = DSJarvisTheme.elevations.level2,
         parallaxEnabled = true
     ) {
         Column(
@@ -214,7 +232,7 @@ private fun NetworkMetricsCard(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3,
+        elevation = DSJarvisTheme.elevations.level2,
         parallaxEnabled = true
     ) {
         Column(
@@ -272,7 +290,7 @@ private fun PreferencesMetricsCard(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3,
+        elevation = DSJarvisTheme.elevations.level2,
         parallaxEnabled = true
     ) {
         Column(
@@ -310,7 +328,7 @@ private fun PerformanceMetricsCard(
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3,
+        elevation = DSJarvisTheme.elevations.level2,
         parallaxEnabled = true
     ) {
         Column(

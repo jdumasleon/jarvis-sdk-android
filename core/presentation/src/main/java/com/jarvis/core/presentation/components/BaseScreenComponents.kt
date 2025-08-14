@@ -41,7 +41,8 @@ fun LoadingContent(
                 DSText(
                     text = it,
                     style = DSJarvisTheme.typography.body.medium,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = DSJarvisTheme.colors.neutral.neutral100
                 )
             }
         }

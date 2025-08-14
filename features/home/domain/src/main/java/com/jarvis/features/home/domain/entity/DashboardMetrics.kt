@@ -10,6 +10,26 @@ data class DashboardMetrics(
 )
 
 /**
+ * Enhanced dashboard metrics with advanced analytics and UI configuration
+ */
+data class EnhancedDashboardMetrics(
+    // Legacy metrics for backward compatibility
+    val networkMetrics: NetworkMetrics,
+    val preferencesMetrics: PreferencesMetrics, 
+    val performanceMetrics: PerformanceMetrics,
+    
+    // Enhanced metrics
+    val healthScore: HealthScore,
+    val enhancedNetworkMetrics: EnhancedNetworkMetrics,
+    val enhancedPreferencesMetrics: EnhancedPreferencesMetrics,
+    
+    // Dashboard configuration
+    val layout: DashboardLayout,
+    val sessionInfo: SessionInfo?,
+    val lastUpdated: Long = System.currentTimeMillis()
+)
+
+/**
  * Network-related metrics from Inspector feature
  */
 data class NetworkMetrics(

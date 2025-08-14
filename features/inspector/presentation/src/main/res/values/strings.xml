@@ -4,4 +4,7 @@
     <string name="jarvis_inspector_bottom_bar_icon_content_description">Inspector bottom navigation icon</string>
     <string name="jarvis_inspector_transaction_detail">Transaction</string>
     <string name="jarvis_inspector_transaction_detail_back">Go back navigation</string>
+    <string name="jarvis_inspector_rules">Network Rules</string>
+    <string name="jarvis_inspector_rules_back">Go back navigation</string>
+    <string name="jarvis_inspector_rules_add">Add new rule</string>
 </resources>

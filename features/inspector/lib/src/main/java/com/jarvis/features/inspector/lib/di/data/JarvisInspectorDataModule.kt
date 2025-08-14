@@ -8,7 +8,10 @@ import com.jarvis.features.inspector.data.local.database.InspectorDatabase
 import com.jarvis.features.inspector.data.network.JarvisNetworkCollector
 import com.jarvis.features.inspector.data.network.JarvisNetworkInterceptor
 import com.jarvis.features.inspector.data.repository.NetworkRepositoryImpl
+import com.jarvis.features.inspector.data.repository.NetworkRulesRepositoryImpl
 import com.jarvis.features.inspector.domain.repository.NetworkRepository
+import com.jarvis.features.inspector.domain.repository.NetworkRulesRepository
+import com.jarvis.features.inspector.domain.usecase.rules.ApplyNetworkRulesUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,6 +27,12 @@ abstract class JarvisInspectorDataModule {
     @Binds
     @Singleton
     abstract fun bindNetworkRepository(
+        networkRulesRepositoryImpl: NetworkRulesRepositoryImpl
+    ): NetworkRulesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNetworkRulesRepository(
         networkRepositoryImpl: NetworkRepositoryImpl
     ): NetworkRepository
 
@@ -55,9 +64,10 @@ abstract class JarvisInspectorDataModule {
         @Provides
         @Singleton
         fun provideJarvisNetworkInterceptor(
-            collector: JarvisNetworkCollector
+            collector: JarvisNetworkCollector,
+            applyNetworkRulesUseCase: ApplyNetworkRulesUseCase
         ): JarvisNetworkInterceptor {
-            return JarvisNetworkInterceptor(collector)
+            return JarvisNetworkInterceptor(collector, applyNetworkRulesUseCase)
         }
     }
 }

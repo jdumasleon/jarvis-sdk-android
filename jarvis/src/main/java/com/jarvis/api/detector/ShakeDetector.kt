@@ -27,13 +27,19 @@ class ShakeDetector(
     private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     
     private var lastUpdate: Long = 0
+    private var lastShakeTime: Long = 0
     private var lastX = 0f
     private var lastY = 0f
     private var lastZ = 0f
+    private var shakeCount = 0
+    private var firstShakeTime: Long = 0
     
     companion object {
-        private const val SHAKE_THRESHOLD = 800f
+        private const val SHAKE_THRESHOLD = 1000f // Good balance for shake detection
         private const val TIME_BETWEEN_UPDATES = 100L
+        private const val SHAKE_COOLDOWN = 3000L // 3 seconds cooldown between shake events
+        private const val REQUIRED_SHAKES = 2 // Require at least 2 shake movements
+        private const val SHAKE_WINDOW = 1000L // 1 second window for multiple shakes
     }
     
     fun start() {
@@ -64,8 +70,35 @@ class ShakeDetector(
                      (z - lastZ) * (z - lastZ)).toDouble()
                 ).toFloat() / timeDiff * 10000
                 
+                // Check for shake pattern - require multiple shakes within a window
                 if (speed > SHAKE_THRESHOLD) {
-                    onShakeDetected()
+                    if (shakeCount == 0) {
+                        // First shake detected
+                        firstShakeTime = currentTime
+                        shakeCount = 1
+                    } else if (currentTime - firstShakeTime <= SHAKE_WINDOW) {
+                        // Subsequent shake within window
+                        shakeCount++
+                        
+                        // Check if we have enough shakes and cooldown has passed
+                        if (shakeCount >= REQUIRED_SHAKES && (currentTime - lastShakeTime) > SHAKE_COOLDOWN) {
+                            lastShakeTime = currentTime
+                            onShakeDetected()
+                            // Reset shake counting
+                            shakeCount = 0
+                            firstShakeTime = 0
+                        }
+                    } else {
+                        // Too much time passed, reset and start over
+                        firstShakeTime = currentTime
+                        shakeCount = 1
+                    }
+                } else {
+                    // Reset if no significant movement after some time
+                    if (currentTime - firstShakeTime > SHAKE_WINDOW && shakeCount > 0) {
+                        shakeCount = 0
+                        firstShakeTime = 0
+                    }
                 }
                 
                 lastX = x

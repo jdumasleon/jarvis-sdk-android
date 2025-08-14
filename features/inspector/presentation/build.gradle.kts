@@ -22,13 +22,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.kotlinx.serialization.json)
-    
-    // Image loading
-    implementation("io.coil-kt:coil-compose:2.4.0")
-    
-    // JSON parsing (already available through Android)
-    // org.json.* classes are part of Android SDK
-    
+
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
