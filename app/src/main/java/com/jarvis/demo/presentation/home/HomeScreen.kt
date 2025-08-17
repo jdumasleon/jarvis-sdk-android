@@ -12,6 +12,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +28,7 @@ import com.jarvis.core.designsystem.component.DSTagStyle
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.navigation.ActionRegistry
+import com.jarvis.demo.R
 
 @Composable
 internal fun HomeScreen(
@@ -167,7 +169,7 @@ private fun HomeContent(
                 uiData.lastRefreshTime?.let { timestamp ->
                     Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
                     DSText(
-                        text = "Last updated: ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(timestamp))}",
+                        text = stringResource(R.string.last_updated, java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(timestamp))),
                         style = DSJarvisTheme.typography.body.small,
                         color = DSJarvisTheme.colors.neutral.neutral80
                     )

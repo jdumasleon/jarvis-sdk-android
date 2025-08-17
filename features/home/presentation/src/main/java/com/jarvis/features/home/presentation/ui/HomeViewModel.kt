@@ -4,27 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
 import com.jarvis.core.presentation.state.ResourceState
-import com.jarvis.features.home.domain.usecase.GetDashboardMetricsUseCase
-import com.jarvis.features.home.domain.usecase.RefreshDashboardMetricsUseCase
+import com.jarvis.features.home.domain.entity.DashboardCardType
+import com.jarvis.features.home.domain.entity.SessionFilter
+import com.jarvis.features.home.domain.repository.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for Home screen following ResourceState pattern
+ * ViewModel for Home screen following the standard feature architecture pattern
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getDashboardMetricsUseCase: GetDashboardMetricsUseCase,
-    private val refreshDashboardMetricsUseCase: RefreshDashboardMetricsUseCase,
+    private val dashboardRepository: DashboardRepository,
     private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase
 ) : ViewModel() {
 
@@ -32,103 +25,212 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        loadDashboard()
+        onEvent(HomeEvent.RefreshDashboard)
     }
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.RefreshDashboard -> refreshDashboard()
-            is HomeEvent.TabSelected -> updateSelectedTab(event.tab)
-            is HomeEvent.NavigateToInspector -> handleNavigateToInspector()
-            is HomeEvent.NavigateToPreferences -> handleNavigateToPreferences()
-            is HomeEvent.ClearError -> clearError()
+            is HomeEvent.RefreshDashboard -> loadDashboard()
+            is HomeEvent.ChangeSessionFilter -> changeSessionFilter(event.filter)
+            is HomeEvent.MoveCard -> moveCard(event.fromIndex, event.toIndex)
+            is HomeEvent.StartDrag -> startDrag(event.index)
+            is HomeEvent.UpdateDragPosition -> updateDragPosition(event.fromIndex, event.toIndex)
+            is HomeEvent.EndDrag -> endDrag()
         }
     }
 
     private fun loadDashboard() {
         viewModelScope.launch {
-            _uiState.update { ResourceState.Loading }
-            
-            combine(
-                getDashboardMetricsUseCase(),
-                getPerformanceMetricsUseCase()
-            ) { dashboardMetrics, performanceSnapshot ->
-                HomeUiData(
-                    dashboardMetrics = dashboardMetrics,
-                    performanceSnapshot = performanceSnapshot,
-                    selectedTab = _uiState.value.getDataOrNull()?.selectedTab ?: HomeTab.DASHBOARD
-                )
-            }
-            .onStart { }
-            .catch { exception ->
-                _uiState.update { 
-                    ResourceState.Error(exception, "Failed to load dashboard and performance metrics")
-                }
-            }
-            .collect { homeUiData ->
-                _uiState.update { ResourceState.Success(homeUiData) }
-            }
-        }
-    }
-
-    private fun refreshDashboard() {
-        viewModelScope.launch {
-            val currentData = _uiState.value.getDataOrNull()
-            if (currentData != null) {
-                _uiState.update { 
-                    ResourceState.Success(currentData.copy(isRefreshing = true))
-                }
-            }
-            
-            combine(
-                getDashboardMetricsUseCase(),
-                getPerformanceMetricsUseCase()
-            ) { dashboardMetrics, performanceSnapshot ->
-                HomeUiData(
-                    dashboardMetrics = dashboardMetrics,
-                    performanceSnapshot = performanceSnapshot,
-                    selectedTab = currentData?.selectedTab ?: HomeTab.DASHBOARD,
-                    isRefreshing = false
-                )
-            }
-            .catch { exception ->
-                val errorData = currentData?.copy(isRefreshing = false)
-                if (errorData != null) {
-                    _uiState.update { ResourceState.Success(errorData) }
+            _uiState.update { currentState ->
+                val isFirstLoad = currentState !is ResourceState.Success
+                if (isFirstLoad) {
+                    ResourceState.Loading
                 } else {
+                    ResourceState.Success(
+                        (currentState as ResourceState.Success).data.copy(isRefreshing = true)
+                    )
+                }
+            }
+
+            try {
+                val currentData = _uiState.value.getDataOrNull()
+                val sessionFilter = currentData?.selectedSessionFilter ?: SessionFilter.LAST_SESSION
+
+                // Get data once instead of using continuous flows to prevent infinite loops
+                val enhancedMetrics = try {
+                    dashboardRepository.getEnhancedDashboardMetrics(sessionFilter).first()
+                } catch (e: Exception) {
+                    null
+                }
+
+                val performanceSnapshot = try {
+                    getPerformanceMetricsUseCase().first()
+                } catch (e: Exception) {
+                    null
+                }
+
+                val homeUiData = HomeUiData(
+                    enhancedMetrics = enhancedMetrics,
+                    performanceSnapshot = performanceSnapshot,
+                    selectedSessionFilter = sessionFilter,
+                    cardOrder = currentData?.cardOrder ?: DashboardCardType.getAllCards(),
+                    isDragging = currentData?.isDragging ?: false,
+                    dragFromIndex = currentData?.dragFromIndex,
+                    dragToIndex = currentData?.dragToIndex,
+                    isRefreshing = false,
+                    lastUpdated = System.currentTimeMillis()
+                )
+
+                _uiState.update { ResourceState.Success(homeUiData) }
+            } catch (exception: Exception) {
+                val currentData = _uiState.value.getDataOrNull()
+                if (currentData != null) {
                     _uiState.update { 
-                        ResourceState.Error(exception, "Failed to refresh dashboard and performance metrics")
+                        ResourceState.Success(currentData.copy(isRefreshing = false)) 
+                    }
+                } else {
+                    _uiState.update {
+                        ResourceState.Error(exception, "Failed to load dashboard")
                     }
                 }
             }
-            .collect { homeUiData ->
-                _uiState.update { ResourceState.Success(homeUiData) }
+        }
+    }
+
+    private fun changeSessionFilter(filter: SessionFilter) {
+        viewModelScope.launch {
+            try {
+                val currentData = _uiState.value.getDataOrNull()
+
+                // Update the filter immediately
+                _uiState.update { currentState ->
+                    when (currentState) {
+                        is ResourceState.Success -> {
+                            ResourceState.Success(
+                                currentState.data.copy(
+                                    selectedSessionFilter = filter,
+                                    isRefreshing = true
+                                )
+                            )
+                        }
+
+                        else -> currentState
+                    }
+                }
+
+                // Load new data with the filter
+                val enhancedMetrics = try {
+                    dashboardRepository.getEnhancedDashboardMetrics(filter).first()
+                } catch (e: Exception) {
+                    null
+                }
+
+                val performanceSnapshot = try {
+                    getPerformanceMetricsUseCase().first()
+                } catch (e: Exception) {
+                    currentData?.performanceSnapshot
+                }
+
+                val newData = HomeUiData(
+                    enhancedMetrics = enhancedMetrics,
+                    performanceSnapshot = performanceSnapshot,
+                    selectedSessionFilter = filter,
+                    cardOrder = currentData?.cardOrder ?: DashboardCardType.getAllCards(),
+                    isDragging = false,
+                    dragFromIndex = null,
+                    dragToIndex = null,
+                    isRefreshing = false,
+                    lastUpdated = System.currentTimeMillis()
+                )
+
+                _uiState.update { ResourceState.Success(newData) }
+            } catch (exception: Exception) {
+                _uiState.update { currentState ->
+                    when (currentState) {
+                        is ResourceState.Success -> {
+                            ResourceState.Success(currentState.data.copy(isRefreshing = false))
+                        }
+
+                        else -> ResourceState.Error(exception, "Failed to change session filter")
+                    }
+                }
             }
         }
     }
 
-    private fun updateSelectedTab(tab: HomeTab) {
-        val currentData = _uiState.value.getDataOrNull() ?: return
-        val updatedData = currentData.copy(selectedTab = tab)
-        _uiState.update { ResourceState.Success(updatedData) }
+    private fun moveCard(fromIndex: Int, toIndex: Int) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is ResourceState.Success -> {
+                    val currentOrder = currentState.data.cardOrder.toMutableList()
+                    if (fromIndex in 0 until currentOrder.size && 
+                        toIndex in 0 until currentOrder.size && 
+                        fromIndex != toIndex) {
+                        
+                        currentOrder.add(toIndex, currentOrder.removeAt(fromIndex))
+                        
+                        ResourceState.Success(
+                            currentState.data.copy(cardOrder = currentOrder)
+                        )
+                    } else {
+                        currentState
+                    }
+                }
+                else -> currentState
+            }
+        }
     }
 
-    private fun handleNavigateToInspector() {
-        // This will be handled by the composable through event callbacks
-        // The navigation logic is passed from the parent composable
+    private fun startDrag(index: Int) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is ResourceState.Success -> {
+                    ResourceState.Success(
+                        currentState.data.copy(
+                            isDragging = true,
+                            dragFromIndex = index,
+                            dragToIndex = index
+                        )
+                    )
+                }
+
+                else -> currentState
+            }
+        }
     }
 
-    private fun handleNavigateToPreferences() {
-        // This will be handled by the composable through event callbacks
-        // The navigation logic is passed from the parent composable
+    private fun updateDragPosition(fromIndex: Int, toIndex: Int) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is ResourceState.Success -> {
+                    ResourceState.Success(
+                        currentState.data.copy(
+                            dragFromIndex = fromIndex,
+                            dragToIndex = toIndex
+                        )
+                    )
+                }
+
+                else -> currentState
+            }
+        }
     }
 
-    private fun clearError() {
-        val currentData = _uiState.value.getDataOrNull()
-        if (currentData != null) {
-            _uiState.update { ResourceState.Success(currentData) }
-        } else {
-            loadDashboard()
+    private fun endDrag() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is ResourceState.Success -> {
+                    ResourceState.Success(
+                        currentState.data.copy(
+                            isDragging = false,
+                            dragFromIndex = null,
+                            dragToIndex = null
+                        )
+                    )
+                }
+
+                else -> currentState
+            }
         }
     }
 }

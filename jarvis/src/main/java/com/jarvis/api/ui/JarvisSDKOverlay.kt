@@ -10,8 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
-import com.jarvis.api.detector.ShakeDetectorEffect
 import com.jarvis.api.ui.components.JarvisFabButton
+import com.jarvis.core.designsystem.utils.ShakeDetectorEffect
 
 /**
  * Main Jarvis SDK overlay component

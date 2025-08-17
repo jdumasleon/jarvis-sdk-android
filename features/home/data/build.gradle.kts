@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.jarvis.android.library)
     alias(libs.plugins.jarvis.hilt)
     alias(libs.plugins.jarvis.android.library.jacoco)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -21,6 +22,9 @@ dependencies {
     
     implementation(libs.androidx.core.ktx)
     implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.dataStore.preferences)
+    implementation(libs.androidx.dataStore.preferences.core)
     
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

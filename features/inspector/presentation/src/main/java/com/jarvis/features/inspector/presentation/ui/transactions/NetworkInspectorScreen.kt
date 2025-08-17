@@ -556,10 +556,23 @@ private fun formatTimestamp(timestamp: Long): String {
 }
 
 // Previews
-@Preview(showBackground = true)
+@Preview(name = "NetworkInspector - Light Mode", showBackground = true)
 @Composable
-private fun NetworkInspectorScreenPreview() {
-    DSJarvisTheme {
+private fun LightNetworkInspectorScreenPreview() {
+    DSJarvisTheme(darkTheme = false) {
+        NetworkInspectorScreen(
+            uiState = ResourceState.Success(NetworkInspectorUiData.mockNetworkInspectorUiData),
+            onEvent = {},
+            onNavigateToDetail = {},
+            onNavigateToRules = {}
+        )
+    }
+}
+
+@Preview(name = "NetworkInspector - Dark Mode", showBackground = true)
+@Composable
+private fun DarkNetworkInspectorScreenPreview() {
+    DSJarvisTheme(darkTheme = true) {
         NetworkInspectorScreen(
             uiState = ResourceState.Success(NetworkInspectorUiData.mockNetworkInspectorUiData),
             onEvent = {},

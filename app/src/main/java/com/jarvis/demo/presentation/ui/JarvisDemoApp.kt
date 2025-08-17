@@ -234,7 +234,7 @@ fun DrawerContent(
 
         // Navigation items
         DSText(
-            text = "Tools",
+            text = stringResource(R.string.tools),
             style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Bold,
             color = DSJarvisTheme.colors.extra.black,

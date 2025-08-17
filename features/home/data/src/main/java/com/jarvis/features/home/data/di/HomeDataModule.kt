@@ -2,6 +2,8 @@ package com.jarvis.features.home.data.di
 
 import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
 import com.jarvis.core.domain.performance.PerformanceRepository
+import com.jarvis.features.home.data.analyzer.PreferencesAnalyzer
+import com.jarvis.features.home.data.mapper.EnhancedDashboardMetricsMapper
 import com.jarvis.features.home.data.repository.DashboardRepositoryImpl
 import com.jarvis.features.home.domain.repository.DashboardRepository
 import com.jarvis.features.home.domain.usecase.GetDashboardMetricsUseCase
@@ -22,6 +24,15 @@ abstract class HomeDataModule {
     abstract fun bindDashboardRepository(
         dashboardRepositoryImpl: DashboardRepositoryImpl
     ): DashboardRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object HomeAnalyzerModule {
+    
+    @Provides
+    @Singleton
+    fun providePreferencesAnalyzer(): PreferencesAnalyzer = PreferencesAnalyzer()
 }
 
 @Module

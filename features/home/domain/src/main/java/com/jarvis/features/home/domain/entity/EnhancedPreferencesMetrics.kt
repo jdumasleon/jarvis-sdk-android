@@ -74,3 +74,50 @@ data class PreferenceInfo(
     val storageType: String,
     val lastModified: Long?
 )
+
+// Mock objects for testing and previews
+object EnhancedPreferencesMetricsMock {
+    val mockEnhancedPreferencesMetrics: EnhancedPreferencesMetrics
+        get() = EnhancedPreferencesMetrics(
+        totalPreferences = 42,
+        preferencesByType = mapOf(
+            "SHARED_PREFERENCES" to 25,
+            "DATASTORE" to 12,
+            "PROTO" to 5
+        ),
+        mostCommonType = "SHARED_PREFERENCES",
+        lastModified = System.currentTimeMillis() - 3600000,
+        typeDistribution = listOf(
+            PreferenceTypeData("SharedPreferences", 25, 59.5f, 12800),
+            PreferenceTypeData("DataStore", 12, 28.6f, 8400),
+            PreferenceTypeData("ProtoDataStore", 5, 11.9f, 3200)
+        ),
+        sizeDistribution = listOf(
+            PreferenceSizeData("< 1KB", 28, 66.7f, 0, 1024),
+            PreferenceSizeData("1-10KB", 11, 26.2f, 1024, 10240),
+            PreferenceSizeData("10KB+", 3, 7.1f, 10240, Long.MAX_VALUE)
+        ),
+        activityOverTime = listOf(
+            TimeSeriesDataPoint(System.currentTimeMillis() - 86400000, 8f, "1d ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 43200000, 12f, "12h ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 21600000, 15f, "6h ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 10800000, 18f, "3h ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 3600000, 22f, "1h ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis(), 25f, "now")
+        ),
+        storageUsage = StorageUsageData(
+            totalSize = 24400,
+            averageSize = 580,
+            largestPreference = PreferenceInfo(
+                key = "user_profile_cache",
+                type = "STRING",
+                size = 5120,
+                storageType = "SHARED_PREFERENCES",
+                lastModified = System.currentTimeMillis() - 7200000
+            ),
+            storageEfficiency = 85.3f
+        ),
+        sessionFilter = SessionFilter.LAST_SESSION,
+        lastUpdated = System.currentTimeMillis()
+    )
+}

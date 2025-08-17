@@ -2,131 +2,88 @@ package com.jarvis.features.home.presentation.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.charts.DSDonutChart
+import com.jarvis.core.designsystem.component.charts.DSDonutChartData
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.features.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.features.home.domain.entity.HttpMethodData
-import kotlin.math.cos
-import kotlin.math.sin
+import com.jarvis.features.home.presentation.R
 
 /**
- * HTTP methods distribution donut chart with legend and animations
+ * HTTP methods distribution donut chart using the generic DSDonutChart.
+ * Shows HTTP method distribution with center total.
  */
 @Composable
 fun HttpMethodsDonutChart(
     httpMethods: List<HttpMethodData>,
     modifier: Modifier = Modifier,
-    size: Int = 180
+    size: Dp = 180.dp,
+    strokeWidth: Dp = 24.dp,
+    animationDurationMs: Int = 1200,
+    showCenterTotal: Boolean = true
 ) {
-    var animationPlayed by remember(httpMethods) { mutableStateOf(false) }
-    
-    val animationProgress by animateFloatAsState(
-        targetValue = if (animationPlayed) 1f else 0f,
-        animationSpec = tween(durationMillis = 1200),
-        label = "donut_chart_animation"
-    )
-    
-    LaunchedEffect(httpMethods) {
-        animationPlayed = true
+    // Convert HttpMethodData to DSDonutChartData
+    val chartData = remember(httpMethods) {
+        val normalized = normalizePercentages(httpMethods)
+        normalized.map { method ->
+            DSDonutChartData(
+                value = method.count.toFloat(),
+                label = method.method,
+                color = safeParseColor(method.color)
+            )
+        }
     }
     
-    DSCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.l,
-        elevation = DSJarvisTheme.elevations.level2
+    val totalRequests = remember(chartData) { chartData.sumOf { it.value.toInt() } }
+    
+    val contentDesc = stringResource(
+        R.string.donut_chart_accessibility,
+        chartData.size,
+        totalRequests.toString()
+    )
+
+    Box(
+        modifier = modifier.size(size),
+        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-        ) {
-            DSText(
-                text = "HTTP Methods",
-                style = DSJarvisTheme.typography.heading.heading5,
-                fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral100
-            )
-            
-            if (httpMethods.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Donut chart
-                    Box(
-                        modifier = Modifier.size(size.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            drawHttpMethodsDonut(
-                                httpMethods = httpMethods,
-                                animationProgress = animationProgress,
-                                canvasSize = this.size
-                            )
-                        }
-                        
-                        // Center text with total requests
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            val totalRequests = httpMethods.sumOf { it.count }
-                            DSText(
-                                text = "$totalRequests",
-                                style = DSJarvisTheme.typography.heading.heading4,
-                                fontWeight = FontWeight.Bold,
-                                color = DSJarvisTheme.colors.neutral.neutral100
-                            )
-                            DSText(
-                                text = "Requests",
-                                style = DSJarvisTheme.typography.body.body3,
-                                color = DSJarvisTheme.colors.neutral.neutral70
-                            )
-                        }
-                    }
-                    
-                    // Legend
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                    ) {
-                        httpMethods.take(6).forEach { methodData ->
-                            HttpMethodLegendItem(
-                                methodData = methodData,
-                                animationProgress = animationProgress
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Empty state
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(size.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DSText(
-                        text = "No HTTP method data available",
-                        style = DSJarvisTheme.typography.body.body2,
-                        color = DSJarvisTheme.colors.neutral.neutral60
-                    )
-                }
+        DSDonutChart(
+            data = chartData,
+            size = size,
+            strokeWidth = strokeWidth,
+            colors = DSJarvisTheme.colors.chart.colors,
+            backgroundColor = DSJarvisTheme.colors.neutral.neutral20,
+            animationDurationMs = animationDurationMs,
+            contentDescription = contentDesc
+        )
+
+        if (showCenterTotal && chartData.isNotEmpty()) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                DSText(
+                    text = "$totalRequests",
+                    style = DSJarvisTheme.typography.heading.heading4,
+                    fontWeight = FontWeight.Bold,
+                    color = DSJarvisTheme.colors.neutral.neutral100
+                )
+                DSText(
+                    text = stringResource(R.string.requests),
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
+                )
             }
         }
     }
@@ -140,12 +97,13 @@ private fun HttpMethodLegendItem(
     methodData: HttpMethodData,
     animationProgress: Float
 ) {
+    val target = methodData.count.toFloat()
     val animatedCount by animateFloatAsState(
-        targetValue = if (animationProgress > 0f) methodData.count.toFloat() else 0f,
-        animationSpec = tween(durationMillis = 800),
+        targetValue = if (animationProgress > 0f) target else 0f,
+        animationSpec = tween(durationMillis = 600),
         label = "method_count_animation"
     )
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -156,94 +114,46 @@ private fun HttpMethodLegendItem(
             modifier = Modifier
                 .size(12.dp)
                 .clip(CircleShape)
-                .background(Color(android.graphics.Color.parseColor(methodData.color)))
+                .background(safeParseColor(methodData.color))
         )
-        
+
         // Method name and stats
         Column(modifier = Modifier.weight(1f)) {
             DSText(
                 text = methodData.method,
-                style = DSJarvisTheme.typography.body.body2,
+                style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.neutral.neutral90
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
-            ) {
+
+            Row(horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)) {
                 DSText(
                     text = "${animatedCount.toInt()}",
-                    style = DSJarvisTheme.typography.body.body3,
-                    color = DSJarvisTheme.colors.neutral.neutral70
-                )
-                
-                DSText(
-                    text = "•",
-                    style = DSJarvisTheme.typography.body.body3,
+                    style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
-                
                 DSText(
-                    text = "${String.format("%.1f", methodData.percentage)}%",
-                    style = DSJarvisTheme.typography.body.body3,
-                    color = DSJarvisTheme.colors.neutral.neutral70
+                    text = "•",
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
+                )
+                DSText(
+                    text = String.format("%.1f%%", methodData.percentage),
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
         }
-        
+
         // Average response time
         DSText(
-            text = "${String.format("%.0f", methodData.averageResponseTime)}ms",
-            style = DSJarvisTheme.typography.body.body3,
-            color = Color(android.graphics.Color.parseColor(methodData.color))
+            text = String.format("%.0fms", methodData.averageResponseTime),
+            style = DSJarvisTheme.typography.body.small,
+            color = safeParseColor(methodData.color)
         )
     }
 }
 
-/**
- * Draws the donut chart with segments for each HTTP method
- */
-private fun DrawScope.drawHttpMethodsDonut(
-    httpMethods: List<HttpMethodData>,
-    animationProgress: Float,
-    canvasSize: Size
-) {
-    if (httpMethods.isEmpty()) return
-    
-    val center = Offset(canvasSize.width / 2, canvasSize.height / 2)
-    val radius = canvasSize.minDimension / 2 * 0.8f
-    val strokeWidth = radius * 0.3f
-    val innerRadius = radius - strokeWidth
-    
-    var startAngle = -90f // Start from top
-    
-    httpMethods.forEach { methodData ->
-        val sweepAngle = (methodData.percentage / 100f) * 360f * animationProgress
-        
-        // Draw arc segment
-        drawArc(
-            color = Color(android.graphics.Color.parseColor(methodData.color)),
-            startAngle = startAngle,
-            sweepAngle = sweepAngle,
-            useCenter = false,
-            topLeft = Offset(
-                center.x - radius,
-                center.y - radius
-            ),
-            size = Size(radius * 2, radius * 2),
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-        )
-        
-        startAngle += sweepAngle
-    }
-    
-    // Draw inner circle for donut effect
-    drawCircle(
-        color = Color.White,
-        radius = innerRadius,
-        center = center
-    )
-}
 
 /**
  * Expanded HTTP methods card with additional metrics
@@ -251,8 +161,20 @@ private fun DrawScope.drawHttpMethodsDonut(
 @Composable
 fun HttpMethodsCard(
     httpMethods: List<HttpMethodData>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    chartSize: Dp = 200.dp
 ) {
+    // Ordena por número de peticiones desc para la lista y leyenda
+    val sorted = remember(httpMethods) { httpMethods.sortedByDescending { it.count } }
+    val dataKey = remember(sorted) { sorted.hashCode() }
+    var played by remember(dataKey) { mutableStateOf(false) }
+    val progress by animateFloatAsState(
+        targetValue = if (played) 1f else 0f,
+        animationSpec = tween(900),
+        label = "methods_card_anim"
+    )
+    LaunchedEffect(dataKey) { played = true }
+
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.l,
@@ -269,40 +191,70 @@ fun HttpMethodsCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DSText(
-                    text = "HTTP Methods",
+                    text = stringResource(R.string.http_methods_distribution),
                     style = DSJarvisTheme.typography.heading.heading4,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
-                
+                val total = sorted.sumOf { it.count }
                 DSText(
-                    text = "${httpMethods.size} methods",
-                    style = DSJarvisTheme.typography.body.body2,
-                    color = DSJarvisTheme.colors.neutral.neutral70
+                    text = stringResource(R.string.total_requests, total, 0),
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
-            
-            // Donut chart
-            HttpMethodsDonutChart(
-                httpMethods = httpMethods,
-                size = 200
-            )
-            
-            // Detailed list
-            if (httpMethods.isNotEmpty()) {
+
+            // Donut chart + leyenda (top 6)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HttpMethodsDonutChart(
+                    httpMethods = sorted,
+                    size = chartSize,
+                    showCenterTotal = true
+                )
+                Spacer(Modifier.width(DSJarvisTheme.spacing.m))
                 Column(
+                    modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ) {
-                    DSText(
-                        text = "Method Details",
-                        style = DSJarvisTheme.typography.body.body2,
-                        fontWeight = FontWeight.Medium,
-                        color = DSJarvisTheme.colors.neutral.neutral90
-                    )
-                    
-                    httpMethods.forEach { methodData ->
-                        HttpMethodDetailItem(methodData = methodData)
+                    sorted.take(6).forEach { method ->
+                        HttpMethodLegendItem(
+                            methodData = method,
+                            animationProgress = progress
+                        )
                     }
+                }
+            }
+
+            // Detailed list
+            if (sorted.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
+                    DSText(
+                        text = stringResource(R.string.http_methods_distribution),
+                        style = DSJarvisTheme.typography.body.medium,
+                        fontWeight = FontWeight.Medium,
+                        color = DSJarvisTheme.colors.neutral.neutral80
+                    )
+
+                    sorted.forEach { method ->
+                        HttpMethodDetailItem(methodData = method)
+                    }
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(chartSize),
+                    contentAlignment = Alignment.Center
+                ) {
+                    DSText(
+                        text = stringResource(R.string.no_network_data_available),
+                        style = DSJarvisTheme.typography.body.medium,
+                        color = DSJarvisTheme.colors.neutral.neutral60
+                    )
                 }
             }
         }
@@ -331,56 +283,156 @@ private fun HttpMethodDetailItem(
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(Color(android.graphics.Color.parseColor(methodData.color)))
+                    .background(safeParseColor(methodData.color))
             )
-            
             DSText(
                 text = methodData.method,
-                style = DSJarvisTheme.typography.body.body2,
+                style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.neutral.neutral90
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
         }
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-        ) {
+
+        Row(horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)) {
             DSText(
                 text = "${methodData.count}",
-                style = DSJarvisTheme.typography.body.body2,
-                color = DSJarvisTheme.colors.neutral.neutral70
+                style = DSJarvisTheme.typography.body.medium,
+                color = DSJarvisTheme.colors.neutral.neutral60
             )
-            
             DSText(
-                text = "${String.format("%.1f", methodData.percentage)}%",
-                style = DSJarvisTheme.typography.body.body2,
-                color = DSJarvisTheme.colors.neutral.neutral70
+                text = String.format("%.1f%%", methodData.percentage),
+                style = DSJarvisTheme.typography.body.medium,
+                color = DSJarvisTheme.colors.neutral.neutral60
             )
-            
             DSText(
-                text = "${String.format("%.0f", methodData.averageResponseTime)}ms",
-                style = DSJarvisTheme.typography.body.body2,
-                color = Color(android.graphics.Color.parseColor(methodData.color))
+                text = String.format("%.0fms", methodData.averageResponseTime),
+                style = DSJarvisTheme.typography.body.medium,
+                color = safeParseColor(methodData.color)
             )
         }
     }
 }
 
-// Import DSCard and other components
+private fun safeParseColor(hex: String?): Color = runCatching {
+    if (hex.isNullOrBlank()) Color(0xFF90CAF9) // fallback azul suave
+    else Color(android.graphics.Color.parseColor(hex))
+}.getOrElse { Color(0xFF90CAF9) }
+
+/**
+ * Si los porcentajes no suman ~100, recalculamos a partir de los counts.
+ * Si suman ~100 (tolerancia 1%), respetamos el porcentaje de entrada.
+ */
+private fun normalizePercentages(input: List<HttpMethodData>): List<HttpMethodData> {
+    if (input.isEmpty()) return input
+    val sumPct = input.sumOf { it.percentage.toDouble() }.toFloat()
+    val closeTo100 = kotlin.math.abs(sumPct - 100f) <= 1f
+    return if (closeTo100) input
+    else {
+        val total = input.sumOf { it.count }.toFloat().takeIf { it > 0f } ?: 1f
+        input.map { it.copy(percentage = (it.count / total) * 100f) }
+    }
+}
+
+
+@Preview(name = "Donut - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun DSCard(
-    modifier: Modifier = Modifier,
-    shape: androidx.compose.ui.graphics.Shape = DSJarvisTheme.shapes.m,
-    elevation: androidx.compose.ui.unit.Dp = DSJarvisTheme.elevations.level1,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.material3.Card(
-        modifier = modifier,
-        shape = shape,
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = elevation),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = DSJarvisTheme.colors.extra.background
-        ),
-        content = { content() }
-    )
+private fun PreviewHttpMethodsDonutLight() {
+    DSJarvisTheme {
+        HttpMethodsDonutChart(httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution)
+    }
+}
+
+@Preview(name = "Donut Card - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PreviewHttpMethodsDonutCardLight() {
+    DSJarvisTheme {
+        HttpMethodsCard(
+            httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution,
+            chartSize = 180.dp
+        )
+    }
+}
+
+@Preview(
+    name = "Donut - Dark", 
+    showBackground = true, 
+    backgroundColor = 0xFF000000,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewHttpMethodsDonutDark() {
+    DSJarvisTheme(darkTheme = true) {
+        HttpMethodsDonutChart(httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution)
+    }
+}
+
+@Preview(
+    name = "Donut Card - Dark", 
+    showBackground = true, 
+    backgroundColor = 0xFF000000,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewHttpMethodsDonutCardDark() {
+    DSJarvisTheme(darkTheme = true) {
+        HttpMethodsCard(
+            httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution,
+            chartSize = 180.dp
+        )
+    }
+}
+
+@Preview(
+    name = "Theme Comparison - Side by Side",
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 400
+)
+@Composable
+private fun PreviewThemeComparison() {
+    Row(modifier = Modifier.fillMaxSize()) {
+        // Light theme
+        DSJarvisTheme(darkTheme = false) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(DSJarvisTheme.colors.extra.background)
+                    .padding(16.dp)
+            ) {
+                DSText(
+                    text = "LIGHT THEME",
+                    style = DSJarvisTheme.typography.heading.heading5,
+                    color = DSJarvisTheme.colors.neutral.neutral100,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                HttpMethodsCard(
+                    httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution.take(3),
+                    chartSize = 120.dp
+                )
+            }
+        }
+        
+        // Dark theme
+        DSJarvisTheme(darkTheme = true) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(DSJarvisTheme.colors.extra.background)
+                    .padding(16.dp)
+            ) {
+                DSText(
+                    text = "DARK THEME",
+                    style = DSJarvisTheme.typography.heading.heading5,
+                    color = DSJarvisTheme.colors.neutral.neutral100,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                HttpMethodsCard(
+                    httpMethods = mockEnhancedNetworkMetrics.httpMethodDistribution.take(3),
+                    chartSize = 120.dp
+                )
+            }
+        }
+    }
 }

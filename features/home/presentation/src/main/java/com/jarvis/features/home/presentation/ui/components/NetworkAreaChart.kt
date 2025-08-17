@@ -1,52 +1,71 @@
 package com.jarvis.features.home.presentation.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.charts.DSAreaChart
+import com.jarvis.core.designsystem.component.charts.DSChartDataPoint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.features.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.features.home.domain.entity.TimeSeriesDataPoint
+import com.jarvis.features.home.presentation.R
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.max
-import kotlin.math.min
 
 /**
- * Network requests over time area chart with smooth animations and gradient fill
+ * Network area chart component using the generic DSAreaChart.
+ * Shows requests over time with interaction and tooltip.
  */
 @Composable
 fun NetworkAreaChart(
     dataPoints: List<TimeSeriesDataPoint>,
     modifier: Modifier = Modifier,
-    title: String = "Requests Over Time",
-    height: Int = 200
+    title: String? = null,
+    height: Dp = 200.dp,
+    showGrid: Boolean = true,
+    showAverageLine: Boolean = true,
+    enableInteraction: Boolean = true,
+    animationDurationMs: Int = 1200
 ) {
-    var animationPlayed by remember(dataPoints) { mutableStateOf(false) }
-    
-    val animationProgress by animateFloatAsState(
-        targetValue = if (animationPlayed) 1f else 0f,
-        animationSpec = tween(durationMillis = 1500),
-        label = "area_chart_animation"
-    )
-    
-    LaunchedEffect(dataPoints) {
-        animationPlayed = true
+    // Convert TimeSeriesDataPoint to DSChartDataPoint
+    val chartDataPoints = remember(dataPoints) {
+        dataPoints.sortedBy { it.timestamp }.mapIndexed { index, point ->
+            DSChartDataPoint(
+                x = index.toFloat(),
+                y = point.value,
+                label = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(point.timestamp))
+            )
+        }
     }
+
+    val chartTitle = title ?: stringResource(R.string.requests_over_time)
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     
+    val contentDesc = if (dataPoints.isNotEmpty()) {
+        val last = dataPoints.last()
+        stringResource(
+            R.string.network_area_chart_accessibility,
+            last.value.toInt(),
+            timeFormat.format(Date(last.timestamp))
+        )
+    } else {
+        stringResource(R.string.no_network_data_available)
+    }
+
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.l,
@@ -56,43 +75,47 @@ fun NetworkAreaChart(
             modifier = Modifier.padding(DSJarvisTheme.spacing.l),
             verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
         ) {
-            // Chart title and summary
+            // Header
             NetworkChartHeader(
-                title = title,
-                dataPoints = dataPoints
+                title = chartTitle,
+                dataPoints = dataPoints,
+                lineColor = DSJarvisTheme.colors.chart.primary
             )
-            
-            // Area chart
-            if (dataPoints.isNotEmpty()) {
-                Canvas(
+
+            if (chartDataPoints.isNotEmpty()) {
+                DSAreaChart(
+                    dataPoints = chartDataPoints,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(height.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                ) {
-                    drawNetworkAreaChart(
+                        .height(height),
+                    lineColor = DSJarvisTheme.colors.chart.primary,
+                    fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
+                    fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
+                    backgroundColor = DSJarvisTheme.colors.extra.surface,
+                    gridColor = DSJarvisTheme.colors.neutral.neutral20,
+                    showGrid = showGrid,
+                    animationDurationMs = animationDurationMs,
+                    contentDescription = contentDesc
+                )
+
+                // Time axis labels
+                if (dataPoints.isNotEmpty()) {
+                    NetworkTimeAxisLabels(
                         dataPoints = dataPoints,
-                        animationProgress = animationProgress,
-                        canvasSize = size
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-                
-                // Time axis labels
-                NetworkTimeAxisLabels(
-                    dataPoints = dataPoints,
-                    modifier = Modifier.fillMaxWidth()
-                )
             } else {
                 // Empty state
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(height.dp),
+                        .height(height),
                     contentAlignment = Alignment.Center
                 ) {
                     DSText(
-                        text = "No network data available",
-                        style = DSJarvisTheme.typography.body.body2,
+                        text = stringResource(R.string.no_network_data_available),
+                        style = DSJarvisTheme.typography.body.medium,
                         color = DSJarvisTheme.colors.neutral.neutral60
                     )
                 }
@@ -101,13 +124,14 @@ fun NetworkAreaChart(
     }
 }
 
-/**
- * Chart header with title and summary statistics
- */
+/* ---------- Header & X labels ---------- */
+
+/** Header with summary and a simple trend arrow. */
 @Composable
 private fun NetworkChartHeader(
     title: String,
-    dataPoints: List<TimeSeriesDataPoint>
+    dataPoints: List<TimeSeriesDataPoint>,
+    lineColor: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -121,73 +145,57 @@ private fun NetworkChartHeader(
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
-            
+
             if (dataPoints.isNotEmpty()) {
                 val total = dataPoints.sumOf { it.value.toDouble() }.toInt()
-                val avg = if (dataPoints.isNotEmpty()) total / dataPoints.size else 0
-                
+                val avg = total / dataPoints.size
                 DSText(
-                    text = "Total: $total • Avg: $avg req/min",
-                    style = DSJarvisTheme.typography.body.body3,
-                    color = DSJarvisTheme.colors.neutral.neutral70
+                    text = stringResource(R.string.total_requests, total, avg),
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
         }
-        
-        // Current trend indicator
+
         if (dataPoints.size >= 2) {
-            val trend = dataPoints.takeLast(2)
-            val isIncreasing = trend[1].value > trend[0].value
-            
+            val last = dataPoints.last()
+            val prev = dataPoints[dataPoints.lastIndex - 1]
+            val up = last.value > prev.value
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
             ) {
                 DSText(
-                    text = if (isIncreasing) "↗" else "↘",
-                    style = DSJarvisTheme.typography.body.body2,
-                    color = if (isIncreasing) Color(0xFF4CAF50) else Color(0xFFF44336)
+                    text = if (up) "↗" else "↘",
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = if (up) DSJarvisTheme.colors.success.success100 else DSJarvisTheme.colors.error.error100
                 )
-                
                 DSText(
-                    text = "${trend.last().value.toInt()}",
-                    style = DSJarvisTheme.typography.body.body2,
+                    text = last.value.toInt().toString(),
+                    style = DSJarvisTheme.typography.body.medium,
                     fontWeight = FontWeight.Medium,
-                    color = DSJarvisTheme.colors.neutral.neutral90
+                    color = lineColor
                 )
             }
         }
     }
 }
 
-/**
- * Time axis labels showing timestamps
- */
+/** Time axis labels (first / middle / last). */
 @Composable
 private fun NetworkTimeAxisLabels(
     dataPoints: List<TimeSeriesDataPoint>,
     modifier: Modifier = Modifier
 ) {
     if (dataPoints.isEmpty()) return
-    
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        
-        // Show first, middle, and last timestamps
-        val indicesToShow = listOf(
-            0,
-            dataPoints.size / 2,
-            dataPoints.size - 1
-        ).distinct()
-        
-        indicesToShow.forEach { index ->
-            if (index < dataPoints.size) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween) {
+        val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+        val indices = listOf(0, dataPoints.size / 2, dataPoints.lastIndex).distinct()
+        indices.forEach { idx ->
+            if (idx in dataPoints.indices) {
                 DSText(
-                    text = timeFormat.format(Date(dataPoints[index].timestamp)),
-                    style = DSJarvisTheme.typography.body.body3,
+                    text = timeFormat.format(Date(dataPoints[idx].timestamp)),
+                    style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
@@ -195,121 +203,16 @@ private fun NetworkTimeAxisLabels(
     }
 }
 
-/**
- * Draws the area chart with smooth curves and gradient fill
- */
-private fun DrawScope.drawNetworkAreaChart(
-    dataPoints: List<TimeSeriesDataPoint>,
-    animationProgress: Float,
-    canvasSize: Size
-) {
-    if (dataPoints.isEmpty()) return
-    
-    val maxValue = dataPoints.maxOfOrNull { it.value } ?: 0f
-    val minValue = dataPoints.minOfOrNull { it.value } ?: 0f
-    val valueRange = maxValue - minValue
-    
-    if (valueRange == 0f) return
-    
-    val width = canvasSize.width
-    val height = canvasSize.height
-    val padding = 20.dp.toPx()
-    
-    // Calculate points for the area chart
-    val points = dataPoints.mapIndexed { index, dataPoint ->
-        val x = padding + (index.toFloat() / (dataPoints.size - 1)) * (width - 2 * padding)
-        val normalizedValue = (dataPoint.value - minValue) / valueRange
-        val y = height - padding - (normalizedValue * (height - 2 * padding))
-        
-        Offset(x, y)
-    }
-    
-    // Apply animation by limiting the number of points drawn
-    val animatedPointCount = (points.size * animationProgress).toInt().coerceAtLeast(1)
-    val animatedPoints = points.take(animatedPointCount)
-    
-    if (animatedPoints.size < 2) return
-    
-    // Create path for area fill
-    val fillPath = Path().apply {
-        moveTo(animatedPoints.first().x, height - padding)
-        animatedPoints.forEach { point ->
-            lineTo(point.x, point.y)
-        }
-        lineTo(animatedPoints.last().x, height - padding)
-        close()
-    }
-    
-    // Create gradient for area fill
-    val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF2196F3).copy(alpha = 0.3f),
-            Color(0xFF2196F3).copy(alpha = 0.05f)
-        ),
-        startY = 0f,
-        endY = height
-    )
-    
-    // Draw area fill
-    drawPath(
-        path = fillPath,
-        brush = gradient
-    )
-    
-    // Create path for stroke line
-    val strokePath = Path().apply {
-        moveTo(animatedPoints.first().x, animatedPoints.first().y)
-        animatedPoints.drop(1).forEach { point ->
-            lineTo(point.x, point.y)
-        }
-    }
-    
-    // Draw stroke line
-    drawPath(
-        path = strokePath,
-        color = Color(0xFF2196F3),
-        style = Stroke(
-            width = 3.dp.toPx(),
-            cap = StrokeCap.Round,
-            join = StrokeJoin.Round
-        )
-    )
-    
-    // Draw data points
-    animatedPoints.forEach { point ->
-        drawCircle(
-            color = Color(0xFF2196F3),
-            radius = 4.dp.toPx(),
-            center = point
-        )
-        
-        drawCircle(
-            color = Color.White,
-            radius = 2.dp.toPx(),
-            center = point
-        )
-    }
-    
-    // Draw value labels for key points
-    if (animatedPoints.isNotEmpty()) {
-        val firstPoint = animatedPoints.first()
-        val lastPoint = animatedPoints.last()
-        
-        // You can add text drawing here if needed
-        // For now, we'll keep it simple without text to avoid complex text measurement
-    }
-}
+/* ---------- Optional overview card ---------- */
 
-/**
- * Network overview card with multiple metrics
- */
 @Composable
 fun NetworkOverviewCard(
     dataPoints: List<TimeSeriesDataPoint>,
     totalRequests: Int,
     averageResponseTime: Float,
     errorRate: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    chartHeight: Dp = 150.dp
 ) {
     DSCard(
         modifier = modifier.fillMaxWidth(),
@@ -321,88 +224,112 @@ fun NetworkOverviewCard(
             verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
         ) {
             DSText(
-                text = "Network Overview",
+                text = stringResource(R.string.network_overview),
                 style = DSJarvisTheme.typography.heading.heading4,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
-            
-            // Metrics row
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 NetworkMetricItem(
-                    label = "Requests",
+                    label = stringResource(R.string.requests),
                     value = totalRequests.toString(),
-                    color = DSJarvisTheme.colors.primary.primary50
+                    color = DSJarvisTheme.colors.chart.primary
                 )
-                
                 NetworkMetricItem(
-                    label = "Avg Time",
-                    value = "${String.format("%.0f", averageResponseTime)}ms",
-                    color = DSJarvisTheme.colors.secondary.secondary50
+                    label = stringResource(R.string.avg_time),
+                    value = String.format("%.0fms", averageResponseTime),
+                    color = DSJarvisTheme.colors.chart.secondary
                 )
-                
                 NetworkMetricItem(
-                    label = "Error Rate",
-                    value = "${String.format("%.1f", errorRate)}%",
-                    color = if (errorRate < 5f) Color(0xFF4CAF50) else Color(0xFFF44336)
+                    label = stringResource(R.string.error_rate),
+                    value = String.format("%.1f%%", errorRate),
+                    color = if (errorRate < 5f) DSJarvisTheme.colors.success.success100 else DSJarvisTheme.colors.error.error100
                 )
             }
-            
-            // Area chart
+
             NetworkAreaChart(
                 dataPoints = dataPoints,
-                title = "Request Timeline",
-                height = 150
+                title = stringResource(R.string.request_timeline),
+                height = chartHeight
             )
         }
     }
 }
 
-/**
- * Individual network metric display item
- */
 @Composable
 private fun NetworkMetricItem(
     label: String,
     value: String,
     color: Color
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DSText(
             text = value,
             style = DSJarvisTheme.typography.heading.heading5,
             fontWeight = FontWeight.Bold,
             color = color
         )
-        
         DSText(
             text = label,
-            style = DSJarvisTheme.typography.body.body3,
-            color = DSJarvisTheme.colors.neutral.neutral70
+            style = DSJarvisTheme.typography.body.small,
+            color = DSJarvisTheme.colors.neutral.neutral60
         )
     }
 }
 
-// Import DSCard from design system (reusing from HealthScoreGauge.kt)
+/* ---------- Previews ---------- */
+
+@Preview(name = "AreaChart - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun DSCard(
-    modifier: Modifier = Modifier,
-    shape: androidx.compose.ui.graphics.Shape = DSJarvisTheme.shapes.m,
-    elevation: androidx.compose.ui.unit.Dp = DSJarvisTheme.elevations.level1,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.material3.Card(
-        modifier = modifier,
-        shape = shape,
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = elevation),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = DSJarvisTheme.colors.extra.background
-        ),
-        content = { content() }
-    )
+private fun PreviewNetworkAreaChartLight() {
+    DSJarvisTheme {
+        NetworkAreaChart(
+            dataPoints = mockEnhancedNetworkMetrics.requestsOverTime,
+            title = "Requests Over Time",
+            showAverageLine = true,
+            showGrid = true,
+            enableInteraction = true
+        )
+    }
+}
+
+@Preview(
+    name = "AreaChart - Dark", 
+    showBackground = true, 
+    backgroundColor = 0xFF000000,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewNetworkAreaChartDark() {
+    DSJarvisTheme(darkTheme = true) {
+        NetworkAreaChart(
+            dataPoints = mockEnhancedNetworkMetrics.requestsOverTime,
+            title = "Requests Over Time",
+            showAverageLine = true,
+            showGrid = true,
+            enableInteraction = true
+        )
+    }
+}
+
+@Preview(
+    name = "Network Overview - Dark", 
+    showBackground = true, 
+    backgroundColor = 0xFF000000,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewNetworkOverviewCardDark() {
+    DSJarvisTheme(darkTheme = true) {
+        NetworkOverviewCard(
+            dataPoints = mockEnhancedNetworkMetrics.requestsOverTime,
+            totalRequests = 15420,
+            averageResponseTime = 245.6f,
+            errorRate = 2.3f
+        )
+    }
 }

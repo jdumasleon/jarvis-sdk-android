@@ -3,6 +3,7 @@ package com.jarvis.api.ui
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -80,7 +81,8 @@ class JarvisOverlay(private val context: Context) {
             setViewTreeSavedStateRegistryOwner(activity as androidx.savedstate.SavedStateRegistryOwner)
 
             setContent {
-                DSJarvisTheme {
+                val darkTheme = isSystemInDarkTheme()
+                DSJarvisTheme(darkTheme = darkTheme) {
                     JarvisOverlayContent(
                         navigator = navigator,
                         entryProviderBuilders = entryProviderBuilders,

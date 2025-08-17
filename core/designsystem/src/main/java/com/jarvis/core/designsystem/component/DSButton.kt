@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -25,6 +26,7 @@ import com.jarvis.core.designsystem.theme.Neutral0
 import com.jarvis.core.designsystem.theme.Neutral40
 import com.jarvis.core.designsystem.theme.Neutral80
 import com.jarvis.core.designsystem.theme.Primary100
+import com.jarvis.core.designsystem.R
 
 enum class DSButtonStyle {
     PRIMARY, SECONDARY, OUTLINE, TEXT, LINK
@@ -135,38 +137,79 @@ fun DSButtonPreview() {
             DSButton(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = DSJarvisTheme.elevations.level2,
-                text = "Primary",
+                text = stringResource(R.string.ds_primary),
                 style = PRIMARY,
                 onClick = {}
             )
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = PRIMARY, disabled = true, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = PRIMARY, disabled = true, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
 
             Text("Secondary Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = "Secondary", style = SECONDARY, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = stringResource(R.string.ds_secondary), style = SECONDARY, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = SECONDARY, disabled = true, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = SECONDARY, disabled = true, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
 
             Text("Outline Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Outline", style = OUTLINE, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_outline), style = OUTLINE, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = OUTLINE, disabled = true, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = OUTLINE, disabled = true, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
 
             Text("Text Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Text", style = TEXT, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Text", style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = TEXT, disabled = true, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = TEXT, disabled = true, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
 
             Text("Link Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Link", style = LINK, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_link), style = LINK, onClick = {})
             Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = "Disabled", style = LINK, disabled = true, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = LINK, disabled = true, onClick = {})
+        }
+    }
+}
+
+@Preview(
+    showBackground = true, 
+    name = "All DSButton styles - Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun DSButtonDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        Column {
+            Text("Primary Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_primary), style = PRIMARY, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = PRIMARY, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+            
+            Text("Secondary Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = stringResource(R.string.ds_secondary), style = SECONDARY, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = SECONDARY, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+            
+            Text("Outline Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_outline), style = OUTLINE, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = OUTLINE, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+            
+            Text("Text Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {})
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = TEXT, disabled = true, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+            
+            Text("Link Buttons", fontWeight = FontWeight.Bold)
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_link), style = LINK, onClick = {})
+            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = LINK, disabled = true, onClick = {})
         }
     }
 }

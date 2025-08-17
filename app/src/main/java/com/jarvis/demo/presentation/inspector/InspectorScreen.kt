@@ -331,3 +331,34 @@ fun InspectorScreenErrorPreview() {
         )
     }
 }
+
+// Dark mode previews
+@Preview(
+    showBackground = true, 
+    name = "Loading Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun InspectorScreenLoadingDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        InspectorScreen(
+            uiState = ResourceState.Loading,
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true, 
+    name = "With Data Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun InspectorScreenWithDataDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        InspectorScreen(
+            uiState = ResourceState.Success(InspectorUiData.mockInspectorUiData),
+            onEvent = {}
+        )
+    }
+}

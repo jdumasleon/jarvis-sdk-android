@@ -123,3 +123,53 @@ data class PerformanceThresholds(
     val frameDropThreshold: Int = 10, // Dropped frames per second
     val moduleLoadThreshold: Duration = Duration.parse("PT2S") // 2 seconds
 )
+
+// Mock objects for testing and previews
+object PerformanceSnapshotMock {
+    val mockPerformanceSnapshot: PerformanceSnapshot
+        get() = PerformanceSnapshot(
+        timestamp = System.currentTimeMillis(),
+        cpuUsage = CpuMetrics(
+            cpuUsagePercent = 23.5f,
+            appCpuUsagePercent = 8.2f,
+            systemCpuUsagePercent = 15.3f,
+            cores = 8,
+            threadCount = 45,
+            timestamp = System.currentTimeMillis()
+        ),
+        memoryUsage = MemoryMetrics(
+            heapUsedMB = 156.8f,
+            heapTotalMB = 512.0f,
+            heapMaxMB = 1024.0f,
+            nativeHeapUsedMB = 89.2f,
+            nativeHeapTotalMB = 256.0f,
+            availableMemoryMB = 2048.0f,
+            totalMemoryMB = 8192.0f,
+            memoryPressure = MemoryPressure.LOW,
+            timestamp = System.currentTimeMillis()
+        ),
+        fpsMetrics = FpsMetrics(
+            currentFps = 58.3f,
+            averageFps = 56.7f,
+            minFps = 45.2f,
+            maxFps = 60.0f,
+            frameDrops = 3,
+            jankFrames = 12,
+            refreshRate = 60f,
+            timestamp = System.currentTimeMillis()
+        ),
+        moduleMetrics = ModuleMetrics(
+            moduleLoadTimes = listOf(
+                ModuleLoadTime("HomeModule", Duration.parse("PT0.234S"), LoadType.DAGGER_MODULE),
+                ModuleLoadTime("NetworkModule", Duration.parse("PT0.156S"), LoadType.NETWORK_INIT),
+                ModuleLoadTime("DatabaseModule", Duration.parse("PT0.089S"), LoadType.DATABASE_INIT)
+            ),
+            startupTime = Duration.parse("PT1.2S"),
+            coldStartTime = Duration.parse("PT2.8S"),
+            warmStartTime = Duration.parse("PT0.6S"),
+            timestamp = System.currentTimeMillis()
+        ),
+        batteryLevel = 68.5f,
+        thermalState = ThermalState.NORMAL
+    )
+}

@@ -114,3 +114,58 @@ data class ResponseTimePercentages(
     val under5s: Float,
     val over5s: Float
 )
+
+// Mock objects for testing and previews
+object EnhancedNetworkMetricsMock {
+    val mockEnhancedNetworkMetrics: EnhancedNetworkMetrics
+        get() = EnhancedNetworkMetrics(
+        totalCalls = 247,
+        averageSpeed = 156.8,
+        successfulCalls = 231,
+        failedCalls = 16,
+        successRate = 93.5,
+        averageRequestSize = 2048,
+        averageResponseSize = 4096,
+        requestsOverTime = listOf(
+            TimeSeriesDataPoint(System.currentTimeMillis() - 3600000, 45f, "1h ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 1800000, 67f, "30m ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 900000, 52f, "15m ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis() - 300000, 73f, "5m ago"),
+            TimeSeriesDataPoint(System.currentTimeMillis(), 82f, "now")
+        ),
+        httpMethodDistribution = listOf(
+            HttpMethodData("GET", 156, 63.2f, 120.5f),
+            HttpMethodData("POST", 62, 25.1f, 245.3f),
+            HttpMethodData("PUT", 18, 7.3f, 189.7f),
+            HttpMethodData("DELETE", 11, 4.4f, 98.2f)
+        ),
+        topEndpoints = listOf(
+            EndpointData("GET /api/users", "GET", 89, 125.3f, 2.1f, 512000),
+            EndpointData("POST /api/auth", "POST", 45, 234.7f, 0.8f, 256000),
+            EndpointData("GET /api/dashboard", "GET", 38, 156.2f, 5.2f, 384000),
+            EndpointData("PUT /api/profile", "PUT", 23, 189.5f, 3.1f, 128000)
+        ),
+        slowestEndpoints = listOf(
+            SlowEndpointData("GET /api/reports", "GET", 2850.3f, 3200.1f, 12, System.currentTimeMillis() - 180000),
+            SlowEndpointData("POST /api/upload", "POST", 1834.7f, 2100.4f, 8, System.currentTimeMillis() - 300000),
+            SlowEndpointData("GET /api/analytics", "GET", 1245.2f, 1500.8f, 15, System.currentTimeMillis() - 120000)
+        ),
+        statusCodeDistribution = mapOf(
+            200 to 189,
+            201 to 34,
+            400 to 8,
+            401 to 3,
+            404 to 6,
+            500 to 7
+        ),
+        responseTimeDistribution = ResponseTimeDistribution(
+            under100ms = 89,
+            under500ms = 124,
+            under1s = 18,
+            under5s = 12,
+            over5s = 4
+        ),
+        sessionFilter = SessionFilter.LAST_SESSION,
+        lastUpdated = System.currentTimeMillis()
+    )
+}

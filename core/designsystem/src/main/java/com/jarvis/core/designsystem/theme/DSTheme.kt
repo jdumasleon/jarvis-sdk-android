@@ -1,21 +1,25 @@
 package com.jarvis.core.designsystem.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 fun DSJarvisTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val colors = if (darkTheme) darkColors() else lightColors()
+    
     val dsBackgroundTheme = DSBackgroundTheme(
-        color = DSJarvisTheme.colors.extra.background,
+        color = colors.extra.background,
         tonalElevation = DSJarvisTheme.elevations.none
     )
 
     CompositionLocalProvider(
         LocalDSBackgroundTheme provides dsBackgroundTheme,
         LocalDSBorder provides DSBorder(),
-        LocalDSColors provides DSColors(),
+        LocalDSColors provides colors,
         LocalDSContentEmphasis provides DSContentEmphasis(),
         LocalDSDimensions provides DSDimensions(),
         LocalDSElevations provides DSElevations(),

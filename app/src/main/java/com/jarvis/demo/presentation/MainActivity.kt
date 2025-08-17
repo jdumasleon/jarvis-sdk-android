@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,12 +53,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val lightTransparentStyle = SystemBarStyle.light(scrim = TRANSPARENT, darkScrim = TRANSPARENT)
-
-        enableEdgeToEdge(
-            statusBarStyle = lightTransparentStyle,
-            navigationBarStyle = lightTransparentStyle
-        )
+        enableEdgeToEdge()
 
         // Initialize Jarvis SDK with comprehensive demo app configuration
         val demoConfig = JarvisConfig.builder()
@@ -125,7 +121,8 @@ class MainActivity : ComponentActivity() {
         navigator.initialize(HomeGraph.Home)
 
         setContent {
-            DSJarvisTheme {
+            val darkTheme = isSystemInDarkTheme()
+            DSJarvisTheme(darkTheme = darkTheme) {
                 JarvisProvider(
                     sdk = jarvisSDK
                 ) {

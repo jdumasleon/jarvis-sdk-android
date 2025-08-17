@@ -15,32 +15,47 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.features.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.features.home.domain.entity.SlowEndpointData
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Slowest endpoints list component for identifying performance bottlenecks
+ * Slowest endpoints list to spot performance bottlenecks.
+ * - Sorts by averageResponseTime (desc)
+ * - Animated severity color, counters, and bars
+ * - Suggestion banner for very slow endpoints
  */
 @Composable
 fun SlowestEndpointsList(
     slowEndpoints: List<SlowEndpointData>,
     modifier: Modifier = Modifier,
-    maxItems: Int = 8
+    maxItems: Int = 8,
+    maxHeight: Dp = 400.dp
 ) {
-    var animationPlayed by remember(slowEndpoints) { mutableStateOf(false) }
-    
-    LaunchedEffect(slowEndpoints) {
-        animationPlayed = true
-    }
-    
+    // Sort once to ensure consistent ranking and visual scale
+    val sorted = remember(slowEndpoints) { slowEndpoints.sortedByDescending { it.averageResponseTime } }
+    val topSlowEndpoints = remember(sorted, maxItems) { sorted.take(maxItems) }
+    val worstAvg = remember(sorted) { sorted.maxOfOrNull { it.averageResponseTime } ?: 1f }
+
+    var animationPlayed by remember(sorted) { mutableStateOf(false) }
+    LaunchedEffect(sorted) { animationPlayed = true }
+
     DSCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = "Slowest endpoints list" }
+            .testTag("SlowestEndpointsList"),
         shape = DSJarvisTheme.shapes.l,
         elevation = DSJarvisTheme.elevations.level2
     ) {
@@ -64,7 +79,6 @@ fun SlowestEndpointsList(
                         tint = Color(0xFFFF9800),
                         modifier = Modifier.size(20.dp)
                     )
-                    
                     DSText(
                         text = "Slowest Endpoints",
                         style = DSJarvisTheme.typography.heading.heading5,
@@ -72,33 +86,32 @@ fun SlowestEndpointsList(
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
                 }
-                
-                if (slowEndpoints.isNotEmpty()) {
+
+                if (topSlowEndpoints.isNotEmpty()) {
                     DSText(
                         text = "Performance bottlenecks",
-                        style = DSJarvisTheme.typography.body.body3,
+                        style = DSJarvisTheme.typography.body.small,
                         color = Color(0xFFFF9800)
                     )
                 }
             }
-            
-            if (slowEndpoints.isNotEmpty()) {
-                val topSlowEndpoints = slowEndpoints.take(maxItems)
-                
+
+            if (topSlowEndpoints.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
-                    modifier = Modifier.heightIn(max = 400.dp)
+                    modifier = Modifier.heightIn(max = maxHeight)
                 ) {
                     itemsIndexed(topSlowEndpoints) { index, endpoint ->
                         SlowEndpointItem(
                             endpoint = endpoint,
                             animationPlayed = animationPlayed,
-                            rank = index + 1
+                            rank = index + 1,
+                            worstAvg = worstAvg
                         )
                     }
                 }
             } else {
-                // Empty state - good performance
+                // Empty state - great performance
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,18 +126,16 @@ fun SlowestEndpointsList(
                             text = "🎉",
                             style = DSJarvisTheme.typography.heading.heading3
                         )
-                        
                         DSText(
                             text = "No slow endpoints detected",
-                            style = DSJarvisTheme.typography.body.body2,
+                            style = DSJarvisTheme.typography.body.medium,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF4CAF50)
                         )
-                        
                         DSText(
                             text = "All endpoints are performing well",
-                            style = DSJarvisTheme.typography.body.body3,
-                            color = DSJarvisTheme.colors.neutral.neutral70
+                            style = DSJarvisTheme.typography.body.small,
+                            color = DSJarvisTheme.colors.neutral.neutral60
                         )
                     }
                 }
@@ -134,36 +145,51 @@ fun SlowestEndpointsList(
 }
 
 /**
- * Individual slow endpoint item with severity indicator and details
+ * Single slow endpoint row with rank, method, timings, proportional bar, and optional suggestion.
  */
 @Composable
 private fun SlowEndpointItem(
     endpoint: SlowEndpointData,
     animationPlayed: Boolean,
-    rank: Int
+    rank: Int,
+    worstAvg: Float
 ) {
     val animationProgress by animateFloatAsState(
         targetValue = if (animationPlayed) 1f else 0f,
-        animationSpec = tween(durationMillis = 600, delayMillis = rank * 100),
+        animationSpec = tween(durationMillis = 600, delayMillis = rank * 80),
         label = "slow_endpoint_animation"
     )
-    
+
     val severityColor = getSeverityColor(endpoint.averageResponseTime)
     val animatedSeverityColor by animateColorAsState(
-        targetValue = if (animationPlayed) severityColor else Color.Gray,
-        animationSpec = tween(durationMillis = 800),
+        targetValue = if (animationPlayed) severityColor else DSJarvisTheme.colors.neutral.neutral40,
+        animationSpec = tween(durationMillis = 800, delayMillis = rank * 40),
         label = "severity_color_animation"
     )
-    
+
+    val animatedResponseTime by animateFloatAsState(
+        targetValue = if (animationPlayed) endpoint.averageResponseTime else 0f,
+        animationSpec = tween(durationMillis = 900, delayMillis = rank * 60),
+        label = "response_time_animation"
+    )
+
+    // Relative width for the severity bar (bounded to [0.08, 1] for visibility)
+    val barRatio = (endpoint.averageResponseTime / worstAvg).coerceIn(0.08f, 1f)
+    val animatedBarRatio by animateFloatAsState(
+        targetValue = if (animationPlayed) barRatio else 0f,
+        animationSpec = tween(durationMillis = 700, delayMillis = rank * 50),
+        label = "bar_ratio_animation"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(animatedSeverityColor.copy(alpha = 0.05f))
+            .clip(RoundedCornerShape(10.dp))
+            .background(animatedSeverityColor.copy(alpha = 0.06f))
             .padding(DSJarvisTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
-        // Header with rank and endpoint info
+        // Header: rank badge, method badge, response time
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -173,7 +199,7 @@ private fun SlowEndpointItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                // Severity indicator
+                // Rank badge
                 Box(
                     modifier = Modifier
                         .size(28.dp)
@@ -183,85 +209,92 @@ private fun SlowEndpointItem(
                 ) {
                     DSText(
                         text = "$rank",
-                        style = DSJarvisTheme.typography.body.body2,
+                        style = DSJarvisTheme.typography.body.medium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }
-                
+
                 // Method badge
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
+                        .clip(RoundedCornerShape(6.dp))
                         .background(getMethodColor(endpoint.method))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     DSText(
-                        text = endpoint.method,
-                        style = DSJarvisTheme.typography.body.body3,
+                        text = endpoint.method.uppercase(Locale.getDefault()),
+                        style = DSJarvisTheme.typography.body.small,
                         fontWeight = FontWeight.Medium,
                         color = Color.White
                     )
                 }
             }
-            
-            // Response time with animation
-            val animatedResponseTime by animateFloatAsState(
-                targetValue = if (animationPlayed) endpoint.averageResponseTime else 0f,
-                animationSpec = tween(durationMillis = 1000),
-                label = "response_time_animation"
-            )
-            
+
             DSText(
-                text = "${String.format("%.0f", animatedResponseTime)}ms",
+                text = "${String.format(Locale.getDefault(), "%.0f", animatedResponseTime)}ms",
                 style = DSJarvisTheme.typography.heading.heading5,
                 fontWeight = FontWeight.Bold,
                 color = animatedSeverityColor
             )
         }
-        
-        // Endpoint path
+
+        // Endpoint path (truncate gracefully in parent container)
         DSText(
             text = endpoint.endpoint,
-            style = DSJarvisTheme.typography.body.body2,
+            style = DSJarvisTheme.typography.body.medium,
             fontWeight = FontWeight.Medium,
-            color = DSJarvisTheme.colors.neutral.neutral90
+            color = DSJarvisTheme.colors.neutral.neutral80
         )
-        
-        // Performance metrics row
+
+        // Proportional severity bar (full width background + filled foreground)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .clip(RoundedCornerShape(100))
+                .background(DSJarvisTheme.colors.neutral.neutral20)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(fraction = animatedBarRatio)
+                    .clip(RoundedCornerShape(100))
+                    .background(animatedSeverityColor.copy(alpha = 0.6f))
+            )
+        }
+
+        // Metrics row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-            ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)) {
                 PerformanceMetricChip(
                     label = "P95",
-                    value = "${String.format("%.0f", endpoint.p95ResponseTime)}ms",
+                    value = "${String.format(Locale.getDefault(), "%.0f", endpoint.p95ResponseTime)}ms",
                     color = animatedSeverityColor
                 )
-                
                 PerformanceMetricChip(
                     label = "Requests",
                     value = "${endpoint.requestCount}",
-                    color = DSJarvisTheme.colors.neutral.neutral70
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
-            
-            // Last slow request time
+
+            // Last slow time (HH:mm) if available
             if (endpoint.lastSlowRequest > 0) {
-                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
                 DSText(
                     text = "Last: ${timeFormat.format(Date(endpoint.lastSlowRequest))}",
-                    style = DSJarvisTheme.typography.body.body3,
+                    style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
         }
-        
-        // Performance suggestion
+
+        // Suggestion banner for very slow endpoints
         if (endpoint.averageResponseTime > 2000) {
             PerformanceSuggestion(
                 responseTime = endpoint.averageResponseTime,
@@ -272,7 +305,7 @@ private fun SlowEndpointItem(
 }
 
 /**
- * Performance metric chip for displaying endpoint metrics
+ * Small two-line metric used inside a row.
  */
 @Composable
 private fun PerformanceMetricChip(
@@ -280,26 +313,23 @@ private fun PerformanceMetricChip(
     value: String,
     color: Color
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DSText(
             text = value,
-            style = DSJarvisTheme.typography.body.body2,
+            style = DSJarvisTheme.typography.body.medium,
             fontWeight = FontWeight.Medium,
             color = color
         )
-        
         DSText(
             text = label,
-            style = DSJarvisTheme.typography.body.body3,
+            style = DSJarvisTheme.typography.body.small,
             color = DSJarvisTheme.colors.neutral.neutral60
         )
     }
 }
 
 /**
- * Performance suggestion based on endpoint metrics
+ * Suggestion banner explaining potential next steps for slow endpoints.
  */
 @Composable
 private fun PerformanceSuggestion(
@@ -307,42 +337,44 @@ private fun PerformanceSuggestion(
     requestCount: Int
 ) {
     val suggestion = when {
-        responseTime > 5000 -> "Critical: Consider caching or database optimization"
-        responseTime > 2000 && requestCount > 100 -> "High traffic endpoint: Consider load balancing"
-        responseTime > 1000 -> "Slow response: Review query performance"
-        else -> "Monitor for performance degradation"
+        responseTime > 5000 -> "Critical: consider caching, DB indexes, or query decomposition."
+        responseTime > 2000 && requestCount > 100 -> "High traffic: consider load balancing or async offloading."
+        responseTime > 1000 -> "Slow response: review N+1 queries and heavy joins."
+        else -> "Monitor for performance degradation."
     }
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFFFFF3E0))
             .padding(DSJarvisTheme.spacing.s)
     ) {
         DSText(
             text = "💡 $suggestion",
-            style = DSJarvisTheme.typography.body.body3,
+            style = DSJarvisTheme.typography.body.small,
             color = Color(0xFFE65100)
         )
     }
 }
 
+/* ---------------------- Color helpers ---------------------- */
+
 /**
- * Get severity color based on response time
+ * Severity color based on average response time.
  */
 private fun getSeverityColor(responseTime: Float): Color = when {
     responseTime > 5000 -> Color(0xFFF44336)  // Critical - Red
     responseTime > 2000 -> Color(0xFFFF9800)  // High - Orange
     responseTime > 1000 -> Color(0xFFFFC107)  // Medium - Yellow
-    responseTime > 500 -> Color(0xFF2196F3)   // Low - Blue
-    else -> Color(0xFF4CAF50)                  // Good - Green
+    responseTime > 500  -> Color(0xFF2196F3)  // Low - Blue
+    else -> Color(0xFF4CAF50)                 // Good - Green
 }
 
 /**
- * Get color for HTTP method (reused from other components)
+ * HTTP method color chip.
  */
-private fun getMethodColor(method: String): Color = when (method.uppercase()) {
+private fun getMethodColor(method: String): Color = when (method.uppercase(Locale.getDefault())) {
     "GET" -> Color(0xFF4CAF50)
     "POST" -> Color(0xFF2196F3)
     "PUT" -> Color(0xFFFF9800)
@@ -353,16 +385,21 @@ private fun getMethodColor(method: String): Color = when (method.uppercase()) {
     else -> Color(0xFF9E9E9E)
 }
 
+/* ---------------------- Compact summary (optional) ---------------------- */
+
 /**
- * Compact slowest endpoints summary for dashboard cards
+ * Compact dashboard card summarizing slow endpoints.
  */
 @Composable
 fun SlowestEndpointsSummary(
     slowEndpoints: List<SlowEndpointData>,
     modifier: Modifier = Modifier
 ) {
+    val count = slowEndpoints.size
     DSCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("SlowestEndpointsSummary"),
         shape = DSJarvisTheme.shapes.l,
         elevation = DSJarvisTheme.elevations.level2
     ) {
@@ -382,24 +419,24 @@ fun SlowestEndpointsSummary(
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
-                
-                if (slowEndpoints.isNotEmpty()) {
+
+                if (count > 0) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFFFF9800).copy(alpha = 0.2f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(Color(0xFFFF9800).copy(alpha = 0.16f))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         DSText(
-                            text = "${slowEndpoints.size} slow",
-                            style = DSJarvisTheme.typography.body.body3,
+                            text = "$count slow",
+                            style = DSJarvisTheme.typography.body.small,
                             color = Color(0xFFFF9800)
                         )
                     }
                 }
             }
-            
-            // Slowest endpoints list
+
+            // Inline top 5 list
             SlowestEndpointsList(
                 slowEndpoints = slowEndpoints,
                 maxItems = 5
@@ -408,12 +445,13 @@ fun SlowestEndpointsSummary(
     }
 }
 
-// Import DSCard
+/* ---------------------- Local DSCard shim ---------------------- */
+
 @Composable
 private fun DSCard(
     modifier: Modifier = Modifier,
     shape: androidx.compose.ui.graphics.Shape = DSJarvisTheme.shapes.m,
-    elevation: androidx.compose.ui.unit.Dp = DSJarvisTheme.elevations.level1,
+    elevation: Dp = DSJarvisTheme.elevations.level1,
     content: @Composable () -> Unit
 ) {
     androidx.compose.material3.Card(
@@ -425,4 +463,38 @@ private fun DSCard(
         ),
         content = { content() }
     )
+}
+
+/* ---------------------- Previews with sample data ---------------------- */
+
+@Preview(name = "Slowest Endpoints - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PreviewSlowestEndpointsDark() {
+    DSJarvisTheme {
+        SlowestEndpointsList(
+            slowEndpoints = mockEnhancedNetworkMetrics.slowestEndpoints,
+            maxItems = 8
+        )
+    }
+}
+
+@Preview(name = "Slowest Endpoints - Empty", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PreviewSlowestEndpointsEmpty() {
+    DSJarvisTheme {
+        SlowestEndpointsList(
+            slowEndpoints = emptyList(),
+            maxItems = 8
+        )
+    }
+}
+
+@Preview(name = "Summary Card", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PreviewSlowestEndpointsSummary() {
+    DSJarvisTheme {
+        SlowestEndpointsSummary(
+            slowEndpoints = mockEnhancedNetworkMetrics.slowestEndpoints.take(5)
+        )
+    }
 }

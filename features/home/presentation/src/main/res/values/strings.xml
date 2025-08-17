@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Navigation -->
     <string name="jarvis_home">Dashboard</string>
     <string name="jarvis_home_bottom_bar_icon_content_description">Home bottom navigation icon</string>
+    
+    <!-- Dashboard -->
+    <string name="jarvis_analytics">Jarvis Analytics</string>
+    <string name="performance_insights_dashboard">Performance insights dashboard</string>
+    <string name="refresh_dashboard">Refresh dashboard</string>
+    <string name="filter_label">Filter:</string>
+    <string name="move_before">Move before</string>
+    <string name="move_after">Move after</string>
+    <string name="reorder">Reorder</string>
+    
+    <!-- Loading States -->
+    <string name="loading_analytics_dashboard">Loading analytics dashboard…</string>
+    <string name="no_analytics_data_available">No analytics data available</string>
+    <string name="no_network_data_available">No network data available</string>
+    
+    <!-- Health Score -->
+    <string name="health_score_accessibility">Health score %1$d out of 100, rating %2$s</string>
+    <string name="health_summary">Health Summary</string>
+    
+    <!-- Metrics -->
+    <string name="requests">Requests</string>
+    <string name="error_rate">Error Rate</string>
+    <string name="avg_response">Avg Response</string>
+    <string name="avg_time">Avg Time</string>
+    <string name="performance">Performance</string>
+    <string name="total_requests">Total: %1$d • Avg: %2$d req/min</string>
+    
+    <!-- Network -->
+    <string name="requests_over_time">Requests Over Time</string>
+    <string name="network_overview">Network Overview</string>
+    <string name="network_analytics">Network Analytics</string>
+    <string name="request_timeline">Request Timeline</string>
+    <string name="network_area_chart_accessibility">Network area chart. Last value %1$d at %2$s</string>
+    
+    <!-- Performance -->
+    <string name="performance_metrics">Performance Metrics</string>
+    <string name="cpu_usage">CPU: %1$d%%</string>
+    <string name="memory_usage">Memory: %1$d%%</string>
+    <string name="fps_current">FPS: %1$d</string>
+    
+    <!-- HTTP Methods -->
+    <string name="http_methods_distribution">HTTP Methods Distribution</string>
+    
+    <!-- Charts Accessibility -->
+    <string name="gauge_chart_accessibility">Gauge showing %1$s out of %2$s</string>
+    <string name="area_chart_accessibility">Area chart with %1$d data points</string>
+    <string name="donut_chart_accessibility">Donut chart with %1$d segments, total value %2$s</string>
+    <string name="bar_chart_accessibility">Bar chart with %1$d bars</string>
+    
+    <!-- Top Endpoints -->
+    <string name="top_endpoints_title">Top Endpoints</string>
+    <string name="by_request_count">by request count</string>
+    <string name="no_endpoint_data_available">No endpoint data available</string>
+    
+    <!-- Error Messages -->
+    <string name="failed_to_load_dashboard_analytics">Failed to load dashboard analytics</string>
+    <string name="network_connection_failed">Network connection failed</string>
+    <string name="failed_to_load_dashboard_metrics">Failed to load dashboard metrics</string>
+    <string name="failed_to_load_dashboard">Failed to load dashboard</string>
+    <string name="failed_to_change_session_filter">Failed to change session filter</string>
 </resources>

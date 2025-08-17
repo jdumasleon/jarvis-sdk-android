@@ -42,3 +42,21 @@ data class HealthScoreFactors(
     val responseTime: Float,           // Weight: 20%
     val systemResources: Float         // Weight: 10%
 )
+
+// Mock objects for testing and previews
+object HealthScoreMock {
+    val mockHealthScore: HealthScore
+        get() = HealthScore(
+            overallScore = 85.6f,
+            rating = HealthRating.GOOD,
+            keyMetrics = HealthKeyMetrics(
+                totalRequests = 247,
+                errorRate = 6.5f,
+                averageResponseTime = 156.8f,
+                performanceScore = 82.3f,
+                networkScore = 88.1f,
+                uptime = 99.2f
+            ),
+            lastUpdated = System.currentTimeMillis()
+        )
+}

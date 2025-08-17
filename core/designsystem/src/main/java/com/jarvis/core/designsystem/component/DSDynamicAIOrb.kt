@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import kotlin.math.*
+import com.jarvis.core.designsystem.R
 
 enum class AIState {
     Idle, Listening, Thinking, Speaking
@@ -91,7 +93,7 @@ fun DSDynamicAIOrb() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "AI Assistant",
+            text = stringResource(R.string.ds_ai_assistant),
             fontSize = 32.sp,
             fontWeight = FontWeight.Light,
             color = Color.Black.copy(alpha = 0.9f),
@@ -99,7 +101,7 @@ fun DSDynamicAIOrb() {
         )
 
         Text(
-            text = "Tap the orb to interact",
+            text = stringResource(R.string.ds_ai_tap_to_interact),
             fontSize = 16.sp,
             color = Color.Black.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 64.dp)
@@ -142,7 +144,7 @@ fun DSDynamicAIOrb() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Dynamic morphing • Flowing particles • Smooth animations",
+            text = stringResource(R.string.ds_ai_dynamic_features),
             fontSize = 14.sp,
             color = Color.Black.copy(alpha = 0.5f)
         )

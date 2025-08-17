@@ -377,3 +377,23 @@ private fun CpuChartPreview() {
         )
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+private fun MemoryChartPreview() {
+    DSJarvisTheme {
+        MemoryChart(
+            memoryMetrics = MemoryMetrics(
+                heapUsedMB = 150.0f,
+                heapTotalMB = 200.0f,
+                heapMaxMB = 256.0f,
+                nativeHeapUsedMB = 80.0f,
+                nativeHeapTotalMB = 120.0f,
+                availableMemoryMB = 1024.0f,
+                totalMemoryMB = 2048.0f,
+                memoryPressure = MemoryPressure.MODERATE
+            )
+        )
+    }
+}

@@ -10,7 +10,7 @@ data class DashboardMetrics(
 )
 
 /**
- * Enhanced dashboard metrics with advanced analytics and UI configuration
+ * Enhanced dashboard metrics with advanced analytics
  */
 data class EnhancedDashboardMetrics(
     // Legacy metrics for backward compatibility
@@ -19,12 +19,11 @@ data class EnhancedDashboardMetrics(
     val performanceMetrics: PerformanceMetrics,
     
     // Enhanced metrics
-    val healthScore: HealthScore,
+    val healthScore: HealthScore?,
     val enhancedNetworkMetrics: EnhancedNetworkMetrics,
     val enhancedPreferencesMetrics: EnhancedPreferencesMetrics,
     
-    // Dashboard configuration
-    val layout: DashboardLayout,
+    // Session info
     val sessionInfo: SessionInfo?,
     val lastUpdated: Long = System.currentTimeMillis()
 )
@@ -73,4 +72,67 @@ data class PerformanceMetrics(
 
 enum class PerformanceRating {
     EXCELLENT, GOOD, AVERAGE, POOR, CRITICAL
+}
+
+
+// Mock objects for testing and previews
+object DashboardMetricsMocks {
+    val mockNetworkMetrics = NetworkMetrics(
+        totalCalls = 247,
+        averageSpeed = 156.8,
+        successfulCalls = 231,
+        failedCalls = 16,
+        successRate = 93.5,
+        averageRequestSize = 2048,
+        averageResponseSize = 4096,
+        mostUsedEndpoint = "GET /api/users",
+        p50 = 120.0,
+        p90 = 280.0,
+        p95 = 420.0,
+        p99 = 850.0,
+        topSlowEndpoints = listOf("GET /api/reports", "POST /api/upload", "GET /api/analytics")
+    )
+    
+    val mockPreferencesMetrics = PreferencesMetrics(
+        totalPreferences = 42,
+        preferencesByType = mapOf(
+            "SHARED_PREFERENCES" to 25,
+            "DATASTORE" to 12,
+            "PROTO" to 5
+        ),
+        mostCommonType = "SHARED_PREFERENCES",
+        lastModified = System.currentTimeMillis() - 3600000
+    )
+    
+    val mockPerformanceMetrics = PerformanceMetrics(
+        overallRating = PerformanceRating.GOOD,
+        averageResponseTime = 156.8,
+        slowestCall = 2850.0,
+        fastestCall = 45.0,
+        errorRate = 6.5,
+        p95 = 420.0,
+        apdex = 0.82
+    )
+    
+    val mockSessionInfo = SessionInfo(
+        sessionId = "session_123",
+        startTime = System.currentTimeMillis() - 1800000,
+        endTime = null,
+        isCurrentSession = true
+    )
+}
+
+// Extension for mock enhanced dashboard metrics
+object EnhancedDashboardMetricsMock {
+    val mockEnhancedDashboardMetrics: EnhancedDashboardMetrics
+        get() = EnhancedDashboardMetrics(
+            networkMetrics = DashboardMetricsMocks.mockNetworkMetrics,
+            preferencesMetrics = DashboardMetricsMocks.mockPreferencesMetrics,
+            performanceMetrics = DashboardMetricsMocks.mockPerformanceMetrics,
+            healthScore = HealthScoreMock.mockHealthScore,
+            enhancedNetworkMetrics = EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics,
+            enhancedPreferencesMetrics = EnhancedPreferencesMetricsMock.mockEnhancedPreferencesMetrics,
+            sessionInfo = DashboardMetricsMocks.mockSessionInfo,
+            lastUpdated = System.currentTimeMillis()
+        )
 }

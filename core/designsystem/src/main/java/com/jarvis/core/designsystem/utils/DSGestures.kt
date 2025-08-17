@@ -1,18 +1,51 @@
-package com.jarvis.api.detector
+package com.jarvis.core.designsystem.utils
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.platform.LocalContext
 import kotlin.math.sqrt
+
+fun interface DragGestureDetector {
+    suspend fun PointerInputScope.detect(
+        onDragStart: (Offset) -> Unit,
+        onDragEnd: () -> Unit,
+        onDragCancel: () -> Unit,
+        onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+    )
+
+    object Press : DragGestureDetector {
+        override suspend fun PointerInputScope.detect(
+            onDragStart: (Offset) -> Unit,
+            onDragEnd: () -> Unit,
+            onDragCancel: () -> Unit,
+            onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+        ) {
+            detectDragGestures(onDragStart, onDragEnd, onDragCancel, onDrag)
+        }
+    }
+
+    object LongPress : DragGestureDetector {
+        override suspend fun PointerInputScope.detect(
+            onDragStart: (Offset) -> Unit,
+            onDragEnd: () -> Unit,
+            onDragCancel: () -> Unit,
+            onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+        ) {
+            detectDragGesturesAfterLongPress(onDragStart, onDragEnd, onDragCancel, onDrag)
+        }
+    }
+}
 
 /**
  * Shake detector for activating Jarvis SDK
@@ -22,10 +55,10 @@ class ShakeDetector(
     private val context: Context,
     private val onShakeDetected: () -> Unit
 ) : SensorEventListener {
-    
+
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-    
+
     private var lastUpdate: Long = 0
     private var lastShakeTime: Long = 0
     private var lastX = 0f
@@ -33,7 +66,7 @@ class ShakeDetector(
     private var lastZ = 0f
     private var shakeCount = 0
     private var firstShakeTime: Long = 0
-    
+
     companion object {
         private const val SHAKE_THRESHOLD = 1000f // Good balance for shake detection
         private const val TIME_BETWEEN_UPDATES = 100L
@@ -41,35 +74,35 @@ class ShakeDetector(
         private const val REQUIRED_SHAKES = 2 // Require at least 2 shake movements
         private const val SHAKE_WINDOW = 1000L // 1 second window for multiple shakes
     }
-    
+
     fun start() {
         accelerometer?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
         }
     }
-    
+
     fun stop() {
         sensorManager.unregisterListener(this)
     }
-    
+
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
             val currentTime = System.currentTimeMillis()
-            
+
             if (currentTime - lastUpdate > TIME_BETWEEN_UPDATES) {
                 val timeDiff = currentTime - lastUpdate
                 lastUpdate = currentTime
-                
+
                 val x = event.values[0]
                 val y = event.values[1]
                 val z = event.values[2]
-                
+
                 val speed = sqrt(
-                    ((x - lastX) * (x - lastX) + 
-                     (y - lastY) * (y - lastY) + 
-                     (z - lastZ) * (z - lastZ)).toDouble()
+                    ((x - lastX) * (x - lastX) +
+                            (y - lastY) * (y - lastY) +
+                            (z - lastZ) * (z - lastZ)).toDouble()
                 ).toFloat() / timeDiff * 10000
-                
+
                 // Check for shake pattern - require multiple shakes within a window
                 if (speed > SHAKE_THRESHOLD) {
                     if (shakeCount == 0) {
@@ -79,7 +112,7 @@ class ShakeDetector(
                     } else if (currentTime - firstShakeTime <= SHAKE_WINDOW) {
                         // Subsequent shake within window
                         shakeCount++
-                        
+
                         // Check if we have enough shakes and cooldown has passed
                         if (shakeCount >= REQUIRED_SHAKES && (currentTime - lastShakeTime) > SHAKE_COOLDOWN) {
                             lastShakeTime = currentTime
@@ -100,14 +133,14 @@ class ShakeDetector(
                         firstShakeTime = 0
                     }
                 }
-                
+
                 lastX = x
                 lastY = y
                 lastZ = z
             }
         }
     }
-    
+
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // No implementation needed
     }
@@ -121,7 +154,7 @@ fun rememberShakeDetector(
     onShakeDetected: () -> Unit
 ): ShakeDetector {
     val context = LocalContext.current
-    
+
     return remember(onShakeDetected) {
         ShakeDetector(context, onShakeDetected)
     }
@@ -135,7 +168,7 @@ fun ShakeDetectorEffect(
     onShakeDetected: () -> Unit
 ) {
     val shakeDetector = rememberShakeDetector(onShakeDetected)
-    
+
     DisposableEffect(shakeDetector) {
         shakeDetector.start()
         onDispose {

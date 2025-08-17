@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import com.jarvis.core.designsystem.R
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
@@ -51,7 +52,7 @@ private fun DSPullToRefreshPreview() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 DSText(
-                    text = "Pull down to refresh this content",
+                    text = stringResource(R.string.ds_pull_to_refresh),
                     style = DSJarvisTheme.typography.body.large
                 )
             }

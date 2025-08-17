@@ -254,3 +254,57 @@ fun SplashScreenIdlePreview() {
         )
     }
 }
+
+// Dark mode previews
+@Preview(
+    showBackground = true, 
+    name = "Splash - Loading Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun SplashScreenLoadingDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        SplashScreen(
+            uiState = ResourceState.Success(SplashUiData.mockSplashUiData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(
+    showBackground = true, 
+    name = "Splash - Starting Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun SplashScreenStartingDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        val uiData = SplashUiData(
+            showSplash = true,
+            loadingProgress = 0.1f,
+            initializationMessage = "Starting up..."
+        )
+        SplashScreen(
+            uiState = ResourceState.Success(uiData),
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(
+    showBackground = true, 
+    name = "Splash - Error Dark", 
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun SplashScreenErrorDarkPreview() {
+    DSJarvisTheme(darkTheme = true) {
+        SplashScreen(
+            uiState = ResourceState.Error(
+                exception = Exception("Initialization failed"),
+                message = "Failed to initialize the application"
+            ),
+            onEvent = { }
+        )
+    }
+}

@@ -33,6 +33,20 @@
     <string name="loading">Loading...</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="tools">Tools</string>
     <string name="no_api_calls">No networks call found</string>
     <string name="inspector_reload">Reload</string>
+    
+    <!-- Preferences Screen -->
+    <string name="storages">Storages</string>
+    <string name="no_preferences_found">No preferences found</string>
+    <string name="try_adjusting_search">Try adjusting your search query</string>
+    <string name="read_only">(Read-only)</string>
+    
+    <!-- Home Screen -->
+    <string name="last_updated">Last updated: %1$s</string>
 </resources>

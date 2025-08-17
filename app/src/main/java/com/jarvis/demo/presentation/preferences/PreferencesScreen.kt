@@ -113,7 +113,7 @@ private fun PreferencesContent(
 
         // Preferences storage type
         DSText(
-            text = "Storages",
+            text = stringResource(R.string.storages),
             style = DSJarvisTheme.typography.body.medium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
@@ -241,13 +241,13 @@ private fun EmptyState() {
         verticalArrangement = Arrangement.Center
     ) {
         DSText(
-            text = "No preferences found",
+            text = stringResource(R.string.no_preferences_found),
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral100
         )
         
         DSText(
-            text = "Try adjusting your search query",
+            text = stringResource(R.string.try_adjusting_search),
             style = DSJarvisTheme.typography.body.small,
             color = DSJarvisTheme.colors.neutral.neutral100
         )
@@ -319,7 +319,7 @@ private fun PreferenceItem(
                     )
                     
                     DSText(
-                        text = "(Read-only)",
+                        text = stringResource(R.string.read_only),
                         style = DSJarvisTheme.typography.body.small,
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
@@ -354,7 +354,7 @@ private fun PreferenceItem(
                                     .padding(DSJarvisTheme.spacing.s)
                             ) {
                                 DSText(
-                                    text = "Save",
+                                    text = stringResource(R.string.save),
                                     style = DSJarvisTheme.typography.body.small,
                                     color = Color.White
                                 )
@@ -376,7 +376,7 @@ private fun PreferenceItem(
                                     .padding(DSJarvisTheme.spacing.s)
                             ) {
                                 DSText(
-                                    text = "Cancel",
+                                    text = stringResource(R.string.cancel),
                                     style = DSJarvisTheme.typography.body.small,
                                     color = DSJarvisTheme.colors.neutral.neutral100
                                 )
@@ -406,7 +406,7 @@ private fun PreferenceItem(
                                     .padding(DSJarvisTheme.spacing.s)
                             ) {
                                 DSText(
-                                    text = "Edit",
+                                    text = stringResource(R.string.edit),
                                     style = DSJarvisTheme.typography.body.small,
                                     color = DSJarvisTheme.colors.neutral.neutral100
                                 )

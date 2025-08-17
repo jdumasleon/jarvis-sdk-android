@@ -15,63 +15,75 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.EnhancedPreferencesMetrics
-import com.jarvis.features.home.domain.entity.PreferenceTypeData
+import com.jarvis.features.home.domain.entity.EnhancedPreferencesMetricsMock.mockEnhancedPreferencesMetrics
 import com.jarvis.features.home.domain.entity.PreferenceSizeData
-import kotlin.math.cos
-import kotlin.math.sin
+import com.jarvis.features.home.domain.entity.PreferenceTypeData
+import com.jarvis.features.home.domain.entity.StorageUsageData
+import kotlin.math.max
 
 /**
- * Preferences overview component with type distribution and storage analytics
+ * Preferences overview component: donut type distribution, storage analytics, and size breakdown.
  */
 @Composable
 fun PreferencesOverviewChart(
     preferencesMetrics: EnhancedPreferencesMetrics,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    donutSize: Dp = 140.dp,
+    donutStroke: Dp = 18.dp
 ) {
     var animationPlayed by remember(preferencesMetrics) { mutableStateOf(false) }
-    
-    LaunchedEffect(preferencesMetrics) {
-        animationPlayed = true
-    }
-    
+    LaunchedEffect(preferencesMetrics) { animationPlayed = true }
+
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.l,
         elevation = DSJarvisTheme.elevations.level2
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
+            modifier = Modifier
+                .padding(DSJarvisTheme.spacing.l)
+                .testTag("PreferencesOverviewChart"),
             verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
         ) {
-            // Header with total preferences
+            // Header with total preferences and efficiency badge
             PreferencesHeader(preferencesMetrics = preferencesMetrics)
-            
-            // Type distribution pie chart
+
+            // Storage type donut chart + legend
             if (preferencesMetrics.typeDistribution.isNotEmpty()) {
-                PreferencesTypeChart(
+                PreferencesTypeSection(
                     typeDistribution = preferencesMetrics.typeDistribution,
-                    animationPlayed = animationPlayed
+                    total = preferencesMetrics.totalPreferences,
+                    animationPlayed = animationPlayed,
+                    donutSize = donutSize,
+                    donutStroke = donutStroke
                 )
             }
-            
-            // Storage usage information
+
+            // Storage usage statistics
             StorageUsageSection(
                 storageUsage = preferencesMetrics.storageUsage,
                 animationPlayed = animationPlayed
             )
-            
-            // Size distribution
+
+            // Size distribution chips
             if (preferencesMetrics.sizeDistribution.isNotEmpty()) {
                 PreferencesSizeDistribution(
                     sizeDistribution = preferencesMetrics.sizeDistribution,
@@ -82,8 +94,10 @@ fun PreferencesOverviewChart(
     }
 }
 
+/* --------------------------- Header --------------------------- */
+
 /**
- * Header section with total preferences and summary stats
+ * Header section with total preferences and summary stats.
  */
 @Composable
 private fun PreferencesHeader(
@@ -101,10 +115,10 @@ private fun PreferencesHeader(
             Icon(
                 imageVector = Icons.Default.Storage,
                 contentDescription = "Preferences",
-                tint = DSJarvisTheme.colors.primary.primary50,
+                tint = DSJarvisTheme.colors.primary.primary60,
                 modifier = Modifier.size(24.dp)
             )
-            
+
             Column {
                 DSText(
                     text = "Preferences Overview",
@@ -112,16 +126,15 @@ private fun PreferencesHeader(
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
-                
+                val typesCount = preferencesMetrics.typeDistribution.size
                 DSText(
-                    text = "${preferencesMetrics.totalPreferences} preferences across ${preferencesMetrics.typeDistribution.size} storage types",
-                    style = DSJarvisTheme.typography.body.body3,
-                    color = DSJarvisTheme.colors.neutral.neutral70
+                    text = "${preferencesMetrics.totalPreferences} preferences • $typesCount storage ${if (typesCount == 1) "type" else "types"}",
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }
         }
-        
-        // Storage efficiency score
+
         StorageEfficiencyBadge(
             efficiency = preferencesMetrics.storageUsage.storageEfficiency
         )
@@ -129,7 +142,7 @@ private fun PreferencesHeader(
 }
 
 /**
- * Storage efficiency badge
+ * Storage efficiency badge with semantic color scale.
  */
 @Composable
 private fun StorageEfficiencyBadge(
@@ -140,71 +153,90 @@ private fun StorageEfficiencyBadge(
         efficiency >= 60f -> Color(0xFFFFC107)
         else -> Color(0xFFFF9800)
     }
-    
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color.copy(alpha = 0.2f))
+            .background(color.copy(alpha = 0.16f))
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         DSText(
             text = "${String.format("%.0f", efficiency)}% efficient",
-            style = DSJarvisTheme.typography.body.body3,
+            style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Medium,
             color = color
         )
     }
 }
 
-/**
- * Preferences type distribution pie chart
- */
+/* --------------------------- Type Distribution --------------------------- */
+
 @Composable
-private fun PreferencesTypeChart(
+private fun PreferencesTypeSection(
     typeDistribution: List<PreferenceTypeData>,
-    animationPlayed: Boolean
+    total: Int,
+    animationPlayed: Boolean,
+    donutSize: Dp,
+    donutStroke: Dp
 ) {
     val animationProgress by animateFloatAsState(
         targetValue = if (animationPlayed) 1f else 0f,
         animationSpec = tween(durationMillis = 1000),
         label = "type_chart_animation"
     )
-    
-    Column(
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-    ) {
+
+    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
         DSText(
             text = "Storage Type Distribution",
-            style = DSJarvisTheme.typography.body.body1,
+            style = DSJarvisTheme.typography.body.large,
             fontWeight = FontWeight.Medium,
-            color = DSJarvisTheme.colors.neutral.neutral90
+            color = DSJarvisTheme.colors.neutral.neutral80
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.l),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Pie chart
+            // Donut chart with center label
             Box(
-                modifier = Modifier.size(120.dp),
+                modifier = Modifier
+                    .size(donutSize)
+                    .semantics {
+                        contentDescription = "Donut chart showing distribution by storage type"
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawPreferencesTypePieChart(
+                    drawPreferencesTypeDonut(
                         typeDistribution = typeDistribution,
                         animationProgress = animationProgress,
-                        canvasSize = size
+                        canvasSize = size,
+                        stroke = donutStroke.toPx()
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    DSText(
+                        text = total.toString(),
+                        style = DSJarvisTheme.typography.heading.heading4,
+                        fontWeight = FontWeight.Bold,
+                        color = DSJarvisTheme.colors.neutral.neutral100
+                    )
+                    DSText(
+                        text = "total",
+                        style = DSJarvisTheme.typography.body.small,
+                        color = DSJarvisTheme.colors.neutral.neutral60
                     )
                 }
             }
-            
+
             // Legend
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                typeDistribution.take(4).forEach { typeData ->
+                typeDistribution.forEach { typeData ->
                     PreferenceTypeLegendItem(
                         typeData = typeData,
                         animationProgress = animationProgress
@@ -216,7 +248,7 @@ private fun PreferencesTypeChart(
 }
 
 /**
- * Legend item for preference type
+ * Legend item for a preference type (color dot, label, counts).
  */
 @Composable
 private fun PreferenceTypeLegendItem(
@@ -228,63 +260,60 @@ private fun PreferenceTypeLegendItem(
         animationSpec = tween(durationMillis = 800),
         label = "type_count_animation"
     )
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
-        // Color indicator
         Box(
             modifier = Modifier
-                .size(10.dp)
+                .size(12.dp)
                 .clip(CircleShape)
                 .background(Color(android.graphics.Color.parseColor(typeData.color)))
         )
-        
-        // Type info
+
         Column(modifier = Modifier.weight(1f)) {
             DSText(
                 text = typeData.type,
-                style = DSJarvisTheme.typography.body.body2,
+                style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.neutral.neutral90
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
-            
             DSText(
                 text = "${animatedCount.toInt()} prefs • ${formatBytes(typeData.totalSize)}",
-                style = DSJarvisTheme.typography.body.body3,
-                color = DSJarvisTheme.colors.neutral.neutral70
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.neutral.neutral60
             )
         }
-        
-        // Percentage
+
         DSText(
             text = "${String.format("%.1f", typeData.percentage)}%",
-            style = DSJarvisTheme.typography.body.body3,
+            style = DSJarvisTheme.typography.body.small,
+            fontWeight = FontWeight.Medium,
             color = Color(android.graphics.Color.parseColor(typeData.color))
         )
     }
 }
 
+/* --------------------------- Storage Usage --------------------------- */
+
 /**
- * Storage usage section with detailed metrics
+ * Storage usage section with three key metrics and an optional "largest" card.
  */
 @Composable
 private fun StorageUsageSection(
-    storageUsage: com.jarvis.features.home.domain.entity.StorageUsageData,
+    storageUsage: StorageUsageData,
     animationPlayed: Boolean
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)) {
         DSText(
             text = "Storage Usage",
-            style = DSJarvisTheme.typography.body.body1,
+            style = DSJarvisTheme.typography.body.large,
             fontWeight = FontWeight.Medium,
-            color = DSJarvisTheme.colors.neutral.neutral90
+            color = DSJarvisTheme.colors.neutral.neutral80
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -292,17 +321,15 @@ private fun StorageUsageSection(
             StorageMetricItem(
                 label = "Total Size",
                 value = formatBytes(storageUsage.totalSize),
-                color = DSJarvisTheme.colors.primary.primary50,
+                color = DSJarvisTheme.colors.primary.primary60,
                 animationPlayed = animationPlayed
             )
-            
             StorageMetricItem(
                 label = "Avg Size",
                 value = formatBytes(storageUsage.averageSize),
-                color = DSJarvisTheme.colors.secondary.secondary50,
+                color = DSJarvisTheme.colors.secondary.secondary60,
                 animationPlayed = animationPlayed
             )
-            
             StorageMetricItem(
                 label = "Efficiency",
                 value = "${String.format("%.0f", storageUsage.storageEfficiency)}%",
@@ -314,41 +341,39 @@ private fun StorageUsageSection(
                 animationPlayed = animationPlayed
             )
         }
-        
-        // Largest preference info
-        storageUsage.largestPreference?.let { largestPref ->
+
+        storageUsage.largestPreference?.let { largest ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(DSJarvisTheme.colors.neutral.neutral10)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(DSJarvisTheme.colors.neutral.neutral20)
                     .padding(DSJarvisTheme.spacing.m)
+                    .semantics { contentDescription = "Largest preference item" }
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)) {
                     DSText(
                         text = "Largest Preference",
-                        style = DSJarvisTheme.typography.body.body3,
-                        color = DSJarvisTheme.colors.neutral.neutral70
+                        style = DSJarvisTheme.typography.body.small,
+                        color = DSJarvisTheme.colors.neutral.neutral60
                     )
-                    
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         DSText(
-                            text = largestPref.key.take(25) + if (largestPref.key.length > 25) "..." else "",
-                            style = DSJarvisTheme.typography.body.body2,
+                            text = largest.key.let { if (it.length > 28) it.take(28) + "…" else it },
+                            style = DSJarvisTheme.typography.body.medium,
                             fontWeight = FontWeight.Medium,
-                            color = DSJarvisTheme.colors.neutral.neutral90,
+                            color = DSJarvisTheme.colors.neutral.neutral80,
                             modifier = Modifier.weight(1f)
                         )
-                        
+                        Spacer(Modifier.width(DSJarvisTheme.spacing.s))
                         DSText(
-                            text = formatBytes(largestPref.size),
-                            style = DSJarvisTheme.typography.body.body2,
-                            color = DSJarvisTheme.colors.primary.primary50
+                            text = formatBytes(largest.size),
+                            style = DSJarvisTheme.typography.body.medium,
+                            color = DSJarvisTheme.colors.primary.primary60
                         )
                     }
                 }
@@ -358,7 +383,7 @@ private fun StorageUsageSection(
 }
 
 /**
- * Storage metric item with animation
+ * One storage metric with fade-in animation.
  */
 @Composable
 private fun StorageMetricItem(
@@ -367,15 +392,15 @@ private fun StorageMetricItem(
     color: Color,
     animationPlayed: Boolean
 ) {
-    val animationProgress by animateFloatAsState(
+    val alpha by animateFloatAsState(
         targetValue = if (animationPlayed) 1f else 0f,
-        animationSpec = tween(durationMillis = 800),
+        animationSpec = tween(durationMillis = 650),
         label = "storage_metric_animation"
     )
-    
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.alpha(animationProgress)
+        modifier = Modifier.alpha(alpha)
     ) {
         DSText(
             text = value,
@@ -383,33 +408,29 @@ private fun StorageMetricItem(
             fontWeight = FontWeight.Bold,
             color = color
         )
-        
         DSText(
             text = label,
-            style = DSJarvisTheme.typography.body.body3,
-            color = DSJarvisTheme.colors.neutral.neutral70
+            style = DSJarvisTheme.typography.body.small,
+            color = DSJarvisTheme.colors.neutral.neutral60
         )
     }
 }
 
-/**
- * Preferences size distribution component
- */
+/* --------------------------- Size Distribution --------------------------- */
+
 @Composable
 private fun PreferencesSizeDistribution(
     sizeDistribution: List<PreferenceSizeData>,
     animationPlayed: Boolean
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
         DSText(
             text = "Size Distribution",
-            style = DSJarvisTheme.typography.body.body1,
+            style = DSJarvisTheme.typography.body.large,
             fontWeight = FontWeight.Medium,
-            color = DSJarvisTheme.colors.neutral.neutral90
+            color = DSJarvisTheme.colors.neutral.neutral80
         )
-        
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
             contentPadding = PaddingValues(horizontal = DSJarvisTheme.spacing.xs)
@@ -425,103 +446,122 @@ private fun PreferencesSizeDistribution(
 }
 
 /**
- * Size distribution chip with count and percentage
+ * Size distribution chip with count and percentage and a subtle entrance animation.
  */
 @Composable
 private fun SizeDistributionChip(
     sizeData: PreferenceSizeData,
     animationPlayed: Boolean
 ) {
-    val animationProgress by animateFloatAsState(
+    val progress by animateFloatAsState(
         targetValue = if (animationPlayed) 1f else 0f,
         animationSpec = tween(durationMillis = 600),
         label = "size_chip_animation"
     )
-    
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(DSJarvisTheme.colors.primary.primary50.copy(alpha = 0.1f))
+            .background(DSJarvisTheme.colors.primary.primary60.copy(alpha = 0.10f))
             .padding(horizontal = 12.dp, vertical = 8.dp)
+            .semantics { contentDescription = "Size ${sizeData.sizeRange} chip" }
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             DSText(
                 text = sizeData.sizeRange,
-                style = DSJarvisTheme.typography.body.body3,
+                style = DSJarvisTheme.typography.body.small,
                 fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.primary.primary50
+                color = DSJarvisTheme.colors.primary.primary60
             )
-            
             DSText(
-                text = "${(sizeData.count * animationProgress).toInt()}",
-                style = DSJarvisTheme.typography.body.body2,
+                text = "${(sizeData.count * progress).toInt()}",
+                style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral90
+                color = DSJarvisTheme.colors.neutral.neutral80
             )
-            
             DSText(
-                text = "${String.format("%.1f", sizeData.percentage * animationProgress)}%",
-                style = DSJarvisTheme.typography.body.body3,
-                color = DSJarvisTheme.colors.neutral.neutral70
+                text = "${String.format("%.1f", sizeData.percentage * progress)}%",
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.neutral.neutral60
             )
         }
     }
 }
 
+/* --------------------------- Drawing --------------------------- */
+
 /**
- * Draw preferences type pie chart
+ * Donut chart for preferences type distribution (animated sweep).
  */
-private fun DrawScope.drawPreferencesTypePieChart(
+private fun DrawScope.drawPreferencesTypeDonut(
     typeDistribution: List<PreferenceTypeData>,
     animationProgress: Float,
-    canvasSize: Size
+    canvasSize: Size,
+    stroke: Float
 ) {
     if (typeDistribution.isEmpty()) return
-    
-    val center = Offset(canvasSize.width / 2, canvasSize.height / 2)
-    val radius = canvasSize.minDimension / 2 * 0.8f
-    
-    var startAngle = -90f // Start from top
-    
-    typeDistribution.forEach { typeData ->
-        val sweepAngle = (typeData.percentage / 100f) * 360f * animationProgress
-        
+
+    val radius = (minOf(canvasSize.width, canvasSize.height) - stroke) / 2f
+    val topLeft = Offset(
+        (canvasSize.width - radius * 2f) / 2f,
+        (canvasSize.height - radius * 2f) / 2f
+    )
+    val arcSize = Size(radius * 2f, radius * 2f)
+
+    var startAngle = -90f // from top
+    typeDistribution.forEach { type ->
+        val sweepAngle = (type.percentage / 100f) * 360f * animationProgress
         drawArc(
-            color = Color(android.graphics.Color.parseColor(typeData.color)),
+            color = Color(android.graphics.Color.parseColor(type.color)),
             startAngle = startAngle,
             sweepAngle = sweepAngle,
-            useCenter = true,
-            topLeft = Offset(
-                center.x - radius,
-                center.y - radius
-            ),
-            size = Size(radius * 2, radius * 2)
+            useCenter = false,
+            topLeft = topLeft,
+            size = arcSize,
+            style = Stroke(width = stroke, cap = StrokeCap.Round)
         )
-        
         startAngle += sweepAngle
     }
-}
 
-/**
- * Format bytes to human readable format
- */
-private fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "${bytes}B"
-        bytes < 1024 * 1024 -> "${String.format("%.1f", bytes / 1024.0)}KB"
-        bytes < 1024 * 1024 * 1024 -> "${String.format("%.1f", bytes / (1024.0 * 1024.0))}MB"
-        else -> "${String.format("%.1f", bytes / (1024.0 * 1024.0 * 1024.0))}GB"
+    // Optional: faint base ring for better perception of remaining portion
+    val remaining = 360f * (1f - animationProgress)
+    if (remaining > 0f) {
+        drawArc(
+            color = Color.Black.copy(alpha = 0.06f),
+            startAngle = startAngle,
+            sweepAngle = remaining,
+            useCenter = false,
+            topLeft = topLeft,
+            size = arcSize,
+            style = Stroke(width = stroke, cap = StrokeCap.Round)
+        )
     }
 }
 
-// Import DSCard and alpha modifier
+/* --------------------------- Utilities --------------------------- */
+
+/**
+ * Format bytes into a human-friendly string.
+ */
+private fun formatBytes(bytes: Long): String {
+    val kb = 1024.0
+    val mb = kb * 1024
+    val gb = mb * 1024
+    return when {
+        bytes < 1024 -> "${bytes}B"
+        bytes < mb -> "${String.format("%.1f", bytes / kb)}KB"
+        bytes < gb -> "${String.format("%.1f", bytes / mb)}MB"
+        else -> "${String.format("%.1f", bytes / gb)}GB"
+    }
+}
+
+/* --------------------------- Local DSCard shim --------------------------- */
+
 @Composable
 private fun DSCard(
     modifier: Modifier = Modifier,
     shape: androidx.compose.ui.graphics.Shape = DSJarvisTheme.shapes.m,
-    elevation: androidx.compose.ui.unit.Dp = DSJarvisTheme.elevations.level1,
+    elevation: Dp = DSJarvisTheme.elevations.level1,
     content: @Composable () -> Unit
 ) {
     androidx.compose.material3.Card(
@@ -535,4 +575,20 @@ private fun DSCard(
     )
 }
 
-private fun Modifier.alpha(alpha: Float): Modifier = this then androidx.compose.ui.Modifier.alpha(alpha)
+/* --------------------------- Previews --------------------------- */
+
+@Preview(name = "Preferences Overview - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PreviewPreferencesOverviewLight() {
+    DSJarvisTheme {
+        PreferencesOverviewChart(preferencesMetrics = mockEnhancedPreferencesMetrics)
+    }
+}
+
+@Preview(name = "Preferences Overview - Dark", showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun PreviewPreferencesOverviewDark() {
+    DSJarvisTheme {
+        PreferencesOverviewChart(preferencesMetrics = mockEnhancedPreferencesMetrics)
+    }
+}

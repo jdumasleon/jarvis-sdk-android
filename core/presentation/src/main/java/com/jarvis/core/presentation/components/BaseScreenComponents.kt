@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.component.DSButton
 import com.jarvis.core.designsystem.component.DSButtonStyle
 import com.jarvis.core.designsystem.component.DSCircularProgressIndicator
@@ -115,7 +117,7 @@ fun ErrorContent(
         
         if (onRetry != null) {
             DSButton(
-                text = "Retry",
+                text = stringResource(R.string.ds_retry),
                 style = DSButtonStyle.PRIMARY,
                 onClick = onRetry
             )
@@ -124,7 +126,7 @@ fun ErrorContent(
         if (onDismiss != null) {
             Spacer(modifier = Modifier.height(8.dp))
             DSButton(
-                text = "Dismiss",
+                text = stringResource(com.jarvis.core.designsystem.R.string.ds_dismiss),
                 style = DSButtonStyle.SECONDARY,
                 onClick = onDismiss
             )

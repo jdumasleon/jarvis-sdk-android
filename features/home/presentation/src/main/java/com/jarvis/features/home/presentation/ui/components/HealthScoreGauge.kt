@@ -1,208 +1,142 @@
 package com.jarvis.features.home.presentation.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.charts.DSGaugeChart
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.HealthRating
 import com.jarvis.features.home.domain.entity.HealthScore
-import kotlin.math.cos
-import kotlin.math.sin
+import com.jarvis.features.home.domain.entity.HealthScoreMock.mockHealthScore
+import com.jarvis.features.home.presentation.R
 
 /**
- * Health score gauge component with smooth animation and gradient colors
+ * Health score gauge component using the generic DSGaugeChart.
+ * Shows health score with appropriate color coding and rating display.
  */
 @Composable
 fun HealthScoreGauge(
     healthScore: HealthScore,
     modifier: Modifier = Modifier,
-    size: Int = 200
+    size: Dp = 200.dp,
+    strokeWidth: Dp = 20.dp,
+    indicatorCount: Int = 10,
+    animationDurationMs: Int = 1000
 ) {
-    var animationPlayed by remember { mutableStateOf(false) }
-    
-    val animatedScore by animateFloatAsState(
-        targetValue = if (animationPlayed) healthScore.overallScore else 0f,
-        animationSpec = tween(durationMillis = 1000),
-        label = "health_score_animation"
+    val context = LocalContext.current
+    val contentDesc = stringResource(
+        R.string.health_score_accessibility,
+        healthScore.overallScore.toInt(),
+        healthScore.rating.displayName
     )
-    
-    LaunchedEffect(healthScore) {
-        animationPlayed = true
-    }
-    
+
+    // Create health-specific gradient
+    val healthGradient = createHealthGradient(healthScore.overallScore)
+
     Box(
-        modifier = modifier.size(size.dp),
+        modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawHealthGauge(
-                score = animatedScore,
-                rating = healthScore.rating,
-                size = this.size
-            )
-        }
-        
+        DSGaugeChart(
+            value = healthScore.overallScore,
+            maxValue = 100f,
+            size = size,
+            strokeWidth = strokeWidth,
+            startAngle = 135f,
+            sweepAngle = 270f,
+            backgroundColor = DSJarvisTheme.colors.neutral.neutral20,
+            foregroundColor = DSJarvisTheme.colors.chart.primary,
+            gradient = healthGradient,
+            indicatorCount = indicatorCount,
+            showIndicators = true,
+            animationDurationMs = animationDurationMs,
+            contentDescription = contentDesc
+        )
+
         // Score text overlay
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             DSText(
-                text = "${animatedScore.toInt()}",
+                text = "${healthScore.overallScore.toInt()}",
                 style = DSJarvisTheme.typography.heading.heading3,
                 fontWeight = FontWeight.Bold,
-                color = Color(android.graphics.Color.parseColor(healthScore.rating.color))
+                color = getHealthScoreColor(healthScore.rating)
             )
-            
             DSText(
                 text = healthScore.rating.displayName,
-                style = DSJarvisTheme.typography.body.body2,
-                color = DSJarvisTheme.colors.neutral.neutral70
+                style = DSJarvisTheme.typography.body.medium,
+                color = DSJarvisTheme.colors.neutral.neutral60
             )
         }
     }
 }
 
 /**
- * Draws the health gauge with gradient arc and indicators
+ * Creates a health-appropriate gradient based on score value
  */
-private fun DrawScope.drawHealthGauge(
-    score: Float,
-    rating: HealthRating,
-    size: Size
-) {
-    val strokeWidth = 20.dp.toPx()
-    val radius = (size.minDimension - strokeWidth) / 2
-    val center = Offset(size.width / 2, size.height / 2)
-    
-    // Background arc
-    drawArc(
-        color = Color.Gray.copy(alpha = 0.2f),
-        startAngle = 135f,
-        sweepAngle = 270f,
-        useCenter = false,
-        topLeft = Offset(
-            center.x - radius,
-            center.y - radius
-        ),
-        size = Size(radius * 2, radius * 2),
-        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-    )
-    
-    // Gradient for health score arc
-    val gradient = createHealthGradient(score)
-    
-    // Health score arc
-    val sweepAngle = (score / 100f) * 270f
-    drawArc(
-        brush = gradient,
-        startAngle = 135f,
-        sweepAngle = sweepAngle,
-        useCenter = false,
-        topLeft = Offset(
-            center.x - radius,
-            center.y - radius
-        ),
-        size = Size(radius * 2, radius * 2),
-        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-    )
-    
-    // Draw score indicators
-    drawScoreIndicators(center, radius + strokeWidth / 2 + 10.dp.toPx())
-}
-
-/**
- * Creates a gradient brush based on health score
- */
+@Composable
 private fun createHealthGradient(score: Float): Brush {
-    return when {
-        score >= 90f -> Brush.sweepGradient(
-            colors = listOf(
-                Color(0xFF4CAF50), // Green
-                Color(0xFF8BC34A)  // Light Green
-            )
+    val colors = when {
+        score >= 90f -> listOf(
+            DSJarvisTheme.colors.success.success100,
+            DSJarvisTheme.colors.success.success80
         )
-        score >= 70f -> Brush.sweepGradient(
-            colors = listOf(
-                Color(0xFF8BC34A), // Light Green
-                Color(0xFFCDDC39)  // Lime
-            )
+        score >= 70f -> listOf(
+            DSJarvisTheme.colors.success.success80,
+            DSJarvisTheme.colors.warning.warning80
         )
-        score >= 50f -> Brush.sweepGradient(
-            colors = listOf(
-                Color(0xFFCDDC39), // Lime
-                Color(0xFFFFC107)  // Yellow
-            )
+        score >= 50f -> listOf(
+            DSJarvisTheme.colors.warning.warning100,
+            DSJarvisTheme.colors.warning.warning80
         )
-        score >= 30f -> Brush.sweepGradient(
-            colors = listOf(
-                Color(0xFFFFC107), // Yellow
-                Color(0xFFFF9800)  // Orange
-            )
+        score >= 30f -> listOf(
+            DSJarvisTheme.colors.warning.warning80,
+            DSJarvisTheme.colors.error.error80
         )
-        else -> Brush.sweepGradient(
-            colors = listOf(
-                Color(0xFFFF9800), // Orange
-                Color(0xFFF44336)  // Red
-            )
+        else -> listOf(
+            DSJarvisTheme.colors.error.error100,
+            DSJarvisTheme.colors.error.error80
         )
     }
+
+    return Brush.sweepGradient(colors)
 }
 
 /**
- * Draws score indicator marks around the gauge
+ * Gets the appropriate color for health score based on rating
  */
-private fun DrawScope.drawScoreIndicators(center: Offset, radius: Float) {
-    val indicatorLength = 8.dp.toPx()
-    val indicatorWidth = 2.dp.toPx()
-    
-    for (i in 0..10) {
-        val angle = 135f + (i * 27f) // 270 degrees divided by 10 intervals
-        val startAngle = Math.toRadians(angle.toDouble())
-        
-        val startX = center.x + (radius - indicatorLength) * cos(startAngle).toFloat()
-        val startY = center.y + (radius - indicatorLength) * sin(startAngle).toFloat()
-        val endX = center.x + radius * cos(startAngle).toFloat()
-        val endY = center.y + radius * sin(startAngle).toFloat()
-        
-        val color = when (i) {
-            in 0..3 -> Color(0xFFF44336) // Red for 0-30
-            in 4..6 -> Color(0xFFFF9800) // Orange for 30-60
-            in 7..8 -> Color(0xFFFFC107) // Yellow for 60-80
-            else -> Color(0xFF4CAF50)    // Green for 80-100
-        }
-        
-        drawLine(
-            color = color,
-            start = Offset(startX, startY),
-            end = Offset(endX, endY),
-            strokeWidth = indicatorWidth
-        )
+@Composable
+private fun getHealthScoreColor(rating: HealthRating): Color {
+    return when (rating) {
+        HealthRating.EXCELLENT -> DSJarvisTheme.colors.success.success100
+        HealthRating.GOOD -> DSJarvisTheme.colors.success.success80
+        HealthRating.AVERAGE -> DSJarvisTheme.colors.warning.warning100
+        HealthRating.POOR -> DSJarvisTheme.colors.error.error80
+        HealthRating.CRITICAL -> DSJarvisTheme.colors.error.error100
     }
 }
 
+
 /**
- * Health summary card with gauge and key metrics
+ * Health summary card with gauge and key metrics.
  */
 @Composable
 fun HealthSummaryCard(
     healthScore: HealthScore,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gaugeSize: Dp = 180.dp
 ) {
     DSCard(
         modifier = modifier.fillMaxWidth(),
@@ -213,8 +147,9 @@ fun HealthSummaryCard(
             modifier = Modifier.padding(DSJarvisTheme.spacing.l),
             verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
         ) {
+            // Title
             DSText(
-                text = "Health Summary",
+                text = stringResource(R.string.health_summary),
                 style = DSJarvisTheme.typography.heading.heading4,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
@@ -228,37 +163,41 @@ fun HealthSummaryCard(
                 // Health gauge
                 HealthScoreGauge(
                     healthScore = healthScore,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    size = gaugeSize
                 )
-                
+
                 // Key metrics
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = DSJarvisTheme.spacing.m),
                     verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ) {
                     HealthMetricItem(
-                        label = "Requests",
+                        label = stringResource(R.string.requests),
                         value = "${healthScore.keyMetrics.totalRequests}",
-                        color = DSJarvisTheme.colors.primary.primary50
+                        color = DSJarvisTheme.colors.chart.primary
                     )
-                    
+
                     HealthMetricItem(
-                        label = "Error Rate",
-                        value = "${String.format("%.1f", healthScore.keyMetrics.errorRate)}%",
-                        color = if (healthScore.keyMetrics.errorRate < 5f) 
-                            Color(0xFF4CAF50) else Color(0xFFF44336)
+                        label = stringResource(R.string.error_rate),
+                        value = String.format("%.1f%%", healthScore.keyMetrics.errorRate),
+                        color = if (healthScore.keyMetrics.errorRate < 5f)
+                            DSJarvisTheme.colors.success.success100
+                        else DSJarvisTheme.colors.error.error100
                     )
-                    
+
                     HealthMetricItem(
-                        label = "Avg Response",
-                        value = "${String.format("%.0f", healthScore.keyMetrics.averageResponseTime)}ms",
-                        color = DSJarvisTheme.colors.neutral.neutral70
+                        label = stringResource(R.string.avg_response),
+                        value = String.format("%.0fms", healthScore.keyMetrics.averageResponseTime),
+                        color = DSJarvisTheme.colors.chart.secondary
                     )
-                    
+
                     HealthMetricItem(
-                        label = "Performance",
-                        value = "${String.format("%.0f", healthScore.keyMetrics.performanceScore)}",
-                        color = DSJarvisTheme.colors.secondary.secondary50
+                        label = stringResource(R.string.performance),
+                        value = String.format("%.0f", healthScore.keyMetrics.performanceScore),
+                        color = DSJarvisTheme.colors.chart.tertiary
                     )
                 }
             }
@@ -267,7 +206,7 @@ fun HealthSummaryCard(
 }
 
 /**
- * Individual health metric display item
+ * Individual health metric display item.
  */
 @Composable
 private fun HealthMetricItem(
@@ -281,34 +220,57 @@ private fun HealthMetricItem(
     ) {
         DSText(
             text = label,
-            style = DSJarvisTheme.typography.body.body2,
-            color = DSJarvisTheme.colors.neutral.neutral70
+            style = DSJarvisTheme.typography.body.medium,
+            color = DSJarvisTheme.colors.neutral.neutral60
         )
-        
+
         DSText(
             text = value,
-            style = DSJarvisTheme.typography.body.body2,
+            style = DSJarvisTheme.typography.body.medium,
             fontWeight = FontWeight.Medium,
             color = color
         )
     }
 }
 
-// Import DSCard from design system
+@Preview(name = "HealthSummary - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun DSCard(
-    modifier: Modifier = Modifier,
-    shape: androidx.compose.ui.graphics.Shape = DSJarvisTheme.shapes.m,
-    elevation: androidx.compose.ui.unit.Dp = DSJarvisTheme.elevations.level1,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.material3.Card(
-        modifier = modifier,
-        shape = shape,
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = elevation),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = DSJarvisTheme.colors.extra.background
-        ),
-        content = { content() }
-    )
+private fun PreviewHealthSummaryLight() {
+    DSJarvisTheme {
+        HealthSummaryCard(
+            healthScore = mockHealthScore.copy(rating = HealthRating.AVERAGE)
+        )
+    }
+}
+
+@Preview(name = "HealthSummary - Dark", showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun PreviewHealthSummaryDark() {
+    DSJarvisTheme {
+        HealthSummaryCard(
+            healthScore = mockHealthScore.copy(rating = HealthRating.POOR)
+        )
+    }
+}
+
+@Preview(name = "Gauge - Excellent", showBackground = true)
+@Composable
+private fun PreviewGaugeExcellent() {
+    DSJarvisTheme {
+        HealthScoreGauge(
+            healthScore = mockHealthScore.copy(rating = HealthRating.EXCELLENT),
+            size = 220.dp
+        )
+    }
+}
+
+@Preview(name = "Gauge - Poor", showBackground = true)
+@Composable
+private fun PreviewGaugePoor() {
+    DSJarvisTheme {
+        HealthScoreGauge(
+            healthScore =mockHealthScore.copy(rating = HealthRating.CRITICAL),
+            size = 220.dp
+        )
+    }
 }
