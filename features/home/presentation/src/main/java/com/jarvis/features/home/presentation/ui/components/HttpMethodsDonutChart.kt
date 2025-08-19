@@ -160,11 +160,31 @@ private fun HttpMethodLegendItem(
  */
 @Composable
 fun HttpMethodsCard(
+    title: String? = null,
     httpMethods: List<HttpMethodData>,
     modifier: Modifier = Modifier,
     chartSize: Dp = 200.dp
 ) {
-    // Ordena por número de peticiones desc para la lista y leyenda
+    DSCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = DSJarvisTheme.shapes.l,
+        elevation = DSJarvisTheme.elevations.level2
+    ) {
+        HttpMethodsWithDetails(
+            title = title,
+            httpMethods = httpMethods,
+            chartSize = chartSize
+        )
+    }
+}
+
+@Composable
+fun HttpMethodsWithDetails(
+    title: String? = null,
+    httpMethods: List<HttpMethodData>,
+    chartSize: Dp = 180.dp,
+    inline: Boolean = false
+) {
     val sorted = remember(httpMethods) { httpMethods.sortedByDescending { it.count } }
     val dataKey = remember(sorted) { sorted.hashCode() }
     var played by remember(dataKey) { mutableStateOf(false) }
@@ -175,52 +195,44 @@ fun HttpMethodsCard(
     )
     LaunchedEffect(dataKey) { played = true }
 
-    DSCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.l,
-        elevation = DSJarvisTheme.elevations.level2
+    Column(
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-        ) {
-            // Header with summary
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DSText(
-                    text = stringResource(R.string.http_methods_distribution),
-                    style = DSJarvisTheme.typography.heading.large,
-                    fontWeight = FontWeight.Bold,
-                    color = DSJarvisTheme.colors.neutral.neutral100
-                )
-                val total = sorted.sumOf { it.count }
-                DSText(
-                    text = stringResource(R.string.total_requests, total, 0),
-                    style = DSJarvisTheme.typography.body.medium,
-                    color = DSJarvisTheme.colors.neutral.neutral60
-                )
-            }
 
-            // Donut chart + leyenda (top 6)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HttpMethodsDonutChart(
-                    httpMethods = sorted,
-                    size = chartSize,
-                    showCenterTotal = true
-                )
-                Spacer(Modifier.width(DSJarvisTheme.spacing.m))
+        title?.let {
+            DSText(
+                text = stringResource(R.string.http_methods_distribution),
+                style = DSJarvisTheme.typography.heading.large,
+                fontWeight = FontWeight.Bold,
+                color = DSJarvisTheme.colors.neutral.neutral100
+            )
+        }
+        val total = sorted.sumOf { it.count }
+        DSText(
+            text = stringResource(R.string.total_requests, total, 0),
+            style = DSJarvisTheme.typography.body.medium,
+            color = DSJarvisTheme.colors.neutral.neutral60
+        )
+
+        // Donut chart + leyenda (top 6)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HttpMethodsDonutChart(
+                modifier = Modifier.weight(1f),
+                httpMethods = sorted,
+                size = chartSize,
+                showCenterTotal = true
+            )
+            Spacer(Modifier.width(DSJarvisTheme.spacing.m))
+            if (inline) {
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ) {
-                    sorted.take(6).forEach { method ->
+                    sorted.forEach { method ->
                         HttpMethodLegendItem(
                             methodData = method,
                             animationProgress = progress
@@ -228,8 +240,10 @@ fun HttpMethodsCard(
                     }
                 }
             }
+        }
 
-            // Detailed list
+        // Detailed list as sample
+        if (!inline) {
             if (sorted.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
                     DSText(

@@ -33,6 +33,7 @@ import com.jarvis.features.home.domain.entity.EndpointData
 import com.jarvis.features.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.features.home.presentation.R
 import java.util.Locale
+import kotlin.times
 
 /* ----------------------- Top Endpoints (main list) ----------------------- */
 
@@ -43,9 +44,36 @@ import java.util.Locale
  * - Method color coding + quick metrics
  */
 @Composable
-fun TopEndpointsBarChart(
+fun TopEndpointsBarChartCard(
+    title: String? = null,
     endpoints: List<EndpointData>,
     modifier: Modifier = Modifier,
+    maxItems: Int = 10,
+    maxHeight: Dp = 400.dp
+) {
+
+    DSCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = "Top endpoints by request count" }
+            .testTag("TopEndpointsBarChart"),
+        shape = DSJarvisTheme.shapes.l,
+        elevation = DSJarvisTheme.elevations.level2
+    ) {
+        TopEndpointsBarChart(
+            title = title,
+            endpoints = endpoints,
+            maxItems = maxItems,
+            maxHeight = maxHeight
+        )
+    }
+}
+
+@Composable
+fun TopEndpointsBarChart(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    endpoints: List<EndpointData>,
     maxItems: Int = 10,
     maxHeight: Dp = 400.dp
 ) {
@@ -62,67 +90,60 @@ fun TopEndpointsBarChart(
     )
     LaunchedEffect(sorted) { played = true }
 
-    DSCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = "Top endpoints by request count" }
-            .testTag("TopEndpointsBarChart"),
-        shape = DSJarvisTheme.shapes.l,
-        elevation = DSJarvisTheme.elevations.level2
+    Column(
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            title?.let {
                 DSText(
                     text = stringResource(R.string.top_endpoints_title),
                     style = DSJarvisTheme.typography.title.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
-                DSText(
-                    text = stringResource(R.string.by_request_count),
-                    style = DSJarvisTheme.typography.body.small,
-                    color = DSJarvisTheme.colors.neutral.neutral60
-                )
             }
 
-            if (topEndpoints.isNotEmpty()) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
-                    modifier = Modifier.heightIn(max = maxHeight)
-                ) {
-                    itemsIndexed(topEndpoints) { index, endpoint ->
-                        EndpointBarItem(
-                            endpoint = endpoint,
-                            maxRequests = maxRequests,
-                            rank = index + 1,
-                            // small delay cascade for each row
-                            animationDelayMs = index * 70,
-                            listProgress = progress
-                        )
-                    }
-                }
-            } else {
-                // Empty state
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DSText(
-                        text = stringResource(R.string.no_endpoint_data_available),
-                        style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral60
+            DSText(
+                text = stringResource(R.string.by_request_count),
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.neutral.neutral60
+            )
+        }
+
+        if (topEndpoints.isNotEmpty()) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
+                modifier = Modifier.heightIn(max = maxHeight)
+            ) {
+                itemsIndexed(topEndpoints) { index, endpoint ->
+                    EndpointBarItem(
+                        endpoint = endpoint,
+                        maxRequests = maxRequests,
+                        rank = index + 1,
+                        // small delay cascade for each row
+                        animationDelayMs = index * 70,
+                        listProgress = progress
                     )
                 }
+            }
+        } else {
+            // Empty state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                DSText(
+                    text = stringResource(R.string.no_endpoint_data_available),
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.neutral.neutral60
+                )
             }
         }
     }
@@ -161,8 +182,8 @@ private fun EndpointBarItem(
                 // Rank badge (uses method hue at low alpha background)
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(RoundedCornerShape(6.dp))
+                        .size(DSJarvisTheme.dimensions.l)
+                        .clip(DSJarvisTheme.shapes.s)
                         .background(getMethodColor(endpoint.method).copy(alpha = 0.18f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -177,9 +198,9 @@ private fun EndpointBarItem(
                 // Method badge
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
+                        .clip(DSJarvisTheme.shapes.s)
                         .background(getMethodColor(endpoint.method))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = DSJarvisTheme.spacing.s, vertical = DSJarvisTheme.spacing.xs)
                 ) {
                     DSText(
                         text = endpoint.method.uppercase(Locale.getDefault()),

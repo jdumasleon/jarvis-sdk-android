@@ -42,6 +42,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,6 +71,7 @@ import com.jarvis.features.preferences.domain.entity.AppPreference
 import com.jarvis.features.preferences.domain.entity.PreferenceFilter
 import com.jarvis.features.preferences.domain.entity.PreferenceStorageType
 import com.jarvis.features.preferences.domain.entity.PreferenceType
+import com.jarvis.features.preferences.presentation.R
 
 /**
  * Preferences screen route with state management
@@ -372,13 +374,14 @@ private fun StorageTypeChips(
     )
 
     Column (
-        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m)
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
-            text = "Storages",
+            text = stringResource(R.string.features_preferences_presentation_storages).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
         )
 
         Row(
@@ -404,13 +407,14 @@ private fun PreferencesTypeChips(
     onTypeFilterChange: (PreferenceType?) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m)
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
-            text = "Types",
+            text = stringResource(R.string.features_preferences_presentation_types).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
         )
 
         Row(
@@ -420,7 +424,7 @@ private fun PreferencesTypeChips(
             DSFilterChip(
                 selected = filter.typeFilter == null,
                 onClick = { onTypeFilterChange(null) },
-                label = "All"
+                label = stringResource(R.string.features_preferences_presentation_all)
             )
 
             PreferenceType.entries.forEach { type ->
@@ -446,16 +450,16 @@ private fun PreferencesActions(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = DSJarvisTheme.spacing.s),
+            .padding(top = DSJarvisTheme.spacing.s),
         verticalAlignment = Alignment.CenterVertically
     ) {
         DSText(
             text = "${getPreferenceTypeName(uiData.selectedTab)} (${uiData.filteredPreferences.size})",
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
+            color = DSJarvisTheme.colors.neutral.neutral100,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = DSJarvisTheme.spacing.s)
+                .padding(horizontal = DSJarvisTheme.spacing.l)
         )
 
         DSThreeDotsMenu(
@@ -463,21 +467,27 @@ private fun PreferencesActions(
             items = buildList {
                 add(
                     DSDropdownMenuItem(
-                        text = "Add",
+                        text = stringResource(R.string.features_preferences_presentation_add),
                         icon = Icons.Default.Add,
                         onClick = { onEvent(PreferencesEvent.ShowAddDialog(true)) }
                     )
                 )
                 add(
                     DSDropdownMenuItem(
-                        text = if (uiData.filter.showSystemPreferences) "Hide System" else "Show System",
+                        text = if (uiData.filter.showSystemPreferences) {
+                            stringResource(R.string.features_preferences_presentation_hide_system)
+                        } else {
+                            stringResource(
+                                R.string.features_preferences_presentation_show_system
+                            )
+                        },
                         icon = if (uiData.filter.showSystemPreferences) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         onClick = { onEvent(PreferencesEvent.UpdateSystemPreferencesVisibility(!uiData.filter.showSystemPreferences)) }
                     )
                 )
                 add(
                     DSDropdownMenuItem(
-                        text = "Clear All",
+                        text = stringResource(R.string.features_preferences_presentation_clear_all),
                         textColor = DSJarvisTheme.colors.error.error100,
                         icon = Icons.Default.DeleteForever,
                         iconTint = DSJarvisTheme.colors.error.error100,
@@ -512,7 +522,7 @@ private fun PreferenceItem(
         elevation = DSJarvisTheme.elevations.level1,
     ) {
         Column (
-            modifier = Modifier.padding(DSJarvisTheme.spacing.s),
+            modifier = Modifier.padding(DSJarvisTheme.spacing.xs),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -552,7 +562,7 @@ private fun PreferenceItem(
                     
                     if (preference.isSystemPreference) {
                         DSText(
-                            text = "SYSTEM",
+                            text = stringResource(R.string.features_preferences_presentation_system),
                             style = DSJarvisTheme.typography.label.small,
                             color = DSJarvisTheme.colors.neutral.neutral60
                         )
@@ -607,10 +617,13 @@ private fun AddPreferenceBottomSheet(
     
     DSBottomSheet(
         onDismissRequest = onDismiss,
-        title = { DSText("Add Preference") },
+        title = { DSText(stringResource(R.string.features_preferences_presentation_add_preference)) },
         content = {
             DSText(
-                text = "Add new preference to ${getPreferenceTypeName(selectedStorageType)} storage",
+                text = stringResource(
+                    R.string.features_preferences_presentation_add_new_preference_to_storage,
+                    getPreferenceTypeName(selectedStorageType)
+                ),
                 style = DSJarvisTheme.typography.body.small,
                 color = DSJarvisTheme.colors.neutral.neutral60
             )
@@ -618,14 +631,17 @@ private fun AddPreferenceBottomSheet(
             DSTextField(
                 text = key,
                 onValueChange = { key = it },
-                title = "Key",
+                title = stringResource(R.string.features_preferences_presentation_key),
                 placeholder = "preference_key",
                 modifier = Modifier.fillMaxWidth()
             )
             
             Box {
                 DSButton(
-                    text = "Type: ${selectedType.name}",
+                    text = stringResource(
+                        R.string.features_preferences_presentation_type,
+                        selectedType.name
+                    ),
                     onClick = { showTypeDropdown = true },
                     style = DSButtonStyle.OUTLINE,
                     size = DSButtonSize.SMALL,
@@ -652,7 +668,7 @@ private fun AddPreferenceBottomSheet(
                 onValueChange = { value = it },
                 title = "Value",
                 placeholder = when (selectedType) {
-                    PreferenceType.STRING -> "string value"
+                    PreferenceType.STRING -> stringResource(R.string.features_preferences_presentation_string_value)
                     PreferenceType.INTEGER -> "123"
                     PreferenceType.FLOAT -> "123.45"
                     PreferenceType.BOOLEAN -> "true/false"
@@ -660,14 +676,14 @@ private fun AddPreferenceBottomSheet(
                     PreferenceType.STRING_SET -> "item1,item2,item3"
                     PreferenceType.DOUBLE -> "123.456789"
                     PreferenceType.BYTES -> "base64encoded"
-                    PreferenceType.PROTO_MESSAGE -> "proto message"
+                    PreferenceType.PROTO_MESSAGE -> stringResource(R.string.features_preferences_presentation_proto_message)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             DSButton(
-                text = "Add",
+                text = stringResource(R.string.features_preferences_presentation_add),
                 onClick = {
                     if (key.isNotEmpty() && value.isNotEmpty()) {
                         val parsedValue = parseValueForType(value, selectedType)
@@ -683,7 +699,7 @@ private fun AddPreferenceBottomSheet(
         },
         dismissButton = {
             DSButton(
-                text = "Cancel",
+                text = stringResource(R.string.features_preferences_presentation_cancel),
                 onClick = onDismiss,
                 style = DSButtonStyle.SECONDARY,
                 size = DSButtonSize.MEDIUM,
@@ -703,16 +719,22 @@ private fun EditPreferenceBottomSheet(
     
     DSBottomSheet(
         onDismissRequest = onDismiss,
-        title = { DSText("Edit Preference") },
+        title = { DSText(stringResource(R.string.features_preferences_presentation_edit_preference)) },
         content = {
             DSText(
-                text = "Key: ${preference.key}",
+                text = stringResource(
+                    R.string.features_preferences_presentation_key_edit,
+                    preference.key
+                ),
                 style = DSJarvisTheme.typography.body.medium,
                 fontWeight = FontWeight.Medium
             )
             
             DSText(
-                text = "Type: ${preference.type.name}",
+                text = stringResource(
+                    R.string.features_preferences_presentation_type_edit,
+                    preference.type.name
+                ),
                 style = DSJarvisTheme.typography.body.small,
                 color = DSJarvisTheme.colors.neutral.neutral60
             )
@@ -720,14 +742,14 @@ private fun EditPreferenceBottomSheet(
             DSTextField(
                 text = value,
                 onValueChange = { value = it },
-                title = "Value",
-                placeholder = "Enter new value",
+                title = stringResource(R.string.features_preferences_presentation_value),
+                placeholder = stringResource(R.string.features_preferences_presentation_enter_new_value),
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             DSButton(
-                text = "Save",
+                text = stringResource(R.string.features_preferences_presentation_save),
                 onClick = {
                     if (value.isNotEmpty()) {
                         val parsedValue = parseValueForType(value, preference.type)
@@ -743,7 +765,7 @@ private fun EditPreferenceBottomSheet(
         },
         dismissButton = {
             DSButton(
-                text = "Cancel",
+                text = stringResource(R.string.features_preferences_presentation_cancel_edit),
                 onClick = onDismiss,
                 style = DSButtonStyle.SECONDARY,
                 size = DSButtonSize.MEDIUM,
@@ -761,13 +783,17 @@ private fun DeletePreferenceDialog(
 ) {
     DSDialog(
         onDismissRequest = onDismiss,
-        title = { DSText("Delete Preference") },
+        title = { DSText(stringResource(R.string.features_preferences_presentation_delete_preference)) },
         text = {
-            DSText("Are you sure you want to delete the preference \"${preference.key}\"? This action cannot be undone.")
+            DSText(
+                stringResource(
+                    R.string.features_preferences_presentation_are_you_sure_you_want_to_delete_the_preference_this_action_cannot_be_undone,
+                    preference.key
+                ))
         },
         confirmButton = {
             DSButton(
-                text = "Delete",
+                text = stringResource(R.string.features_preferences_presentation_delete),
                 onClick = onConfirm,
                 style = DSButtonStyle.PRIMARY,
                 size = DSButtonSize.SMALL,
@@ -776,7 +802,7 @@ private fun DeletePreferenceDialog(
         },
         dismissButton = {
             DSButton(
-                text = "Cancel",
+                text = stringResource(R.string.features_preferences_presentation_cancel_delete),
                 onClick = onDismiss,
                 style = DSButtonStyle.SECONDARY,
                 size = DSButtonSize.SMALL,
@@ -794,13 +820,17 @@ private fun ClearAllPreferencesDialog(
 ) {
     DSDialog(
         onDismissRequest = onDismiss,
-        title = { DSText("Clear All Preferences") },
+        title = { DSText(stringResource(R.string.features_preferences_presentation_clear_all_preferences)) },
         text = {
-            DSText("Are you sure you want to clear all preferences in ${getPreferenceTypeName(storageType)} storage? This action cannot be undone and will delete all preference data.")
+            DSText(
+                stringResource(
+                    R.string.features_preferences_presentation_are_you_sure_you_want_to_clear_all_preferences_in_storage_this_action_cannot_be_undone_and_will_delete_all_preference_data,
+                    getPreferenceTypeName(storageType)
+                ))
         },
         confirmButton = {
             DSButton(
-                text = "Clear All",
+                text = stringResource(R.string.features_preferences_presentation_clear_all_dialog),
                 onClick = onConfirm,
                 style = DSButtonStyle.PRIMARY,
                 size = DSButtonSize.MEDIUM,
@@ -809,7 +839,7 @@ private fun ClearAllPreferencesDialog(
         },
         dismissButton = {
             DSButton(
-                text = "Cancel",
+                text = stringResource(R.string.features_preferences_presentation_cancel_clear_dialog),
                 onClick = onDismiss,
                 style = DSButtonStyle.SECONDARY,
                 size = DSButtonSize.MEDIUM,

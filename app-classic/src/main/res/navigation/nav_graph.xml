@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/home">
+
+    <fragment
+        android:id="@+id/home"
+        android:name="com.jarvis.demo.classic.fragments.HomeFragment"
+        android:label="@string/title_home" />
+
+    <fragment
+        android:id="@+id/inspector"
+        android:name="com.jarvis.demo.classic.fragments.InspectorFragment"
+        android:label="@string/title_inspector" />
+
+    <fragment
+        android:id="@+id/preferences"
+        android:name="com.jarvis.demo.classic.fragments.PreferencesFragment"
+        android:label="@string/title_preferences" />
+
+</navigation>

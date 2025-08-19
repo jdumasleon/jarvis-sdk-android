@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
@@ -37,9 +38,35 @@ import java.util.*
  * - Suggestion banner for very slow endpoints
  */
 @Composable
-fun SlowestEndpointsList(
-    slowEndpoints: List<SlowEndpointData>,
+fun SlowestEndpointsListCard(
     modifier: Modifier = Modifier,
+    title: String? = null,
+    slowEndpoints: List<SlowEndpointData>,
+    maxItems: Int = 8,
+    maxHeight: Dp = 400.dp
+) {
+    DSCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = "Slowest endpoints list" }
+            .testTag("SlowestEndpointsList"),
+        shape = DSJarvisTheme.shapes.l,
+        elevation = DSJarvisTheme.elevations.level2
+    ) {
+        SlowestEndpointsList(
+            title = title,
+            slowEndpoints = slowEndpoints,
+            maxItems = maxItems,
+            maxHeight = maxHeight
+        )
+    }
+}
+
+@Composable
+fun SlowestEndpointsList(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    slowEndpoints: List<SlowEndpointData>,
     maxItems: Int = 8,
     maxHeight: Dp = 400.dp
 ) {
@@ -51,93 +78,73 @@ fun SlowestEndpointsList(
     var animationPlayed by remember(sorted) { mutableStateOf(false) }
     LaunchedEffect(sorted) { animationPlayed = true }
 
-    DSCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = "Slowest endpoints list" }
-            .testTag("SlowestEndpointsList"),
-        shape = DSJarvisTheme.shapes.l,
-        elevation = DSJarvisTheme.elevations.level2
+    Column(
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        // Header with warning indicator
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Header with warning indicator
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Performance Warning",
-                        tint = Color(0xFFFF9800),
-                        modifier = Modifier.size(20.dp)
-                    )
+
+                title?.let {
                     DSText(
-                        text = "Slowest Endpoints",
+                        modifier = modifier.weight(1f),
+                        text = it,
                         style = DSJarvisTheme.typography.title.large,
                         fontWeight = FontWeight.Bold,
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
                 }
+            }
+        }
 
-                if (topSlowEndpoints.isNotEmpty()) {
-                    DSText(
-                        text = "Performance bottlenecks",
-                        style = DSJarvisTheme.typography.body.small,
-                        color = Color(0xFFFF9800)
+        if (topSlowEndpoints.isNotEmpty()) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs),
+                modifier = Modifier.heightIn(max = maxHeight)
+            ) {
+                itemsIndexed(topSlowEndpoints) { index, endpoint ->
+                    SlowEndpointItem(
+                        endpoint = endpoint,
+                        animationPlayed = animationPlayed,
+                        rank = index + 1,
+                        worstAvg = worstAvg
                     )
                 }
             }
-
-            if (topSlowEndpoints.isNotEmpty()) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
-                    modifier = Modifier.heightIn(max = maxHeight)
+        } else {
+            // Empty state - great performance
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ) {
-                    itemsIndexed(topSlowEndpoints) { index, endpoint ->
-                        SlowEndpointItem(
-                            endpoint = endpoint,
-                            animationPlayed = animationPlayed,
-                            rank = index + 1,
-                            worstAvg = worstAvg
-                        )
-                    }
-                }
-            } else {
-                // Empty state - great performance
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                    ) {
-                        DSText(
-                            text = "🎉",
-                            style = DSJarvisTheme.typography.heading.small
-                        )
-                        DSText(
-                            text = "No slow endpoints detected",
-                            style = DSJarvisTheme.typography.body.medium,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF4CAF50)
-                        )
-                        DSText(
-                            text = "All endpoints are performing well",
-                            style = DSJarvisTheme.typography.body.small,
-                            color = DSJarvisTheme.colors.neutral.neutral60
-                        )
-                    }
+                    DSText(
+                        text = "🎉",
+                        style = DSJarvisTheme.typography.heading.small
+                    )
+                    DSText(
+                        text = "No slow endpoints detected",
+                        style = DSJarvisTheme.typography.body.medium,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF4CAF50)
+                    )
+                    DSText(
+                        text = "All endpoints are performing well",
+                        style = DSJarvisTheme.typography.body.small,
+                        color = DSJarvisTheme.colors.neutral.neutral60
+                    )
                 }
             }
         }
@@ -184,9 +191,8 @@ private fun SlowEndpointItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(animatedSeverityColor.copy(alpha = 0.06f))
-            .padding(DSJarvisTheme.spacing.m),
+            .clip(DSJarvisTheme.shapes.m)
+            .padding(DSJarvisTheme.spacing.s),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         // Header: rank badge, method badge, response time
@@ -202,8 +208,8 @@ private fun SlowEndpointItem(
                 // Rank badge
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .size(DSJarvisTheme.dimensions.l)
+                        .clip(DSJarvisTheme.shapes.s)
                         .background(animatedSeverityColor),
                     contentAlignment = Alignment.Center
                 ) {
@@ -218,9 +224,9 @@ private fun SlowEndpointItem(
                 // Method badge
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
+                        .clip(DSJarvisTheme.shapes.s)
                         .background(getMethodColor(endpoint.method))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = DSJarvisTheme.spacing.s, vertical = DSJarvisTheme.spacing.xs)
                 ) {
                     DSText(
                         text = endpoint.method.uppercase(Locale.getDefault()),

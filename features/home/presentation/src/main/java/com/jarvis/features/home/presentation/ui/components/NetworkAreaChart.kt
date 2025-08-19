@@ -47,9 +47,8 @@ fun NetworkAreaChart(
         }
     }
 
-    val chartTitle = title ?: stringResource(R.string.requests_over_time)
     val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    
+
     val contentDesc = if (dataPoints.isNotEmpty()) {
         val last = dataPoints.last()
         stringResource(
@@ -61,61 +60,75 @@ fun NetworkAreaChart(
         stringResource(R.string.no_network_data_available)
     }
 
-    DSCard(
+
+    Column(
         modifier = modifier.fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.l,
-        elevation = DSJarvisTheme.elevations.level2
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-        ) {
-            // Header
-            NetworkChartHeader(
-                title = chartTitle,
+        // Header
+        NetworkChartHeader(
+            title = title,
+            dataPoints = dataPoints,
+            lineColor = DSJarvisTheme.colors.chart.primary
+        )
+
+        if (chartDataPoints.isNotEmpty()) {
+            NetworkAreaChartContent(
+                chartDataPoints = chartDataPoints,
                 dataPoints = dataPoints,
-                lineColor = DSJarvisTheme.colors.chart.primary
+                height = height,
+                showGrid = showGrid,
+                animationDurationMs = animationDurationMs,
+                contentDesc = contentDesc
             )
-
-            if (chartDataPoints.isNotEmpty()) {
-                DSAreaChart(
-                    dataPoints = chartDataPoints,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height),
-                    lineColor = DSJarvisTheme.colors.chart.primary,
-                    fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
-                    fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
-                    backgroundColor = DSJarvisTheme.colors.extra.surface,
-                    gridColor = DSJarvisTheme.colors.neutral.neutral20,
-                    showGrid = showGrid,
-                    animationDurationMs = animationDurationMs,
-                    contentDescription = contentDesc
+        } else {
+            // Empty state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height),
+                contentAlignment = Alignment.Center
+            ) {
+                DSText(
+                    text = stringResource(R.string.no_network_data_available),
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.neutral.neutral60
                 )
-
-                // Time axis labels
-                if (dataPoints.isNotEmpty()) {
-                    NetworkTimeAxisLabels(
-                        dataPoints = dataPoints,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            } else {
-                // Empty state
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DSText(
-                        text = stringResource(R.string.no_network_data_available),
-                        style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral60
-                    )
-                }
             }
         }
+    }
+}
+
+@Composable
+fun NetworkAreaChartContent(
+    chartDataPoints: List<DSChartDataPoint>,
+    dataPoints: List<TimeSeriesDataPoint>,
+    height: Dp,
+    showGrid: Boolean,
+    animationDurationMs: Int,
+    contentDesc: String
+) {
+    DSAreaChart(
+        dataPoints = chartDataPoints,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height),
+        lineColor = DSJarvisTheme.colors.chart.primary,
+        fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
+        fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
+        backgroundColor = DSJarvisTheme.colors.extra.surface,
+        gridColor = DSJarvisTheme.colors.neutral.neutral20,
+        showGrid = showGrid,
+        animationDurationMs = animationDurationMs,
+        contentDescription = contentDesc
+    )
+
+    // Time axis labels
+    if (dataPoints.isNotEmpty()) {
+        NetworkTimeAxisLabels(
+            dataPoints = dataPoints,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -123,8 +136,8 @@ fun NetworkAreaChart(
 
 /** Header with summary and a simple trend arrow. */
 @Composable
-private fun NetworkChartHeader(
-    title: String,
+fun NetworkChartHeader(
+    title: String? = null,
     dataPoints: List<TimeSeriesDataPoint>,
     lineColor: Color
 ) {
@@ -134,12 +147,14 @@ private fun NetworkChartHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            DSText(
-                text = title,
-                style = DSJarvisTheme.typography.title.large,
-                fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral100
-            )
+            title?.let {
+                DSText(
+                    text = it,
+                    style = DSJarvisTheme.typography.title.large,
+                    fontWeight = FontWeight.Bold,
+                    color = DSJarvisTheme.colors.neutral.neutral100
+                )
+            }
 
             if (dataPoints.isNotEmpty()) {
                 val total = dataPoints.sumOf { it.value.toDouble() }.toInt()
@@ -147,7 +162,7 @@ private fun NetworkChartHeader(
                 DSText(
                     text = stringResource(R.string.total_requests, total, avg),
                     style = DSJarvisTheme.typography.body.small,
-                    color = DSJarvisTheme.colors.neutral.neutral60
+                    color = DSJarvisTheme.colors.neutral.neutral40
                 )
             }
         }
@@ -190,7 +205,7 @@ private fun NetworkTimeAxisLabels(
             if (idx in dataPoints.indices) {
                 DSText(
                     text = timeFormat.format(Date(dataPoints[idx].timestamp)),
-                    style = DSJarvisTheme.typography.body.small,
+                    style = DSJarvisTheme.typography.label.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
             }

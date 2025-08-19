@@ -3,6 +3,7 @@ package com.jarvis.demo.presentation.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.api.JarvisSDK
 import com.jarvis.core.common.di.CoroutineDispatcherModule
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.data.api.FakeStoreApiService
@@ -22,7 +23,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val fakeStoreApiService: FakeStoreApiService,
     private val restfulApiService: RestfulApiService,
-    private val jarvisSDK: com.jarvis.api.core.JarvisSDK,
+    private val jarvisSDK: JarvisSDK,
     @param:CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     

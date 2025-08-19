@@ -32,6 +32,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "JarvisDemo"
 
 include(":app")
+include(":app-classic")
 include(":jarvis")
 include(":core:designsystem")
 include(":core:domain")

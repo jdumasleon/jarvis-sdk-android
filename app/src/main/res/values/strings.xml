@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Jarvis Demo</string>
+    <string name="app_name">Jarvis Demo Compose</string>
     <string name="home_title">Home</string>
     
     <!-- Navigation -->

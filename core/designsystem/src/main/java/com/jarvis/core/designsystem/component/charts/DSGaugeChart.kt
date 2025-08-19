@@ -57,7 +57,7 @@ fun DSGaugeChart(
             .size(size)
             .semantics { this.contentDescription = accessibilityDesc }
             .testTag("DSGaugeChart"),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawGauge(

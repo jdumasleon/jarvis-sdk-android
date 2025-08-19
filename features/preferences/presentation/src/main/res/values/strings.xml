@@ -2,4 +2,34 @@
 <resources>
     <string name="jarvis_preferences">Preferences</string>
     <string name="jarvis_preferences_bottom_bar_icon_content_description">Preferences bottom navigation icon</string>
+    <string name="features_preferences_presentation_types">Types</string>
+    <string name="features_preferences_presentation_all">All</string>
+    <string name="features_preferences_presentation_storages">Storages</string>
+    <string name="features_preferences_presentation_add">Add</string>
+    <string name="features_preferences_presentation_clear_all">Clear All</string>
+    <string name="features_preferences_presentation_hide_system">Hide System</string>
+    <string name="features_preferences_presentation_show_system">Show System</string>
+    <string name="features_preferences_presentation_system">SYSTEM</string>
+    <string name="features_preferences_presentation_add_preference">Add Preference</string>
+    <string name="features_preferences_presentation_add_new_preference_to_storage">Add new preference to %1$s storage</string>
+    <string name="features_preferences_presentation_key">Key</string>
+    <string name="features_preferences_presentation_type">Type: %1$s</string>
+    <string name="features_preferences_presentation_string_value">string value</string>
+    <string name="features_preferences_presentation_proto_message">proto message</string>
+    <string name="features_preferences_presentation_cancel">Cancel</string>
+    <string name="features_preferences_presentation_edit_preference">Edit Preference</string>
+    <string name="features_preferences_presentation_key_edit">Key: %1$s</string>
+    <string name="features_preferences_presentation_type_edit">Type: %1$s</string>
+    <string name="features_preferences_presentation_value">Value</string>
+    <string name="features_preferences_presentation_enter_new_value">Enter new value</string>
+    <string name="features_preferences_presentation_save">Save</string>
+    <string name="features_preferences_presentation_cancel_edit">Cancel</string>
+    <string name="features_preferences_presentation_delete_preference">Delete Preference</string>
+    <string name="features_preferences_presentation_are_you_sure_you_want_to_delete_the_preference_this_action_cannot_be_undone">Are you sure you want to delete the preference \"%1$s\"? This action cannot be undone.</string>
+    <string name="features_preferences_presentation_delete">Delete</string>
+    <string name="features_preferences_presentation_cancel_delete">Cancel</string>
+    <string name="features_preferences_presentation_clear_all_preferences">Clear All Preferences</string>
+    <string name="features_preferences_presentation_are_you_sure_you_want_to_clear_all_preferences_in_storage_this_action_cannot_be_undone_and_will_delete_all_preference_data">Are you sure you want to clear all preferences in %1$s storage? This action cannot be undone and will delete all preference data.</string>
+    <string name="features_preferences_presentation_clear_all_dialog">Clear All</string>
+    <string name="features_preferences_presentation_cancel_clear_dialog">Cancel</string>
 </resources>

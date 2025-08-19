@@ -8,7 +8,7 @@
     <string name="jarvis_analytics">Jarvis Analytics</string>
     <string name="performance_insights_dashboard">Performance insights dashboard</string>
     <string name="refresh_dashboard">Refresh dashboard</string>
-    <string name="filter_label">Filter:</string>
+    <string name="filter_label">Filter</string>
     <string name="move_before">Move before</string>
     <string name="move_after">Move after</string>
     <string name="reorder">Reorder</string>
@@ -63,4 +63,5 @@
     <string name="failed_to_load_dashboard_metrics">Failed to load dashboard metrics</string>
     <string name="failed_to_load_dashboard">Failed to load dashboard</string>
     <string name="failed_to_change_session_filter">Failed to change session filter</string>
+    <string name="features_home_presentation_no_performance_data_available">No performance data available</string>
 </resources>

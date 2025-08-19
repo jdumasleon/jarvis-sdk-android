@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
  * Performance overview chart component showing key metrics in a compact format
  */
 @Composable
-fun PerformanceOverviewChart(
+fun PerformanceOverviewCardChart(
     performanceSnapshot: PerformanceSnapshot?,
     modifier: Modifier = Modifier
 ) {
@@ -59,48 +59,11 @@ fun PerformanceOverviewChart(
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
-            
+
             if (performanceSnapshot != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                ) {
-                    // CPU Metric
-                    performanceSnapshot.cpuUsage?.let { cpu ->
-                        PerformanceMetricItem(
-                            modifier = Modifier.weight(1f),
-                            title = "CPU",
-                            value = "${cpu.cpuUsagePercent.roundToInt()}%",
-                            icon = Icons.Default.Speed,
-                            color = getCpuColor(cpu.cpuUsagePercent),
-                            progress = cpu.cpuUsagePercent / 100f
-                        )
-                    }
-                    
-                    // Memory Metric
-                    performanceSnapshot.memoryUsage?.let { memory ->
-                        PerformanceMetricItem(
-                            modifier = Modifier.weight(1f),
-                            title = "Memory",
-                            value = "${memory.heapUsagePercent.roundToInt()}%",
-                            icon = Icons.Default.Memory,
-                            color = getMemoryColor(memory.memoryPressure),
-                            progress = memory.heapUsagePercent / 100f
-                        )
-                    }
-                    
-                    // FPS Metric
-                    performanceSnapshot.fpsMetrics?.let { fps ->
-                        PerformanceMetricItem(
-                            modifier = Modifier.weight(1f),
-                            title = "FPS",
-                            value = "${fps.currentFps.roundToInt()}",
-                            icon = Icons.Default.MonitorHeart,
-                            color = getFpsColor(fps.fpsStability),
-                            progress = fps.currentFps / fps.refreshRate
-                        )
-                    }
-                }
+                PerformanceOverviewCharts(
+                    performanceSnapshot = performanceSnapshot
+                )
             } else {
                 DSText(
                     text = "No performance data available",
@@ -109,6 +72,54 @@ fun PerformanceOverviewChart(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun PerformanceOverviewCharts(
+    performanceSnapshot: PerformanceSnapshot,
+    modifier: Modifier = Modifier
+) {
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+    ) {
+        // CPU Metric
+        performanceSnapshot.cpuUsage?.let { cpu ->
+            PerformanceMetricItem(
+                modifier = Modifier.weight(1f),
+                title = "CPU",
+                value = "${cpu.cpuUsagePercent.roundToInt()}%",
+                icon = Icons.Default.Speed,
+                color = getCpuColor(cpu.cpuUsagePercent),
+                progress = cpu.cpuUsagePercent / 100f
+            )
+        }
+
+        // Memory Metric
+        performanceSnapshot.memoryUsage?.let { memory ->
+            PerformanceMetricItem(
+                modifier = Modifier.weight(1f),
+                title = "Memory",
+                value = "${memory.heapUsagePercent.roundToInt()}%",
+                icon = Icons.Default.Memory,
+                color = getMemoryColor(memory.memoryPressure),
+                progress = memory.heapUsagePercent / 100f
+            )
+        }
+
+        // FPS Metric
+        performanceSnapshot.fpsMetrics?.let { fps ->
+            PerformanceMetricItem(
+                modifier = Modifier.weight(1f),
+                title = "FPS",
+                value = "${fps.currentFps.roundToInt()}",
+                icon = Icons.Default.MonitorHeart,
+                color = getFpsColor(fps.fpsStability),
+                progress = fps.currentFps / fps.refreshRate
+            )
         }
     }
 }
@@ -328,7 +339,7 @@ private fun getFpsColor(stability: FpsStability): Color {
 @Composable
 private fun PerformanceOverviewChartPreview() {
     DSJarvisTheme {
-        PerformanceOverviewChart(
+        PerformanceOverviewCardChart(
             performanceSnapshot = PerformanceSnapshot(
                 cpuUsage = CpuMetrics(
                     cpuUsagePercent = 65.0f,

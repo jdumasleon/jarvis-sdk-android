@@ -53,7 +53,9 @@ import com.jarvis.features.inspector.domain.entity.NetworkTransaction
 import com.jarvis.features.inspector.domain.entity.TransactionStatus
 import androidx.compose.ui.input.nestedscroll.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Velocity
+import com.jarvis.features.inspector.presentation.R
 import com.jarvis.features.inspector.presentation.ui.components.NetworkTransactionGroupHeader
 import com.jarvis.features.inspector.presentation.ui.components.TODAY
 import com.jarvis.features.inspector.presentation.ui.components.groupByDate
@@ -324,13 +326,14 @@ private fun MethodsTypesChips(
     onEvent: (NetworkInspectorEvent) -> Unit
 ) {
     Column (
-        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m)
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
-            text = "HTTP Methods",
+            text = stringResource(R.string.features_inspector_presentation_http_methods).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
         )
 
         Row(
@@ -340,7 +343,7 @@ private fun MethodsTypesChips(
             DSFilterChip(
                 selected = uiData.selectedMethod == null,
                 onClick = { onEvent(NetworkInspectorEvent.MethodFilterChanged(null)) },
-                label = "All"
+                label = stringResource(R.string.features_inspector_presentation_all)
             )
 
             uiData.availableMethods.forEach { method ->
@@ -364,13 +367,14 @@ private fun StatusTypesChips(
     onEvent: (NetworkInspectorEvent) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m)
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
-            text = "Status",
+            text = stringResource(R.string.features_inspector_presentation_status).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
         )
 
         Row(
@@ -405,12 +409,15 @@ private fun InspectorActions(
         verticalAlignment = Alignment.CenterVertically
     ) {
         DSText(
-            text = "Transactions (${uiData.transactions.size})",
+            text = stringResource(
+                R.string.features_inspector_presentation_transactions,
+                uiData.transactions.size
+            ).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Medium,
+            color = DSJarvisTheme.colors.neutral.neutral100,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = DSJarvisTheme.spacing.m)
+                .padding(horizontal = DSJarvisTheme.spacing.l)
         )
 
         DSButton(
@@ -436,7 +443,7 @@ private fun NetworkTransactionItem(
         elevation = DSJarvisTheme.elevations.level1,
     ) {
         Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.s),
+            modifier = Modifier.padding(DSJarvisTheme.spacing.xs),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

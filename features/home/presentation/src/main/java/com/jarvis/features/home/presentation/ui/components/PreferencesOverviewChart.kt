@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -27,9 +28,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.EnhancedPreferencesMetrics
@@ -42,53 +45,72 @@ import com.jarvis.features.home.domain.entity.StorageUsageData
  * Preferences overview component: donut type distribution, storage analytics, and size breakdown.
  */
 @Composable
-fun PreferencesOverviewChart(
-    preferencesMetrics: EnhancedPreferencesMetrics,
+fun PreferencesOverviewCardChart(
     modifier: Modifier = Modifier,
+    title: String? = null,
+    preferencesMetrics: EnhancedPreferencesMetrics,
     donutSize: Dp = 140.dp,
     donutStroke: Dp = 18.dp
 ) {
-    var animationPlayed by remember(preferencesMetrics) { mutableStateOf(false) }
-    LaunchedEffect(preferencesMetrics) { animationPlayed = true }
-
     DSCard(
         modifier = modifier.fillMaxWidth(),
         shape = DSJarvisTheme.shapes.l,
         elevation = DSJarvisTheme.elevations.level2
     ) {
-        Column(
-            modifier = Modifier
-                .padding(DSJarvisTheme.spacing.l)
-                .testTag("PreferencesOverviewChart"),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-        ) {
-            // Header with total preferences and efficiency badge
-            PreferencesHeader(preferencesMetrics = preferencesMetrics)
+        PreferencesOverviewChart(
+            title = title,
+            preferencesMetrics = preferencesMetrics,
+            modifier = Modifier.fillMaxWidth(),
+            donutSize = donutSize,
+            donutStroke = donutStroke
+        )
+    }
+}
 
-            // Storage type donut chart + legend
-            if (preferencesMetrics.typeDistribution.isNotEmpty()) {
-                PreferencesTypeSection(
-                    typeDistribution = preferencesMetrics.typeDistribution,
-                    total = preferencesMetrics.totalPreferences,
-                    animationPlayed = animationPlayed,
-                    donutSize = donutSize,
-                    donutStroke = donutStroke
-                )
-            }
+@Composable
+fun PreferencesOverviewChart(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    preferencesMetrics: EnhancedPreferencesMetrics,
+    donutSize: Dp = 140.dp,
+    donutStroke: Dp = 18.dp
+){
+    var animationPlayed by remember(preferencesMetrics) { mutableStateOf(false) }
+    LaunchedEffect(preferencesMetrics) { animationPlayed = true }
 
-            // Storage usage statistics
-            StorageUsageSection(
-                storageUsage = preferencesMetrics.storageUsage,
+    Column(
+        modifier = modifier.testTag("PreferencesOverviewChart"),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+    ) {
+        // Header with total preferences and efficiency badge
+        PreferencesHeader(
+            title = title,
+            preferencesMetrics = preferencesMetrics
+        )
+
+        // Storage type donut chart + legend
+        if (preferencesMetrics.typeDistribution.isNotEmpty()) {
+            PreferencesTypeSection(
+                typeDistribution = preferencesMetrics.typeDistribution,
+                total = preferencesMetrics.totalPreferences,
+                animationPlayed = animationPlayed,
+                donutSize = donutSize,
+                donutStroke = donutStroke
+            )
+        }
+
+        // Storage usage statistics
+        StorageUsageSection(
+            storageUsage = preferencesMetrics.storageUsage,
+            animationPlayed = animationPlayed
+        )
+
+        // Size distribution chips
+        if (preferencesMetrics.sizeDistribution.isNotEmpty()) {
+            PreferencesSizeDistribution(
+                sizeDistribution = preferencesMetrics.sizeDistribution,
                 animationPlayed = animationPlayed
             )
-
-            // Size distribution chips
-            if (preferencesMetrics.sizeDistribution.isNotEmpty()) {
-                PreferencesSizeDistribution(
-                    sizeDistribution = preferencesMetrics.sizeDistribution,
-                    animationPlayed = animationPlayed
-                )
-            }
         }
     }
 }
@@ -100,6 +122,7 @@ fun PreferencesOverviewChart(
  */
 @Composable
 private fun PreferencesHeader(
+    title: String? = null,
     preferencesMetrics: EnhancedPreferencesMetrics
 ) {
     Row(
@@ -108,23 +131,19 @@ private fun PreferencesHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
         ) {
-            Icon(
-                imageVector = Icons.Default.Storage,
-                contentDescription = "Preferences",
-                tint = DSJarvisTheme.colors.primary.primary60,
-                modifier = Modifier.size(24.dp)
-            )
-
             Column {
-                DSText(
-                    text = "Preferences Overview",
-                    style = DSJarvisTheme.typography.title.large,
-                    fontWeight = FontWeight.Bold,
-                    color = DSJarvisTheme.colors.neutral.neutral100
-                )
+                title?.let {
+                    DSText(
+                        text = it,
+                        style = DSJarvisTheme.typography.title.large,
+                        fontWeight = FontWeight.Bold,
+                        color = DSJarvisTheme.colors.neutral.neutral100
+                    )
+                }
+
                 val typesCount = preferencesMetrics.typeDistribution.size
                 DSText(
                     text = "${preferencesMetrics.totalPreferences} preferences • $typesCount storage ${if (typesCount == 1) "type" else "types"}",
@@ -262,12 +281,13 @@ private fun PreferenceTypeLegendItem(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
+                .padding(top = DSJarvisTheme.spacing.xs)
+                .size(DSJarvisTheme.dimensions.s)
                 .clip(CircleShape)
                 .background(Color(android.graphics.Color.parseColor(typeData.color)))
         )
@@ -305,7 +325,7 @@ private fun StorageUsageSection(
     storageUsage: StorageUsageData,
     animationPlayed: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)) {
+    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
         DSText(
             text = "Storage Usage",
             style = DSJarvisTheme.typography.body.large,
@@ -315,7 +335,7 @@ private fun StorageUsageSection(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             StorageMetricItem(
                 label = "Total Size",
@@ -346,7 +366,7 @@ private fun StorageUsageSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(DSJarvisTheme.colors.neutral.neutral20)
+                    .background(DSJarvisTheme.colors.neutral.neutral0)
                     .padding(DSJarvisTheme.spacing.m)
                     .semantics { contentDescription = "Largest preference item" }
             ) {

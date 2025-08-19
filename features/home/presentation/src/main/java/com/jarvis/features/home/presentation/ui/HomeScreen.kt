@@ -1,12 +1,14 @@
 package com.jarvis.features.home.presentation.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Refresh
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +46,12 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSIconButton
+import com.jarvis.features.home.presentation.R
+import com.jarvis.features.home.presentation.ui.components.HttpMethodsCard
+import com.jarvis.features.home.presentation.ui.components.HttpMethodsWithDetails
+import com.jarvis.features.home.presentation.ui.components.PerformanceOverviewCharts
 
 /**
  * Home screen route with state management
@@ -96,16 +105,11 @@ private fun HomeContent(
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         // Top bar with session filter
-        HomeTopBar(
+        DateFilterTypesChips(
             selectedFilter = uiData.selectedSessionFilter,
             onFilterChange = { onEvent(HomeEvent.ChangeSessionFilter(it)) },
-            onRefresh = { onEvent(HomeEvent.RefreshDashboard) },
-            isRefreshing = uiData.isRefreshing
         )
 
         // Dashboard cards with drag & drop
@@ -127,75 +131,31 @@ private fun HomeContent(
 }
 
 @Composable
-private fun HomeTopBar(
+private fun DateFilterTypesChips(
     selectedFilter: SessionFilter,
-    onFilterChange: (SessionFilter) -> Unit,
-    onRefresh: () -> Unit,
-    isRefreshing: Boolean,
-    modifier: Modifier = Modifier
+    onFilterChange: (SessionFilter) -> Unit
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = DSJarvisTheme.colors.extra.background,
-        shadowElevation = DSJarvisTheme.elevations.level1
+    Column (
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        DSText(
+            text = stringResource(R.string.filter_label).uppercase(),
+            style = DSJarvisTheme.typography.body.medium,
+            color = DSJarvisTheme.colors.neutral.neutral100,
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+        )
+
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    DSText(
-                        text = "Jarvis Analytics",
-                        style = DSJarvisTheme.typography.heading.small,
-                        fontWeight = FontWeight.Bold,
-                        color = DSJarvisTheme.colors.neutral.neutral100
-                    )
-                    DSText(
-                        text = "Performance insights dashboard",
-                        style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral60
-                    )
-                }
-
-                IconButton(onClick = onRefresh, enabled = !isRefreshing) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Refresh dashboard",
-                        tint = DSJarvisTheme.colors.primary.primary60
-                    )
-                }
-            }
-
-            // Session filter chips
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = "Filter",
-                    tint = DSJarvisTheme.colors.neutral.neutral60,
-                    modifier = Modifier.size(16.dp)
+            SessionFilter.entries.forEach { filter ->
+                SessionFilterChip(
+                    filter = filter,
+                    isSelected = selectedFilter == filter,
+                    onSelected = onFilterChange
                 )
-
-                DSText(
-                    text = "Filter:",
-                    style = DSJarvisTheme.typography.body.medium,
-                    color = DSJarvisTheme.colors.neutral.neutral80
-                )
-
-                SessionFilter.values().forEach { filter ->
-                    SessionFilterChip(
-                        filter = filter,
-                        isSelected = selectedFilter == filter,
-                        onSelected = onFilterChange
-                    )
-                }
             }
         }
     }
@@ -211,7 +171,6 @@ private fun DraggableCardGrid(
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
-    
     val lazyStaggeredGridState = rememberLazyStaggeredGridState()
     val reorderableLazyStaggeredGridState =
         rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
@@ -235,94 +194,95 @@ private fun DraggableCardGrid(
             ) { isDragging ->
                 val interactionSource = remember { MutableInteractionSource() }
 
-                DSCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = if (isDragging) DSJarvisTheme.elevations.level3 else DSJarvisTheme.elevations.level1
+                Column (
+                    modifier = modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            // Accesibilidad: mover antes / después sin gesto
-                            .semantics {
-                                customActions = listOf(
-                                    CustomAccessibilityAction(
-                                        label = "Mover antes",
-                                        action = {
-                                            if (index > 0) {
-                                                val from = index
-                                                val to = index - 1
-                                                onCardMove(from, to)
-                                                true
-                                            } else false
-                                        }
-                                    ),
-                                    CustomAccessibilityAction(
-                                        label = "Mover después",
-                                        action = {
-                                            if (index < cardOrder.size - 1) {
-                                                val from = index
-                                                val to = index + 1
-                                                onCardMove(from, to)
-                                                true
-                                            } else false
-                                        }
-                                    ),
-                                )
-                            }
-                            .padding(DSJarvisTheme.spacing.m)
+                    DSText(
+                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+                        text = cardType.title.uppercase(),
+                        style = DSJarvisTheme.typography.body.medium,
+                        color = DSJarvisTheme.colors.neutral.neutral100
+                    )
+
+                    DSCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = DSJarvisTheme.shapes.m,
+                        elevation = if (isDragging) DSJarvisTheme.elevations.level2 else DSJarvisTheme.elevations.level1
+
                     ) {
-                        // Header con handle (estilo ejemplo)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            DSText(
-                                text = cardType.title,
-                                style = DSJarvisTheme.typography.title.large,
-                                color = DSJarvisTheme.colors.neutral.neutral100
-                            )
-                            IconButton(
-                                modifier = Modifier
-                                    .draggableHandle(
-                                        onDragStarted = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                        },
-                                        onDragStopped = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                        },
-                                        interactionSource = interactionSource
-                                    )
-                                    .clearAndSetSemantics { }, // ya hay acciones en el contenedor
-                                onClick = { /* handle-only */ },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.DragHandle,
-                                    contentDescription = "Reordenar",
-                                    tint = DSJarvisTheme.colors.neutral.neutral60
-                                )
-                            }
-                        }
-
-                        // Descripción bajo el header
-                        DSText(
-                            text = cardType.description,
-                            style = DSJarvisTheme.typography.body.small,
-                            color = DSJarvisTheme.colors.neutral.neutral60,
-                            modifier = Modifier.padding(top = DSJarvisTheme.spacing.xs)
-                        )
-
-                        // Contenido específico de la card (sin header duplicado)
-                        DashboardCardContent(
-                            cardType = cardType,
-                            enhancedMetrics = enhancedMetrics,
-                            performanceSnapshot = performanceSnapshot,
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = DSJarvisTheme.spacing.m)
-                        )
+                                .semantics {
+                                    customActions = listOf(
+                                        CustomAccessibilityAction(
+                                            label = "Mover antes",
+                                            action = {
+                                                if (index > 0) {
+                                                    val from = index
+                                                    val to = index - 1
+                                                    onCardMove(from, to)
+                                                    true
+                                                } else false
+                                            }
+                                        ),
+                                        CustomAccessibilityAction(
+                                            label = "Mover después",
+                                            action = {
+                                                if (index < cardOrder.size - 1) {
+                                                    val from = index
+                                                    val to = index + 1
+                                                    onCardMove(from, to)
+                                                    true
+                                                } else false
+                                            }
+                                        ),
+                                    )
+                                }
+                                .padding(horizontal = DSJarvisTheme.spacing.s)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                DSText(
+                                    text = cardType.description,
+                                    style = DSJarvisTheme.typography.body.small,
+                                    color = DSJarvisTheme.colors.neutral.neutral60
+                                )
+
+                                DSIconButton(
+                                    imageVector = Icons.Rounded.DragHandle,
+                                    contentDescription = "Reordering",
+                                    tint = DSJarvisTheme.colors.neutral.neutral60,
+                                    modifier = Modifier
+                                        .size(DSJarvisTheme.spacing.l)
+                                        .draggableHandle(
+                                            onDragStarted = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                            },
+                                            onDragStopped = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                            },
+                                            interactionSource = interactionSource
+                                        )
+                                        .clearAndSetSemantics { },
+                                    onClick = { /* handle-only */ },
+                                )
+                            }
+
+                            DashboardCardContent(
+                                cardType = cardType,
+                                enhancedMetrics = enhancedMetrics,
+                                performanceSnapshot = performanceSnapshot,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
+
             }
         }
     }
@@ -335,73 +295,53 @@ private fun DashboardCardContent(
     performanceSnapshot: com.jarvis.core.domain.performance.PerformanceSnapshot?,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
-    ) {
-        // (Header eliminado para evitar duplicados)
-
+    Column {
         when (cardType) {
             DashboardCardType.HEALTH_SUMMARY -> {
                 enhancedMetrics?.healthScore?.let { healthScore ->
                     HealthScoreGauge(
                         healthScore = healthScore,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = DSJarvisTheme.spacing.m,
+                                start = DSJarvisTheme.spacing.m,
+                                end = DSJarvisTheme.spacing.m
+                            )
                     )
                 }
             }
 
             DashboardCardType.PERFORMANCE_METRICS -> {
                 performanceSnapshot?.let { snapshot ->
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                    ) {
-                        DSText(
-                            text = "CPU: ${snapshot.cpuUsage?.cpuUsagePercent?.toInt() ?: 0}%",
-                            style = DSJarvisTheme.typography.body.medium,
-                            color = DSJarvisTheme.colors.neutral.neutral100
-                        )
-                        DSText(
-                            text = "Memory: ${snapshot.memoryUsage?.heapUsagePercent?.toInt() ?: 0}%",
-                            style = DSJarvisTheme.typography.body.medium,
-                            color = DSJarvisTheme.colors.neutral.neutral100
-                        )
-                        DSText(
-                            text = "FPS: ${snapshot.fpsMetrics?.currentFps?.toInt() ?: 0}",
-                            style = DSJarvisTheme.typography.body.medium,
-                            color = DSJarvisTheme.colors.neutral.neutral100
-                        )
-                    }
-                } ?: run {
-                    Box(
+                    PerformanceOverviewCharts(
+                        performanceSnapshot = snapshot,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        DSText(
-                            text = "Performance Metrics",
-                            style = DSJarvisTheme.typography.body.medium,
-                            color = DSJarvisTheme.colors.neutral.neutral60
-                        )
-                    }
+                            .padding(
+                                top = DSJarvisTheme.spacing.m,
+                                start = DSJarvisTheme.spacing.m,
+                                end = DSJarvisTheme.spacing.m,
+                                bottom = DSJarvisTheme.spacing.m
+                            )
+                    )
                 }
             }
 
             DashboardCardType.NETWORK_OVERVIEW -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
                     NetworkAreaChart(
                         dataPoints = networkMetrics.requestsOverTime,
-                        modifier = Modifier.fillMaxWidth(),
-                        title = "Network Analytics",
-                        height = 180.dp
+                        modifier = Modifier.fillMaxWidth()
                     )
+
                 }
             }
 
             DashboardCardType.PREFERENCES_OVERVIEW -> {
                 enhancedMetrics?.enhancedPreferencesMetrics?.let { prefsMetrics ->
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
                     PreferencesOverviewChart(
                         preferencesMetrics = prefsMetrics,
                         modifier = Modifier.fillMaxWidth()
@@ -411,9 +351,9 @@ private fun DashboardCardContent(
 
             DashboardCardType.HTTP_METHODS -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
-                    HttpMethodsDonutChart(
+                    HttpMethodsWithDetails(
                         httpMethods = networkMetrics.httpMethodDistribution,
-                        modifier = Modifier.fillMaxWidth()
+                        inline = true,
                     )
                 }
             }
@@ -441,7 +381,7 @@ private fun DashboardCardContent(
 
 // ----- Previews -----
 
-@Preview(showBackground = true, name = "Success - With Analytics Data")
+@Preview(showBackground = true, name = "Success - With Analytics Data", heightDp = 6800)
 @Composable
 private fun HomeScreenSuccessPreview() {
     DSJarvisTheme {

@@ -34,14 +34,12 @@ internal fun NetworkTransactionGroupHeader(
             DSText(
                 text = title,
                 style = DSJarvisTheme.typography.body.medium,
-                fontWeight = FontWeight.Thin,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
             
             DSText(
                 text = "$transactionCount ${if (transactionCount == 1) "request" else "requests"}",
                 style = DSJarvisTheme.typography.body.small,
-                fontWeight = FontWeight.Thin,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
         }

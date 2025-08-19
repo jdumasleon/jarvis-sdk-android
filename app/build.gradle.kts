@@ -15,7 +15,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId = "com.jarvis.demo"
+        applicationId = "com.jarvis.demo.compose"
         versionCode = libs.versions.appVersionCode.get().toInt()
         versionName = libs.versions.appVersionName.get()
 
@@ -54,7 +54,7 @@ android {
             isIncludeAndroidResources = true
         }
     }
-    namespace = "com.jarvis.demo"
+    namespace = "com.jarvis.demo.compose"
 }
 
 dependencies {

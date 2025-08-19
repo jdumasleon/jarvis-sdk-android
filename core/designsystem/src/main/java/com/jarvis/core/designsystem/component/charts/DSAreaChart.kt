@@ -43,7 +43,7 @@ fun DSAreaChart(
     showGrid: Boolean = true,
     gridColor: Color = DSJarvisTheme.colors.neutral.neutral20,
     backgroundColor: Color = DSJarvisTheme.colors.extra.surface,
-    paddingValues: PaddingValues = PaddingValues(16.dp),
+    paddingValues: PaddingValues = PaddingValues(DSJarvisTheme.spacing.none),
     animationDurationMs: Int = 1200,
     contentDescription: String? = null
 ) {

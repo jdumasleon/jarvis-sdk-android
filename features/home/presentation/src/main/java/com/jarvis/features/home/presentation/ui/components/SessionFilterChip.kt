@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.SessionFilter
@@ -39,39 +40,39 @@ fun SessionFilterChip(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary60 else Color.Transparent,
+        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary100 else DSJarvisTheme.colors.extra.white,
         animationSpec = tween(200),
         label = "chip_background"
     )
 
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.extra.background else DSJarvisTheme.colors.neutral.neutral80,
+        targetValue = if (isSelected) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral80,
         animationSpec = tween(200),
         label = "chip_content"
     )
 
     val borderColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary60 else DSJarvisTheme.colors.neutral.neutral20,
+        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary100 else DSJarvisTheme.colors.neutral.neutral40,
         animationSpec = tween(200),
         label = "chip_border"
     )
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(DSJarvisTheme.shapes.l)
             .background(backgroundColor)
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+            .border(1.dp, borderColor, DSJarvisTheme.shapes.l)
             .clickable(role = Role.RadioButton) { onSelected(filter) }
             .semantics { this.selected = isSelected }
             .padding(horizontal = DSJarvisTheme.spacing.m, vertical = DSJarvisTheme.spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
     ) {
-        Icon(
+        DSIcon(
             imageVector = filter.icon,
             contentDescription = filter.displayName,
             tint = contentColor,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(DSJarvisTheme.dimensions.m)
         )
 
         DSText(

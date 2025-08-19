@@ -52,12 +52,12 @@ fun DSFilterChip(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(DSJarvisTheme.spacing.l))
+            .clip(DSJarvisTheme.shapes.l)
             .background(backgroundColor)
             .border(
                 width = 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(DSJarvisTheme.spacing.l)
+                shape = DSJarvisTheme.shapes.l
             )
             .clickable(enabled = enabled) { onClick() }
             .padding(
