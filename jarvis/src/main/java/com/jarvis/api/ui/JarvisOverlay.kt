@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -32,7 +33,9 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.jarvis.api.di.JarvisOverlayEntryPoint
 import com.jarvis.api.ui.navigation.JarvisSDKNavDisplay
 import com.jarvis.api.ui.navigation.JarvisTopLevelDestinations
+import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSLargeTopAppBar
 import com.jarvis.core.designsystem.component.DSMediumTopAppBar
 import com.jarvis.core.designsystem.component.DSNavigationBar
 import com.jarvis.core.designsystem.component.DSNavigationBarItem
@@ -46,6 +49,7 @@ import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.core.presentation.navigation.EntryProviderInstaller
 import com.jarvis.core.presentation.navigation.NavigationRoute
 import com.jarvis.core.presentation.navigation.Navigator
+import com.jarvis.core.presentation.navigation.TopAppBarType
 import com.jarvis.features.home.lib.navigation.JarvisSDKHomeGraph
 import dagger.hilt.android.EntryPointAccessors
 
@@ -126,13 +130,16 @@ private fun JarvisOverlayContent(
     onDismiss: () -> Unit = {}
 ) {
     var currentDestination by remember { mutableStateOf(navigator.currentDestination) }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = DSJarvisTheme.colors.extra.background,
         topBar = {
             JarvisSDKTopBar(
                 currentDestination = currentDestination,
                 navigator = navigator,
+                scrollBehavior = scrollBehavior,
                 onDismiss = onDismiss,
             )
         },
@@ -161,44 +168,121 @@ private fun JarvisOverlayContent(
 private fun JarvisSDKTopBar(
     currentDestination: NavigationRoute?,
     navigator: Navigator,
+    scrollBehavior: TopAppBarScrollBehavior,
     onDismiss: () -> Unit = {}
 ) {
     currentDestination?.takeIf { it.shouldShowTopAppBar }?.let { destination ->
-        DSTopAppBar(
-            titleRes = destination.titleTextId,
-            navigationIcon = destination.navigationIcon,
-            navigationIconContentDescription = destination.navigationIconContentDescription?.let {
-                stringResource(id = it)
-            },
-            actionIcon = destination.actionIcon,
-            actionIconContentDescription = destination.actionIconContentDescription?.let {
-                stringResource(id = it)
-            },
-            logo = {
-                DynamicOrbCanvas(
-                    config = StateConfig(
-                        name = "Initializing",
-                        colors = listOf(
-                            DSJarvisTheme.colors.primary.primary40,
-                            DSJarvisTheme.colors.primary.primary60,
-                            DSJarvisTheme.colors.primary.primary80
-                        ),
-                        speed = 1.2f,
-                        morphIntensity = 2.0f
-                    ),
-                    modifier = Modifier.fillMaxSize()
-                )
-            },
-            onActionClick = {
-                destination.actionKey?.let { actionKey ->
-                    ActionRegistry.executeAction(actionKey)
-                } ?: destination.onActionNavigate?.let { navigator.goTo(it) }
-            },
-            onBackClick = { navigator.goBack() },
-            dismissable = destination.dismissable,
-            onDismiss = onDismiss
-        )
+        when (destination.topAppBarType) {
+            TopAppBarType.CENTER_ALIGNED -> JarvisSDKTopBarCenterAligned(destination, navigator, onDismiss)
+            TopAppBarType.MEDIUM -> JarvisSDKTopBarMedium(destination, navigator, scrollBehavior, onDismiss)
+            TopAppBarType.LARGE -> JarvisSDKTopBarLarge(destination, navigator, scrollBehavior, onDismiss)
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JarvisSDKTopBarCenterAligned(destination: NavigationRoute, navigator: Navigator, onDismiss: () -> Unit) {
+    DSTopAppBar(
+        titleRes = destination.titleTextId,
+        navigationIcon = destination.navigationIcon,
+        navigationIconContentDescription = destination.navigationIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        actionIcon = destination.actionIcon,
+        actionIconContentDescription = destination.actionIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        logo = {
+            DSIcon(
+                modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
+                painter = painterResource(R.drawable.ic_jarvis_logo),
+                contentDescription = "Jarvis Logo"
+            )
+        },
+        onActionClick = {
+            destination.actionKey?.let { actionKey ->
+                ActionRegistry.executeAction(actionKey)
+            } ?: destination.onActionNavigate?.let { navigator.goTo(it) }
+        },
+        onBackClick = { navigator.goBack() },
+        dismissable = destination.dismissable,
+        onDismiss = onDismiss
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JarvisSDKTopBarLarge(
+    destination: NavigationRoute,
+    navigator: Navigator,
+    scrollBehavior: TopAppBarScrollBehavior,
+    onDismiss: () -> Unit
+) {
+    DSLargeTopAppBar(
+        titleRes = destination.titleTextId,
+        navigationIcon = destination.navigationIcon,
+        navigationIconContentDescription = destination.navigationIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        actionIcon = destination.actionIcon,
+        actionIconContentDescription = destination.actionIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        logo = {
+            DSIcon(
+                modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
+                painter = painterResource(R.drawable.ic_jarvis_logo),
+                contentDescription = "Jarvis Logo"
+            )
+        },
+        onActionClick = {
+            destination.actionKey?.let { actionKey ->
+                ActionRegistry.executeAction(actionKey)
+            } ?: destination.onActionNavigate?.let { navigator.goTo(it) }
+        },
+        onBackClick = { navigator.goBack() },
+        dismissable = destination.dismissable,
+        onDismiss = onDismiss,
+        scrollBehavior = scrollBehavior
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JarvisSDKTopBarMedium(
+    destination: NavigationRoute,
+    navigator: Navigator,
+    scrollBehavior: TopAppBarScrollBehavior,
+    onDismiss: () -> Unit
+) {
+    DSMediumTopAppBar(
+        titleRes = destination.titleTextId,
+        navigationIcon = destination.navigationIcon,
+        navigationIconContentDescription = destination.navigationIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        actionIcon = destination.actionIcon,
+        actionIconContentDescription = destination.actionIconContentDescription?.let {
+            stringResource(id = it)
+        },
+        logo = {
+            DSIcon(
+                modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
+                painter = painterResource(R.drawable.ic_jarvis_logo),
+                contentDescription = "Jarvis Logo"
+            )
+        },
+        onActionClick = {
+            destination.actionKey?.let { actionKey ->
+                ActionRegistry.executeAction(actionKey)
+            } ?: destination.onActionNavigate?.let { navigator.goTo(it) }
+        },
+        onBackClick = { navigator.goBack() },
+        dismissable = destination.dismissable,
+        onDismiss = onDismiss,
+        scrollBehavior = scrollBehavior
+    )
 }
 
 @Composable

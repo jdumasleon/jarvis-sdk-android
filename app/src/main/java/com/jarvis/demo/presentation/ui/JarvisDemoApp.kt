@@ -207,7 +207,7 @@ fun DrawerContent(
 
             DSText(
                 text = stringResource(R.string.app_name),
-                style = DSJarvisTheme.typography.heading.heading5,
+                style = DSJarvisTheme.typography.heading.medium,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.extra.black
             )

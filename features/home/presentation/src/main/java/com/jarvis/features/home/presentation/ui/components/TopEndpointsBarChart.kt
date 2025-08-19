@@ -82,7 +82,7 @@ fun TopEndpointsBarChart(
             ) {
                 DSText(
                     text = stringResource(R.string.top_endpoints_title),
-                    style = DSJarvisTheme.typography.heading.heading5,
+                    style = DSJarvisTheme.typography.title.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
@@ -396,7 +396,7 @@ fun TopEndpointsCard(
             ) {
                 DSText(
                     text = stringResource(R.string.top_endpoints_title),
-                    style = DSJarvisTheme.typography.heading.heading4,
+                    style = DSJarvisTheme.typography.heading.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )

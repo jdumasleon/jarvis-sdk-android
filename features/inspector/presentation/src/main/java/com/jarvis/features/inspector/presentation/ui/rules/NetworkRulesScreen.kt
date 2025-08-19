@@ -216,7 +216,7 @@ private fun NetworkRulesContent(
                 item {
                     DSText(
                         text = "Rules",
-                        style = DSJarvisTheme.typography.heading.heading5,
+                        style = DSJarvisTheme.typography.title.large,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s)
                     )
@@ -244,7 +244,7 @@ private fun NetworkRulesContent(
                     ) {
                         DSText(
                             text = "Recent Applications",
-                            style = DSJarvisTheme.typography.heading.heading5,
+                            style = DSJarvisTheme.typography.title.large,
                             fontWeight = FontWeight.Bold
                         )
                         
@@ -290,7 +290,7 @@ private fun NetworkRulesHeader(
                 Column {
                     DSText(
                         text = "Network Rules",
-                        style = DSJarvisTheme.typography.heading.heading4,
+                        style = DSJarvisTheme.typography.heading.large,
                         fontWeight = FontWeight.Bold
                     )
                     
@@ -378,7 +378,7 @@ private fun NetworkRuleItem(
                 ) {
                     DSText(
                         text = rule.name,
-                        style = DSJarvisTheme.typography.heading.heading5,
+                        style = DSJarvisTheme.typography.title.large,
                         fontWeight = FontWeight.SemiBold
                     )
                     

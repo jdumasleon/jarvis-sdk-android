@@ -3,16 +3,18 @@ package com.jarvis.features.inspector.lib.navigation
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.presentation.navigation.NavigationRoute
+import com.jarvis.core.presentation.navigation.TopAppBarType
 import com.jarvis.features.inspector.presentation.R
 import kotlinx.serialization.Serializable
 
-object JarvisSDKInspectorGraph : NavigationRoute {
+object JarvisSDKInspectorGraph {
 
     @Serializable
     data object JarvisInspectorTransactions : NavigationRoute {
         override val titleTextId: Int = R.string.jarvis_inspector
         override val shouldShowTopAppBar: Boolean = true
         override val shouldShowBottomBar: Boolean = true
+        override val topAppBarType: TopAppBarType = TopAppBarType.MEDIUM
         override val dismissable: Boolean = true
     }
     @Serializable

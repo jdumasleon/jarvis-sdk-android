@@ -107,7 +107,7 @@ private fun HomeContent(
                 // App name and title
                 DSText(
                     text = uiData.welcomeMessage,
-                    style = DSJarvisTheme.typography.heading.heading3,
+                    style = DSJarvisTheme.typography.heading.large,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = DSJarvisTheme.colors.primary.primary60

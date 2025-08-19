@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,9 +28,10 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +76,7 @@ fun DSTopAppBar(
                             .weight(1f),
                         textAlign = TextAlign.Center,
                         text = stringResource(id = it),
-                        style = DSJarvisTheme.typography.heading.heading5,
+                        style = DSJarvisTheme.typography.title.large,
                         color = DSJarvisTheme.colors.extra.black
                     )
                 }
@@ -155,13 +155,10 @@ fun DSMediumTopAppBar(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (logo != null && isCollapsed) {
-                        Box(Modifier.size(collapsedLogoSize)) { logo() }
-                        Spacer(Modifier.width(logoSpacing))
-                    }
                     DSText(
                         text = titleText,
-                        style = DSJarvisTheme.typography.heading.heading5,
+                        style = DSJarvisTheme.typography.title.large,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start,
                         color = DSJarvisTheme.colors.extra.black,
                         modifier = Modifier.fillMaxWidth()
@@ -250,13 +247,10 @@ fun DSLargeTopAppBar(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (logo != null && isCollapsed) {
-                        Box(Modifier.size(collapsedLogoSize)) { logo() }
-                        Spacer(Modifier.width(logoSpacing))
-                    }
                     DSText(
                         text = titleText,
-                        style = DSJarvisTheme.typography.heading.heading4,
+                        style = DSJarvisTheme.typography.heading.large,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start,
                         color = DSJarvisTheme.colors.extra.black,
                         modifier = Modifier.fillMaxWidth()
@@ -339,18 +333,9 @@ private fun DSTopAppBarDismissablePreview() {
             navigationIconContentDescription = "Navigation icon",
             actionIcon = DSIcons.moreVert,
             logo = {
-                DynamicOrbCanvas(
-                    config = StateConfig(
-                        name = "Initializing",
-                        colors = listOf(
-                            DSJarvisTheme.colors.primary.primary40,
-                            DSJarvisTheme.colors.primary.primary60,
-                            DSJarvisTheme.colors.primary.primary80
-                        ),
-                        speed = 1.2f,
-                        morphIntensity = 2.0f
-                    ),
-                    modifier = Modifier.fillMaxSize()
+                DSIcon(
+                    painter = painterResource(R.drawable.ic_jarvis_logo),
+                    contentDescription = "Jarvis Logo"
                 )
             },
             actionIconContentDescription = "Action icon",
@@ -370,18 +355,9 @@ private fun DSTopAppBaPreview() {
             navigationIcon = DSIcons.Rounded.search,
             navigationIconContentDescription = "Navigation icon",
             logo = {
-                DynamicOrbCanvas(
-                    config = StateConfig(
-                        name = "Initializing",
-                        colors = listOf(
-                            DSJarvisTheme.colors.primary.primary40,
-                            DSJarvisTheme.colors.primary.primary60,
-                            DSJarvisTheme.colors.primary.primary80
-                        ),
-                        speed = 1.2f,
-                        morphIntensity = 2.0f
-                    ),
-                    modifier = Modifier.fillMaxSize()
+                DSIcon(
+                    painter = painterResource(R.drawable.ic_jarvis_logo),
+                    contentDescription = "Jarvis Logo"
                 )
             },
             actionIconContentDescription = "Action icon",
@@ -398,18 +374,10 @@ private fun DSTopAppBarPreviewWithoutIcons() {
         DSTopAppBar(
             titleRes = R.string.core_design_system_top_app_bar_title,
             logo = {
-                DynamicOrbCanvas(
-                    config = StateConfig(
-                        name = "Initializing",
-                        colors = listOf(
-                            DSJarvisTheme.colors.primary.primary40,
-                            DSJarvisTheme.colors.primary.primary60,
-                            DSJarvisTheme.colors.primary.primary80
-                        ),
-                        speed = 1.2f,
-                        morphIntensity = 2.0f
-                    ),
-                    modifier = Modifier.fillMaxSize()
+                DSIcon(
+                    modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
+                    painter = painterResource(R.drawable.ic_jarvis_logo),
+                    contentDescription = "Jarvis Logo"
                 )
             },
             dismissable = true
@@ -452,18 +420,9 @@ private fun DSMediumTopAppBarDismissablePreview() {
             actionIcon = DSIcons.moreVert,
             actionIconContentDescription = "Menu",
             logo = {
-                DynamicOrbCanvas(
-                    config = StateConfig(
-                        name = "Initializing",
-                        colors = listOf(
-                            DSJarvisTheme.colors.primary.primary40,
-                            DSJarvisTheme.colors.primary.primary60,
-                            DSJarvisTheme.colors.primary.primary80
-                        ),
-                        speed = 1.2f,
-                        morphIntensity = 2.0f
-                    ),
-                    modifier = Modifier.fillMaxSize()
+                DSIcon(
+                    painter = painterResource(R.drawable.ic_jarvis_logo),
+                    contentDescription = "Jarvis Logo"
                 )
             },
             dismissable = true,

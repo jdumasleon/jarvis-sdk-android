@@ -114,7 +114,7 @@ private fun BottomSheetContent(
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m),
     ) {
         // Title Section
-        CompositionLocalProvider(LocalTextStyle provides DSJarvisTheme.typography.heading.heading5) {
+        CompositionLocalProvider(LocalTextStyle provides DSJarvisTheme.typography.title.large) {
             title()
         }
 

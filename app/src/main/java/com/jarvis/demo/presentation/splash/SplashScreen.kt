@@ -10,16 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +29,6 @@ import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DynamicOrbCanvas
 import com.jarvis.core.designsystem.component.StateConfig
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.demo.R
 
 @Composable
 fun SplashScreen(
@@ -109,7 +103,7 @@ private fun SplashContent(
             // App name
             DSText(
                 text = uiData.appName,
-                style = DSJarvisTheme.typography.heading.heading2,
+                style = DSJarvisTheme.typography.display.medium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = DSJarvisTheme.colors.primary.primary60

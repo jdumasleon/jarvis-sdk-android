@@ -66,7 +66,7 @@ fun NetworkRuleEditorDialog(
                     ) {
                         DSText(
                             text = if (rule.id.isEmpty()) "Create Network Rule" else "Edit Network Rule",
-                            style = DSJarvisTheme.typography.heading.heading4,
+                            style = DSJarvisTheme.typography.heading.large,
                             fontWeight = FontWeight.Bold
                         )
                         

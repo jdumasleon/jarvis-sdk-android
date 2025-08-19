@@ -1,15 +1,10 @@
 package com.jarvis.features.home.presentation.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -141,7 +136,7 @@ private fun NetworkChartHeader(
         Column {
             DSText(
                 text = title,
-                style = DSJarvisTheme.typography.heading.heading5,
+                style = DSJarvisTheme.typography.title.large,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
@@ -225,7 +220,7 @@ fun NetworkOverviewCard(
         ) {
             DSText(
                 text = stringResource(R.string.network_overview),
-                style = DSJarvisTheme.typography.heading.heading4,
+                style = DSJarvisTheme.typography.heading.medium,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
@@ -269,7 +264,7 @@ private fun NetworkMetricItem(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DSText(
             text = value,
-            style = DSJarvisTheme.typography.heading.heading5,
+            style = DSJarvisTheme.typography.title.large,
             fontWeight = FontWeight.Bold,
             color = color
         )

@@ -100,7 +100,7 @@ fun ErrorContent(
     ) {
         DSText(
             text = message ?: "Something went wrong",
-            style = DSJarvisTheme.typography.heading.heading4,
+            style = DSJarvisTheme.typography.heading.large,
             textAlign = TextAlign.Center
         )
         

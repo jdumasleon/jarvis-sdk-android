@@ -75,7 +75,7 @@ fun HttpMethodsDonutChart(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 DSText(
                     text = "$totalRequests",
-                    style = DSJarvisTheme.typography.heading.heading4,
+                    style = DSJarvisTheme.typography.heading.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
@@ -192,7 +192,7 @@ fun HttpMethodsCard(
             ) {
                 DSText(
                     text = stringResource(R.string.http_methods_distribution),
-                    style = DSJarvisTheme.typography.heading.heading4,
+                    style = DSJarvisTheme.typography.heading.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
@@ -402,7 +402,7 @@ private fun PreviewThemeComparison() {
             ) {
                 DSText(
                     text = "LIGHT THEME",
-                    style = DSJarvisTheme.typography.heading.heading5,
+                    style = DSJarvisTheme.typography.title.large,
                     color = DSJarvisTheme.colors.neutral.neutral100,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -424,7 +424,7 @@ private fun PreviewThemeComparison() {
             ) {
                 DSText(
                     text = "DARK THEME",
-                    style = DSJarvisTheme.typography.heading.heading5,
+                    style = DSJarvisTheme.typography.title.large,
                     color = DSJarvisTheme.colors.neutral.neutral100,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )

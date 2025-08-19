@@ -151,7 +151,7 @@ private fun HomeTopBar(
                 Column {
                     DSText(
                         text = "Jarvis Analytics",
-                        style = DSJarvisTheme.typography.heading.heading3,
+                        style = DSJarvisTheme.typography.heading.small,
                         fontWeight = FontWeight.Bold,
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
@@ -279,7 +279,7 @@ private fun DraggableCardGrid(
                         ) {
                             DSText(
                                 text = cardType.title,
-                                style = DSJarvisTheme.typography.heading.heading5,
+                                style = DSJarvisTheme.typography.title.large,
                                 color = DSJarvisTheme.colors.neutral.neutral100
                             )
                             IconButton(

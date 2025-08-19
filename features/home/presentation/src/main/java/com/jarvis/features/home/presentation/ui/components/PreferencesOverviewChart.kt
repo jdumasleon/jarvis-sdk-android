@@ -37,7 +37,6 @@ import com.jarvis.features.home.domain.entity.EnhancedPreferencesMetricsMock.moc
 import com.jarvis.features.home.domain.entity.PreferenceSizeData
 import com.jarvis.features.home.domain.entity.PreferenceTypeData
 import com.jarvis.features.home.domain.entity.StorageUsageData
-import kotlin.math.max
 
 /**
  * Preferences overview component: donut type distribution, storage analytics, and size breakdown.
@@ -122,7 +121,7 @@ private fun PreferencesHeader(
             Column {
                 DSText(
                     text = "Preferences Overview",
-                    style = DSJarvisTheme.typography.heading.heading5,
+                    style = DSJarvisTheme.typography.title.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )
@@ -219,7 +218,7 @@ private fun PreferencesTypeSection(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     DSText(
                         text = total.toString(),
-                        style = DSJarvisTheme.typography.heading.heading4,
+                        style = DSJarvisTheme.typography.heading.large,
                         fontWeight = FontWeight.Bold,
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
@@ -404,7 +403,7 @@ private fun StorageMetricItem(
     ) {
         DSText(
             text = value,
-            style = DSJarvisTheme.typography.heading.heading5,
+            style = DSJarvisTheme.typography.title.large,
             fontWeight = FontWeight.Bold,
             color = color
         )

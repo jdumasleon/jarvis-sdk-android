@@ -81,7 +81,7 @@ fun SlowestEndpointsList(
                     )
                     DSText(
                         text = "Slowest Endpoints",
-                        style = DSJarvisTheme.typography.heading.heading5,
+                        style = DSJarvisTheme.typography.title.large,
                         fontWeight = FontWeight.Bold,
                         color = DSJarvisTheme.colors.neutral.neutral100
                     )
@@ -124,7 +124,7 @@ fun SlowestEndpointsList(
                     ) {
                         DSText(
                             text = "🎉",
-                            style = DSJarvisTheme.typography.heading.heading3
+                            style = DSJarvisTheme.typography.heading.small
                         )
                         DSText(
                             text = "No slow endpoints detected",
@@ -233,7 +233,7 @@ private fun SlowEndpointItem(
 
             DSText(
                 text = "${String.format(Locale.getDefault(), "%.0f", animatedResponseTime)}ms",
-                style = DSJarvisTheme.typography.heading.heading5,
+                style = DSJarvisTheme.typography.title.large,
                 fontWeight = FontWeight.Bold,
                 color = animatedSeverityColor
             )
@@ -415,7 +415,7 @@ fun SlowestEndpointsSummary(
             ) {
                 DSText(
                     text = "Performance Issues",
-                    style = DSJarvisTheme.typography.heading.heading4,
+                    style = DSJarvisTheme.typography.heading.large,
                     fontWeight = FontWeight.Bold,
                     color = DSJarvisTheme.colors.neutral.neutral100
                 )

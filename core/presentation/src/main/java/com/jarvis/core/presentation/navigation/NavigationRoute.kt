@@ -30,6 +30,7 @@ interface NavigationRoute {
 
     //region .: TopAppBar properties :.
     val shouldShowTopAppBar: Boolean get() = false
+    val topAppBarType: TopAppBarType get() = TopAppBarType.CENTER_ALIGNED
 
     val navigationIcon: ImageVector? get() = null
     @get:StringRes

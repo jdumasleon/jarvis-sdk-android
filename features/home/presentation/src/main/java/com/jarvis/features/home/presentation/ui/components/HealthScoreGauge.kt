@@ -70,7 +70,7 @@ fun HealthScoreGauge(
         ) {
             DSText(
                 text = "${healthScore.overallScore.toInt()}",
-                style = DSJarvisTheme.typography.heading.heading3,
+                style = DSJarvisTheme.typography.heading.large,
                 fontWeight = FontWeight.Bold,
                 color = getHealthScoreColor(healthScore.rating)
             )
@@ -150,7 +150,7 @@ fun HealthSummaryCard(
             // Title
             DSText(
                 text = stringResource(R.string.health_summary),
-                style = DSJarvisTheme.typography.heading.heading4,
+                style = DSJarvisTheme.typography.heading.medium,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )

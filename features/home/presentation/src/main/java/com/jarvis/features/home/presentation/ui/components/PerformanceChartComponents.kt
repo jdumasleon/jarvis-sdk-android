@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Memory
@@ -56,7 +55,7 @@ fun PerformanceOverviewChart(
         ) {
             DSText(
                 text = "Performance Monitor",
-                style = DSJarvisTheme.typography.heading.heading5,
+                style = DSJarvisTheme.typography.title.large,
                 fontWeight = FontWeight.Bold,
                 color = DSJarvisTheme.colors.neutral.neutral100
             )
@@ -149,7 +148,7 @@ private fun PerformanceMetricItem(
         // Value
         DSText(
             text = value,
-            style = DSJarvisTheme.typography.heading.heading5,
+            style = DSJarvisTheme.typography.title.large,
             fontWeight = FontWeight.Bold,
             color = color
         )
