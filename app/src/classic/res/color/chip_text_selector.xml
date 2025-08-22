@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected state - white text on primary background -->
+    <item android:state_selected="true" android:color="@android:color/white" />
+    <item android:state_checked="true" android:color="@android:color/white" />
+    
+    <!-- Unselected state - primary color text on white background -->
+    <item android:color="@color/jarvis_primary_60" />
+</selector>

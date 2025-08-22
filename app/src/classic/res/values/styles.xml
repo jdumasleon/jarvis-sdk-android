@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.JarvisDemo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.JarvisDemo.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    
+    <!-- White Card Style for Classic Demo -->
+    <style name="DSCard" parent="Widget.Material3.CardView.Elevated">
+        <!-- Force white background -->
+        <item name="cardBackgroundColor">@color/jarvis_surface</item>
+
+        <!-- Optional: shape, stroke, elevation, radius -->
+        <item name="shapeAppearance">?attr/shapeAppearanceMediumComponent</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+    
+    <!-- Custom Filter Chip Style for Classic Demo -->
+    <style name="CustomFilterChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background_selector</item>
+        <item name="android:textColor">@color/chip_text_selector</item>
+        <item name="chipStrokeColor">@color/jarvis_primary_60</item>
+        <item name="chipStrokeWidth">1dp</item>
+    </style>
+
+    <style name="WhiteOutlinedTextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <!-- Background color -->
+        <item name="boxBackgroundColor">@android:color/white</item>
+
+        <!-- Border (stroke) -->
+        <item name="boxStrokeColor">@color/jarvis_neutral_60</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+
+        <!-- Rounded corners -->
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+    </style>
+
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Material3 dark theme for Classic Views using Jarvis Design System -->
+    <style name="Theme.JarvisDemo" parent="Theme.Material3.DayNight">
+        <!-- Material3 Color System with Jarvis Dark Colors -->
+        <item name="colorPrimary">@color/jarvis_dark_primary_60</item>
+        <item name="colorOnPrimary">@android:color/black</item>
+        <item name="colorPrimaryContainer">@color/jarvis_dark_primary_20</item>
+        <item name="colorOnPrimaryContainer">@color/jarvis_dark_primary_100</item>
+        
+        <item name="colorSecondary">@color/jarvis_dark_neutral_80</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+        <item name="colorSecondaryContainer">@color/jarvis_dark_neutral_20</item>
+        <item name="colorOnSecondaryContainer">@color/jarvis_dark_neutral_100</item>
+        
+        <item name="colorTertiary">@color/jarvis_dark_primary_40</item>
+        <item name="colorOnTertiary">@android:color/black</item>
+        <item name="colorTertiaryContainer">@color/jarvis_dark_primary_0</item>
+        <item name="colorOnTertiaryContainer">@color/jarvis_dark_primary_80</item>
+        
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/jarvis_dark_surface</item>
+        <item name="colorOnSurface">@color/jarvis_dark_on_surface</item>
+        <item name="colorSurfaceVariant">@color/jarvis_dark_neutral_0</item>
+        <item name="colorOnSurfaceVariant">@color/jarvis_dark_neutral_80</item>
+        
+        <!-- Background -->
+        <item name="android:colorBackground">@color/jarvis_dark_background</item>
+        <item name="colorOnBackground">@color/jarvis_dark_on_surface</item>
+        
+        <!-- Error colors -->
+        <item name="colorError">@color/error_color</item>
+        <item name="colorOnError">@android:color/white</item>
+        <item name="colorErrorContainer">#FFFECACA</item>
+        <item name="colorOnErrorContainer">#FF690005</item>
+        
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/jarvis_background</item>
+        <item name="android:navigationBarColor">@color/jarvis_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o">true</item>
+        
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/jarvis_dark_background</item>
+    </style>
+
+    <!-- Material3 dark theme for Classic Views with NoActionBar -->
+    <style name="Theme.JarvisDemo.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Material3 Color System with Jarvis Dark Colors -->
+        <item name="colorPrimary">@color/jarvis_dark_primary_60</item>
+        <item name="colorOnPrimary">@android:color/black</item>
+        <item name="colorPrimaryContainer">@color/jarvis_dark_primary_20</item>
+        <item name="colorOnPrimaryContainer">@color/jarvis_dark_primary_100</item>
+        
+        <item name="colorSecondary">@color/jarvis_dark_neutral_80</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+        <item name="colorSecondaryContainer">@color/jarvis_dark_neutral_20</item>
+        <item name="colorOnSecondaryContainer">@color/jarvis_dark_neutral_100</item>
+        
+        <item name="colorTertiary">@color/jarvis_dark_primary_40</item>
+        <item name="colorOnTertiary">@android:color/black</item>
+        <item name="colorTertiaryContainer">@color/jarvis_dark_primary_0</item>
+        <item name="colorOnTertiaryContainer">@color/jarvis_dark_primary_80</item>
+        
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/jarvis_dark_surface</item>
+        <item name="colorOnSurface">@color/jarvis_dark_on_surface</item>
+        <item name="colorSurfaceVariant">@color/jarvis_dark_neutral_0</item>
+        <item name="colorOnSurfaceVariant">@color/jarvis_dark_neutral_80</item>
+        
+        <!-- Background -->
+        <item name="android:colorBackground">@color/jarvis_dark_background</item>
+        <item name="colorOnBackground">@color/jarvis_dark_on_surface</item>
+        
+        <!-- Error colors -->
+        <item name="colorError">@color/error_color</item>
+        <item name="colorOnError">@android:color/white</item>
+        <item name="colorErrorContainer">#FFFECACA</item>
+        <item name="colorOnErrorContainer">#FF690005</item>
+        
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/jarvis_background</item>
+        <item name="android:navigationBarColor">@color/jarvis_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o">true</item>
+        
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/jarvis_dark_background</item>
+    </style>
+</resources>

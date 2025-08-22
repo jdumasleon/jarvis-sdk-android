@@ -15,7 +15,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId = "com.jarvis.demo.compose"
+        applicationId = "com.jarvis.demo"
         versionCode = libs.versions.appVersionCode.get().toInt()
         versionName = libs.versions.appVersionName.get()
 
@@ -54,7 +54,7 @@ android {
             isIncludeAndroidResources = true
         }
     }
-    namespace = "com.jarvis.demo.compose"
+    namespace = "com.jarvis.demo"
 }
 
 dependencies {
@@ -65,24 +65,40 @@ dependencies {
     api(projects.features.inspector.lib)
     api(projects.features.preferences.lib)
 
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.adaptive)
-    implementation(libs.androidx.compose.material3.adaptive.layout)
-    implementation(libs.androidx.compose.material3.adaptive.navigation)
-    implementation(libs.androidx.compose.material3.windowSizeClass)
-    implementation(libs.androidx.compose.runtime.tracing)
+    // Common dependencies for both flavors
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.lifecycle.runtimeCompose)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.window.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3.android)
+    
+    // Compose-specific dependencies (only for compose flavor)
+    "composeImplementation"(libs.androidx.material3)
+    "composeImplementation"(libs.androidx.activity.compose)
+    "composeImplementation"(libs.androidx.compose.material3)
+    "composeImplementation"(libs.androidx.compose.material3.adaptive)
+    "composeImplementation"(libs.androidx.compose.material3.adaptive.layout)
+    "composeImplementation"(libs.androidx.compose.material3.adaptive.navigation)
+    "composeImplementation"(libs.androidx.compose.material3.windowSizeClass)
+    "composeImplementation"(libs.androidx.compose.runtime.tracing)
+    "composeImplementation"(libs.androidx.hilt.navigation.compose)
+    "composeImplementation"(libs.androidx.lifecycle.runtimeCompose)
+    "composeImplementation"(libs.androidx.navigation.compose)
+    
+    // Classic Views dependencies (only for classic flavor)
+    "classicImplementation"(libs.material)
+    "classicImplementation"("androidx.appcompat:appcompat:1.7.1")
+    "classicImplementation"("androidx.constraintlayout:constraintlayout:2.2.0")
+    "classicImplementation"("androidx.recyclerview:recyclerview:1.3.2")
+    "classicImplementation"("androidx.cardview:cardview:1.0.0")
+    "classicImplementation"("androidx.viewpager2:viewpager2:1.1.0")
+    "classicImplementation"("androidx.navigation:navigation-fragment-ktx:2.9.2")
+    "classicImplementation"("androidx.navigation:navigation-ui-ktx:2.9.2")
+    "classicImplementation"("androidx.drawerlayout:drawerlayout:1.2.0")
+    "classicImplementation"("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation(libs.androidx.dataStore)
     implementation(libs.androidx.dataStore.preferences)
     implementation(libs.androidx.dataStore.preferences.core)
@@ -122,7 +138,7 @@ baselineProfile {
 }
 
 dependencyGuard {
-    configuration("prodReleaseRuntimeClasspath")
+    configuration("prodComposeReleaseRuntimeClasspath")
 }
 
 protobuf {

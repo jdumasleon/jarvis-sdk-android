@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Inspector Colors -->
+    <color name="success_color">#FF16A34A</color>
+    <color name="error_color">#FFDC2626</color>
+    <color name="method_default_color">#FF6B7280</color>
+    <color name="method_get_color">#FF2563EB</color>
+    <color name="method_post_color">#FF16A34A</color>
+    <color name="method_put_color">#FFF59E0B</color>
+    <color name="method_patch_color">#FF8B5CF6</color>
+    <color name="method_delete_color">#FFDC2626</color>
+    
+    <!-- Type Indicator Colors -->
+    <color name="type_string_color">#FF6366F1</color>
+    <color name="type_boolean_color">#FF10B981</color>
+    <color name="type_number_color">#FFF59E0B</color>
+    <color name="type_proto_color">#FFEF4444</color>
+    
+    <!-- Jarvis Design System Colors - Light Theme -->
+    <color name="jarvis_primary_100">#FF2752E7</color>
+    <color name="jarvis_primary_80">#FF3756EC</color>
+    <color name="jarvis_primary_60">#FF007AFF</color>
+    <color name="jarvis_primary_40">#FF7D99F1</color>
+    <color name="jarvis_primary_20">#FFD0D8FF</color>
+    <color name="jarvis_primary_0">#FFF5F8FE</color>
+    
+    <color name="jarvis_neutral_100">#FF8E8E93</color>
+    <color name="jarvis_neutral_80">#FFAEAEB2</color>
+    <color name="jarvis_neutral_60">#FFC7C7CC</color>
+    <color name="jarvis_neutral_40">#FFD1D1D6</color>
+    <color name="jarvis_neutral_20">#FFE5E5EA</color>
+    <color name="jarvis_neutral_0">#FFF2F2F7</color>
+    
+    <color name="jarvis_background">#FFF2F2F7</color>
+    <color name="jarvis_surface">#FFFFFFFF</color>
+    <color name="jarvis_on_surface">#FF000000</color>
+    
+    <!-- Jarvis Design System Colors - Dark Theme -->
+    <color name="jarvis_dark_primary_100">#FF4A6EF5</color>
+    <color name="jarvis_dark_primary_80">#FF5B7AF7</color>
+    <color name="jarvis_dark_primary_60">#FF0A84FF</color>
+    <color name="jarvis_dark_primary_40">#FF6B8AFF</color>
+    <color name="jarvis_dark_primary_20">#FF2A3D66</color>
+    <color name="jarvis_dark_primary_0">#FF1A1F2E</color>
+    
+    <color name="jarvis_dark_neutral_100">#FFFFFFFF</color>
+    <color name="jarvis_dark_neutral_80">#FFE5E5EA</color>
+    <color name="jarvis_dark_neutral_60">#FFAEAEB2</color>
+    <color name="jarvis_dark_neutral_40">#FF636366</color>
+    <color name="jarvis_dark_neutral_20">#FF2C2C2E</color>
+    <color name="jarvis_dark_neutral_0">#FF1C1C1E</color>
+    
+    <color name="jarvis_dark_background">#FF000000</color>
+    <color name="jarvis_dark_surface">#FF1C1C1E</color>
+    <color name="jarvis_dark_on_surface">#FFFFFFFF</color>
+</resources>

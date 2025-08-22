@@ -88,7 +88,7 @@ class PreferencesViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun selectTab(storageType: PreferenceStorageType) {
         val currentData = _uiState.value.getDataOrNull() ?: return
         val updatedData = currentData.copy(selectedTab = storageType)

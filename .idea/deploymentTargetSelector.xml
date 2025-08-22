@@ -11,6 +11,12 @@
       <SelectionState runConfigName="PreviewDSVoiceAssistantAnimation">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="PreviewPreferencesOverviewLight - Preferences Overview - Light">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="app-classic">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

@@ -8,6 +8,6 @@ import dagger.hilt.android.components.ActivityComponent
 @EntryPoint
 @InstallIn(ActivityComponent
 ::class)
-interface JarvisOverlayEntryPoint {
+interface JarvisSDKEntryPoint {
     fun entryProviderBuilders(): Set<@JvmSuppressWildcards EntryProviderInstaller>
 }

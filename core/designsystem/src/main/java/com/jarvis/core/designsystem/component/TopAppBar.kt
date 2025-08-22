@@ -3,6 +3,8 @@
 package com.jarvis.core.designsystem.component
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,10 +19,12 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
@@ -28,6 +32,7 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,83 +50,89 @@ fun DSTopAppBar(
     logo: (@Composable () -> Unit)? = null,
     dismissable: Boolean = false,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
+    scrollProgress: Float = 0f,
+    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
-        title = {
-            titleRes?.let {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (logo != null && navigationIcon == null) {
-                        Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
-                        Box(Modifier.size(DSJarvisTheme.dimensions.xl)) { logo() }
-                        Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
+            title = {
+                titleRes?.let {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (logo != null && navigationIcon == null) {
+                            Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
+                            Box(Modifier.size(DSJarvisTheme.dimensions.xl)) { logo() }
+                            Spacer(Modifier.width(DSJarvisTheme.spacing.xs))
+                        }
+                        DSText(
+                            modifier = Modifier
+                                .padding(
+                                    start = if (logo != null) DSJarvisTheme.spacing.none else DSJarvisTheme.spacing.xxxl,
+                                    end = if (actionIcon != null && !dismissable) {
+                                        DSJarvisTheme.spacing.xxxl
+                                    } else if (actionIcon == null && !dismissable) {
+                                        DSJarvisTheme.spacing.l
+                                    } else {
+                                        DSJarvisTheme.spacing.none
+                                    }
+                                )
+                                .weight(1f),
+                            textAlign = TextAlign.Center,
+                            text = stringResource(id = it),
+                            style = DSJarvisTheme.typography.title.large,
+                            color = DSJarvisTheme.colors.extra.black
+                        )
                     }
-                    DSText(
-                        modifier = modifier
-                            .padding(
-                                start = if (logo != null) DSJarvisTheme.spacing.none else DSJarvisTheme.spacing.xxxl,
-                                end = if (actionIcon != null && !dismissable) {
-                                    DSJarvisTheme.spacing.xxxl
-                                } else if (actionIcon == null && !dismissable) {
-                                    DSJarvisTheme.spacing.l
-                                } else {
-                                    DSJarvisTheme.spacing.none
-                                }
-                            )
-                            .weight(1f),
-                        textAlign = TextAlign.Center,
-                        text = stringResource(id = it),
-                        style = DSJarvisTheme.typography.title.large,
-                        color = DSJarvisTheme.colors.extra.black
-                    )
                 }
-            }
-        },
-        navigationIcon = {
-            navigationIcon?.let {
-                IconButton(onClick = onBackClick) {
-                    DSIcon(
-                        imageVector = it,
-                        contentDescription = navigationIconContentDescription,
-                        tint = DSJarvisTheme.colors.extra.black,
-                    )
-                }
+            },
+            navigationIcon = {
+                navigationIcon?.let {
+                    IconButton(onClick = onBackClick) {
+                        DSIcon(
+                            imageVector = it,
+                            contentDescription = navigationIconContentDescription,
+                            tint = DSJarvisTheme.colors.extra.black,
+                        )
+                    }
 
-            }
-        },
-        actions = {
-            actionIcon?.let {
-                IconButton(onClick = onActionClick) {
-                    DSIcon(
-                        imageVector = it,
-                        contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.extra.black,
-                    )
                 }
-            }
-            if (dismissable) {
-                IconButton(onClick = onDismiss) {
-                    DSIcon(
-                        imageVector = DSIcons.Rounded.close,
-                        contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.extra.black,
-                    )
+            },
+            actions = {
+                actionIcon?.let {
+                    IconButton(onClick = onActionClick) {
+                        DSIcon(
+                            imageVector = it,
+                            contentDescription = actionIconContentDescription,
+                            tint = DSJarvisTheme.colors.extra.black,
+                        )
+                    }
                 }
-            }
-        },
-        colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.extra.background,
-            navigationIconContentColor = DSJarvisTheme.colors.extra.black,
-            actionIconContentColor = DSJarvisTheme.colors.extra.black,
-            titleContentColor = DSJarvisTheme.colors.extra.black,
-        ),
-        modifier = modifier.testTag("niaTopAppBar")
-    )
+                if (dismissable) {
+                    IconButton(onClick = onDismiss) {
+                        DSIcon(
+                            imageVector = DSIcons.Rounded.close,
+                            contentDescription = "Close",
+                            tint = DSJarvisTheme.colors.extra.black,
+                        )
+                    }
+                }
+            },
+            colors = colors.copy(
+                containerColor = if (enableScrollTransparency && scrollProgress > 0f) {
+                    DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
+                } else {
+                    DSJarvisTheme.colors.extra.background
+                },
+                navigationIconContentColor = DSJarvisTheme.colors.extra.black,
+                actionIconContentColor = DSJarvisTheme.colors.extra.black,
+                titleContentColor = DSJarvisTheme.colors.extra.black,
+            ),
+            modifier = modifier.testTag("niaTopAppBar")
+        )
 }
 
 @Composable
@@ -140,6 +151,7 @@ fun DSMediumTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
+    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -205,8 +217,16 @@ fun DSMediumTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.extra.background,
-            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
+            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
+                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
+            } else {
+                DSJarvisTheme.colors.extra.background
+            },
+            scrolledContainerColor = if (enableScrollTransparency) {
+                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
+            } else {
+                DSJarvisTheme.colors.extra.background
+            },
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,
@@ -232,6 +252,7 @@ fun DSLargeTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
+    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -296,8 +317,16 @@ fun DSLargeTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = DSJarvisTheme.colors.extra.background,
-            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
+            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
+                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
+            } else {
+                DSJarvisTheme.colors.extra.background
+            },
+            scrolledContainerColor = if (enableScrollTransparency) {
+                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
+            } else {
+                DSJarvisTheme.colors.extra.background
+            },
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,

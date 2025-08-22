@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/jarvis_surface"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_m">
+
+    <!-- Header Row with Logo and Close Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:layout_marginBottom="@dimen/spacing_s"
+        android:orientation="horizontal">
+
+        <!-- Jarvis Logo -->
+        <ImageView
+            android:layout_width="@dimen/logo_icon_size"
+            android:layout_height="@dimen/logo_icon_size"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_m"
+            android:layout_marginBottom="@dimen/spacing_s"
+            android:contentDescription="@string/jarvis_logo"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Close Button -->
+        <ImageView
+            android:id="@+id/drawer_close_button"
+            android:layout_width="@dimen/spacing_l"
+            android:layout_height="@dimen/spacing_l"
+            android:layout_marginVertical="@dimen/spacing_m"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/close_drawer"
+            android:src="@drawable/ic_close"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- App Title -->
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textStyle="bold"
+        android:textColor="@color/jarvis_on_surface" />
+
+    <!-- App Description -->
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:text="@string/jarvis_description"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?android:attr/textColorSecondary" />
+
+    <!-- Version -->
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:text="@string/version"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?android:attr/textColorTertiary" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/spacing_m"
+        android:layout_marginBottom="@dimen/spacing_m"
+        android:background="?android:attr/listDivider" />
+
+    <!-- Tools Header -->
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_s"
+        android:text="@string/tools"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textStyle="bold"
+        android:textColor="@color/jarvis_on_surface" />
+
+</LinearLayout>

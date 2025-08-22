@@ -5,10 +5,13 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -105,12 +108,18 @@ fun DSNavigationBar(
     containerColor: Color = DSJarvisTheme.colors.extra.background,
     contentColor: Color = DSNavigationDefaults.navigationContentColor(),
     tonalElevation: Dp = DSJarvisTheme.elevations.none,
+    scrollProgress: Float = 0f,
+    enableScrollTransparency: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     val shape = RoundedCornerShape(topStart = topCornerRadius, topEnd = topCornerRadius)
 
     Surface(
-        color = containerColor,
+        color = if (enableScrollTransparency && scrollProgress > 0f) {
+            containerColor.copy(alpha = 0.25f)
+        } else {
+            containerColor
+        },
         tonalElevation = tonalElevation,
         shape = shape
     ) {
@@ -170,7 +179,7 @@ fun DSNavigationBarPreview() {
 }
 
 object DSNavigationDefaults {
-    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.background
+    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.backgroun
     @Composable fun navigationSelectedItemColor() = DSJarvisTheme.colors.primary.primary60
     @Composable fun navigationUnSelectedItemColor() = DSJarvisTheme.colors.neutral.neutral60
     @Composable fun navigationIndicatorColor() = Color.Transparent

@@ -50,6 +50,7 @@ val Info40 = Color(0xFFA5CCE2)
 val Info20 = Color(0xFFDEF2F4)
 
 val background0 = Color(0xFFF2F2F7)
+val background01 = Color(0x80F2F2F7)
 
 // Dark Theme Colors
 val DarkPrimary100 = Color(0xFF4A6EF5)
@@ -196,7 +197,9 @@ data class Extra(
     val onSurface: Color = Color.Black,
     val white: Color = Color.White,
     val black: Color = Color.Black,
-    val transparent: Color = Color.Transparent
+    val transparent: Color = Color.Transparent,
+    val backgroun: Color = background01
+
 )
 
 @Immutable

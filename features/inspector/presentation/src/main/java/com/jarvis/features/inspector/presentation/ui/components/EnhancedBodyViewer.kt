@@ -206,7 +206,7 @@ private fun ImageViewer(imageData: String, context: Context) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(DSJarvisTheme.dimensions.xxxxxxl),
+            .height(DSJarvisTheme.dimensions.xxxxxxxxxl),
         contentAlignment = Alignment.Center
     ) {
         when {

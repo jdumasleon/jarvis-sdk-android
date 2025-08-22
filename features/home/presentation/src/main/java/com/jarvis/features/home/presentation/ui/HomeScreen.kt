@@ -147,7 +147,9 @@ private fun DateFilterTypesChips(
         )
 
         Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(bottom = DSJarvisTheme.spacing.s),
             horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
         ) {
             SessionFilter.entries.forEach { filter ->

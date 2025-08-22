@@ -1,339 +1,349 @@
+@file:Suppress("FunctionName")
 package com.jarvis.core.designsystem.component
 
+import android.graphics.BlurMaskFilter
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.center
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import kotlin.math.*
 import com.jarvis.core.designsystem.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.painter.Painter
+import kotlin.math.PI
 
-enum class AIState {
-    Idle, Listening, Thinking, Speaking
-}
-
-data class StateConfig(
-    val name: String,
-    val colors: List<Color>,
-    val speed: Float,
-    val morphIntensity: Float
-)
-
+/**
+ * Conversational AI Avatar (Compose only, no external libs).
+ */
 @Composable
-fun DSDynamicAIOrb() {
-    var aiState by remember { mutableStateOf(AIState.Idle) }
-
-    val stateConfigs = mapOf(
-        AIState.Idle to StateConfig(
-            name = "💤 Dormant",
-            colors = listOf(
-                Color(0xFF667eea),
-                Color(0xFF764ba2),
-                Color(0xFFf093fb)
-            ),
-            speed = 1f,
-            morphIntensity = 4f
-        ),
-        AIState.Listening to StateConfig(
-            name = "👂 Listening",
-            colors = listOf(
-                Color(0xFF4facfe),
-                Color(0xFF00f2fe),
-                Color(0xFF43e97b)
-            ),
-            speed = 1f,
-            morphIntensity = 1.2f
-        ),
-        AIState.Thinking to StateConfig(
-            name = "🧠 Processing",
-            colors = listOf(
-                Color(0xFFF44336),
-                Color(0xFFE91E63),
-                Color(0xFF9C27B0)
-            ),
-            speed = 1f,
-            morphIntensity = 1.2f
-        ),
-        AIState.Speaking to StateConfig(
-            name = "💬 Responding",
-            colors = listOf(
-                Color(0xFF3F51B5),
-                Color(0xFF2196F3),
-                Color(0xFF03A9F4)
-            ),
-            speed = 1f,
-            morphIntensity = 1.2f
-        )
-    )
-
-    val states = listOf(AIState.Idle, AIState.Listening, AIState.Thinking, AIState.Speaking)
-    val currentConfig = stateConfigs[aiState]!!
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.ds_ai_assistant),
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Light,
-            color = Color.Black.copy(alpha = 0.9f),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = stringResource(R.string.ds_ai_tap_to_interact),
-            fontSize = 16.sp,
-            color = Color.Black.copy(alpha = 0.6f),
-            modifier = Modifier.padding(bottom = 64.dp)
-        )
-
-        // Main AI Orb
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .clickable {
-                    val currentIndex = states.indexOf(aiState)
-                    aiState = states[(currentIndex + 1) % states.size]
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            DynamicOrbCanvas(
-                config = currentConfig,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // State indicator
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.1f)
-            ),
-            shape = CircleShape
-        ) {
-            Text(
-                text = currentConfig.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black.copy(alpha = 0.9f),
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.ds_ai_dynamic_features),
-            fontSize = 14.sp,
-            color = Color.Black.copy(alpha = 0.5f)
-        )
-    }
-}
-
-@Composable
-fun DynamicOrbCanvas(
-    config: StateConfig,
-    modifier: Modifier = Modifier
+fun ConversationalAgentAvatar(
+    modifier: Modifier = Modifier,
+    avatarSize: Dp = 180.dp,
+    isListening: Boolean,
+    isSpeaking: Boolean,
+    energy: Float
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "orb_animation")
+    val infinite = rememberInfiniteTransition(label = "infinite")
 
-    // Main time animation
-    val time by infiniteTransition.animateFloat(
+    // Use named args in tween(...) to avoid the Easing/Int mismatch.
+    val rotation by infinite.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = (10000 / config.speed).toInt(),
-                easing = LinearEasing
-            ),
+            animation = tween(durationMillis = 5000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "time"
+        label = "rotation"
     )
 
-    // Intensity animation
-    val intensity by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 1.0f,
+    val basePulse by infinite.animateFloat(
+        initialValue = 0.96f,
+        targetValue = 1.04f,
         animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = (2000 / config.speed).toInt(),
-                easing = EaseInOutSine
-            ),
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "intensity"
+        label = "basePulse"
     )
 
-    Canvas(modifier = modifier) {
-        val center = size.center
-        val baseRadius = minOf(size.width, size.height) * 0.12f
+    val listenPulse by infinite.animateFloat(
+        initialValue = 0.98f,
+        targetValue = 1.06f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "listenPulse"
+    )
 
-        // Clear background
-        drawRect(Color.Transparent, size = size)
+    // Orbits (use named args)
+    val orbitSpeed = 3500
+    val orbit1 by infinite.animateFloat(
+        initialValue = 0f, targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = orbitSpeed, easing = LinearEasing)),
+        label = "orbit1"
+    )
+    val orbit2 by infinite.animateFloat(
+        initialValue = 120f, targetValue = 480f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = orbitSpeed, easing = LinearEasing)),
+        label = "orbit2"
+    )
+    val orbit3 by infinite.animateFloat(
+        initialValue = 240f, targetValue = 600f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = orbitSpeed, easing = LinearEasing)),
+        label = "orbit3"
+    )
 
-        // Draw background waves
-        repeat(3) { wave ->
-            val waveRadius = baseRadius * (3 + wave) * (1 + intensity * 0.3f)
-            val waveAlpha = (0.05f + config.morphIntensity * 0.03f) * (1 - wave * 0.3f)
-            val color = config.colors[wave % config.colors.size]
+    // Speaking ripples
+    data class Ripple(var progress: Float = 0f, var finished: Boolean = false)
+    val ripples = remember { mutableStateListOf<Ripple>() }
+    val scope = rememberCoroutineScope()
 
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        color.copy(alpha = waveAlpha),
-                        Color.Transparent
-                    ),
-                    radius = waveRadius
-                ),
-                radius = waveRadius,
-                center = center,
-            )
-
-            drawCircle(
-                color = color.copy(alpha = waveAlpha),
-                radius = waveRadius,
-                center = center,
-                style = Stroke(width = 2.dp.toPx())
-            )
-        }
-
-        // Draw main morphing orb
-        repeat(4) { layer ->
-            val rotationSpeed = (layer + 1) * config.speed * 0.3f
-            val rotation = time * rotationSpeed
-
-            val morphPhase = time * config.speed * 0.02f + layer * PI.toFloat() * 0.5f
-            val morphX = 1f + sin(morphPhase) * config.morphIntensity * 0.3f
-            val morphY = 1f + cos(morphPhase * 1.3f) * config.morphIntensity * 0.2f
-
-            val layerRadius = baseRadius * (1.2f - layer * 0.2f) * (1f + config.morphIntensity * 0.2f)
-            val color1 = config.colors[layer % config.colors.size]
-            val color2 = config.colors[(layer + 1) % config.colors.size]
-
-            rotate(rotation, center) {
-                scale(morphX, morphY, center) {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color1.copy(alpha = (0.7f - layer * 0.15f) * intensity),
-                                color2.copy(alpha = (0.4f - layer * 0.1f) * intensity),
-                                Color.Transparent
-                            ),
-                            radius = layerRadius
-                        ),
-                        radius = layerRadius,
-                        center = center
-                    )
-
-                    drawCircle(
-                        color = color1.copy(alpha = 0.05f * intensity),
-                        radius = layerRadius,
-                        center = center,
-                        style = Stroke(width = 1.dp.toPx())
-                    )
+    LaunchedEffect(isSpeaking) {
+        ripples.clear()
+        if (isSpeaking) {
+            while (isSpeaking) {
+                val r = Ripple()
+                ripples += r
+                scope.launch {
+                    val anim = Animatable(0f)
+                    anim.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 1400, easing = LinearEasing)
+                    ) { r.progress = value }
+                    r.finished = true
                 }
+                delay(350L)
             }
         }
+    }
+    LaunchedEffect(ripples.size) { ripples.removeAll { it.finished } }
 
-        // Draw floating particles
-        val particleCount = 10
-        repeat(particleCount) { i ->
-            val baseAngle = (i * (360f / particleCount))
-            val angleVariation = sin((time + i * 30f) * PI / 180f) * 45f
-            val angle = (baseAngle + angleVariation + time * config.speed) * PI / 180f
+    // Colors
+    val glowColor = Color(0xFF4B9BFF)
+    val accent = Color(0xFF64FFD4)
+    val accent2 = Color(0xFFB388FF)
 
-            val radiusVariation = sin((time * 1.5f + i * 45f) * PI / 180f) * 40f
-            val radius = (80f + i * 8f + radiusVariation) * (1f + config.morphIntensity * 0.3f)
+    val px = with(LocalDensity.current) { avatarSize.toPx() }
+    val blurPx = px * 0.07f
 
-            val x = center.x + cos(angle) * radius
-            val y = center.y + sin(angle) * radius
+    val clampedEnergy = energy.coerceIn(0f, 1f)
+    val energyPulse = 1f + (clampedEnergy * 0.12f)
+    val scale =
+        if (isListening) basePulse * listenPulse * energyPulse
+        else basePulse * (0.98f + clampedEnergy * 0.04f)
 
-            val size = (3f + sin(i * 0.5f) * 2f) * (1f + config.morphIntensity * 0.4f) * intensity
-            val alpha = (0.4f + sin(i * 0.8f) * 0.3f) * intensity
-
-            val colorIndex = (i * config.colors.size / particleCount) % config.colors.size
-            val color = config.colors[colorIndex]
-
-            // Main particle
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        color.copy(alpha = alpha),
-                        Color.Transparent
-                    ),
-                    radius = size * 2f
-                ),
-                radius = size,
-                center = Offset(x.toFloat(), y.toFloat())
-            )
-
-            // Particle trails for active states
-            if (config.morphIntensity > 0.5f) {
-                val trailLength = (config.morphIntensity * 4f).toInt()
-                repeat(trailLength) { trail ->
-                    val trailAngle = (baseAngle + angleVariation + time * config.speed - (trail + 1) * 10f) * PI / 180f
-                    val trailX = center.x + cos(trailAngle) * radius
-                    val trailY = center.y + sin(trailAngle) * radius
-                    val trailAlpha = alpha * (1f - trail.toFloat() / trailLength) * 0.6f
-                    val trailSize = size * (1f - trail * 0.2f)
-
-                    if (trailSize > 0f && trailAlpha > 0f) {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    color.copy(alpha = trailAlpha),
-                                    Color.Transparent
-                                ),
-                                radius = trailSize
-                            ),
-                            radius = trailSize,
-                            center = Offset(trailX.toFloat(), trailY.toFloat())
-                        )
+    Box(
+        modifier = modifier
+            .size(avatarSize)
+            .drawBehind {
+                // Draw blurred glow using Android Paint via drawIntoCanvas
+                val r = min(size.width, size.height) / 2f
+                val c = this.center
+                drawIntoCanvas { canvas ->
+                    val p = android.graphics.Paint().apply {
+                        color = glowColor.copy(alpha = 0.45f).toArgb()
+                        isAntiAlias = true
+                        maskFilter = BlurMaskFilter(blurPx, BlurMaskFilter.Blur.NORMAL)
                     }
+                    canvas.nativeCanvas.drawCircle(c.x, c.y, r * 0.9f, p)
                 }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.size(avatarSize)) {
+            val w = size.width
+            val h = size.height
+            val radius = min(w, h) / 2f
+            val center = Offset(w / 2f, h / 2f)
+
+            // Ripples
+            ripples.forEach { r ->
+                val alpha = (1f - r.progress).coerceIn(0f, 1f) * 0.5f
+                val strokeW = radius * 0.08f * (1f - r.progress)
+                drawCircle(
+                    center = center,
+                    radius = radius * (0.6f + r.progress * 0.7f),
+                    color = accent.copy(alpha = alpha),
+                    style = Stroke(width = strokeW)
+                )
             }
+
+            // Core
+            withTransform({
+                rotate(rotation, pivot = center)
+                scale(scaleX = scale, scaleY = scale, pivot = center)
+            }) {
+                drawCircle(
+                    brush = Brush.sweepGradient(
+                        listOf(glowColor, accent, accent2, glowColor),
+                        center = center
+                    ),
+                    radius = radius * 0.58f,
+                    center = center,
+                    alpha = 0.95f
+                )
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color.White.copy(alpha = 0.18f), Color.Transparent),
+                        center = center,
+                        radius = radius * 0.62f
+                    ),
+                    radius = radius * 0.62f,
+                    center = center
+                )
+            }
+
+            // Thin ring
+            drawCircle(
+                center = center,
+                radius = radius * 0.66f * scale,
+                color = Color.White.copy(alpha = 0.10f),
+                style = Stroke(width = radius * 0.015f)
+            )
+
+            // Orbiting orbs
+            val orbitR = radius * 0.82f * scale
+            val orbSize = radius * 0.08f * (1f + clampedEnergy * 0.4f)
+            fun drawOrb(angleDeg: Float, c: Color) {
+                val a = Math.toRadians(angleDeg.toDouble())
+                val x = center.x + orbitR * cos(a).toFloat()
+                val y = center.y + orbitR * sin(a).toFloat()
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        listOf(c.copy(alpha = 0.95f), c.copy(alpha = 0.3f)),
+                        center = Offset(x, y),
+                        radius = orbSize
+                    ),
+                    radius = orbSize,
+                    center = Offset(x, y)
+                )
+            }
+            drawOrb(orbit1, accent)
+            drawOrb(orbit2, glowColor)
+            drawOrb(orbit3, accent2)
         }
     }
 }
 
-// Usage
+
+/* ----------------------------- Demo / Preview ----------------------------- */
+
 @Composable
-fun AIVoiceScreen() {
-    DSJarvisTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            DSDynamicAIOrb()
+fun AiAvatarDemo() {
+    var speaking by remember { mutableStateOf(true) }
+    var listening by remember { mutableStateOf(false) }
+
+    // Simple fake energy while you don't hook real audio
+    val energy by rememberInfiniteTransition(label = "energy")
+        .animateFloat(
+            initialValue = 0.2f,
+            targetValue = 0.9f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1200, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "energyAnim"
+        )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF0B1220))
+            .padding(vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ConversationalAgentAvatar(
+            avatarSize = 220.dp,
+            isListening = listening,
+            isSpeaking = speaking,
+            energy = energy
+        )
+        Spacer(Modifier.height(16.dp))
+        Row {
+            ToggleChip("Listen", listening) { listening = it; if (it) speaking = false }
+            Spacer(Modifier.width(12.dp))
+            ToggleChip("Speak", speaking) { speaking = it; if (it) listening = false }
         }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = if (speaking) "Speaking…" else if (listening) "Listening…" else "Idle",
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun AIVoiceScreenPreview() {
-    DSJarvisTheme {
-        AIVoiceScreen()
+private fun ToggleChip(
+    label: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    val bg = if (checked) Color(0xFF1F3A5B) else Color(0xFF111827)
+    val fg = if (checked) Color(0xFFB4E1FF) else Color(0xFFE5E7EB)
+
+    Box(
+        modifier = Modifier
+            .height(36.dp)
+            .wrapContentWidth()
+            .background(bg, CircleShape)
+            .clickable { onChange(!checked) }
+            .padding(horizontal = 14.dp)
+            .drawWithContent { drawContent() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = label, color = fg, style = MaterialTheme.typography.bodyMedium)
+        Box(
+            Modifier
+                .matchParentSize()
+                .drawBehind {
+                    drawRoundRect(
+                        color = Color.White.copy(0.06f),
+                        style = Stroke(width = 1.dp.toPx()),
+                        cornerRadius = CornerRadius(18.dp.toPx(), 18.dp.toPx())
+                    )
+                }
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B1220)
+@Composable
+private fun PreviewAvatar() {
+    Surface(color = Color(0xFF0B1220)) {
+        Box {
+            ConversationalAgentAvatar(
+                avatarSize = 100.dp,
+                isListening = false,
+                isSpeaking = false,
+                energy = 0.5f
+            )
+            DSIcon(
+                modifier = Modifier.size(100.dp),
+                painter = painterResource(R.drawable.ic_jarvis_logo_shape),
+                contentDescription = "Jarvis logo",
+            )
+        }
+
     }
 }

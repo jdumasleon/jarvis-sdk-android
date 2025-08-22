@@ -85,11 +85,16 @@ class HomeViewModel @Inject constructor(
     
     private fun toggleJarvisMode() {
         val newActiveState = jarvisSDK.toggle()
-        val currentData = _uiState.value.getDataOrNull() ?: return
+        
+        // Update UI state regardless of current data state
+        val currentData = _uiState.value.getDataOrNull() ?: HomeUiData()
         val updatedData = currentData.copy(isJarvisActive = newActiveState)
         _uiState.update { ResourceState.Success(updatedData) }
         
         Log.d("HomeViewModel", "Jarvis mode toggled: $newActiveState")
+        
+        // Log SDK state for debugging
+        Log.d("HomeViewModel", "SDK isActive(): ${jarvisSDK.isActive()}")
     }
     
     private fun clearError() {
