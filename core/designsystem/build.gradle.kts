@@ -25,6 +25,7 @@ dependencies {
     api(libs.androidx.compose.runtime)
     api(libs.androidx.compose.ui.util)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation.graphics.android)
 
     testImplementation(libs.androidx.compose.ui.test)
     testImplementation(libs.androidx.compose.ui.testManifest)

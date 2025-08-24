@@ -47,12 +47,24 @@ fun DSAreaChart(
     animationDurationMs: Int = 1200,
     contentDescription: String? = null
 ) {
-    val dataKey = remember(dataPoints) { dataPoints.hashCode() }
+    val optimizedDataPoints = remember(dataPoints) {
+        when {
+            dataPoints.size > 50 -> {
+                val step = dataPoints.size / 50
+                dataPoints.filterIndexed { index, _ -> index % step == 0 }
+            }
+            else -> dataPoints
+        }
+    }
+    
+    val dataKey = remember(optimizedDataPoints) { 
+        "${optimizedDataPoints.size}_${optimizedDataPoints.hashCode()}"
+    }
     var animationPlayed by remember(dataKey) { mutableStateOf(false) }
     
     val animationProgress by animateFloatAsState(
         targetValue = if (animationPlayed) 1f else 0f,
-        animationSpec = tween(durationMillis = animationDurationMs),
+        animationSpec = tween(durationMillis = animationDurationMs.coerceAtMost(1000)),
         label = "area_chart_animation"
     )
     
@@ -69,9 +81,9 @@ fun DSAreaChart(
             .semantics { this.contentDescription = accessibilityDesc }
             .testTag("DSAreaChart")
     ) {
-        if (dataPoints.isNotEmpty()) {
+        if (optimizedDataPoints.isNotEmpty()) {
             drawAreaChart(
-                dataPoints = dataPoints,
+                dataPoints = optimizedDataPoints,
                 animationProgress = animationProgress,
                 canvasSize = size,
                 lineColor = lineColor,

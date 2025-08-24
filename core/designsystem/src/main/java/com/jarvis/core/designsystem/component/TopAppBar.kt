@@ -50,8 +50,6 @@ fun DSTopAppBar(
     logo: (@Composable () -> Unit)? = null,
     dismissable: Boolean = false,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
-    scrollProgress: Float = 0f,
-    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -75,7 +73,7 @@ fun DSTopAppBar(
                                     end = if (actionIcon != null && !dismissable) {
                                         DSJarvisTheme.spacing.xxxl
                                     } else if (actionIcon == null && !dismissable) {
-                                        DSJarvisTheme.spacing.l
+                                        DSJarvisTheme.spacing.xxxxl
                                     } else {
                                         DSJarvisTheme.spacing.none
                                     }
@@ -122,11 +120,7 @@ fun DSTopAppBar(
                 }
             },
             colors = colors.copy(
-                containerColor = if (enableScrollTransparency && scrollProgress > 0f) {
-                    DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-                } else {
-                    DSJarvisTheme.colors.extra.background
-                },
+                containerColor = DSJarvisTheme.colors.extra.background,
                 navigationIconContentColor = DSJarvisTheme.colors.extra.black,
                 actionIconContentColor = DSJarvisTheme.colors.extra.black,
                 titleContentColor = DSJarvisTheme.colors.extra.black,
@@ -151,7 +145,6 @@ fun DSMediumTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
-    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -165,7 +158,8 @@ fun DSMediumTopAppBar(
             if (titleText != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
                     DSText(
                         text = titleText,
@@ -217,16 +211,8 @@ fun DSMediumTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
-            scrolledContainerColor = if (enableScrollTransparency) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
+            containerColor = DSJarvisTheme.colors.extra.background,
+            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,
@@ -252,7 +238,6 @@ fun DSLargeTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
-    enableScrollTransparency: Boolean = true,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -317,16 +302,8 @@ fun DSLargeTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
-            scrolledContainerColor = if (enableScrollTransparency) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
+            containerColor = DSJarvisTheme.colors.extra.background,
+            scrolledContainerColor = DSJarvisTheme.colors.extra.background,
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,

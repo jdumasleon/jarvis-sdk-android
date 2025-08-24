@@ -83,6 +83,7 @@ lifecycleViewmodelNavigation3Android = "1.0.0-alpha03"
 retrofit = "3.0.0"
 composeMaterial = "1.4.1"
 coil = "2.4.0"
+animationGraphicsAndroid = "1.9.0"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -213,6 +214,7 @@ androidx-navigation3-ui-android = { group = "androidx.navigation3", name = "navi
 androidx-lifecycle-viewmodel-navigation3-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3-android", version.ref = "lifecycleViewmodelNavigation3Android" }
 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+androidx-animation-graphics-android = { group = "androidx.compose.animation", name = "animation-graphics-android", version.ref = "animationGraphicsAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

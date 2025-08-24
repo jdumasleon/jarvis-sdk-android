@@ -19,7 +19,7 @@ fun JarvisSDKNavDisplay(
         navigator = navigator,
         entryProviderBuilders = entryProviderBuilders,
         onCurrentDestinationChanged = { destination ->
-            onCurrentDestinationChanged(destination as NavigationRoute)
+            onCurrentDestinationChanged(destination)
         }
     )
 }

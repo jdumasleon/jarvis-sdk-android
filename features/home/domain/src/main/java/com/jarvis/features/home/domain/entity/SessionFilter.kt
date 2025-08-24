@@ -4,8 +4,8 @@ package com.jarvis.features.home.domain.entity
  * Session filter options for dashboard data
  */
 enum class SessionFilter {
-    LAST_SESSION,  // Current app session only
-    GENERAL        // All historical data
+    GENERAL,        // All historical data
+    LAST_SESSION    // Current app session only
 }
 
 /**

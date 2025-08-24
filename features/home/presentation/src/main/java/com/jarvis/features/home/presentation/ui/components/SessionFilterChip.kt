@@ -185,8 +185,8 @@ private val SessionFilter.icon: ImageVector
 
 private val SessionFilter.displayName: String
     get() = when (this) {
-        SessionFilter.LAST_SESSION -> "Current Session"
-        SessionFilter.GENERAL -> "All Data"
+        SessionFilter.LAST_SESSION -> "SESSION"
+        SessionFilter.GENERAL -> "All"
     }
 
 private val SessionFilter.description: String

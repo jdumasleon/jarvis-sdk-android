@@ -99,6 +99,8 @@ dependencies {
     "classicImplementation"("androidx.navigation:navigation-ui-ktx:2.9.2")
     "classicImplementation"("androidx.drawerlayout:drawerlayout:1.2.0")
     "classicImplementation"("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation(libs.androidx.metrics)
     implementation(libs.androidx.dataStore)
     implementation(libs.androidx.dataStore.preferences)
     implementation(libs.androidx.dataStore.preferences.core)

@@ -1,5 +1,6 @@
 package com.jarvis.demo.presentation.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.jarvis.api.ui.components.JarvisFabButton
 import com.jarvis.core.designsystem.component.DSBackground
 import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.core.presentation.navigation.Navigator
@@ -44,8 +46,6 @@ import com.jarvis.core.designsystem.component.DSDrawerValue
 import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSTopAppBar
 import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.DynamicOrbCanvas
-import com.jarvis.core.designsystem.component.StateConfig
 import com.jarvis.core.designsystem.component.rememberDSDrawerState
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
@@ -90,7 +90,7 @@ internal fun JarvisDemoApp(
 ) {
     val drawerState = rememberDSDrawerState(DSDrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var currentDestination by remember { mutableStateOf(navigator.currentDestination) }
+    var currentDestination by remember(navigator.currentDestination) { mutableStateOf(navigator.currentDestination) }
 
     DSDrawer(
         drawerState = drawerState,
@@ -180,7 +180,7 @@ fun DrawerContent(
                         .background(DSJarvisTheme.colors.extra.background),
                     contentAlignment = Alignment.Center
                 ) {
-                    DSIcon(
+                    Image(
                         painter = painterResource(com.jarvis.core.designsystem.R.drawable.ic_jarvis_logo),
                         contentDescription = "Jarvis Logo",
                         modifier = Modifier.size(DSJarvisTheme.dimensions.xxxxxxxxxl)

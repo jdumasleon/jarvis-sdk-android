@@ -14,6 +14,10 @@ interface NetworkTransactionDao {
     @Query("SELECT * FROM network_transactions ORDER BY start_time DESC")
     fun getAllTransactions(): Flow<List<NetworkTransactionEntity>>
     
+    // ✅ PAGINATION: Add paginated query for better performance with large datasets
+    @Query("SELECT * FROM network_transactions ORDER BY start_time DESC LIMIT :limit OFFSET :offset")
+    fun getTransactionsPaged(limit: Int, offset: Int): Flow<List<NetworkTransactionEntity>>
+    
     @Query("SELECT * FROM network_transactions WHERE id = :id")
     fun getTransaction(id: String): Flow<NetworkTransactionEntity?>
     

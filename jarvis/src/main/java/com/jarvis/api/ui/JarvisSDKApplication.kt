@@ -1,5 +1,6 @@
 package com.jarvis.api.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -41,22 +42,8 @@ fun JarvisSDKApplication(
     LaunchedEffect(navigator.backStack.size) {
         currentDestination = navigator.currentDestination
     }
+
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    
-    // Calculate scroll progress for transparency effects based on the TopAppBar scroll behavior
-    val scrollProgress by remember {
-        derivedStateOf {
-            // Use both collapsedFraction and contentOffset for better detection
-            val collapsedFraction = scrollBehavior.state.collapsedFraction
-            val contentOffset = scrollBehavior.state.contentOffset
-            
-            when {
-                collapsedFraction > 0f -> collapsedFraction
-                contentOffset < 0f -> (-contentOffset / 100f).coerceIn(0f, 1f)
-                else -> 1f // Temporarily force transparency to test
-            }
-        }
-    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -66,15 +53,13 @@ fun JarvisSDKApplication(
                 currentDestination = currentDestination,
                 navigator = navigator,
                 scrollBehavior = scrollBehavior,
-                scrollProgress = scrollProgress,
                 onDismiss = onDismiss,
             )
         },
         bottomBar = {
             JarvisSDKBottomBar(
                 currentDestination = currentDestination,
-                navigator = navigator,
-                scrollProgress = scrollProgress
+                navigator = navigator
             )
         }
     ) { padding ->
@@ -97,12 +82,11 @@ private fun JarvisSDKTopBar(
     currentDestination: NavigationRoute?,
     navigator: Navigator,
     scrollBehavior: TopAppBarScrollBehavior,
-    scrollProgress: Float = 0f,
     onDismiss: () -> Unit = {}
 ) {
     currentDestination?.takeIf { it.shouldShowTopAppBar }?.let { destination ->
         when (destination.topAppBarType) {
-            TopAppBarType.CENTER_ALIGNED -> JarvisSDKTopBarCenterAligned(destination, navigator, scrollProgress, onDismiss)
+            TopAppBarType.CENTER_ALIGNED -> JarvisSDKTopBarCenterAligned(destination, navigator, onDismiss)
             TopAppBarType.MEDIUM -> JarvisSDKTopBarMedium(destination, navigator, scrollBehavior, onDismiss)
             TopAppBarType.LARGE -> JarvisSDKTopBarLarge(destination, navigator, scrollBehavior, onDismiss)
         }
@@ -111,7 +95,11 @@ private fun JarvisSDKTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JarvisSDKTopBarCenterAligned(destination: NavigationRoute, navigator: Navigator, scrollProgress: Float, onDismiss: () -> Unit) {
+fun JarvisSDKTopBarCenterAligned(
+    destination: NavigationRoute,
+    navigator: Navigator,
+    onDismiss: () -> Unit
+) {
     DSTopAppBar(
         titleRes = destination.titleTextId,
         navigationIcon = destination.navigationIcon,
@@ -123,13 +111,12 @@ fun JarvisSDKTopBarCenterAligned(destination: NavigationRoute, navigator: Naviga
             stringResource(id = it)
         },
         logo = {
-            DSIcon(
+            Image(
                 modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
                 painter = painterResource(R.drawable.ic_jarvis_logo),
                 contentDescription = "Jarvis Logo"
             )
         },
-        scrollProgress = scrollProgress,
         onActionClick = {
             destination.actionKey?.let { actionKey ->
                 ActionRegistry.executeAction(actionKey)
@@ -160,7 +147,7 @@ fun JarvisSDKTopBarLarge(
             stringResource(id = it)
         },
         logo = {
-            DSIcon(
+            Image(
                 modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
                 painter = painterResource(R.drawable.ic_jarvis_logo),
                 contentDescription = "Jarvis Logo"
@@ -197,7 +184,7 @@ fun JarvisSDKTopBarMedium(
             stringResource(id = it)
         },
         logo = {
-            DSIcon(
+            Image(
                 modifier = Modifier.size(DSJarvisTheme.dimensions.xl),
                 painter = painterResource(R.drawable.ic_jarvis_logo),
                 contentDescription = "Jarvis Logo"
@@ -218,14 +205,12 @@ fun JarvisSDKTopBarMedium(
 @Composable
 private fun JarvisSDKBottomBar(
     currentDestination: NavigationRoute?,
-    navigator: Navigator,
-    scrollProgress: Float = 0f
+    navigator: Navigator
 ) {
     currentDestination?.takeIf { it.shouldShowBottomBar }?.let {
         DSNavigationBar(
             topCornerRadius = DSJarvisTheme.dimensions.l,
-            tonalElevation = DSJarvisTheme.elevations.level4,
-            scrollProgress = scrollProgress
+            tonalElevation = DSJarvisTheme.elevations.level4
         ) {
             JarvisTopLevelDestinations.entries.forEachIndexed { _, item ->
                 DSNavigationBarItem(

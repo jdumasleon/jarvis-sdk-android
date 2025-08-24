@@ -10,8 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.jarvis.api.ui.components.JarvisFabButton
+import com.jarvis.core.designsystem.component.DSJarvisAssistant
+import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.utils.ShakeDetectorEffect
 
 /**
@@ -27,8 +30,7 @@ fun JarvisSDKFabTools(
     isJarvisActive: Boolean = false,
 ) {
     var isJarvisVisible by rememberSaveable { mutableStateOf(isJarvisActive) }
-    
-    // Update visibility when active state changes
+
     LaunchedEffect(isJarvisActive) {
         isJarvisVisible = isJarvisActive
     }
@@ -42,5 +44,16 @@ fun JarvisSDKFabTools(
                 modifier = Modifier.zIndex(Float.MAX_VALUE)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JarvisSDKFabToolsPreview() {
+    DSJarvisTheme {
+        JarvisSDKFabTools(
+            onShowOverlay = {},
+            isJarvisActive = true
+        )
     }
 }

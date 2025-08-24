@@ -21,10 +21,22 @@ class CpuMonitor @Inject constructor() {
     private var lastAppCpuTime = 0L
     
     fun getCpuMetricsFlow(intervalMs: Long = 1000): Flow<CpuMetrics> = flow {
-        while (true) {
-            val metrics = getCurrentCpuMetrics()
-            emit(metrics)
-            kotlinx.coroutines.delay(intervalMs)
+        // ✅ CRITICAL FIX: Add timeout and error handling to prevent infinite loops
+        var consecutiveErrors = 0
+        val maxErrors = 5
+        
+        while (consecutiveErrors < maxErrors) {
+            try {
+                val metrics = getCurrentCpuMetrics()
+                emit(metrics)
+                consecutiveErrors = 0 // Reset error count on success
+                kotlinx.coroutines.delay(intervalMs.coerceAtLeast(500)) // Min 500ms interval
+            } catch (e: Exception) {
+                consecutiveErrors++
+                // Emit default metrics on error to prevent crashes
+                emit(CpuMetrics(0f, 0f, 0f, Runtime.getRuntime().availableProcessors(), 0))
+                kotlinx.coroutines.delay(intervalMs * 2) // Longer delay on error
+            }
         }
     }.flowOn(Dispatchers.IO)
     

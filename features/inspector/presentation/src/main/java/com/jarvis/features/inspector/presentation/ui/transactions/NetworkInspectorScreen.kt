@@ -246,6 +246,10 @@ private fun NetworkInspectorContent(
                         modifier = Modifier.padding(DSJarvisTheme.spacing.m)
                     )
                 } else {
+                    val groupedTransactions = remember(uiData.transactions.size, uiData.transactions.hashCode()) {
+                        uiData.transactions.groupByDate()
+                    }
+                    
                     LazyColumn(
                         state = listState,
                         modifier = Modifier
@@ -254,8 +258,6 @@ private fun NetworkInspectorContent(
                         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
                     ) {
                         item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs)) }
-
-                        val groupedTransactions = uiData.transactions.groupByDate()
                         
                         groupedTransactions.forEach { group ->
                             // Date group header
@@ -312,11 +314,6 @@ private fun NetworkInspectorFilters(
             uiData = uiData,
             onEvent = onEvent
         )
-
-        StatusTypesChips(
-            uiData = uiData,
-            onEvent = onEvent
-        )
     }
 }
 
@@ -329,13 +326,6 @@ private fun MethodsTypesChips(
         modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
-        DSText(
-            text = stringResource(R.string.features_inspector_presentation_http_methods).uppercase(),
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral100,
-            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
-        )
-
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
@@ -346,41 +336,6 @@ private fun MethodsTypesChips(
                 label = stringResource(R.string.features_inspector_presentation_all)
             )
 
-            uiData.availableMethods.forEach { method ->
-                val selected = uiData.selectedMethod == method
-                DSFilterChip(
-                    onClick = {
-                        val newMethod = if (selected) null else method
-                        onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
-                    },
-                    label = method,
-                    selected = selected
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusTypesChips(
-    uiData: NetworkInspectorUiData,
-    onEvent: (NetworkInspectorEvent) -> Unit
-) {
-    Column(
-        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-    ) {
-        DSText(
-            text = stringResource(R.string.features_inspector_presentation_status).uppercase(),
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral100,
-            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
-        )
-
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-        ) {
             uiData.availableStatuses.forEach { status ->
                 val selected = uiData.selectedStatus == status
                 DSFilterChip(
@@ -389,6 +344,18 @@ private fun StatusTypesChips(
                         onEvent(NetworkInspectorEvent.StatusFilterChanged(newStatus))
                     },
                     label = status,
+                    selected = selected
+                )
+            }
+
+            uiData.availableMethods.forEach { method ->
+                val selected = uiData.selectedMethod == method
+                DSFilterChip(
+                    onClick = {
+                        val newMethod = if (selected) null else method
+                        onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
+                    },
+                    label = method,
                     selected = selected
                 )
             }
@@ -417,7 +384,7 @@ private fun InspectorActions(
             color = DSJarvisTheme.colors.neutral.neutral100,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = DSJarvisTheme.spacing.l)
+                .padding(horizontal = DSJarvisTheme.spacing.m)
         )
 
         DSButton(

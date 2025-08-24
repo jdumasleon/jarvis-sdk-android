@@ -1,7 +1,7 @@
 package com.jarvis.demo.presentation
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import com.jarvis.api.JarvisSDK
 import com.jarvis.config.JarvisConfig
@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var navigator: Navigator

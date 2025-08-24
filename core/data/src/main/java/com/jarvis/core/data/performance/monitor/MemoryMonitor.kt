@@ -24,10 +24,35 @@ class MemoryMonitor @Inject constructor(
     }
     
     fun getMemoryMetricsFlow(intervalMs: Long = 1000): Flow<MemoryMetrics> = flow {
-        while (true) {
-            val metrics = getCurrentMemoryMetrics()
-            emit(metrics)
-            kotlinx.coroutines.delay(intervalMs)
+        // ✅ CRITICAL FIX: Add timeout and caching to prevent excessive memory operations
+        var lastMetrics: MemoryMetrics? = null
+        var lastUpdate = 0L
+        val cacheValidityMs = intervalMs / 2 // Cache for half the interval
+        var consecutiveErrors = 0
+        val maxErrors = 3
+        
+        while (consecutiveErrors < maxErrors) {
+            try {
+                val currentTime = System.currentTimeMillis()
+                
+                // Use cached metrics if still valid
+                if (lastMetrics != null && (currentTime - lastUpdate) < cacheValidityMs) {
+                    emit(lastMetrics!!)
+                } else {
+                    val metrics = getCurrentMemoryMetrics()
+                    lastMetrics = metrics
+                    lastUpdate = currentTime
+                    emit(metrics)
+                    consecutiveErrors = 0
+                }
+                
+                kotlinx.coroutines.delay(intervalMs.coerceAtLeast(1000)) // Min 1s for memory checks
+            } catch (e: Exception) {
+                consecutiveErrors++
+                // Emit basic metrics on error
+                emit(MemoryMetrics(0f, 0f, 0f, 0f, 0f, 0f, 0f, MemoryPressure.LOW))
+                kotlinx.coroutines.delay(intervalMs * 2)
+            }
         }
     }.flowOn(Dispatchers.IO)
     

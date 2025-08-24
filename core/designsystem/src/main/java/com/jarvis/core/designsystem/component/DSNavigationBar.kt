@@ -108,18 +108,12 @@ fun DSNavigationBar(
     containerColor: Color = DSJarvisTheme.colors.extra.background,
     contentColor: Color = DSNavigationDefaults.navigationContentColor(),
     tonalElevation: Dp = DSJarvisTheme.elevations.none,
-    scrollProgress: Float = 0f,
-    enableScrollTransparency: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     val shape = RoundedCornerShape(topStart = topCornerRadius, topEnd = topCornerRadius)
 
     Surface(
-        color = if (enableScrollTransparency && scrollProgress > 0f) {
-            containerColor.copy(alpha = 0.25f)
-        } else {
-            containerColor
-        },
+        color = containerColor,
         tonalElevation = tonalElevation,
         shape = shape
     ) {
@@ -179,7 +173,7 @@ fun DSNavigationBarPreview() {
 }
 
 object DSNavigationDefaults {
-    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.backgroun
+    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.background
     @Composable fun navigationSelectedItemColor() = DSJarvisTheme.colors.primary.primary60
     @Composable fun navigationUnSelectedItemColor() = DSJarvisTheme.colors.neutral.neutral60
     @Composable fun navigationIndicatorColor() = Color.Transparent

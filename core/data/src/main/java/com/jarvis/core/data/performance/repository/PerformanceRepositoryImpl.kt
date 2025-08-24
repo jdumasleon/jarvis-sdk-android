@@ -3,6 +3,7 @@ package com.jarvis.core.data.performance.repository
 import com.google.gson.Gson
 import com.jarvis.core.data.performance.monitor.CpuMonitor
 import com.jarvis.core.data.performance.monitor.FpsMonitor
+import com.jarvis.core.data.performance.monitor.JankMonitor
 import com.jarvis.core.data.performance.monitor.MemoryMonitor
 import com.jarvis.core.data.performance.monitor.ModuleLoadMonitor
 import com.jarvis.core.domain.performance.CpuMetrics
@@ -12,11 +13,12 @@ import com.jarvis.core.domain.performance.ModuleMetrics
 import com.jarvis.core.domain.performance.PerformanceConfig
 import com.jarvis.core.domain.performance.PerformanceRepository
 import com.jarvis.core.domain.performance.PerformanceSnapshot
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +29,10 @@ class PerformanceRepositoryImpl @Inject constructor(
     private val memoryMonitor: MemoryMonitor,
     private val fpsMonitor: FpsMonitor,
     private val moduleLoadMonitor: ModuleLoadMonitor,
-    private val gson: Gson
+    private val jankMonitor: JankMonitor,
+    private val gson: Gson,
+    @com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher 
+    private val ioDispatcher: CoroutineDispatcher
 ) : PerformanceRepository {
     
     private val performanceHistory = ConcurrentLinkedQueue<PerformanceSnapshot>()
@@ -36,10 +41,10 @@ class PerformanceRepositoryImpl @Inject constructor(
     
     override fun getPerformanceMetricsFlow(): Flow<PerformanceSnapshot> {
         return combine(
-            getCpuMetricsFlow(),
-            getMemoryMetricsFlow(),
+            getCpuMetricsFlow().flowOn(ioDispatcher),
+            getMemoryMetricsFlow().flowOn(ioDispatcher),
             getFpsMetricsFlow(),
-            getModuleMetricsFlow()
+            getModuleMetricsFlow().flowOn(ioDispatcher)
         ) { cpu, memory, fps, modules ->
             val snapshot = PerformanceSnapshot(
                 cpuUsage = cpu,
@@ -48,9 +53,7 @@ class PerformanceRepositoryImpl @Inject constructor(
                 moduleMetrics = modules
             )
             
-            // Add to history
             addToHistory(snapshot)
-            
             snapshot
         }
     }
@@ -112,10 +115,23 @@ class PerformanceRepositoryImpl @Inject constructor(
             "detailed_memory" to memoryMonitor.getDetailedMemoryInfo(),
             "detailed_fps" to fpsMonitor.getDetailedFrameInfo(),
             "detailed_modules" to moduleLoadMonitor.getDetailedModuleStats(),
+            "jarvis_assistant_jank" to jankMonitor.getDetailedReport(),
             "export_timestamp" to System.currentTimeMillis()
         )
         
         return gson.toJson(exportData)
+    }
+    
+    /**
+     * Get Jarvis Assistant specific jank monitoring flow
+     */
+    fun getJarvisAssistantJankFlow() = jankMonitor.startMonitoring()
+    
+    /**
+     * Stop Jarvis Assistant jank monitoring
+     */
+    fun stopJarvisAssistantJankMonitoring() {
+        jankMonitor.stopMonitoring()
     }
     
     private fun addToHistory(snapshot: PerformanceSnapshot) {
