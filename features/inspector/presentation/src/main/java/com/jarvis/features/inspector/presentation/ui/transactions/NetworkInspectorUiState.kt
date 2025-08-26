@@ -14,7 +14,8 @@ typealias NetworkInspectorUiState = ResourceState<NetworkInspectorUiData>
  * Excludes loading/error states which are handled by ResourceState
  */
 data class NetworkInspectorUiData(
-    val transactions: List<NetworkTransaction> = emptyList(),
+    val transactions: List<NetworkTransaction> = emptyList(), // Filtered transactions for display
+    val allLoadedTransactions: List<NetworkTransaction> = emptyList(), // All transactions loaded so far
     val searchQuery: String = "",
     val selectedMethod: String? = null,
     val selectedStatus: String? = null,
@@ -22,7 +23,10 @@ data class NetworkInspectorUiData(
     val availableStatuses: List<String> = emptyList(),
     val showClearConfirmation: Boolean = false,
     val selectedTransaction: NetworkTransaction? = null,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val currentPage: Int = 0,
+    val hasMorePages: Boolean = false,
+    val isLoadingMore: Boolean = false
 ) {
     companion object {
         val mockNetworkInspectorUiData = NetworkInspectorUiData(
@@ -139,6 +143,7 @@ sealed interface NetworkInspectorEvent {
     data class ShowClearConfirmation(val show: Boolean) : NetworkInspectorEvent
     
     object LoadTransactions : NetworkInspectorEvent
+    object LoadMoreTransactions : NetworkInspectorEvent
     object ClearAllTransactions : NetworkInspectorEvent
     object RefreshTransactions : NetworkInspectorEvent
     object ClearError : NetworkInspectorEvent

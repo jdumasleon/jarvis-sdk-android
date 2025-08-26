@@ -143,63 +143,66 @@ fun HealthSummaryCard(
         shape = DSJarvisTheme.shapes.l,
         elevation = DSJarvisTheme.elevations.level2
     ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+        HealthSummary(
+            healthScore = healthScore,
+            modifier = Modifier.fillMaxWidth(),
+            gaugeSize = gaugeSize
+        )
+    }
+}
+
+@Composable
+fun HealthSummary(
+    healthScore: HealthScore,
+    modifier: Modifier = Modifier,
+    gaugeSize: Dp = 180.dp
+) {
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Title
-            DSText(
-                text = stringResource(R.string.health_summary),
-                style = DSJarvisTheme.typography.heading.medium,
-                fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral100
+            // Health gauge
+            HealthScoreGauge(
+                healthScore = healthScore,
+                modifier = Modifier.weight(1f),
+                size = gaugeSize
             )
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+
+            // Key metrics
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = DSJarvisTheme.spacing.l),
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                // Health gauge
-                HealthScoreGauge(
-                    healthScore = healthScore,
-                    modifier = Modifier.weight(1f),
-                    size = gaugeSize
+                HealthMetricItem(
+                    label = stringResource(R.string.requests),
+                    value = "${healthScore.keyMetrics.totalRequests}",
+                    color = DSJarvisTheme.colors.chart.primary
                 )
 
-                // Key metrics
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = DSJarvisTheme.spacing.m),
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                ) {
-                    HealthMetricItem(
-                        label = stringResource(R.string.requests),
-                        value = "${healthScore.keyMetrics.totalRequests}",
-                        color = DSJarvisTheme.colors.chart.primary
-                    )
+                HealthMetricItem(
+                    label = stringResource(R.string.error_rate),
+                    value = String.format("%.1f%%", healthScore.keyMetrics.errorRate),
+                    color = if (healthScore.keyMetrics.errorRate < 5f)
+                        DSJarvisTheme.colors.success.success100
+                    else DSJarvisTheme.colors.error.error100
+                )
 
-                    HealthMetricItem(
-                        label = stringResource(R.string.error_rate),
-                        value = String.format("%.1f%%", healthScore.keyMetrics.errorRate),
-                        color = if (healthScore.keyMetrics.errorRate < 5f)
-                            DSJarvisTheme.colors.success.success100
-                        else DSJarvisTheme.colors.error.error100
-                    )
+                HealthMetricItem(
+                    label = stringResource(R.string.avg_response),
+                    value = String.format("%.0fms", healthScore.keyMetrics.averageResponseTime),
+                    color = DSJarvisTheme.colors.chart.secondary
+                )
 
-                    HealthMetricItem(
-                        label = stringResource(R.string.avg_response),
-                        value = String.format("%.0fms", healthScore.keyMetrics.averageResponseTime),
-                        color = DSJarvisTheme.colors.chart.secondary
-                    )
-
-                    HealthMetricItem(
-                        label = stringResource(R.string.performance),
-                        value = String.format("%.0f", healthScore.keyMetrics.performanceScore),
-                        color = DSJarvisTheme.colors.chart.tertiary
-                    )
-                }
+                HealthMetricItem(
+                    label = stringResource(R.string.performance),
+                    value = String.format("%.0f", healthScore.keyMetrics.performanceScore),
+                    color = DSJarvisTheme.colors.chart.tertiary
+                )
             }
         }
     }
@@ -235,7 +238,7 @@ private fun HealthMetricItem(
 
 @Preview(name = "HealthSummary - Light", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun PreviewHealthSummaryLight() {
+private fun PreviewHealthSummaryCardLight() {
     DSJarvisTheme {
         HealthSummaryCard(
             healthScore = mockHealthScore.copy(rating = HealthRating.AVERAGE)
@@ -245,9 +248,19 @@ private fun PreviewHealthSummaryLight() {
 
 @Preview(name = "HealthSummary - Dark", showBackground = true, backgroundColor = 0xFF000000)
 @Composable
-private fun PreviewHealthSummaryDark() {
+private fun PreviewHealthSummaryCardDark() {
     DSJarvisTheme {
         HealthSummaryCard(
+            healthScore = mockHealthScore.copy(rating = HealthRating.POOR)
+        )
+    }
+}
+
+@Preview(name = "HealthSummary - Dark", showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun PreviewHealthSummaryDark() {
+    DSJarvisTheme {
+        HealthSummary(
             healthScore = mockHealthScore.copy(rating = HealthRating.POOR)
         )
     }

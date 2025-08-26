@@ -1,8 +1,6 @@
 package com.jarvis.api.ui.components
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -18,8 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -30,9 +26,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -40,9 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.jarvis.api.ui.components.MiniFabType.HOME
 import com.jarvis.api.ui.components.MiniFabType.INSPECTOR
 import com.jarvis.api.ui.components.MiniFabType.PREFERENCES
-import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.DSJarvisAnimation
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
@@ -54,7 +46,8 @@ fun JarvisFabButton(
     onInspectorClick: () -> Unit,
     onPreferencesClick: () -> Unit,
     onHomeClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDrawerOpen: Boolean = false
 ) {
     var fabOffset by remember { mutableStateOf(IntOffset.Zero) }
     var isExpanded by remember { mutableStateOf(false) }
@@ -133,41 +126,12 @@ fun JarvisFabButton(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            JarvisFabButton(modifier = modifier)
+            DSJarvisAnimation(
+                showWaveAnimation = !isExpanded && !isDrawerOpen,
+                showRingsAnimation = !isExpanded && !isDrawerOpen
+            )
         }
     }
-}
-
-@Composable
-private fun JarvisFabButton(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(DSJarvisTheme.dimensions.xxxl)
-            .shadow(elevation = DSJarvisTheme.elevations.level3, shape = CircleShape)
-            .background(DSJarvisTheme.colors.extra.surface, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        DSText(
-            text = stringResource(R.string.core_designsystem_jarvis),
-            style = DSJarvisTheme.typography.label.small.copy(
-                brush = Brush.linearGradient(
-                    listOf(
-                        DSJarvisTheme.colors.extra.jarvisPink,
-                        DSJarvisTheme.colors.extra.jarvisBlue
-                    )
-                ),
-                fontWeight = FontWeight.Thin
-            )
-        )
-    }
-
-    Image(
-        painter = painterResource(R.drawable.ic_jarvis_logo_shape),
-        contentDescription = "Jarvis Logo",
-        modifier = Modifier.size(DSJarvisTheme.dimensions.xxxxxxl)
-    )
 }
 
 @Composable
@@ -189,16 +153,6 @@ private fun DrawMiniFabs(miniFabType: MiniFabType) {
             iconSize = DSJarvisTheme.dimensions.l
         )
     }
-}
-
-@Composable
-private fun FabIcon(icon: ImageVector, rotation: Float) {
-    DSIcon(
-        imageVector = icon,
-        contentDescription = "Jarvis Mode Icon",
-        tint = Color.White,
-        modifier = Modifier.rotate(rotation)
-    )
 }
 
 @Composable

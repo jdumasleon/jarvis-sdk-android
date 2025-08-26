@@ -221,58 +221,97 @@ class JarvisPerformanceProfiler @Inject constructor() {
     }
     
     private fun startMemoryMonitoring() {
-        profileScope.launch {
+        profileScope.launch(Dispatchers.IO) { // ✅ Use IO thread for memory checks
+            var lastMemoryCheck = 0L
+            val memoryCheckInterval = 3000L // Check every 3 seconds
+            
             while (isActive) {
-                delay(5000) // Check every 5 seconds
-                
-                val runtime = Runtime.getRuntime()
-                val usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0
-                
-                if (usedMemoryMB > CRITICAL_MEMORY_THRESHOLD_MB) {
-                    Log.w(TAG, "High memory usage detected: ${usedMemoryMB.toInt()}MB")
+                try {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastMemoryCheck >= memoryCheckInterval) {
+                        val runtime = Runtime.getRuntime()
+                        val usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0
+                        
+                        if (usedMemoryMB > CRITICAL_MEMORY_THRESHOLD_MB) {
+                            Log.w(TAG, "High memory usage detected: ${usedMemoryMB.toInt()}MB")
+                        }
+                        lastMemoryCheck = currentTime
+                    }
+                    
+                    delay(1000) // Check every second, but only process every 3 seconds
+                } catch (e: Exception) {
+                    Log.w(TAG, "Memory monitoring error: ${e.message}")
+                    delay(5000) // Longer delay on error
                 }
             }
         }
     }
     
     private fun startPerformanceAnalysis() {
-        profileScope.launch {
+        profileScope.launch(Dispatchers.Default) { // ✅ Use background thread for analysis
+            var lastSnapshot: PerformanceSnapshot? = null
+            var consecutiveHighMemory = 0
+            
             while (isActive) {
-                delay(10000) // Analyze every 10 seconds
-                
-                val frameDropPercent = if (totalFrames.get() > 0) {
-                    (frameDrops.get().toDouble() / totalFrames.get()) * 100.0
-                } else 0.0
-                
-                val runtime = Runtime.getRuntime()
-                val memoryMB = (runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0
-                
-                val criticalComponents = componentMetrics.values
-                    .filter { it.severity == PerformanceSeverity.CRITICAL || it.severity == PerformanceSeverity.BLOCKING }
-                    .sortedByDescending { it.recompositionsPerSecond }
-                
-                val recommendations = generateOverallRecommendations(frameDropPercent, memoryMB, criticalComponents)
-                
-                val snapshot = PerformanceSnapshot(
-                    timestamp = System.currentTimeMillis(),
-                    overallFrameRate = 60.0 * (1.0 - frameDropPercent / 100.0),
-                    frameDropPercentage = frameDropPercent,
-                    criticalComponents = criticalComponents,
-                    totalRecompositions = recompositionCounts.values.sumOf { it.get() },
-                    memoryUsageMB = memoryMB,
-                    cpuUsagePercent = 0.0, // Would need more complex calculation
-                    recommendations = recommendations
-                )
-                
-                _performanceData.value = snapshot
-                
-                // Log critical issues
-                if (frameDropPercent > 10.0) {
-                    Log.e(TAG, "CRITICAL: ${frameDropPercent.toInt()}% frame drops detected!")
-                }
-                
-                criticalComponents.forEach { component ->
-                    Log.e(TAG, "CRITICAL COMPONENT: ${component.name} - ${component.suggestions.firstOrNull()}")
+                try {
+                    delay(5000) // ✅ Analyze every 5 seconds for better real-time feel
+                    
+                    val frameDropPercent = if (totalFrames.get() > 0) {
+                        (frameDrops.get().toDouble() / totalFrames.get()) * 100.0
+                    } else 0.0
+                    
+                    val runtime = Runtime.getRuntime()
+                    val memoryMB = (runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0
+                    
+                    val criticalComponents = componentMetrics.values
+                        .filter { it.severity == PerformanceSeverity.CRITICAL || it.severity == PerformanceSeverity.BLOCKING }
+                        .sortedByDescending { it.recompositionsPerSecond }
+                    
+                    val recommendations = generateOverallRecommendations(frameDropPercent, memoryMB, criticalComponents)
+                    
+                    val snapshot = PerformanceSnapshot(
+                        timestamp = System.currentTimeMillis(),
+                        overallFrameRate = 60.0 * (1.0 - frameDropPercent / 100.0),
+                        frameDropPercentage = frameDropPercent,
+                        criticalComponents = criticalComponents,
+                        totalRecompositions = recompositionCounts.values.sumOf { it.get() },
+                        memoryUsageMB = memoryMB,
+                        cpuUsagePercent = 0.0, // Would need more complex calculation
+                        recommendations = recommendations
+                    )
+                    
+                    // ✅ Only emit if significantly different to prevent unnecessary recompositions
+                    val shouldEmit = lastSnapshot?.let { last ->
+                        kotlin.math.abs(snapshot.frameDropPercentage - last.frameDropPercentage) > 1.0 ||
+                        kotlin.math.abs(snapshot.memoryUsageMB - last.memoryUsageMB) > 5.0 ||
+                        snapshot.criticalComponents.size != last.criticalComponents.size ||
+                        (System.currentTimeMillis() - last.timestamp) > 15000 // Force update every 15s
+                    } ?: true
+                    
+                    if (shouldEmit) {
+                        _performanceData.value = snapshot
+                        lastSnapshot = snapshot
+                    }
+                    
+                    // ✅ Adaptive monitoring based on performance state
+                    if (frameDropPercent > 15.0 || memoryMB > CRITICAL_MEMORY_THRESHOLD_MB) {
+                        consecutiveHighMemory++
+                        if (consecutiveHighMemory >= 3) {
+                            Log.e(TAG, "PERSISTENT PERFORMANCE ISSUE: ${frameDropPercent.toInt()}% drops, ${memoryMB.toInt()}MB memory")
+                            consecutiveHighMemory = 0
+                        }
+                    } else {
+                        consecutiveHighMemory = 0
+                    }
+                    
+                    // Log critical issues less frequently
+                    if (frameDropPercent > 20.0) {
+                        Log.e(TAG, "CRITICAL: ${frameDropPercent.toInt()}% frame drops detected!")
+                    }
+                    
+                } catch (e: Exception) {
+                    Log.w(TAG, "Performance analysis error: ${e.message}")
+                    delay(10000) // Longer delay on error
                 }
             }
         }

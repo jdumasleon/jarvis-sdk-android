@@ -49,6 +49,7 @@ class JarvisSDK @Inject constructor(
 
     private var _isJarvisActive by mutableStateOf(false)
     private var _isShowing by mutableStateOf(false)
+    private var _isDrawerOpen by mutableStateOf(false)
     val isShowing: Boolean get() = _isShowing
 
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
@@ -124,7 +125,8 @@ class JarvisSDK @Inject constructor(
                                 navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
                                 _isShowing = true
                             },
-                            isJarvisActive = this@JarvisSDK.isActive()
+                            isJarvisActive = this@JarvisSDK.isActive(),
+                            isDrawerOpen = _isDrawerOpen
                         )
                     }
 
@@ -137,7 +139,7 @@ class JarvisSDK @Inject constructor(
                     }
 
                     if (_isShowing) {
-                        JarvisSDKApplication(
+                       JarvisSDKApplication(
                             navigator = navigator,
                             entryProviderBuilders = entryProviderBuilders,
                             onDismiss = {
@@ -197,5 +199,9 @@ class JarvisSDK @Inject constructor(
             return true
         }
         return false
+    }
+
+    fun setDrawerOpen(isOpen: Boolean) {
+        _isDrawerOpen = isOpen
     }
 }

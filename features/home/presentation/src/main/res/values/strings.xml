@@ -64,4 +64,6 @@
     <string name="failed_to_load_dashboard">Failed to load dashboard</string>
     <string name="failed_to_change_session_filter">Failed to change session filter</string>
     <string name="features_home_presentation_no_performance_data_available">No performance data available</string>
+    <string name="features_home_presentation_wealth_dashboard">Wealth Dashboard</string>
+    <string name="features_home_presentation_wealth_dashboard_description">Welcome to your comprehensive analytics overview. Track performance, monitor network activity, and optimize your app\'s health in real-time with wealth-grade insights.</string>
 </resources>

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,16 +22,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +49,8 @@ import com.jarvis.core.designsystem.component.DSButtonStyle
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSDialog
 import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSFlag
+import com.jarvis.core.designsystem.component.FlagStyle
 import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSSearchBar
 import com.jarvis.core.designsystem.component.DSText
@@ -246,34 +255,56 @@ private fun NetworkInspectorContent(
                         modifier = Modifier.padding(DSJarvisTheme.spacing.m)
                     )
                 } else {
-                    val groupedTransactions = remember(uiData.transactions.size, uiData.transactions.hashCode()) {
+                    val groupedTransactions = remember(uiData.transactions) {
                         uiData.transactions.groupByDate()
                     }
-                    
+
+                    val shouldLoadMore = remember {
+                        derivedStateOf {
+                            val layoutInfo = listState.layoutInfo
+                            val totalItems = layoutInfo.totalItemsCount
+                            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                            
+                            lastVisibleItemIndex >= totalItems - 5 // Load when 5 items from bottom
+                        }
+                    }
+
+                    LaunchedEffect(shouldLoadMore.value) {
+                        if (shouldLoadMore.value && uiData.hasMorePages && !uiData.isLoadingMore) {
+                            onEvent(NetworkInspectorEvent.LoadMoreTransactions)
+                        }
+                    }
+
                     LazyColumn(
                         state = listState,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = DSJarvisTheme.spacing.m),
-                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
+                        reverseLayout = false,
+                        userScrollEnabled = true
                     ) {
-                        item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs)) }
-                        
-                        groupedTransactions.forEach { group ->
-                            // Date group header
-                            item(key = "header_${group.date}") {
-                                if (group.date != TODAY) {
+                        item(key = "spacer_top", contentType = "spacer") { 
+                            Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs)) 
+                        }
+
+                        groupedTransactions.forEachIndexed { groupIndex, group ->
+                            if (group.date != TODAY) {
+                                item(
+                                    key = "header_${groupIndex}_${group.date}",
+                                    contentType = "header"
+                                ) {
                                     NetworkTransactionGroupHeader(
                                         title = group.date,
                                         transactionCount = group.transactions.size
                                     )
                                 }
                             }
-                            
-                            // Transactions in this group
+
                             items(
                                 items = group.transactions,
-                                key = { transaction -> transaction.id }
+                                key = { transaction -> "tx_${transaction.id}" },
+                                contentType = { "transaction" }
                             ) { transaction ->
                                 NetworkTransactionItem(
                                     transaction = transaction,
@@ -282,7 +313,18 @@ private fun NetworkInspectorContent(
                             }
                         }
 
-                        item { Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m)) }
+                        if (uiData.hasMorePages) {
+                            item(key = "load_more_indicator") {
+                                LoadMoreIndicator(
+                                    isLoading = uiData.isLoadingMore,
+                                    onLoadMore = { onEvent(NetworkInspectorEvent.LoadMoreTransactions) }
+                                )
+                            }
+                        }
+
+                        item(key = "spacer_bottom") { 
+                            Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.m)) 
+                        }
                     }
                 }
             }
@@ -314,6 +356,11 @@ private fun NetworkInspectorFilters(
             uiData = uiData,
             onEvent = onEvent
         )
+
+        StatusChips(
+            uiData = uiData,
+            onEvent = onEvent
+        )
     }
 }
 
@@ -326,12 +373,58 @@ private fun MethodsTypesChips(
         modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
+        DSText(
+            text = stringResource(R.string.features_inspector_presentation_http_methods),
+            style = DSJarvisTheme.typography.body.medium,
+            color = DSJarvisTheme.colors.neutral.neutral100
+        )
+
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
         ) {
             DSFilterChip(
                 selected = uiData.selectedMethod == null,
+                onClick = { onEvent(NetworkInspectorEvent.MethodFilterChanged(null)) },
+                label = stringResource(R.string.features_inspector_presentation_all)
+            )
+
+            uiData.availableMethods.forEach { method ->
+                val selected = uiData.selectedMethod == method
+                DSFilterChip(
+                    onClick = {
+                        val newMethod = if (selected) null else method
+                        onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
+                    },
+                    label = method,
+                    selected = selected
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusChips(
+    uiData: NetworkInspectorUiData,
+    onEvent: (NetworkInspectorEvent) -> Unit
+) {
+    Column (
+        modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+    ) {
+        DSText(
+            text = stringResource(R.string.features_inspector_presentation_status),
+            style = DSJarvisTheme.typography.body.medium,
+            color = DSJarvisTheme.colors.neutral.neutral100
+        )
+
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
+            DSFilterChip(
+                selected = uiData.selectedStatus == null,
                 onClick = { onEvent(NetworkInspectorEvent.MethodFilterChanged(null)) },
                 label = stringResource(R.string.features_inspector_presentation_all)
             )
@@ -344,18 +437,6 @@ private fun MethodsTypesChips(
                         onEvent(NetworkInspectorEvent.StatusFilterChanged(newStatus))
                     },
                     label = status,
-                    selected = selected
-                )
-            }
-
-            uiData.availableMethods.forEach { method ->
-                val selected = uiData.selectedMethod == method
-                DSFilterChip(
-                    onClick = {
-                        val newMethod = if (selected) null else method
-                        onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
-                    },
-                    label = method,
                     selected = selected
                 )
             }
@@ -402,6 +483,24 @@ private fun NetworkTransactionItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val methodColor = remember(transaction.request.method.name) { 
+        getMethodColor(transaction.request.method.name)
+    }
+    val statusText = remember(transaction.status) { 
+        getStatusText(transaction)
+    }
+    val statusColor = remember(transaction.status) { 
+        getStatusColor(transaction.status)
+    }
+    val timestampText = remember(transaction.startTime) { 
+        formatTimestamp(transaction.startTime)
+    }
+    val responseTimeText = remember(transaction.endTime) {
+        if (transaction.endTime != null) {
+            "${transaction.endTime!! - transaction.startTime}ms"
+        } else null
+    }
+
     DSCard(
         modifier = modifier
             .clickable(onClick = onClick)
@@ -420,13 +519,13 @@ private fun NetworkTransactionItem(
                 DSText(
                     text = transaction.request.method.name,
                     style = DSJarvisTheme.typography.body.small,
-                    color = getMethodColor(transaction.request.method.name)
+                    color = methodColor
                 )
 
                 DSText(
-                    text = getStatusText(transaction),
+                    text = statusText,
                     style = DSJarvisTheme.typography.body.small,
-                    color = getStatusColor(transaction.status)
+                    color = statusColor
                 )
             }
 
@@ -447,15 +546,14 @@ private fun NetworkTransactionItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 DSText(
-                    text = formatTimestamp(transaction.startTime),
+                    text = timestampText,
                     style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
 
-                if (transaction.endTime != null) {
-                    val responseTime = transaction.endTime!! - transaction.startTime
+                responseTimeText?.let { 
                     DSText(
-                        text = "${responseTime}ms",
+                        text = it,
                         style = DSJarvisTheme.typography.body.small,
                         color = DSJarvisTheme.colors.neutral.neutral60
                     )
@@ -595,5 +693,64 @@ private fun NetworkInspectorScreenErrorPreview() {
             onNavigateToDetail = {},
             onNavigateToRules = {}
         )
+    }
+}
+
+@Composable
+private fun LoadMoreIndicator(
+    isLoading: Boolean,
+    onLoadMore: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (isLoading) {
+        DSCard(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = DSJarvisTheme.spacing.s),
+            shape = DSJarvisTheme.shapes.m,
+            elevation = DSJarvisTheme.elevations.level1,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DSJarvisTheme.spacing.m),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = DSJarvisTheme.colors.primary.primary100
+                )
+                Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.s))
+                DSText(
+                    text = "Loading more transactions...",
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.neutral.neutral80
+                )
+            }
+        }
+    } else {
+        DSCard(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = DSJarvisTheme.spacing.s)
+                .clickable { onLoadMore() },
+            shape = DSJarvisTheme.shapes.m,
+            elevation = DSJarvisTheme.elevations.level1,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DSJarvisTheme.spacing.m),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DSText(
+                    text = "Tap to load more transactions",
+                    style = DSJarvisTheme.typography.body.medium,
+                    color = DSJarvisTheme.colors.primary.primary100
+                )
+            }
+        }
     }
 }

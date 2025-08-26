@@ -9,7 +9,7 @@
     <string name="jarvis_inspector_rules_add">Add new rule</string>
     <string name="features_inspector_presentation_http_methods">HTTP Methods</string>
     <string name="features_inspector_presentation_all">All</string>
-    <string name="features_inspector_presentation_status">Status</string>
+    <string name="features_inspector_presentation_status">STATUS</string>
     <string name="features_inspector_presentation_transactions">Transactions (%1$d)</string>
     <string name="features_inspector_presentation_request_body">Request Body</string>
     <string name="features_inspector_presentation_query_parameters">Query Parameters</string>

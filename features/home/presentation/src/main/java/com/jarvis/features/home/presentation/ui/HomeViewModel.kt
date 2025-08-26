@@ -10,6 +10,8 @@ import com.jarvis.features.home.domain.repository.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 import javax.inject.Inject
 
 /**
@@ -26,6 +28,29 @@ class HomeViewModel @Inject constructor(
 
     init {
         onEvent(HomeEvent.RefreshDashboard)
+        startContinuousPerformanceMonitoring()
+    }
+    
+    private fun startContinuousPerformanceMonitoring() {
+        viewModelScope.launch {
+            getPerformanceMetricsUseCase()
+                .catch { /* Handle errors gracefully */ }
+                .collect { performanceSnapshot ->
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is ResourceState.Success -> {
+                                ResourceState.Success(
+                                    currentState.data.copy(
+                                        performanceSnapshot = performanceSnapshot,
+                                        lastUpdated = System.currentTimeMillis()
+                                    )
+                                )
+                            }
+                            else -> currentState
+                        }
+                    }
+                }
+        }
     }
 
     fun onEvent(event: HomeEvent) {
@@ -56,17 +81,23 @@ class HomeViewModel @Inject constructor(
                 val currentData = _uiState.value.getDataOrNull()
                 val sessionFilter = currentData?.selectedSessionFilter ?: SessionFilter.LAST_SESSION
 
-                // Get data once instead of using continuous flows to prevent infinite loops
+                // ✅ PERFORMANCE: Use timeout and caching to prevent expensive operations
                 val enhancedMetrics = try {
-                    dashboardRepository.getEnhancedDashboardMetrics(sessionFilter).first()
+                    dashboardRepository.getEnhancedDashboardMetrics(sessionFilter)
+                        .timeout(3.seconds) // 3 second timeout
+                        .first()
                 } catch (e: Exception) {
-                    null
+                    // Use cached data if available, otherwise null
+                    currentData?.enhancedMetrics
                 }
 
                 val performanceSnapshot = try {
-                    getPerformanceMetricsUseCase().first()
+                    getPerformanceMetricsUseCase()
+                        .timeout(2.seconds) // 2 second timeout for lighter operation
+                        .first()
                 } catch (e: Exception) {
-                    null
+                    // Use cached data if available, otherwise null
+                    currentData?.performanceSnapshot
                 }
 
                 val homeUiData = HomeUiData(
@@ -120,13 +151,17 @@ class HomeViewModel @Inject constructor(
 
                 // Load new data with the filter
                 val enhancedMetrics = try {
-                    dashboardRepository.getEnhancedDashboardMetrics(filter).first()
+                    dashboardRepository.getEnhancedDashboardMetrics(filter)
+                        .timeout(3.seconds)
+                        .first()
                 } catch (e: Exception) {
                     null
                 }
 
                 val performanceSnapshot = try {
-                    getPerformanceMetricsUseCase().first()
+                    getPerformanceMetricsUseCase()
+                        .timeout(2.seconds)
+                        .first()
                 } catch (e: Exception) {
                     currentData?.performanceSnapshot
                 }

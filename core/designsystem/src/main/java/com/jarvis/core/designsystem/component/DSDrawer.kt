@@ -24,11 +24,8 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.lerp
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -140,10 +137,33 @@ fun DSDrawer(
             throw IllegalStateException("Drawer shouldn't have infinite width")
         }
 
-        // Setup anchors for dragging
-        SetupDraggableAnchors(drawerState, maxWidth)
+        // Setup anchors for dragging (no suspensión necesaria)
+        SideEffect {
+            if (maxWidth.isFinite() && maxWidth > 0f) {
+                val anchors = DraggableAnchors {
+                    DSDrawerValue.Closed at -maxWidth
+                    DSDrawerValue.Open at 0f
+                }
+                drawerState.updateAnchors(anchors)
+            }
+        }
 
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
+        // Derived states to minimize recomposition work during drags
+        val drawerOffset by remember(drawerState, screenWidth) {
+            derivedStateOf { calculateDrawerOffset(drawerState.offset, screenWidth) }
+        }
+        val contentOffset by remember(drawerState, screenWidth) {
+            derivedStateOf { calculateContentOffset(drawerState.offset, screenWidth) }
+        }
+        val rotationY by remember(drawerState, screenWidth) {
+            derivedStateOf { calculateRotationY(drawerState.offset, screenWidth) }
+        }
+        val cornerSize by remember(drawerState, screenWidth, contentCornerSize) {
+            derivedStateOf { calculateCornerRadius(drawerState.offset, screenWidth, contentCornerSize) }
+        }
+        val cameraDistancePx = remember(density) { THRESHOLD_CAMERA_DISTANCE * density.density }
 
         Box(
             Modifier.anchoredDraggable(
@@ -154,20 +174,20 @@ fun DSDrawer(
             )
         ) {
             DrawerSurface(
-                drawerState = drawerState,
-                screenWidth = screenWidth,
+                drawerOffset = drawerOffset,
                 drawerWidth = drawerWidth,
                 backgroundColor = drawerBackgroundColor,
                 contentColor = drawerContentColor,
-                scope = scope,
+                isOpen = drawerState.isOpen,
+                onDismiss = { scope.launch { drawerState.close() } },
                 content = drawerContent
             )
 
             ContentSurface(
-                drawerState = drawerState,
-                screenWidth = screenWidth,
-                density = density,
-                contentCornerSize = contentCornerSize,
+                contentOffset = contentOffset,
+                cornerSize = cornerSize,
+                rotationY = rotationY,
+                cameraDistancePx = cameraDistancePx,
                 backgroundColor = contentBackgroundColor,
                 content = content
             )
@@ -185,7 +205,7 @@ private fun calculateScreenWidth(windowInfo: androidx.compose.ui.platform.Window
 
 @Composable
 private fun calculateDrawerWidth(screenWidth: Float, density: Density): Dp {
-    return remember(screenWidth) {
+    return remember(screenWidth, density) {
         with(density) {
             val widthPx = screenWidth / THRESHOLD_X_POSITION
             val safePx = if (widthPx.isFinite() && widthPx > 0f) widthPx else FALLBACK_DRAWER_WIDTH
@@ -195,39 +215,25 @@ private fun calculateDrawerWidth(screenWidth: Float, density: Density): Dp {
 }
 
 @Composable
-private fun SetupDraggableAnchors(drawerState: DSDrawerState, maxWidth: Float) {
-    LaunchedEffect(maxWidth) {
-        if (maxWidth.isFinite() && maxWidth > 0f) {
-            val anchors = DraggableAnchors {
-                DSDrawerValue.Closed at -maxWidth
-                DSDrawerValue.Open at 0f
-            }
-            drawerState.updateAnchors(anchors)
-        }
-    }
-}
-
-@Composable
 private fun DrawerSurface(
-    drawerState: DSDrawerState,
-    screenWidth: Float,
+    drawerOffset: IntOffset,
     drawerWidth: Dp,
     backgroundColor: Color,
     contentColor: Color,
-    scope: kotlinx.coroutines.CoroutineScope,
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxHeight()
-            .offset { calculateDrawerOffset(drawerState.offset, screenWidth) }
+            .offset { drawerOffset }
             .width(drawerWidth)
-            .widthIn(0.dp, drawerWidth)
             .semantics {
                 paneTitle = "FullDrawerLayout"
-                if (drawerState.isOpen) {
+                if (isOpen) {
                     dismiss {
-                        scope.launch { drawerState.close() }
+                        onDismiss()
                         true
                     }
                 }
@@ -241,26 +247,23 @@ private fun DrawerSurface(
 
 @Composable
 private fun ContentSurface(
-    drawerState: DSDrawerState,
-    screenWidth: Float,
-    density: Density,
-    contentCornerSize: Dp,
+    contentOffset: IntOffset,
+    cornerSize: Dp,
+    rotationY: Float,
+    cameraDistancePx: Float,
     backgroundColor: Color,
     content: @Composable () -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .offset { calculateContentOffset(drawerState.offset, screenWidth) }
+            .offset { contentOffset }
             .graphicsLayer {
-                val transform = calculate3DTransform(drawerState.offset, screenWidth, density)
-                rotationY = transform.rotationY
-                cameraDistance = transform.cameraDistance
+                this.rotationY = rotationY
+                this.cameraDistance = cameraDistancePx
             },
         color = backgroundColor,
-        shape = RoundedCornerShape(
-            calculateCornerRadius(drawerState.offset, screenWidth, contentCornerSize)
-        )
+        shape = RoundedCornerShape(cornerSize)
     ) {
         content()
     }
@@ -287,20 +290,11 @@ private fun calculateContentOffset(offset: Float, screenWidth: Float): IntOffset
     return IntOffset(clampedX, 0)
 }
 
-private data class Transform3D(
-    val rotationY: Float,
-    val cameraDistance: Float
-)
-
-private fun calculate3DTransform(offset: Float, screenWidth: Float, density: Density): Transform3D {
+private fun calculateRotationY(offset: Float, screenWidth: Float): Float {
     val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
     val safeScreenWidth = screenWidth.takeIf { it.isFinite() && it > 0f } ?: FALLBACK_SCREEN_WIDTH
     val rotationRatio = safeOffset.safeDivision(safeScreenWidth)
-
-    return Transform3D(
-        rotationY = -((THRESHOLD_Y_ROTATION * rotationRatio) + THRESHOLD_Y_ROTATION),
-        cameraDistance = THRESHOLD_CAMERA_DISTANCE * density.density
-    )
+    return -((THRESHOLD_Y_ROTATION * rotationRatio) + THRESHOLD_Y_ROTATION)
 }
 
 private fun calculateCornerRadius(offset: Float, screenWidth: Float, contentCornerSize: Dp): Dp {

@@ -124,7 +124,8 @@ fun JarvisSDKTopBarCenterAligned(
         },
         onBackClick = { navigator.goBack() },
         dismissable = destination.dismissable,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        enableScrollColorChange = true
     )
 }
 
@@ -161,7 +162,8 @@ fun JarvisSDKTopBarLarge(
         onBackClick = { navigator.goBack() },
         dismissable = destination.dismissable,
         onDismiss = onDismiss,
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
+        enableScrollColorChange = true
     )
 }
 
@@ -198,7 +200,8 @@ fun JarvisSDKTopBarMedium(
         onBackClick = { navigator.goBack() },
         dismissable = destination.dismissable,
         onDismiss = onDismiss,
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
+        enableScrollColorChange = true
     )
 }
 

@@ -63,17 +63,19 @@ fun DSTextField(
     isSecure: Boolean = false,
     appearance: DSTextFieldAppearance = DSTextFieldAppearance.default,
 ) {
+    // ✅ PERFORMANCE: Cache expensive operations and memoize appearance
     val context = LocalContext.current
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val focusRequester = remember { FocusRequester() }
-    val (isPasswordVisible, setPasswordVisible) = remember { mutableStateOf(isDisabled) }
+    val (isPasswordVisible, setPasswordVisible) = remember(isDisabled) { mutableStateOf(isDisabled) }
+    val memoizedAppearance = remember(appearance) { appearance }
 
-    val borderWidth = if (isFocused) appearance.focusedBorderWidth else appearance.borderWidth
+    val borderWidth = if (isFocused) memoizedAppearance.focusedBorderWidth else memoizedAppearance.borderWidth
 
     Column(modifier) {
         title?.let{
-            TextFieldTitle(title, isMandatory, appearance)
+            TextFieldTitle(title, isMandatory, memoizedAppearance)
         }
 
         TextFieldContainer(
@@ -87,7 +89,7 @@ fun DSTextField(
             isSecure = isSecure,
             isPasswordVisible = isPasswordVisible,
             setPasswordVisible = setPasswordVisible,
-            appearance = appearance,
+            appearance = memoizedAppearance,
             borderWidth = borderWidth,
             keyboardType = keyboardType,
             imeAction = imeAction,
@@ -99,7 +101,7 @@ fun DSTextField(
         )
 
         if (isError) {
-            ErrorMessage(errorMessage, appearance, context)
+            ErrorMessage(errorMessage, memoizedAppearance, context)
         }
     }
 }

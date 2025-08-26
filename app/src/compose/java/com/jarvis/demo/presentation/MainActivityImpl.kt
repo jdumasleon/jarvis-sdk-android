@@ -11,7 +11,8 @@ fun MainActivity.setupUI() {
         DSJarvisTheme(darkTheme = darkTheme) {
             JarvisDemoApp(
                 navigator = navigator,
-                entryProviderBuilders = entryProviderBuilders
+                entryProviderBuilders = entryProviderBuilders,
+                jarvisSDK = jarvisSDK
             )
         }
     }

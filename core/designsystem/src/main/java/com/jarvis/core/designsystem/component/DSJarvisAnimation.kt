@@ -16,19 +16,32 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -105,7 +118,9 @@ private fun rememberRingBitmaps(
 }
 
 // -----------------------------------------------------
-// REAL-TIME, DRAW-ONLY ring animation (very cheap)
+// REAL-TIME, DRAW-ONLY ring animation
+// - rotating=true: gira en tiempo real
+// - rotating=false: muestra los anillos CONGELADOS en el último ángulo
 // -----------------------------------------------------
 @Composable
 fun DSJarvisRingsRealtime(
@@ -125,7 +140,8 @@ fun DSJarvisRingsRealtime(
     pivotInViewport: Offset = Offset(450f, 400f),
     contentScale: Float = 0.98f,
     // 0 = vsync; try 22_222_222 for ~45fps if you want to reduce load
-    frameStepNanos: Long = 0L
+    frameStepNanos: Long = 0L,
+    rotating: Boolean = true
 ) {
     val density = LocalDensity.current
     val px = with(density) { size.toPx() }.toInt().coerceAtLeast(1)
@@ -144,33 +160,47 @@ fun DSJarvisRingsRealtime(
 
     val center = Offset(px / 2f, px / 2f)
 
-    // Use transition to drive invalidation for rings animation
-    val infiniteTransition = rememberInfiniteTransition(label = "rings")
-    val animationTrigger by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (frameStepNanos > 0) (frameStepNanos / 1_000_000L).toInt() else 16,
-                easing = LinearEasing
+    // Trigger para invalidar cuando está girando.
+    // Cuando rotating=false, exponemos un State<Float> constante (0f), sin animación.
+    val animationTriggerState = if (rotating) {
+        val t = rememberInfiniteTransition(label = "rings")
+        t.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = if (frameStepNanos > 0) (frameStepNanos / 1_000_000L).toInt() else 16,
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Restart
             ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "trigger"
-    )
+            label = "trigger"
+        )
+    } else {
+        remember { mutableStateOf(0f) }
+    }
+    val animationTrigger by animationTriggerState
+
+    // Cuando se desactiva la animación, "capturamos" el tiempo actual para congelar el ángulo.
+    val frozenTimeNs = remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(rotating, periodsMs) {
+        if (!rotating) {
+            frozenTimeNs.longValue = System.nanoTime()
+        }
+    }
 
     Box(
         Modifier
             .size(size)
             .drawBehind {
-                // Use the animation trigger to force redraws
-                animationTrigger // This forces invalidation!
-                
-                // Get real time in drawScope
-                val currentTime = System.nanoTime()
-                val timeNanos = if (frameStepNanos > 0) {
-                    (currentTime / frameStepNanos) * frameStepNanos
-                } else currentTime
+                // Forzamos invalidación cuando gira
+                animationTrigger
+
+                val baseNow = if (rotating) System.nanoTime() else frozenTimeNs.longValue
+                val timeNanos = if (frameStepNanos > 0 && rotating) {
+                    (baseNow / frameStepNanos) * frameStepNanos
+                } else baseNow
 
                 // background disc matching the inner padding
                 val innerRadius = ((min(this.size.width, this.size.height) - 120f) * contentScale) / 2f
@@ -181,7 +211,9 @@ fun DSJarvisRingsRealtime(
                     val periodMs = periodsMs[i]
                     val sign = if (periodMs >= 0f) 1f else -1f
                     val periodNs = kotlin.math.abs(periodMs) * 1_000_000f
-                    val angle = ((timeNanos % periodNs) / periodNs) * 360f * sign
+                    val angle = if (periodNs > 0f) {
+                        ((timeNanos % periodNs) / periodNs) * 360f * sign
+                    } else 0f
 
                     withTransform({
                         rotate(degrees = angle, pivot = center)
@@ -227,9 +259,7 @@ fun DSJarvisAnimationLetters(
     val total = perLetter + staggerPerLetter * (letters.size - 1)
     val cameraDistancePx = with(LocalDensity.current) { 32.dp.toPx() }
 
-    // Use transition to drive invalidation
-    val infiniteTransition = rememberInfiniteTransition(label = "letters")
-    val animationTrigger by infiniteTransition.animateFloat(
+    val t by rememberInfiniteTransition(label = "letters").animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
@@ -254,15 +284,13 @@ fun DSJarvisAnimationLetters(
                     fontWeight = FontWeight.Thin,
                     letterSpacing = 0.sp
                 ),
-                modifier = Modifier.graphicsLayer {
-                    // Use the animation trigger to force redraws
-                    animationTrigger // This forces invalidation!
-
-                    // Get real time in graphicsLayer
+                modifier = Modifier.drawBehind {
+                    t
+                }.graphicsLayer {
                     val currentTime = System.nanoTime()
                     val tMs = (currentTime / 1_000_000L).toInt()
-                    val t = (tMs % total).toFloat()
-                    val local = (t - start).coerceIn(0f, perLetter.toFloat())
+                    val localT = (tMs % total).toFloat()
+                    val local = (localT - start).coerceIn(0f, perLetter.toFloat())
 
                     val angle = if (local <= durationPerFlip) 360f * (local / durationPerFlip) else 360f
                     val edge = ((angle % 180f) - 90f).absoluteValue / 90f
@@ -282,58 +310,15 @@ fun DSJarvisAnimationLetters(
 }
 
 // -----------------------------------------------------
-// Wave Animation State (following withFrameNanos pattern)
-// -----------------------------------------------------
-data class Wave(
-    val progress: Float,
-    val speed: Float = 0.0001f // Progress per millisecond - ultra slow for debugging
-)
-
-data class WaveAnimationState(
-    val waves: List<Wave> = listOf(
-        Wave(progress = 0f),
-        Wave(progress = 0.22f),
-        Wave(progress = 0.33f),
-        Wave(progress = 0.44f),
-        Wave(progress = 0.66f)
-    ),
-    val spawnTimer: Float = 0.5f
-) {
-    fun nextFrame(deltaMs: Float): WaveAnimationState {
-        // Update existing waves
-        val updatedWaves = waves.map { wave ->
-            val newProgress = (wave.progress + wave.speed * deltaMs).coerceIn(0f, 1f)
-            wave.copy(progress = newProgress)
-        }.filter { it.progress < 1f } // Remove completed waves
-        
-        // Add new wave if needed
-        val newTimer = spawnTimer + deltaMs
-        val shouldSpawnWave = newTimer > 3000f && (updatedWaves.isEmpty() || updatedWaves.first().progress > 0.2f)
-        
-        return if (shouldSpawnWave) {
-            copy(
-                waves = updatedWaves + Wave(progress = 0f),
-                spawnTimer = 0f
-            )
-        } else {
-            copy(
-                waves = updatedWaves,
-                spawnTimer = newTimer
-            )
-        }
-    }
-}
-
-// -----------------------------------------------------
 // Material3-Inspired Assistant Animation
 // -----------------------------------------------------
 @Composable
-fun DSJarvisAssistant(
+fun DSJarvisAnimation(
     modifier: Modifier = Modifier,
     size: Dp = 100.dp,
     enabled: Boolean = true,
     showWaveAnimation: Boolean = true,
-    showRingsAnimation: Boolean = true,
+    showRingsAnimation: Boolean = true, // when false, rings are visible but frozen
     triggerLetterAnimation: Boolean = false
 ) {
     if (!enabled) {
@@ -343,7 +328,7 @@ fun DSJarvisAssistant(
 
     // State for wave animation - similar to dots and lines approach
     var waveState by remember { mutableStateOf(WaveAnimationState()) }
-    
+
     // Use withFrameNanos pattern with frame limiting
     LaunchedEffect(showWaveAnimation) {
         if (!showWaveAnimation) {
@@ -351,7 +336,7 @@ fun DSJarvisAssistant(
             waveState = WaveAnimationState(waves = emptyList())
             return@LaunchedEffect
         }
-        
+
         var lastFrame = withFrameNanos { it }
         var frameCount = 0
         while (isActive) {
@@ -359,33 +344,12 @@ fun DSJarvisAssistant(
                 frameCount++
                 // Only update every 2nd frame (30fps instead of 60fps)
                 if (frameCount % 2 == 0) {
-                    val deltaMs = (frameTime - lastFrame) / 1_000_000f
+                    val deltaMs = (frameTime - lastFrame) / 500_000f
                     lastFrame = frameTime
-                    
+
                     // Update wave state based on elapsed time
                     waveState = waveState.nextFrame(deltaMs)
                 }
-            }
-        }
-    }
-
-    // Add rings animation state  
-    var ringsRotation by remember { mutableFloatStateOf(0f) }
-    
-    // Rings rotate only when enabled
-    LaunchedEffect(showRingsAnimation) {
-        if (!showRingsAnimation) {
-            return@LaunchedEffect // Stop rings when disabled
-        }
-        
-        var lastFrame = withFrameNanos { it }
-        while (isActive) {
-            withFrameNanos { frameTime ->
-                val deltaMs = (frameTime - lastFrame) / 1_000_000f
-                lastFrame = frameTime
-                
-                // Update rings rotation
-                ringsRotation = (ringsRotation + deltaMs * 0.03f) % 360f
             }
         }
     }
@@ -395,24 +359,26 @@ fun DSJarvisAssistant(
         contentAlignment = Alignment.Center
     ) {
         // Wave animation using Canvas
-        Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val center = Offset(this.size.width / 2f, this.size.height / 2f)
-            val baseRadius = this.size.minDimension / 8f
-            val maxRadius = this.size.minDimension / 2.5f
-            
-            // Draw waves based on current state
-            waveState.waves.forEachIndexed { i, wave ->
-                val alpha = (1f - wave.progress) * 0.5f
-                if (alpha > 0.05f) {
-                    val radius = baseRadius + wave.progress * maxRadius
-                    drawCircle(
-                        color = JarvisPink.copy(alpha = alpha),
-                        radius = radius,
-                        center = center,
-                        style = Stroke(width = 2.5f)
-                    )
+        if (showWaveAnimation) {
+            Canvas(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val center = Offset(this.size.width / 2f, this.size.height / 2f)
+                val baseRadius = this.size.minDimension / 8f
+                val maxRadius = this.size.minDimension / 2.5f
+
+                // Draw waves based on current state
+                waveState.waves.forEach { wave ->
+                    val alpha = (1f - wave.progress) * 0.5f
+                    if (alpha > 0.05f) {
+                        val radius = baseRadius + wave.progress * maxRadius
+                        drawCircle(
+                            color = JarvisPink.copy(alpha = alpha),
+                            radius = radius,
+                            center = center,
+                            style = Stroke(width = 2.5f)
+                        )
+                    }
                 }
             }
         }
@@ -424,15 +390,14 @@ fun DSJarvisAssistant(
                 .background(DSJarvisTheme.colors.extra.surface, CircleShape)
         )
 
-        // Show rings only when enabled
-        if (showRingsAnimation) {
-            DSJarvisRingsRealtime(
-                size = size * 0.8f,
-                frameStepNanos = 0L // Use real time since we're managing timing in LaunchedEffect
-            )
-        }
-        
-        // Simple static text for now - disable letter animation to fix performance
+        // Always draw rings; when showRingsAnimation=false they are frozen.
+        DSJarvisRingsRealtime(
+            size = size * 0.8f,
+            frameStepNanos = 0L,
+            rotating = showRingsAnimation
+        )
+
+        // Simple static text for now (letters animation optional)
         DSText(
             text = stringResource(R.string.core_designsystem_jarvis),
             style = DSJarvisTheme.typography.label.small.copy(
@@ -453,9 +418,9 @@ fun DSJarvisAssistant(
 // -----------------------------------------------------
 @Preview(showBackground = true, name = "Animated (run app to see)")
 @Composable
-fun DSJarvisAssistantAnimatedPreview() {
+fun DSJarvisAnimationAnimatedPreview() {
     DSJarvisTheme {
-        DSJarvisAssistant(
+        DSJarvisAnimation(
             enabled = true,
             showWaveAnimation = true,
             showRingsAnimation = true,
@@ -464,11 +429,24 @@ fun DSJarvisAssistantAnimatedPreview() {
     }
 }
 
+@Preview(showBackground = true, name = "Rings Frozen")
+@Composable
+fun DSJarvisAnimationRingsFrozenPreview() {
+    DSJarvisTheme {
+        DSJarvisAnimation(
+            enabled = true,
+            showWaveAnimation = false,
+            showRingsAnimation = false, // visible but frozen
+            triggerLetterAnimation = false
+        )
+    }
+}
+
 @Preview(showBackground = true, name = "Letter Animation")
 @Composable
-fun DSJarvisAssistantLetterPreview() {
+fun DSJarvisAnimationsLetterPreview() {
     DSJarvisTheme {
-        DSJarvisAssistant(
+        DSJarvisAnimation(
             enabled = true,
             showWaveAnimation = true,
             showRingsAnimation = false,

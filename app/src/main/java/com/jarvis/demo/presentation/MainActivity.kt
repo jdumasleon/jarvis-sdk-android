@@ -11,6 +11,7 @@ import com.jarvis.demo.data.preferences.PreferencesDataStoreManager
 import com.jarvis.demo.data.preferences.ProtoDataStoreManager
 import com.jarvis.demo.data.preferences.proto.UserSettings
 import com.jarvis.demo.presentation.home.HomeGraph
+import com.jarvis.core.presentation.performance.JarvisPerformanceProfiler
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -31,6 +32,9 @@ class MainActivity : ComponentActivity() {
     
     @Inject
     lateinit var protoDataStoreManager: ProtoDataStoreManager
+    
+    @Inject
+    lateinit var performanceProfiler: JarvisPerformanceProfiler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

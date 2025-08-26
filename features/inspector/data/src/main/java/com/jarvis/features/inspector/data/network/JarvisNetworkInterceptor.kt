@@ -58,7 +58,11 @@ class JarvisNetworkInterceptor @Inject constructor(
         
         // Find matching rules
         val matchingRules = runBlocking {
-            applyNetworkRulesUseCase.findMatchingRules(transaction)
+            try {
+                applyNetworkRulesUseCase.findMatchingRules(transaction)
+            } catch (e: Exception) {
+                emptyList()
+            }
         }
         
         // Get the first matching rule (if any)
@@ -99,9 +103,14 @@ class JarvisNetworkInterceptor @Inject constructor(
         // Update transaction with potentially modified request
         val updatedTransaction = transaction.copy(request = modifiedNetworkRequest)
         
-        // Collect request
-        coroutineScope.launch {
-            collector.onRequestSent(updatedTransaction)
+        // Collect request asynchronously with fire-and-forget approach
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                collector.onRequestSent(updatedTransaction)
+            } catch (e: Exception) {
+                // Log but don't block the network request
+                println("JarvisNetworkInterceptor: Failed to collect request - ${e.message}")
+            }
         }
         
         return try {
@@ -127,18 +136,28 @@ class JarvisNetworkInterceptor @Inject constructor(
             // Update transaction with response
             val completedTransaction = updatedTransaction.withResponse(finalNetworkResponse)
             
-            // Collect response
-            coroutineScope.launch {
-                collector.onResponseReceived(completedTransaction)
+            // Collect response asynchronously with fire-and-forget approach
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    collector.onResponseReceived(completedTransaction)
+                } catch (e: Exception) {
+                    // Log but don't block the network request
+                    println("JarvisNetworkInterceptor: Failed to collect response - ${e.message}")
+                }
             }
             
             finalResponse
         } catch (e: Exception) {
             val errorTransaction = updatedTransaction.withError(e.message ?: "Unknown error")
             
-            // Collect error
-            coroutineScope.launch {
-                collector.onFailure(errorTransaction, e)
+            // Collect error asynchronously with fire-and-forget approach
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    collector.onFailure(errorTransaction, e)
+                } catch (ex: Exception) {
+                    // Log but don't block the network request
+                    println("JarvisNetworkInterceptor: Failed to collect error - ${ex.message}")
+                }
             }
             
             throw e

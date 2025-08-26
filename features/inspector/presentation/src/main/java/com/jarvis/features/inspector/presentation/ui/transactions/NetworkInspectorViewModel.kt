@@ -28,6 +28,7 @@ class NetworkInspectorViewModel @Inject constructor(
     fun onEvent(event: NetworkInspectorEvent) {
         when (event) {
             is NetworkInspectorEvent.LoadTransactions -> loadTransactions()
+            is NetworkInspectorEvent.LoadMoreTransactions -> loadMoreTransactions()
             is NetworkInspectorEvent.SearchQueryChanged -> updateSearchQuery(event.query)
             is NetworkInspectorEvent.MethodFilterChanged -> updateMethodFilter(event.method)
             is NetworkInspectorEvent.StatusFilterChanged -> updateStatusFilter(event.status)
@@ -40,24 +41,69 @@ class NetworkInspectorViewModel @Inject constructor(
         }
     }
 
+    companion object {
+        private const val PAGE_SIZE = 50
+        private const val INITIAL_PAGE_SIZE = 20
+    }
+    
     private fun loadTransactions() {
         _uiState.update { ResourceState.Loading }
         viewModelScope.launch {
             try {
-                networkRepository.getAllTransactions().collect { transactions ->
+                // Load initial page with pagination
+                networkRepository.getTransactionsPaged(INITIAL_PAGE_SIZE, 0).collect { transactions ->
                     val filteredTransactions = applyFilters(transactions)
                     val uiData = NetworkInspectorUiData(
                         transactions = filteredTransactions,
-                        searchQuery = _uiState.value.getDataOrNull()?.searchQuery ?: "",
-                        selectedMethod = _uiState.value.getDataOrNull()?.selectedMethod,
-                        selectedStatus = _uiState.value.getDataOrNull()?.selectedStatus,
+                        allLoadedTransactions = transactions,
+                        searchQuery = "",
+                        selectedMethod = null,
+                        selectedStatus = null,
                         availableMethods = transactions.map { it.request.method.name }.distinct(),
-                        availableStatuses = transactions.map { it.status.name }.distinct()
+                        availableStatuses = transactions.map { it.status.name }.distinct(),
+                        currentPage = 0,
+                        hasMorePages = transactions.size >= INITIAL_PAGE_SIZE,
+                        isLoadingMore = false
                     )
                     _uiState.update { ResourceState.Success(uiData) }
                 }
             } catch (exception: Exception) {
                 _uiState.update { ResourceState.Error(exception, "Failed to load transactions") }
+            }
+        }
+    }
+
+    private fun loadMoreTransactions() {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        if (currentData.isLoadingMore || !currentData.hasMorePages) return
+
+        // Set loading more state
+        val updatedData = currentData.copy(isLoadingMore = true)
+        _uiState.update { ResourceState.Success(updatedData) }
+
+        viewModelScope.launch {
+            try {
+                val nextPage = currentData.currentPage + 1
+                val offset = nextPage * PAGE_SIZE
+                
+                networkRepository.getTransactionsPaged(PAGE_SIZE, offset).collect { newTransactions ->
+                    val allLoadedTransactions = currentData.allLoadedTransactions + newTransactions
+                    val filteredTransactions = applyFilters(allLoadedTransactions)
+                    
+                    val finalData = updatedData.copy(
+                        transactions = filteredTransactions,
+                        allLoadedTransactions = allLoadedTransactions,
+                        availableMethods = allLoadedTransactions.map { it.request.method.name }.distinct(),
+                        availableStatuses = allLoadedTransactions.map { it.status.name }.distinct(),
+                        currentPage = nextPage,
+                        hasMorePages = newTransactions.size >= PAGE_SIZE,
+                        isLoadingMore = false
+                    )
+                    _uiState.update { ResourceState.Success(finalData) }
+                }
+            } catch (exception: Exception) {
+                val errorData = updatedData.copy(isLoadingMore = false)
+                _uiState.update { ResourceState.Success(errorData) }
             }
         }
     }
@@ -134,12 +180,11 @@ class NetworkInspectorViewModel @Inject constructor(
     private fun refreshFilters() {
         viewModelScope.launch {
             try {
-                networkRepository.getAllTransactions().collect { allTransactions ->
-                    val currentData = _uiState.value.getDataOrNull() ?: return@collect
-                    val filteredTransactions = applyFilters(allTransactions)
-                    val updatedData = currentData.copy(transactions = filteredTransactions)
-                    _uiState.update { ResourceState.Success(updatedData) }
-                }
+                val currentData = _uiState.value.getDataOrNull() ?: return@launch
+                // Apply filters to all loaded transactions
+                val filteredTransactions = applyFilters(currentData.allLoadedTransactions)
+                val updatedData = currentData.copy(transactions = filteredTransactions)
+                _uiState.update { ResourceState.Success(updatedData) }
             } catch (exception: Exception) {
                 _uiState.update { ResourceState.Error(exception, "Failed to apply filters") }
             }

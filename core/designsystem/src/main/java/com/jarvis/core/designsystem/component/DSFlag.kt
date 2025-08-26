@@ -41,6 +41,8 @@ import com.jarvis.core.designsystem.theme.Success80
 import com.jarvis.core.designsystem.theme.Warning100
 import com.jarvis.core.designsystem.theme.Warning20
 import com.jarvis.core.designsystem.theme.Warning80
+import com.jarvis.core.designsystem.theme.JarvisPink
+import com.jarvis.core.designsystem.theme.JarvisBlue
 
 
 @Composable
@@ -181,6 +183,14 @@ sealed class FlagStyle(
         iconResource = DSIcons.Rounded.warning,
         iconTint = Warning80
     )
+    
+    data object Wealth : FlagStyle(
+        backgroundColor = JarvisPink.copy(alpha = 0.1f),
+        titleTextColor = JarvisPink,
+        descriptionTextColor = JarvisBlue,
+        iconResource = DSIcons.Rounded.checkCircle,
+        iconTint = JarvisPink.copy(alpha = 0.8f)
+    )
 }
 
 @Preview(showBackground = true, name = "All DSFlag styles")
@@ -223,6 +233,13 @@ fun DSFlagPreviews() {
                 title = "Warning Title",
                 description = "This is a warning description.",
                 style = FlagStyle.Warning,
+                closable = true
+            )
+
+            DSFlag(
+                title = "Wealth Dashboard",
+                description = "Welcome to your comprehensive analytics overview. Track performance, monitor network activity, and optimize your app's health in real-time.",
+                style = FlagStyle.Wealth,
                 closable = true
             )
         }

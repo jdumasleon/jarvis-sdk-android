@@ -49,4 +49,6 @@
     
     <!-- Home Screen -->
     <string name="last_updated">Last updated: %1$s</string>
+    <string name="network_inspector">Network Inspector</string>
+    <string name="network_inspector_dsflag_info_description">Monitor and analyze all network requests. Filter by status, method, or search for specific endpoints to debug API interactions.</string>
 </resources>

@@ -30,8 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
+import com.jarvis.core.designsystem.component.DSFlag
 import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.FlagStyle
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.navigation.ActionRegistry
@@ -72,14 +74,6 @@ private fun InspectorScreen(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        // Header
-        DSText(
-            text = stringResource(R.string.inspector_description),
-            style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.extra.black,
-            modifier = Modifier.padding(DSJarvisTheme.spacing.m)
-        )
-
         ResourceStateContent(
             resourceState = uiState,
             modifier = Modifier.weight(1f),
@@ -98,6 +92,18 @@ private fun InspectorScreen(
                     verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
                 ) {
                     item { Spacer(Modifier.height(DSJarvisTheme.spacing.xs)) }
+
+                    item {
+                        DSFlag(
+                            title = stringResource(R.string.network_inspector),
+                            description = stringResource(R.string.network_inspector_dsflag_info_description),
+                            style = FlagStyle.Info,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = DSJarvisTheme.spacing.m)
+                                .padding(bottom = DSJarvisTheme.spacing.s)
+                        )
+                    }
 
                     items(uiData.apiCalls) { apiCall ->
                         ApiCallItem(
@@ -169,7 +175,10 @@ private fun ApiCallItem(
                             color = getMethodColor(apiCall.method),
                             shape = RoundedCornerShape(DSJarvisTheme.spacing.xs)
                         )
-                        .padding(horizontal = DSJarvisTheme.spacing.s, vertical = DSJarvisTheme.spacing.xs)
+                        .padding(
+                            horizontal = DSJarvisTheme.spacing.s,
+                            vertical = DSJarvisTheme.spacing.xs
+                        )
                 ) {
                     DSText(
                         text = apiCall.method,

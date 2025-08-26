@@ -7,7 +7,7 @@ interface NetworkRepository {
     
     fun getAllTransactions(): Flow<List<NetworkTransaction>>
 
-    fun getTransactionsPaged(limit: Int = 50, offset: Int = 0): Flow<List<NetworkTransaction>>
+    fun getTransactionsPaged(limit: Int = 20, offset: Int = 0): Flow<List<NetworkTransaction>>
     
     fun getTransaction(id: String): Flow<NetworkTransaction?>
     
