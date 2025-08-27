@@ -37,6 +37,7 @@ import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSJarvisAnimation
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.api.JarvisSDK
 
 /**
  * Draggable floating Jarvis button with expandable tool buttons
@@ -47,7 +48,6 @@ fun JarvisFabButton(
     onPreferencesClick: () -> Unit,
     onHomeClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isDrawerOpen: Boolean = false
 ) {
     var fabOffset by remember { mutableStateOf(IntOffset.Zero) }
     var isExpanded by remember { mutableStateOf(false) }
@@ -127,8 +127,8 @@ fun JarvisFabButton(
             contentAlignment = Alignment.Center
         ) {
             DSJarvisAnimation(
-                showWaveAnimation = !isExpanded && !isDrawerOpen,
-                showRingsAnimation = !isExpanded && !isDrawerOpen
+                showWaveAnimation = !isExpanded,
+                showRingsAnimation = !isExpanded
             )
         }
     }

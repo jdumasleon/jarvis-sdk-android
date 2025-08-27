@@ -67,7 +67,6 @@ fun JarvisDemoApp(
     navigator: Navigator,
     entryProviderBuilders: Set<@JvmSuppressWildcards EntryProviderInstaller>,
     modifier: Modifier = Modifier,
-    jarvisSDK: JarvisSDK? = null
 ) {
     DSBackground(modifier = modifier) {
         val snackBarHostState = remember { SnackbarHostState() }
@@ -76,7 +75,6 @@ fun JarvisDemoApp(
             navigator = navigator,
             entryProviderBuilders = entryProviderBuilders,
             snackBarHostState = snackBarHostState,
-            jarvisSDK = jarvisSDK
         )
     }
 }
@@ -91,16 +89,10 @@ internal fun JarvisDemoApp(
     navigator: Navigator,
     entryProviderBuilders: Set<@JvmSuppressWildcards EntryProviderInstaller>,
     snackBarHostState: SnackbarHostState,
-    jarvisSDK: JarvisSDK? = null
 ) {
     val drawerState = rememberDSDrawerState(DSDrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentDestination by remember(navigator.currentDestination) { mutableStateOf(navigator.currentDestination) }
-    
-    // Track drawer state and notify JarvisSDK of changes to prevent animation conflicts
-    LaunchedEffect(drawerState.targetValue) {
-        jarvisSDK?.setDrawerOpen(drawerState.targetValue == DSDrawerValue.Open)
-    }
 
     DSDrawer(
         drawerState = drawerState,

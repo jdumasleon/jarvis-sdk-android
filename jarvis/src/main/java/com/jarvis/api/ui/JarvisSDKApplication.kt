@@ -9,6 +9,10 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -124,8 +128,7 @@ fun JarvisSDKTopBarCenterAligned(
         },
         onBackClick = { navigator.goBack() },
         dismissable = destination.dismissable,
-        onDismiss = onDismiss,
-        enableScrollColorChange = true
+        onDismiss = onDismiss
     )
 }
 
@@ -162,8 +165,7 @@ fun JarvisSDKTopBarLarge(
         onBackClick = { navigator.goBack() },
         dismissable = destination.dismissable,
         onDismiss = onDismiss,
-        scrollBehavior = scrollBehavior,
-        enableScrollColorChange = true
+        scrollBehavior = scrollBehavior
     )
 }
 
@@ -201,7 +203,6 @@ fun JarvisSDKTopBarMedium(
         dismissable = destination.dismissable,
         onDismiss = onDismiss,
         scrollBehavior = scrollBehavior,
-        enableScrollColorChange = true
     )
 }
 
@@ -210,6 +211,12 @@ private fun JarvisSDKBottomBar(
     currentDestination: NavigationRoute?,
     navigator: Navigator
 ) {
+    val colors = listOf(
+        DSJarvisTheme.colors.extra.jarvisPink,
+        DSJarvisTheme.colors.extra.jarvisBlue
+    )
+    val brush = remember { Brush.linearGradient(colors) }
+
     currentDestination?.takeIf { it.shouldShowBottomBar }?.let {
         DSNavigationBar(
             topCornerRadius = DSJarvisTheme.dimensions.l,
@@ -221,14 +228,34 @@ private fun JarvisSDKBottomBar(
                         DSIcon(
                             imageVector = item.icon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
-                            tint = DSJarvisTheme.colors.neutral.neutral100
+                            modifier = Modifier
+                                .graphicsLayer(alpha = 0.99f)
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            brush = brush,
+                                            blendMode = BlendMode.SrcIn
+                                        )
+                                    }
+                                }
                         )
                     },
                     selectedIcon = {
                         DSIcon(
                             imageVector = item.selectedIcon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
-                            tint = DSJarvisTheme.colors.primary.primary60
+                            modifier = Modifier
+                                .graphicsLayer(alpha = 0.99f)
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            brush = brush,
+                                            blendMode = BlendMode.SrcIn
+                                        )
+                                    }
+                                }
                         )
                     },
                     selected = isDestinationSelected(currentDestination, item.destination),

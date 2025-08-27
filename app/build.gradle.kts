@@ -72,10 +72,9 @@ dependencies {
     implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.window.core)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.androidx.navigation3.ui.android)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3.android)
-    
-    // Compose-specific dependencies (only for compose flavor)
+
+    "composeImplementation"(libs.androidx.navigation3.ui.android)
+    "composeImplementation"(libs.androidx.lifecycle.viewmodel.navigation3.android)
     "composeImplementation"(libs.androidx.material3)
     "composeImplementation"(libs.androidx.activity.compose)
     "composeImplementation"(libs.androidx.compose.material3)

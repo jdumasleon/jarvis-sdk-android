@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.jarvis.api.ui.components.JarvisFabButton
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.api.JarvisSDK
 
 /**
  * Main Jarvis SDK overlay component
@@ -24,8 +25,7 @@ fun JarvisSDKFabTools(
     onShowOverlay: () -> Unit,
     onShowInspector: () -> Unit = {},
     onShowPreferences: () -> Unit = {},
-    isJarvisActive: Boolean = false,
-    isDrawerOpen: Boolean = false
+    isJarvisActive: Boolean = false
 ) {
     var isJarvisVisible by rememberSaveable { mutableStateOf(isJarvisActive) }
 
@@ -39,8 +39,7 @@ fun JarvisSDKFabTools(
                 onInspectorClick = onShowInspector,
                 onPreferencesClick = onShowPreferences,
                 onHomeClick = onShowOverlay,
-                modifier = Modifier.zIndex(Float.MAX_VALUE),
-                isDrawerOpen = isDrawerOpen
+                modifier = Modifier.zIndex(Float.MAX_VALUE)
             )
         }
     }

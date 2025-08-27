@@ -40,17 +40,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class JarvisSDK @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val configurationSynchronizer: ConfigurationSynchronizer,
     private val performanceManager: PerformanceManager
 ) {
     private var coreInitialized = false
     private var configuration = JarvisConfig()
-
     private var _isJarvisActive by mutableStateOf(false)
     private var _isShowing by mutableStateOf(false)
-    private var _isDrawerOpen by mutableStateOf(false)
-    val isShowing: Boolean get() = _isShowing
 
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
     private var composeView: ComposeView? = null
@@ -126,7 +122,6 @@ class JarvisSDK @Inject constructor(
                                 _isShowing = true
                             },
                             isJarvisActive = this@JarvisSDK.isActive(),
-                            isDrawerOpen = _isDrawerOpen
                         )
                     }
 
@@ -191,17 +186,5 @@ class JarvisSDK @Inject constructor(
     fun toggle(): Boolean {
         if (_isJarvisActive) deactivate() else activate()
         return _isJarvisActive
-    }
-
-    fun activateIfInactive(): Boolean {
-        if (!_isJarvisActive && coreInitialized) {
-            activate()
-            return true
-        }
-        return false
-    }
-
-    fun setDrawerOpen(isOpen: Boolean) {
-        _isDrawerOpen = isOpen
     }
 }

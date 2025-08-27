@@ -3,10 +3,12 @@ package com.jarvis.core.data.performance
 import android.app.Application
 import com.jarvis.core.domain.performance.PerformanceConfig
 import com.jarvis.core.domain.performance.PerformanceRepository
+import com.jarvis.core.domain.performance.PerformanceSnapshot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,5 +70,12 @@ class PerformanceManager @Inject constructor(
         } catch (exception: Exception) {
             false
         }
+    }
+    
+    /**
+     * Get performance metrics flow for real-time monitoring
+     */
+    fun getPerformanceMetricsFlow(): Flow<PerformanceSnapshot> {
+        return performanceRepository.getPerformanceMetricsFlow()
     }
 }
