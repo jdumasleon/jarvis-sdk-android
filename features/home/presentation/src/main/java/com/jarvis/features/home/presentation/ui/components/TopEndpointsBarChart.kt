@@ -5,8 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,8 +46,7 @@ fun TopEndpointsBarChartCard(
     title: String? = null,
     endpoints: List<EndpointData>,
     modifier: Modifier = Modifier,
-    maxItems: Int = 10,
-    maxHeight: Dp = 400.dp
+    maxItems: Int = 10
 ) {
 
     DSCard(
@@ -63,8 +60,7 @@ fun TopEndpointsBarChartCard(
         TopEndpointsBarChart(
             title = title,
             endpoints = endpoints,
-            maxItems = maxItems,
-            maxHeight = maxHeight
+            maxItems = maxItems
         )
     }
 }
@@ -74,8 +70,7 @@ fun TopEndpointsBarChart(
     modifier: Modifier = Modifier,
     title: String? = null,
     endpoints: List<EndpointData>,
-    maxItems: Int = 10,
-    maxHeight: Dp = 400.dp
+    maxItems: Int = 5
 ) {
     // Defensive sorting so ranking and bar scaling are consistent
     val sorted = remember(endpoints) { endpoints.sortedByDescending { it.requestCount } }
@@ -116,11 +111,10 @@ fun TopEndpointsBarChart(
         }
 
         if (topEndpoints.isNotEmpty()) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
-                modifier = Modifier.heightIn(max = maxHeight)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
             ) {
-                itemsIndexed(topEndpoints) { index, endpoint ->
+                topEndpoints.forEachIndexed { index, endpoint ->
                     EndpointBarItem(
                         endpoint = endpoint,
                         maxRequests = maxRequests,

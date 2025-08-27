@@ -1,5 +1,6 @@
 package com.jarvis.core.designsystem.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,8 +77,8 @@ private fun DialogContent(
 ) {
     Surface(
         shape = DSJarvisTheme.shapes.m,
+        color = DSJarvisTheme.colors.extra.surface,
         tonalElevation = DSJarvisTheme.elevations.level2,
-        modifier = modifier,
     ) {
         Column(
             modifier = Modifier
@@ -91,7 +92,7 @@ private fun DialogContent(
                 description = text,
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xxs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
                 buttons()
             }
         }

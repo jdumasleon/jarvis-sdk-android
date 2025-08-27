@@ -19,6 +19,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Dehaze
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
@@ -62,8 +69,12 @@ import com.jarvis.features.inspector.domain.entity.NetworkTransaction
 import com.jarvis.features.inspector.domain.entity.TransactionStatus
 import androidx.compose.ui.input.nestedscroll.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Velocity
+import com.jarvis.core.designsystem.component.DSDropdownMenuItem
+import com.jarvis.core.designsystem.component.DSThreeDotsMenu
 import com.jarvis.features.inspector.presentation.R
 import com.jarvis.features.inspector.presentation.ui.components.NetworkTransactionGroupHeader
 import com.jarvis.features.inspector.presentation.ui.components.TODAY
@@ -239,7 +250,6 @@ private fun NetworkInspectorContent(
         ) {
             InspectorActions(
                 uiData = uiData,
-                onEvent = onEvent,
                 onNavigateToRules = onNavigateToRules
             )
 
@@ -338,6 +348,13 @@ private fun NetworkInspectorFilters(
     onEvent: (NetworkInspectorEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val gradient = Brush.horizontalGradient(
+        colors = listOf(
+            DSJarvisTheme.colors.extra.jarvisPink,
+            DSJarvisTheme.colors.extra.jarvisBlue
+        )
+    )
+
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -354,12 +371,14 @@ private fun NetworkInspectorFilters(
 
         MethodsTypesChips(
             uiData = uiData,
-            onEvent = onEvent
+            onEvent = onEvent,
+            gradient = gradient
         )
 
         StatusChips(
             uiData = uiData,
-            onEvent = onEvent
+            onEvent = onEvent,
+            gradient = gradient
         )
     }
 }
@@ -367,7 +386,8 @@ private fun NetworkInspectorFilters(
 @Composable
 private fun MethodsTypesChips(
     uiData: NetworkInspectorUiData,
-    onEvent: (NetworkInspectorEvent) -> Unit
+    onEvent: (NetworkInspectorEvent) -> Unit,
+    gradient: Brush
 ) {
     Column (
         modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
@@ -386,7 +406,8 @@ private fun MethodsTypesChips(
             DSFilterChip(
                 selected = uiData.selectedMethod == null,
                 onClick = { onEvent(NetworkInspectorEvent.MethodFilterChanged(null)) },
-                label = stringResource(R.string.features_inspector_presentation_all)
+                label = stringResource(R.string.features_inspector_presentation_all),
+                selectedGradient = gradient
             )
 
             uiData.availableMethods.forEach { method ->
@@ -397,7 +418,8 @@ private fun MethodsTypesChips(
                         onEvent(NetworkInspectorEvent.MethodFilterChanged(newMethod))
                     },
                     label = method,
-                    selected = selected
+                    selected = selected,
+                    selectedGradient = gradient
                 )
             }
         }
@@ -407,7 +429,8 @@ private fun MethodsTypesChips(
 @Composable
 private fun StatusChips(
     uiData: NetworkInspectorUiData,
-    onEvent: (NetworkInspectorEvent) -> Unit
+    onEvent: (NetworkInspectorEvent) -> Unit,
+    gradient: Brush
 ) {
     Column (
         modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
@@ -425,8 +448,9 @@ private fun StatusChips(
         ) {
             DSFilterChip(
                 selected = uiData.selectedStatus == null,
-                onClick = { onEvent(NetworkInspectorEvent.MethodFilterChanged(null)) },
-                label = stringResource(R.string.features_inspector_presentation_all)
+                onClick = { onEvent(NetworkInspectorEvent.StatusFilterChanged(null)) },
+                label = stringResource(R.string.features_inspector_presentation_all),
+                selectedGradient = gradient
             )
 
             uiData.availableStatuses.forEach { status ->
@@ -437,7 +461,8 @@ private fun StatusChips(
                         onEvent(NetworkInspectorEvent.StatusFilterChanged(newStatus))
                     },
                     label = status,
-                    selected = selected
+                    selected = selected,
+                    selectedGradient = gradient
                 )
             }
         }
@@ -447,9 +472,14 @@ private fun StatusChips(
 @Composable
 private fun InspectorActions(
     uiData: NetworkInspectorUiData,
-    onEvent: (NetworkInspectorEvent) -> Unit,
     onNavigateToRules: () -> Unit,
 ) {
+    val colors = listOf(
+        DSJarvisTheme.colors.extra.jarvisPink,
+        DSJarvisTheme.colors.extra.jarvisBlue
+    )
+    val brush = remember { Brush.linearGradient(colors) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -468,11 +498,35 @@ private fun InspectorActions(
                 .padding(horizontal = DSJarvisTheme.spacing.m)
         )
 
-        DSButton(
-            text = "Rules",
-            onClick = onNavigateToRules,
-            style = DSButtonStyle.TEXT,
-            size = DSButtonSize.EXTRA_SMALL
+        DSThreeDotsMenu(
+            modifier = Modifier
+                .graphicsLayer(alpha = 0.99f)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = brush,
+                            blendMode = BlendMode.SrcIn
+                        )
+                    }
+                },
+            items = buildList {
+                add(
+                    DSDropdownMenuItem(
+                        text = "Add rule",
+                        icon = Icons.Default.Add,
+                        enabled = false,
+                        onClick = { }
+                    )
+                )
+                add(
+                    DSDropdownMenuItem(
+                        text = "Rules",
+                        icon = Icons.Default.Dehaze,
+                        onClick = onNavigateToRules
+                    )
+                )
+            }
         )
     }
 }

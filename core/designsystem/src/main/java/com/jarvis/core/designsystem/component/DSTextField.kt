@@ -342,6 +342,38 @@ data class DSTextFieldAppearance(
                 secureTextIconClose = R.drawable.ic_eye_closed
             )
 
+        val select: DSTextFieldAppearance
+            @Composable
+            get() = DSTextFieldAppearance(
+                textColor = DSJarvisTheme.colors.neutral.neutral100,
+                titleColor = DSJarvisTheme.colors.neutral.neutral100,
+                placeholderTextColor = DSJarvisTheme.colors.neutral.neutral40,
+                disabledBackgroundColor = DSJarvisTheme.colors.extra.surface,
+                disabledColor = DSJarvisTheme.colors.neutral.neutral80,
+                disabledTextColor = DSJarvisTheme.colors.neutral.neutral100,
+                backgroundColor = DSJarvisTheme.colors.extra.white,
+                errorTextColor = DSJarvisTheme.colors.error.error100,
+                trailingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
+                leadingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
+                borderColor = DSJarvisTheme.colors.neutral.neutral40,
+                focusedBorderColor = DSJarvisTheme.colors.neutral.neutral100,
+                mandatoryTextColor = DSJarvisTheme.colors.error.error80,
+
+                titleTextStyle =  DSJarvisTheme.typography.body.medium,
+                errorTextStyle = DSJarvisTheme.typography.body.small,
+                placeholderTextStyle = DSJarvisTheme.typography.body.medium,
+                mandatoryTextStyle = DSJarvisTheme.typography.body.medium,
+
+                borderWidth = DSJarvisTheme.dimensions.xxs,
+                focusedBorderWidth = DSJarvisTheme.dimensions.xxs,
+                cornerRadius = DSJarvisTheme.shapes.s,
+                disableAutoCorrection = false,
+                textFieldHeight = DSJarvisTheme.dimensions.xxxxxl,
+
+                secureTextIconOpen = R.drawable.ic_eye_open,
+                secureTextIconClose = R.drawable.ic_eye_closed
+            )
+
         val dark: DSTextFieldAppearance
             @Composable
             get() = DSTextFieldAppearance(

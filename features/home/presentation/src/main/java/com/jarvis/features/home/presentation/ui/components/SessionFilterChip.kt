@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -37,34 +38,60 @@ fun SessionFilterChip(
     filter: SessionFilter,
     isSelected: Boolean,
     onSelected: (SessionFilter) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedGradient: Brush = Brush.horizontalGradient(
+        colors = listOf(
+            DSJarvisTheme.colors.extra.jarvisPink,
+            DSJarvisTheme.colors.extra.jarvisBlue
+        )
+    )
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary100 else DSJarvisTheme.colors.extra.white,
+        targetValue = if (isSelected)
+            DSJarvisTheme.colors.primary.primary100 // not used when gradient is on
+        else
+            DSJarvisTheme.colors.extra.white,
         animationSpec = tween(200),
         label = "chip_background"
     )
 
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.neutral.neutral0 else DSJarvisTheme.colors.neutral.neutral80,
+        targetValue = if (isSelected)
+            DSJarvisTheme.colors.neutral.neutral0
+        else
+            DSJarvisTheme.colors.neutral.neutral80,
         animationSpec = tween(200),
         label = "chip_content"
     )
 
     val borderColor by animateColorAsState(
-        targetValue = if (isSelected) DSJarvisTheme.colors.primary.primary100 else DSJarvisTheme.colors.neutral.neutral40,
+        targetValue = if (isSelected)
+            DSJarvisTheme.colors.extra.transparent
+        else
+            DSJarvisTheme.colors.neutral.neutral40,
         animationSpec = tween(200),
         label = "chip_border"
     )
 
+    val shape = DSJarvisTheme.shapes.l
+
     Row(
         modifier = modifier
-            .clip(DSJarvisTheme.shapes.l)
-            .background(backgroundColor)
-            .border(1.dp, borderColor, DSJarvisTheme.shapes.l)
+            .clip(shape)
+            // Use gradient when selected, solid color otherwise
+            .then(
+                if (isSelected)
+                    Modifier.background(brush = selectedGradient, shape = shape)
+                else
+                    Modifier.background(color = backgroundColor, shape = shape)
+            )
+            .border(1.dp, borderColor, shape)
             .clickable(role = Role.RadioButton) { onSelected(filter) }
             .semantics { this.selected = isSelected }
-            .padding(horizontal = DSJarvisTheme.spacing.m, vertical = DSJarvisTheme.spacing.s),
+            .padding(
+                horizontal = DSJarvisTheme.spacing.m,
+                vertical = DSJarvisTheme.spacing.s
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
     ) {

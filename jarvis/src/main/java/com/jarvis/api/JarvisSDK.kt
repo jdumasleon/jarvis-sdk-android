@@ -121,6 +121,9 @@ class JarvisSDK @Inject constructor(
                                 navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
                                 _isShowing = true
                             },
+                            onCloseSDK = {
+                                this@JarvisSDK.deactivate()
+                            },
                             isJarvisActive = this@JarvisSDK.isActive(),
                         )
                     }

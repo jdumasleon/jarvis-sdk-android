@@ -5,8 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -42,8 +40,7 @@ fun SlowestEndpointsListCard(
     modifier: Modifier = Modifier,
     title: String? = null,
     slowEndpoints: List<SlowEndpointData>,
-    maxItems: Int = 8,
-    maxHeight: Dp = 400.dp
+    maxItems: Int = 8
 ) {
     DSCard(
         modifier = modifier
@@ -56,8 +53,7 @@ fun SlowestEndpointsListCard(
         SlowestEndpointsList(
             title = title,
             slowEndpoints = slowEndpoints,
-            maxItems = maxItems,
-            maxHeight = maxHeight
+            maxItems = maxItems
         )
     }
 }
@@ -67,8 +63,7 @@ fun SlowestEndpointsList(
     modifier: Modifier = Modifier,
     title: String? = null,
     slowEndpoints: List<SlowEndpointData>,
-    maxItems: Int = 8,
-    maxHeight: Dp = 400.dp
+    maxItems: Int = 5
 ) {
     // Sort once to ensure consistent ranking and visual scale
     val sorted = remember(slowEndpoints) { slowEndpoints.sortedByDescending { it.averageResponseTime } }
@@ -105,11 +100,10 @@ fun SlowestEndpointsList(
         }
 
         if (topSlowEndpoints.isNotEmpty()) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs),
-                modifier = Modifier.heightIn(max = maxHeight)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
             ) {
-                itemsIndexed(topSlowEndpoints) { index, endpoint ->
+                topSlowEndpoints.forEachIndexed { index, endpoint ->
                     SlowEndpointItem(
                         endpoint = endpoint,
                         animationPlayed = animationPlayed,

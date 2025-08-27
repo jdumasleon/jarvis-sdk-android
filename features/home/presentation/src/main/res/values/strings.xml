@@ -25,10 +25,11 @@
     <!-- Metrics -->
     <string name="requests">Requests</string>
     <string name="error_rate">Error Rate</string>
-    <string name="avg_response">Avg Response</string>
+    <string name="avg_response">Avg Resp.</string>
     <string name="avg_time">Avg Time</string>
     <string name="performance">Performance</string>
-    <string name="total_requests">Total: %1$d • Avg: %2$d req/min</string>
+    <string name="total_requests">Total: %1$d</string>
+    <string name="total_avg">Avg: %1$d req/min</string>
     
     <!-- Network -->
     <string name="requests_over_time">Requests Over Time</string>

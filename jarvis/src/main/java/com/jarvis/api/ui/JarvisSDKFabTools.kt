@@ -25,6 +25,7 @@ fun JarvisSDKFabTools(
     onShowOverlay: () -> Unit,
     onShowInspector: () -> Unit = {},
     onShowPreferences: () -> Unit = {},
+    onCloseSDK: () -> Unit = {},
     isJarvisActive: Boolean = false
 ) {
     var isJarvisVisible by rememberSaveable { mutableStateOf(isJarvisActive) }
@@ -39,6 +40,10 @@ fun JarvisSDKFabTools(
                 onInspectorClick = onShowInspector,
                 onPreferencesClick = onShowPreferences,
                 onHomeClick = onShowOverlay,
+                onCloseClick = {
+                    isJarvisVisible = false
+                    onCloseSDK()
+                },
                 modifier = Modifier.zIndex(Float.MAX_VALUE)
             )
         }

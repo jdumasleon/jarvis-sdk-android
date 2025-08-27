@@ -349,7 +349,13 @@ fun NetworkChartHeader(
                 val total = dataPoints.sumOf { it.value.toDouble() }.toInt()
                 val avg = total / dataPoints.size
                 DSText(
-                    text = stringResource(R.string.total_requests, total, avg),
+                    text = stringResource(R.string.total_requests, total),
+                    style = DSJarvisTheme.typography.title.large,
+                    fontWeight = FontWeight.Bold,
+                    color = DSJarvisTheme.colors.neutral.neutral100
+                )
+                DSText(
+                    text = stringResource(R.string.total_avg, avg),
                     style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral40
                 )
