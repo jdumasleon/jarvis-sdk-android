@@ -274,7 +274,12 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 updatePreferenceUseCase(preference, newValue)
-                loadAllPreferences() // Reload all preferences
+                // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
+                when (preference.storageType) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
+                    PreferenceStorageType.PROTO_DATASTORE -> loadProtoDataStore()
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to update preference")
@@ -287,7 +292,12 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deletePreferenceUseCase(preference)
-                loadAllPreferences() // Reload all preferences
+                // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
+                when (preference.storageType) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
+                    PreferenceStorageType.PROTO_DATASTORE -> loadProtoDataStore()
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to delete preference")
@@ -300,7 +310,12 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 addPreferenceUseCase(key, value, type, storageType)
-                loadAllPreferences() // Reload all preferences
+                // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
+                when (storageType) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
+                    PreferenceStorageType.PROTO_DATASTORE -> loadProtoDataStore()
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to add preference")
@@ -313,7 +328,12 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 clearAllPreferencesUseCase(storageType)
-                loadAllPreferences() // Reload all preferences
+                // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
+                when (storageType) {
+                    PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
+                    PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
+                    PreferenceStorageType.PROTO_DATASTORE -> loadProtoDataStore()
+                }
             } catch (exception: Exception) {
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to clear preferences")

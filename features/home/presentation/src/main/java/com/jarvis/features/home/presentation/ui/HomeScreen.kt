@@ -9,6 +9,18 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.input.nestedscroll.*
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Refresh
@@ -47,8 +59,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSFlag
+import com.jarvis.core.designsystem.component.FlagStyle
 import com.jarvis.core.designsystem.component.DSIconButton
 import com.jarvis.features.home.presentation.R
+import com.jarvis.features.home.presentation.ui.components.HealthSummary
 import com.jarvis.features.home.presentation.ui.components.HttpMethodsCard
 import com.jarvis.features.home.presentation.ui.components.HttpMethodsWithDetails
 import com.jarvis.features.home.presentation.ui.components.PerformanceOverviewCharts
@@ -105,28 +120,116 @@ private fun HomeContent(
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        // Top bar with session filter
-        DateFilterTypesChips(
-            selectedFilter = uiData.selectedSessionFilter,
-            onFilterChange = { onEvent(HomeEvent.ChangeSessionFilter(it)) },
-        )
+    var isHeaderVisible by rememberSaveable { mutableStateOf(true) }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
 
-        // Dashboard cards with drag & drop
-        DSPullToRefresh(
-            isRefreshing = uiData.isRefreshing,
-            onRefresh = { onEvent(HomeEvent.RefreshDashboard) }
+    // Optimized nested scroll connection with debouncing
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                
+                when {
+                    delta < -50f && isHeaderVisible -> {
+                        isHeaderVisible = false
+                    }
+                    delta > 50f && !isHeaderVisible -> {
+                        isHeaderVisible = true
+                    }
+                }
+                
+                return Offset.Zero
+            }
+        }
+    }
+
+    val headerProgress = animateFloatAsState(
+        targetValue = if (isHeaderVisible) 1f else 0f,
+        animationSpec = tween(300),
+        label = "HeaderAnimation"
+    ).value
+
+    val headerOffsetPx = (-headerHeightPx * (1f - headerProgress))
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection)
+    ) {
+        // Animated Header Section (DSFlag + Filters)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    translationY = headerOffsetPx
+                    alpha = headerProgress.coerceIn(0f, 1f)
+                }
+                .onGloballyPositioned { coordinates ->
+                    val newHeight = coordinates.size.height
+                    if (newHeight != headerHeightPx && newHeight > 0) {
+                        headerHeightPx = newHeight
+                    }
+                }
         ) {
-            DraggableCardGrid(
-                cardOrder = uiData.cardOrder,
-                enhancedMetrics = uiData.enhancedMetrics,
-                performanceSnapshot = uiData.performanceSnapshot,
-                onCardMove = { fromIndex, toIndex ->
-                    onEvent(HomeEvent.MoveCard(fromIndex, toIndex))
-                },
-                modifier = Modifier.fillMaxSize()
+            HeaderContent(
+                selectedFilter = uiData.selectedSessionFilter,
+                onFilterChange = { onEvent(HomeEvent.ChangeSessionFilter(it)) }
             )
         }
+
+        // Content below header with dynamic height adjustment
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = with(density) {
+                        (headerHeightPx * headerProgress).toInt().toDp()
+                    }
+                )
+        ) {
+            // Dashboard cards with drag & drop
+            DSPullToRefresh(
+                isRefreshing = uiData.isRefreshing,
+                onRefresh = { onEvent(HomeEvent.RefreshDashboard) }
+            ) {
+                DraggableCardGrid(
+                    cardOrder = uiData.cardOrder,
+                    enhancedMetrics = uiData.enhancedMetrics,
+                    performanceSnapshot = uiData.performanceSnapshot,
+                    onCardMove = { fromIndex, toIndex ->
+                        onEvent(HomeEvent.MoveCard(fromIndex, toIndex))
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeaderContent(
+    selectedFilter: SessionFilter,
+    onFilterChange: (SessionFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        // Wealth-themed information flag
+        DSFlag(
+            title = stringResource(R.string.features_home_presentation_wealth_dashboard),
+            description = stringResource(R.string.features_home_presentation_wealth_dashboard_description),
+            style = FlagStyle.Info,
+            closable = true,
+            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+        )
+        
+        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+        
+        // Top bar with session filter
+        DateFilterTypesChips(
+            selectedFilter = selectedFilter,
+            onFilterChange = onFilterChange,
+        )
     }
 }
 
@@ -142,8 +245,7 @@ private fun DateFilterTypesChips(
         DSText(
             text = stringResource(R.string.filter_label).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral100,
-            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m),
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
 
         Row(
@@ -179,14 +281,15 @@ private fun DraggableCardGrid(
             onCardMove(from.index, to.index)
             haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
-
     LazyVerticalStaggeredGrid(
         state = lazyStaggeredGridState,
         columns = StaggeredGridCells.Adaptive(300.dp),
         contentPadding = PaddingValues(DSJarvisTheme.spacing.m),
         verticalItemSpacing = DSJarvisTheme.spacing.m,
         horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m),
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .padding(bottom = DSJarvisTheme.spacing.m)
+            .fillMaxSize()
     ) {
         itemsIndexed(cardOrder, key = { _, cardType -> cardType.name }) { index, cardType ->
             DSReorderableItem(
@@ -275,12 +378,14 @@ private fun DraggableCardGrid(
                                 )
                             }
 
-                            DashboardCardContent(
-                                cardType = cardType,
-                                enhancedMetrics = enhancedMetrics,
-                                performanceSnapshot = performanceSnapshot,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            key(cardType.name, enhancedMetrics?.lastUpdated, performanceSnapshot?.timestamp) {
+                                DashboardCardContent(
+                                    cardType = cardType,
+                                    enhancedMetrics = enhancedMetrics,
+                                    performanceSnapshot = performanceSnapshot,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
@@ -301,7 +406,8 @@ private fun DashboardCardContent(
         when (cardType) {
             DashboardCardType.HEALTH_SUMMARY -> {
                 enhancedMetrics?.healthScore?.let { healthScore ->
-                    HealthScoreGauge(
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+                    HealthSummary(
                         healthScore = healthScore,
                         modifier = Modifier
                             .fillMaxWidth()

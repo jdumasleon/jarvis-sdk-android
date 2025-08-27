@@ -1,5 +1,7 @@
+@file:OptIn(InternalSerializationApi::class)
 package com.jarvis.features.inspector.domain.entity
 
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import java.util.UUID
 

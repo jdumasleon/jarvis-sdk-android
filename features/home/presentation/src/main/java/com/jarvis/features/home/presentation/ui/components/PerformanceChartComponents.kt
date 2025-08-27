@@ -17,6 +17,12 @@ import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,11 +87,44 @@ fun PerformanceOverviewCharts(
     performanceSnapshot: PerformanceSnapshot,
     modifier: Modifier = Modifier
 ) {
+    var isUpdating by remember { mutableStateOf(false) }
+    
+    // Visual feedback for real-time updates
+    LaunchedEffect(performanceSnapshot.timestamp) {
+        isUpdating = true
+        delay(300) // Show update indicator for 300ms
+        isUpdating = false
+    }
 
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-    ) {
+    Column(modifier = modifier) {
+        // Header with real-time indicator
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isUpdating) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(Color(0xFF10B981), CircleShape) // Green dot
+                )
+            } else {
+                DSText(
+                    text = "Live",
+                    style = DSJarvisTheme.typography.body.small,
+                    color = Color(0xFF10B981),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+    
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
         // CPU Metric
         performanceSnapshot.cpuUsage?.let { cpu ->
             PerformanceMetricItem(
@@ -120,6 +159,7 @@ fun PerformanceOverviewCharts(
                 color = getFpsColor(fps.fpsStability),
                 progress = fps.currentFps / fps.refreshRate
             )
+        }
         }
     }
 }

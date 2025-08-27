@@ -26,6 +26,10 @@ abstract class InspectorDatabase : RoomDatabase() {
                 DATABASE_NAME
             )
             .fallbackToDestructiveMigration()
+            // ✅ PERFORMANCE: Enable WAL mode for better concurrent access
+            .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+            // ✅ PERFORMANCE: Use background thread for database operations
+            .setQueryExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
             .build()
         }
     }

@@ -27,11 +27,18 @@ class FpsMonitor @Inject constructor() {
         startMonitoring()
         
         try {
-            while (true) {
+            var monitoringTime = 0L
+            val maxMonitoringTime = 180_000L // 3 minutes max monitoring
+            val safeIntervalMs = intervalMs.coerceAtLeast(1000) // Min 1s interval for stability
+            
+            while (monitoringTime < maxMonitoringTime && isMonitoring) {
                 val metrics = calculateCurrentFpsMetrics()
                 emit(metrics)
-                kotlinx.coroutines.delay(intervalMs)
+                kotlinx.coroutines.delay(safeIntervalMs)
+                monitoringTime += safeIntervalMs
             }
+        } catch (e: Exception) {
+            emit(FpsMetrics(0f, 0f, 0f, 0f, 0, 0, 60f))
         } finally {
             stopMonitoring()
         }

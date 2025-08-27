@@ -1,26 +1,37 @@
 package com.jarvis.api.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.NetworkCheck
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,44 +39,60 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import com.jarvis.api.ui.components.MiniFabType.CLOSE
 import com.jarvis.api.ui.components.MiniFabType.HOME
 import com.jarvis.api.ui.components.MiniFabType.INSPECTOR
 import com.jarvis.api.ui.components.MiniFabType.PREFERENCES
+import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import kotlinx.coroutines.launch
 
 /**
  * Draggable floating Jarvis button with expandable tool buttons
  */
 @Composable
 fun JarvisFabButton(
+    modifier: Modifier = Modifier,
     onInspectorClick: () -> Unit,
     onPreferencesClick: () -> Unit,
     onHomeClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onCloseClick: () -> Unit = {},
 ) {
     var fabOffset by remember { mutableStateOf(IntOffset.Zero) }
     var isExpanded by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    var pulseId by remember { mutableIntStateOf(0) }
 
-    val localDensity = LocalDensity.current
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val fabSize = DSJarvisTheme.dimensions.xxxxl
+    val density = LocalDensity.current
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
+    val fabSize = DSJarvisTheme.dimensions.xxxxxxl
+
+    val halfScreenWidthPx = with(density) { (screenWidthDp / 2).roundToPx() }
+    val halfScreenHeightPx = with(density) { (screenHeightDp / 2).roundToPx() }
+    val halfFabPx = with(density) { (fabSize / 2).roundToPx() }
+    val minX = -halfScreenWidthPx + halfFabPx
+    val maxX = +halfScreenWidthPx - halfFabPx
+    val minY = -halfScreenHeightPx + halfFabPx
+    val maxY = +halfScreenHeightPx - halfFabPx
 
     val miniFabSize: State<Dp> = animateDpAsState(
         targetValue = if (isExpanded) DSJarvisTheme.dimensions.xxl else 0.dp,
         label = "Change Size MiniFab",
         animationSpec = tween(300)
     )
-    val rotation: State<Float> = animateFloatAsState(
-        targetValue = if (isExpanded) 315f else 0f,
-        label = "Fab rotation"
-    )
-
 
     Box(
         modifier = modifier
@@ -73,79 +100,169 @@ fun JarvisFabButton(
             .background(Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
-        MiniFabType.entries.forEach { miniFabType ->
-            val miniFabPosition = miniFabType.getPosition(isExpanded)
-            FloatingActionButton(
-                modifier = Modifier
-                    .size(miniFabSize.value)
-                    .offset(
-                        x = with(localDensity) { fabOffset.x.toDp() + miniFabPosition.first.value },
-                        y = with(localDensity) { fabOffset.y.toDp() + miniFabPosition.second.value }
-                    ),
-                containerColor = DSJarvisTheme.colors.primary.primary100,
-                shape = CircleShape,
-                onClick = {
-                    when (miniFabType) {
-                        HOME -> onHomeClick()
-                        INSPECTOR -> onInspectorClick()
-                        PREFERENCES -> onPreferencesClick()
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            MiniFabType.entries.forEach { miniFabType ->
+                val (miniXpx, miniYpx) = miniFabType.getPositionPx(isExpanded, density)
+
+                if (miniFabSize.value > 0.dp) {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .zIndex(if (isExpanded) 1f else 0f)
+                            .size(miniFabSize.value)
+                            .offset {
+                                IntOffset(
+                                    x = fabOffset.x + miniXpx.value,
+                                    y = fabOffset.y + miniYpx.value
+                                )
+                            },
+                        containerColor = DSJarvisTheme.colors.extra.surface,
+                        shape = CircleShape,
+                        onClick = {
+                            when (miniFabType) {
+                                HOME -> onHomeClick()
+                                INSPECTOR -> onInspectorClick()
+                                PREFERENCES -> onPreferencesClick()
+                                CLOSE -> onCloseClick()
+                            }
+                        }
+                    ) {
+                        DrawMiniFabs(miniFabType)
                     }
                 }
-            ) {
-                DrawMiniFabs(miniFabType)
             }
         }
 
-        FloatingActionButton(
+        Box(
             modifier = Modifier
-                .graphicsLayer(
-                    translationX = with(localDensity) {
-                        fabOffset.x
-                            .toDp()
-                            .toPx()
-                    },
-                    translationY = with(localDensity) {
-                        fabOffset.y
-                            .toDp()
-                            .toPx()
-                    }
-                )
+                .offset { fabOffset }
+                .size(fabSize)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDrag = { change, dragAmount ->
-                            if (change.positionChange() != Offset.Zero) {
-                                change.consume()
-                            }
-                            fabOffset = IntOffset(
-                                x = localDensity.run {
-                                    (fabOffset.x + dragAmount.x)
-                                        .toInt()
-                                        .coerceIn(
-                                            minimumValue = (-screenWidth / 2 + fabSize / 2).toPx().toInt(),
-                                            maximumValue = (screenWidth / 2 - fabSize / 2).toPx().toInt()
-                                        )
-                                },
-                                y = localDensity.run {
-                                    (fabOffset.y + dragAmount.y)
-                                        .toInt()
-                                        .coerceIn(
-                                            minimumValue = (-screenHeight / 2 + fabSize / 2).toPx().toInt(),
-                                            maximumValue = (screenHeight / 2 - fabSize / 2).toPx().toInt()
-                                        )
-                                }
-                            )
+                            if (change.positionChange() != Offset.Zero) change.consume()
+                            val newX = (fabOffset.x + dragAmount.x).toInt().coerceIn(minX, maxX)
+                            val newY = (fabOffset.y + dragAmount.y).toInt().coerceIn(minY, maxY)
+                            fabOffset = IntOffset(newX, newY)
                         }
                     )
-                },
-            containerColor = DSJarvisTheme.colors.primary.primary100,
-            shape = CircleShape,
-            onClick = { isExpanded = !isExpanded }
+                }
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = {
+                        isExpanded = !isExpanded
+                        pulseId++
+                    }
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            FabIcon(
-                icon = if (isExpanded) DSIcons.add else DSIcons.adb,
-                rotation = rotation.value
+            JarvisFabIcon(
+                pulseId = pulseId,
+                expanded = isExpanded,
+                fabSize = fabSize
             )
         }
+    }
+}
+
+@Composable
+private fun JarvisFabIcon(
+    pulseId: Int = 0,
+    expanded: Boolean = false,
+    fabSize: Dp = DSJarvisTheme.dimensions.xxxxl
+) {
+    val density = LocalDensity.current
+    val cameraDistancePx = with(density) { 32.dp.toPx() }
+
+    val scale = remember { Animatable(1f) }
+    val imageRotationZ = remember { Animatable(0f) }
+    val glowAlpha = remember { Animatable(0f) }
+    val ringRadius = remember { Animatable(0f) }
+    val ringAlpha = remember { Animatable(0f) }
+
+    val c1 = DSJarvisTheme.colors.extra.jarvisPink
+    val c2 = DSJarvisTheme.colors.extra.jarvisBlue
+    val surface = DSJarvisTheme.colors.extra.surface
+
+    LaunchedEffect(pulseId) {
+        imageRotationZ.snapTo(0f)
+        scale.snapTo(1f)
+        glowAlpha.snapTo(0f)
+        ringAlpha.snapTo(0f)
+        ringRadius.snapTo(0f)
+
+        launch {
+            imageRotationZ.animateTo(
+                360f,
+                tween(durationMillis = 5000, easing = FastOutSlowInEasing)
+            )
+            imageRotationZ.snapTo(0f)
+        }
+        launch {
+            scale.animateTo(1.12f, tween(140, easing = LinearOutSlowInEasing))
+            scale.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessLow))
+        }
+        launch {
+            glowAlpha.animateTo(0.35f, tween(180))
+            glowAlpha.animateTo(0f, tween(320))
+        }
+        launch {
+            val maxR = with(density) { (fabSize * 0.9f).toPx() }
+            ringAlpha.snapTo(0.28f)
+            launch { ringRadius.animateTo(maxR, tween(520, easing = FastOutLinearInEasing)) }
+            launch { ringAlpha.animateTo(0f, tween(520)) }
+        }
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .drawBehind {
+                if (ringAlpha.value > 0f && ringRadius.value > 0f) {
+                    drawCircle(
+                        brush = Brush.radialGradient(listOf(c1.copy(alpha = ringAlpha.value), Color.Transparent)),
+                        radius = ringRadius.value,
+                        center = this.size.center
+                    )
+                }
+
+                if (glowAlpha.value > 0f) {
+                    val glowR = size.minDimension * 0.45f
+                    drawCircle(
+                        brush = Brush.radialGradient(listOf(c2.copy(alpha = glowAlpha.value), Color.Transparent)),
+                        radius = glowR,
+                        center = this.size.center
+                    )
+                }
+            }
+    ) {
+        Box(
+            modifier = Modifier
+                .size(fabSize - DSJarvisTheme.dimensions.xl)
+                .shadow(DSJarvisTheme.elevations.level2, CircleShape)
+                .background(surface, CircleShape)
+        )
+
+        DSText(
+            text = stringResource(R.string.core_designsystem_jarvis),
+            style = DSJarvisTheme.typography.label.small.copy(
+                brush = Brush.linearGradient(listOf(c1, c2)),
+                fontWeight = FontWeight.Thin
+            )
+        )
+
+        Image(
+            modifier = Modifier
+                .size(fabSize)
+                .graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                    // rotationZ = if(expanded) imageRotationZ.value else -imageRotationZ.value
+                    cameraDistance = cameraDistancePx
+                },
+            painter = painterResource(R.drawable.ic_jarvis_logo_shape),
+            contentDescription = "Jarvis Logo"
+        )
     }
 }
 
@@ -160,56 +277,81 @@ private fun DrawMiniFabs(miniFabType: MiniFabType) {
         INSPECTOR -> MiniFabIcon(
             icon = DSIcons.networkCheck,
             description = "Wifi KO Mode",
-            DSJarvisTheme.dimensions.l
+            iconSize = DSJarvisTheme.dimensions.l
         )
         PREFERENCES -> MiniFabIcon(
             icon = DSIcons.settings,
             description = "API Calls Monitoring",
             iconSize = DSJarvisTheme.dimensions.l
         )
+        CLOSE -> MiniFabIcon(
+            icon = DSIcons.Rounded.close,
+            description = "Close Jarvis SDK",
+            iconSize = DSJarvisTheme.dimensions.l
+        )
     }
 }
 
 @Composable
-private fun FabIcon(icon: ImageVector, rotation: Float) {
-    DSIcon(
-        imageVector = icon,
-        contentDescription = "Jarvis Mode Icon",
-        tint = Color.White,
-        modifier = Modifier.rotate(rotation)
-    )
-}
-
-@Composable
 private fun MiniFabIcon(icon: ImageVector, description: String, iconSize: Dp) {
+    val colors = listOf(
+        DSJarvisTheme.colors.extra.jarvisPink,
+        DSJarvisTheme.colors.extra.jarvisBlue
+    )
+    val brush = remember { Brush.linearGradient(colors) }
+
     DSIcon(
         imageVector = icon,
         contentDescription = description,
-        tint = Color.White,
-        modifier = Modifier.size(iconSize)
+        modifier = Modifier
+            .graphicsLayer(alpha = 0.99f)
+            .size(iconSize)
+            .drawWithCache {
+                onDrawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush = brush,
+                        blendMode = BlendMode.SrcIn
+                    )
+                }
+            }
     )
 }
 
 enum class MiniFabType {
-    HOME, INSPECTOR, PREFERENCES;
+    HOME, INSPECTOR, PREFERENCES, CLOSE;
 
+    /**
+     * Offsets animados en **px** para alinear dibujo y hitbox.
+     */
     @Composable
-    fun getPosition(expanded: Boolean): Pair<State<Dp>, State<Dp>> {
+    fun getPositionPx(expanded: Boolean, density: Density): Pair<State<Int>, State<Int>> {
+
+        @Composable
+        fun a(target: Dp, duration: Int = 300): State<Int> =
+            animateIntAsState(
+                targetValue = with(density) { target.roundToPx() },
+                animationSpec = tween(duration),
+                label = "miniFabPx"
+            )
+
         return when (this) {
-            HOME -> Pair(
-                animateDpAsState(0.dp, tween(300), label = ""),
-                animateDpAsState(if (expanded) (-56).dp else 0.dp, tween(300), label = "")
-            )
-
-            INSPECTOR -> Pair(
-                animateDpAsState(if (expanded) 40.dp else 0.dp, tween(300), label = ""),
-                animateDpAsState(if (expanded) (-40).dp else 0.dp, tween(300), label = "")
-            )
-
-            PREFERENCES -> Pair(
-                animateDpAsState(if (expanded) 56.dp else 0.dp, tween(300), label = ""),
-                animateDpAsState(0.dp, tween(400), label = "")
-            )
+            HOME -> Pair(a(0.dp), a(if (expanded) (-60).dp else 0.dp))
+            INSPECTOR -> Pair(a(if (expanded) 45.dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
+            PREFERENCES -> Pair(a(if (expanded) (-45).dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
+            CLOSE -> Pair(a(if (expanded) 60.dp else 0.dp), a(0.dp, duration = 400))
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JarvisFabButtonPreview() {
+    DSJarvisTheme {
+        JarvisFabButton(
+            onInspectorClick = {},
+            onPreferencesClick = {},
+            onHomeClick = {}
+        )
     }
 }

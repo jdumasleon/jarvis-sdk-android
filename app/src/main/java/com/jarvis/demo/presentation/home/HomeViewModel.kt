@@ -27,6 +27,10 @@ class HomeViewModel @Inject constructor(
     @param:CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
+    // ✅ PERFORMANCE: Cache API results and throttle requests
+    private var lastApiCallTime = 0L
+    private var cachedApiResults: Triple<retrofit2.Response<*>?, retrofit2.Response<*>?, retrofit2.Response<*>?>? = null
+    
     private val _uiState = MutableStateFlow<HomeUiState>(ResourceState.Idle)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
     
@@ -50,22 +54,51 @@ class HomeViewModel @Inject constructor(
             try {
                 _uiState.update { ResourceState.Loading }
                 
-                // Make API calls to generate network traffic for inspection on IO dispatcher
+                // ✅ PERFORMANCE: Make API calls with timeout and throttling to prevent excessive requests
                 val result = withContext(ioDispatcher) {
-                    val productsCall = async { fakeStoreApiService.getAllProducts() }
-                    val categoriesCall = async { fakeStoreApiService.getAllCategories() }
-                    val objectsCall = async { restfulApiService.getAllObjects() }
-                    
-                    // Execute API calls and log results
-                    val productsResponse = productsCall.await()
-                    val categoriesResponse = categoriesCall.await()
-                    val objectsResponse = objectsCall.await()
-                    
-                    Log.d("HomeViewModel", "Products response: ${productsResponse.code()}")
-                    Log.d("HomeViewModel", "Categories response: ${categoriesResponse.code()}")
-                    Log.d("HomeViewModel", "Objects response: ${objectsResponse.code()}")
-                    
-                    Triple(productsResponse, categoriesResponse, objectsResponse)
+                    try {
+                        // Only make API calls every 10 seconds to reduce load
+                        val currentTime = System.currentTimeMillis()
+                        val timeSinceLastCall = currentTime - lastApiCallTime
+                        
+                        if (timeSinceLastCall < 10000) { // 10 seconds throttle
+                            return@withContext cachedApiResults ?: Triple(null, null, null)
+                        }
+                        
+                        lastApiCallTime = currentTime
+                        
+                        val productsCall = async { 
+                            kotlinx.coroutines.withTimeoutOrNull(3000) { // Reduced to 3s
+                                fakeStoreApiService.getAllProducts() 
+                            }
+                        }
+                        val categoriesCall = async { 
+                            kotlinx.coroutines.withTimeoutOrNull(3000) { 
+                                fakeStoreApiService.getAllCategories() 
+                            }
+                        }
+                        val objectsCall = async { 
+                            kotlinx.coroutines.withTimeoutOrNull(3000) { 
+                                restfulApiService.getAllObjects() 
+                            }
+                        }
+                        
+                        // Execute API calls with timeout protection and log results
+                        val productsResponse = productsCall.await()
+                        val categoriesResponse = categoriesCall.await()
+                        val objectsResponse = objectsCall.await()
+                        
+                        Log.d("HomeViewModel", "Products response: ${productsResponse?.code() ?: "timeout"}")
+                        Log.d("HomeViewModel", "Categories response: ${categoriesResponse?.code() ?: "timeout"}")
+                        Log.d("HomeViewModel", "Objects response: ${objectsResponse?.code() ?: "timeout"}")
+                        
+                        val result = Triple(productsResponse, categoriesResponse, objectsResponse)
+                        cachedApiResults = result // Cache the results
+                        result
+                    } catch (e: Exception) {
+                        Log.w("HomeViewModel", "Some API calls failed", e)
+                        cachedApiResults ?: Triple(null, null, null) // Return cached or null values
+                    }
                 }
                 
                 val uiData = HomeUiData(

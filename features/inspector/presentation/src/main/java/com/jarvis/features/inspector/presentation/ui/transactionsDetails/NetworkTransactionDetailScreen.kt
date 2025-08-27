@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -130,11 +131,18 @@ private fun TransactionsDetailSectionsTabs(
     onTabSelected: (Int) -> Unit
 ) {
     val tabLabels = listOf("Overview", "Request", "Response")
+    val brush = Brush.linearGradient(
+        listOf(
+            DSJarvisTheme.colors.extra.jarvisPink,
+            DSJarvisTheme.colors.extra.jarvisBlue
+        )
+    )
 
     DSTabBar(
         selectedTabIndex = selectedTab,
         tabCount = tabLabels.size,
         onTabSelected = { index -> onTabSelected(index) },
+        indicatorColor = DSJarvisTheme.colors.extra.jarvisPink,
         backgroundColor = DSJarvisTheme.colors.extra.white
     ) { index, selected ->
         Box (
@@ -142,7 +150,11 @@ private fun TransactionsDetailSectionsTabs(
         ) {
             DSText(
                 text = tabLabels[index],
-                style = DSJarvisTheme.typography.body.medium,
+                style = if (selected) {
+                    DSJarvisTheme.typography.body.medium.copy(brush = brush)
+                } else {
+                    DSJarvisTheme.typography.body.medium
+                },
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                 color = if (selected) {
                     DSJarvisTheme.colors.primary.primary60

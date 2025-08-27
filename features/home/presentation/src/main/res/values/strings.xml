@@ -25,10 +25,11 @@
     <!-- Metrics -->
     <string name="requests">Requests</string>
     <string name="error_rate">Error Rate</string>
-    <string name="avg_response">Avg Response</string>
+    <string name="avg_response">Avg Resp.</string>
     <string name="avg_time">Avg Time</string>
     <string name="performance">Performance</string>
-    <string name="total_requests">Total: %1$d • Avg: %2$d req/min</string>
+    <string name="total_requests">Total: %1$d</string>
+    <string name="total_avg">Avg: %1$d req/min</string>
     
     <!-- Network -->
     <string name="requests_over_time">Requests Over Time</string>
@@ -64,4 +65,6 @@
     <string name="failed_to_load_dashboard">Failed to load dashboard</string>
     <string name="failed_to_change_session_filter">Failed to change session filter</string>
     <string name="features_home_presentation_no_performance_data_available">No performance data available</string>
+    <string name="features_home_presentation_wealth_dashboard">Wealth Dashboard</string>
+    <string name="features_home_presentation_wealth_dashboard_description">Welcome to your comprehensive analytics overview. Track performance, monitor network activity, and optimize your app\'s health in real-time with wealth-grade insights.</string>
 </resources>

@@ -6,13 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.jarvis.api.ui.components.JarvisFabButton
-import com.jarvis.core.designsystem.utils.ShakeDetectorEffect
+import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.api.JarvisSDK
 
 /**
  * Main Jarvis SDK overlay component
@@ -24,11 +25,11 @@ fun JarvisSDKFabTools(
     onShowOverlay: () -> Unit,
     onShowInspector: () -> Unit = {},
     onShowPreferences: () -> Unit = {},
-    isJarvisActive: Boolean = false,
+    onCloseSDK: () -> Unit = {},
+    isJarvisActive: Boolean = false
 ) {
     var isJarvisVisible by rememberSaveable { mutableStateOf(isJarvisActive) }
-    
-    // Update visibility when active state changes
+
     LaunchedEffect(isJarvisActive) {
         isJarvisVisible = isJarvisActive
     }
@@ -39,8 +40,23 @@ fun JarvisSDKFabTools(
                 onInspectorClick = onShowInspector,
                 onPreferencesClick = onShowPreferences,
                 onHomeClick = onShowOverlay,
+                onCloseClick = {
+                    isJarvisVisible = false
+                    onCloseSDK()
+                },
                 modifier = Modifier.zIndex(Float.MAX_VALUE)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JarvisSDKFabToolsPreview() {
+    DSJarvisTheme {
+        JarvisSDKFabTools(
+            onShowOverlay = {},
+            isJarvisActive = true
+        )
     }
 }

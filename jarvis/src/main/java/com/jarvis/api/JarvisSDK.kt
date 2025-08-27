@@ -40,16 +40,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class JarvisSDK @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val configurationSynchronizer: ConfigurationSynchronizer,
     private val performanceManager: PerformanceManager
 ) {
     private var coreInitialized = false
     private var configuration = JarvisConfig()
-
     private var _isJarvisActive by mutableStateOf(false)
     private var _isShowing by mutableStateOf(false)
-    val isShowing: Boolean get() = _isShowing
 
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
     private var composeView: ComposeView? = null
@@ -124,7 +121,10 @@ class JarvisSDK @Inject constructor(
                                 navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
                                 _isShowing = true
                             },
-                            isJarvisActive = this@JarvisSDK.isActive()
+                            onCloseSDK = {
+                                this@JarvisSDK.deactivate()
+                            },
+                            isJarvisActive = this@JarvisSDK.isActive(),
                         )
                     }
 
@@ -137,7 +137,7 @@ class JarvisSDK @Inject constructor(
                     }
 
                     if (_isShowing) {
-                        JarvisSDKApplication(
+                       JarvisSDKApplication(
                             navigator = navigator,
                             entryProviderBuilders = entryProviderBuilders,
                             onDismiss = {
@@ -189,13 +189,5 @@ class JarvisSDK @Inject constructor(
     fun toggle(): Boolean {
         if (_isJarvisActive) deactivate() else activate()
         return _isJarvisActive
-    }
-
-    fun activateIfInactive(): Boolean {
-        if (!_isJarvisActive && coreInitialized) {
-            activate()
-            return true
-        }
-        return false
     }
 }

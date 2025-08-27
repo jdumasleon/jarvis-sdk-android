@@ -3,10 +3,12 @@ package com.jarvis.core.data.performance
 import android.app.Application
 import com.jarvis.core.domain.performance.PerformanceConfig
 import com.jarvis.core.domain.performance.PerformanceRepository
+import com.jarvis.core.domain.performance.PerformanceSnapshot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,21 +28,21 @@ class PerformanceManager @Inject constructor(
     fun initialize() {
         managerScope.launch {
             try {
-                val defaultConfig = PerformanceConfig(
-                    enableCpuMonitoring = true,
-                    enableMemoryMonitoring = true,
-                    enableFpsMonitoring = true,
-                    enableModuleMonitoring = true,
-                    samplingIntervalMs = 2000, // 2 seconds for better UX
-                    maxHistorySize = 150, // 5 minutes at 2-second intervals
+                // Ultra-conservative config to prevent frame drops
+                val optimizedConfig = PerformanceConfig(
+                    enableCpuMonitoring = true,      // Light CPU monitoring
+                    enableMemoryMonitoring = true,   // Light memory monitoring  
+                    enableFpsMonitoring = false,     // KEEP FPS DISABLED - was main culprit
+                    enableModuleMonitoring = false,  // Disable complex module tracking
+                    samplingIntervalMs = 10000,      // Very slow sampling (10 seconds)
+                    maxHistorySize = 30,             // Small history (5 minutes)
                     enableBatteryMonitoring = false,
                     enableThermalMonitoring = false
                 )
                 
-                // Start monitoring with default config
-                performanceRepository.startMonitoring(defaultConfig)
+                android.util.Log.d("PerformanceManager", "Starting optimized performance monitoring")
+                performanceRepository.startMonitoring(optimizedConfig)
             } catch (exception: Exception) {
-                // Log error but don't crash the app
                 android.util.Log.e("PerformanceManager", "Failed to initialize performance monitoring", exception)
             }
         }
@@ -68,5 +70,12 @@ class PerformanceManager @Inject constructor(
         } catch (exception: Exception) {
             false
         }
+    }
+    
+    /**
+     * Get performance metrics flow for real-time monitoring
+     */
+    fun getPerformanceMetricsFlow(): Flow<PerformanceSnapshot> {
+        return performanceRepository.getPerformanceMetricsFlow()
     }
 }

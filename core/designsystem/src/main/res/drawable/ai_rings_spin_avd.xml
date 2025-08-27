@@ -1,0 +1,20 @@
+<!-- res/drawable/ai_rings_spin_avd.xml -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ai_rings_grouped">
+
+    <!-- ring0: rápido CW -->
+    <target android:name="ring0" android:animation="@animator/rotate_fast_cw" />
+
+    <!-- ring1: lento CCW -->
+    <target android:name="ring1" android:animation="@animator/rotate_slow_ccw" />
+
+    <!-- ring2: medio CW -->
+    <target android:name="ring2" android:animation="@animator/rotate_medium_cw" />
+
+    <!-- ring3: medio CCW -->
+    <target android:name="ring3" android:animation="@animator/rotate_medium_ccw" />
+
+    <!-- ring4: lento CW -->
+    <target android:name="ring4" android:animation="@animator/rotate_slow_ccw" />
+</animated-vector>

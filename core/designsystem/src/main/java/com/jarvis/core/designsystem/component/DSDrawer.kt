@@ -24,13 +24,12 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.lerp
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.layout.onSizeChanged
 
 // Constants for animation thresholds
 private const val THRESHOLD_X_POSITION = 1.4f
@@ -38,6 +37,22 @@ private const val THRESHOLD_Y_ROTATION = 25
 private const val THRESHOLD_CAMERA_DISTANCE = 8
 private const val FALLBACK_SCREEN_WIDTH = 1080f
 private const val FALLBACK_DRAWER_WIDTH = 771f // 1080/1.4
+
+// Performance optimization: Cache expensive calculations
+@Stable
+data class DrawerAnimationConfig(
+    val screenWidth: Float,
+    val drawerWidth: Float,
+    val cameraDistance: Float
+)
+
+@Stable
+data class DrawerOffsets(
+    val drawerOffset: IntOffset,
+    val contentOffset: IntOffset,
+    val rotationY: Float,
+    val cornerRadius: Dp
+)
 
 // Safe math operations
 private fun Float.safeRoundToInt(): Int = try {
@@ -58,6 +73,53 @@ fun rememberDSDrawerState(
         DSDrawerState(
             initialValue = initialValue,
             density = density
+        )
+    }
+}
+
+// Optimized calculation function that caches results
+@Composable
+private fun rememberDrawerAnimationConfig(): DrawerAnimationConfig {
+    val density = LocalDensity.current
+    val windowInfo = LocalWindowInfo.current
+    
+    return remember(windowInfo.containerSize, density.density) {
+        val screenWidth = windowInfo.containerSize.width.toFloat().let { width ->
+            if (width > 0f && width.isFinite()) width else FALLBACK_SCREEN_WIDTH
+        }
+        val drawerWidth = screenWidth / THRESHOLD_X_POSITION
+        val cameraDistance = THRESHOLD_CAMERA_DISTANCE * density.density
+        
+        DrawerAnimationConfig(
+            screenWidth = screenWidth,
+            drawerWidth = drawerWidth,
+            cameraDistance = cameraDistance
+        )
+    }
+}
+
+// Memoized offset calculations
+@Composable
+private fun calculateDrawerOffsets(
+    offset: Float,
+    animationConfig: DrawerAnimationConfig,
+    contentCornerSize: Dp
+): DrawerOffsets {
+    return remember(offset, animationConfig, contentCornerSize.value) {
+        val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
+        val screenWidth = animationConfig.screenWidth
+        
+        // Calculate all offsets at once to minimize work
+        val drawerOffset = calculateDrawerOffset(safeOffset, screenWidth)
+        val contentOffset = calculateContentOffset(safeOffset, screenWidth)
+        val rotationY = calculateRotationY(safeOffset, screenWidth)
+        val cornerRadius = calculateCornerRadius(safeOffset, screenWidth, contentCornerSize)
+        
+        DrawerOffsets(
+            drawerOffset = drawerOffset,
+            contentOffset = contentOffset,
+            rotationY = rotationY,
+            cornerRadius = cornerRadius
         )
     }
 }
@@ -126,48 +188,64 @@ fun DSDrawer(
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val windowInfo = LocalWindowInfo.current
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    
+    // Cache expensive calculations
+    val animationConfig = rememberDrawerAnimationConfig()
+    
+    // Track container size for anchors setup - only recalculate when size changes
+    var containerWidth by rememberSaveable { mutableStateOf(0f) }
+    
+    // Only calculate offsets when offset actually changes
+    val currentOffset by remember { derivedStateOf { drawerState.offset } }
+    val drawerOffsets = calculateDrawerOffsets(
+        offset = currentOffset,
+        animationConfig = animationConfig,
+        contentCornerSize = contentCornerSize
+    )
 
-    // Calculate safe screen dimensions
-    val screenWidth = calculateScreenWidth(windowInfo)
-    val drawerWidth = calculateDrawerWidth(screenWidth, density)
-
-    BoxWithConstraints(modifier.background(drawerBackgroundColor)) {
-        val maxWidth = this.constraints.maxWidth.toFloat()
-
-        if (!constraints.hasBoundedWidth) {
-            throw IllegalStateException("Drawer shouldn't have infinite width")
-        }
-
-        // Setup anchors for dragging
-        SetupDraggableAnchors(drawerState, maxWidth)
-
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-
-        Box(
-            Modifier.anchoredDraggable(
+    Box(
+        modifier = modifier
+            .background(drawerBackgroundColor)
+            .onSizeChanged { size ->
+                val newWidth = size.width.toFloat()
+                if (newWidth != containerWidth && newWidth > 0f && newWidth.isFinite()) {
+                    containerWidth = newWidth
+                    // Update anchors only when size changes
+                    val anchors = DraggableAnchors {
+                        DSDrawerValue.Closed at -newWidth
+                        DSDrawerValue.Open at 0f
+                    }
+                    drawerState.updateAnchors(anchors)
+                }
+            }
+            .anchoredDraggable(
                 state = drawerState.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
                 reverseDirection = isRtl
             )
-        ) {
+    ) {
+        // Drawer surface - memoized to prevent unnecessary recompositions
+        key(drawerBackgroundColor, drawerContentColor) {
             DrawerSurface(
-                drawerState = drawerState,
-                screenWidth = screenWidth,
-                drawerWidth = drawerWidth,
+                drawerOffset = drawerOffsets.drawerOffset,
+                drawerWidth = with(LocalDensity.current) { animationConfig.drawerWidth.toDp() },
                 backgroundColor = drawerBackgroundColor,
                 contentColor = drawerContentColor,
-                scope = scope,
+                isOpen = drawerState.isOpen,
+                onDismiss = { scope.launch { drawerState.close() } },
                 content = drawerContent
             )
+        }
 
+        // Content surface - memoized to prevent unnecessary recompositions
+        key(contentBackgroundColor, animationConfig.cameraDistance) {
             ContentSurface(
-                drawerState = drawerState,
-                screenWidth = screenWidth,
-                density = density,
-                contentCornerSize = contentCornerSize,
+                contentOffset = drawerOffsets.contentOffset,
+                cornerSize = drawerOffsets.cornerRadius,
+                rotationY = drawerOffsets.rotationY,
+                cameraDistancePx = animationConfig.cameraDistance,
                 backgroundColor = contentBackgroundColor,
                 content = content
             )
@@ -175,59 +253,31 @@ fun DSDrawer(
     }
 }
 
-@Composable
-private fun calculateScreenWidth(windowInfo: androidx.compose.ui.platform.WindowInfo): Float {
-    return remember(windowInfo) {
-        val width = windowInfo.containerSize.width.toFloat()
-        if (width > 0f && width.isFinite()) width else FALLBACK_SCREEN_WIDTH
-    }
-}
-
-@Composable
-private fun calculateDrawerWidth(screenWidth: Float, density: Density): Dp {
-    return remember(screenWidth) {
-        with(density) {
-            val widthPx = screenWidth / THRESHOLD_X_POSITION
-            val safePx = if (widthPx.isFinite() && widthPx > 0f) widthPx else FALLBACK_DRAWER_WIDTH
-            safePx.toDp()
-        }
-    }
-}
-
-@Composable
-private fun SetupDraggableAnchors(drawerState: DSDrawerState, maxWidth: Float) {
-    LaunchedEffect(maxWidth) {
-        if (maxWidth.isFinite() && maxWidth > 0f) {
-            val anchors = DraggableAnchors {
-                DSDrawerValue.Closed at -maxWidth
-                DSDrawerValue.Open at 0f
-            }
-            drawerState.updateAnchors(anchors)
-        }
-    }
-}
+// Removed - replaced by rememberDrawerAnimationConfig() for better performance
 
 @Composable
 private fun DrawerSurface(
-    drawerState: DSDrawerState,
-    screenWidth: Float,
+    drawerOffset: IntOffset,
     drawerWidth: Dp,
     backgroundColor: Color,
     contentColor: Color,
-    scope: kotlinx.coroutines.CoroutineScope,
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    // Memoize the dismiss callback to prevent recreating it on every recomposition
+    val stableDismiss = remember { onDismiss }
+    
     Surface(
         modifier = Modifier
             .fillMaxHeight()
-            .offset { calculateDrawerOffset(drawerState.offset, screenWidth) }
+            .offset { drawerOffset }
             .width(drawerWidth)
-            .widthIn(0.dp, drawerWidth)
             .semantics {
                 paneTitle = "FullDrawerLayout"
-                if (drawerState.isOpen) {
+                if (isOpen) {
                     dismiss {
-                        scope.launch { drawerState.close() }
+                        stableDismiss()
                         true
                     }
                 }
@@ -241,76 +291,79 @@ private fun DrawerSurface(
 
 @Composable
 private fun ContentSurface(
-    drawerState: DSDrawerState,
-    screenWidth: Float,
-    density: Density,
-    contentCornerSize: Dp,
+    contentOffset: IntOffset,
+    cornerSize: Dp,
+    rotationY: Float,
+    cameraDistancePx: Float,
     backgroundColor: Color,
     content: @Composable () -> Unit
 ) {
+    // Memoize the shape to prevent recreating it on every recomposition
+    val shape = remember(cornerSize) { RoundedCornerShape(cornerSize) }
+    
+    // Skip graphics layer when not needed for better performance
+    val shouldApplyGraphicsLayer = rotationY != 0f || cameraDistancePx != 0f
+    
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .offset { calculateContentOffset(drawerState.offset, screenWidth) }
-            .graphicsLayer {
-                val transform = calculate3DTransform(drawerState.offset, screenWidth, density)
-                rotationY = transform.rotationY
-                cameraDistance = transform.cameraDistance
+            .offset { contentOffset }
+            .let { modifier ->
+                if (shouldApplyGraphicsLayer) {
+                    modifier.graphicsLayer {
+                        this.rotationY = rotationY
+                        this.cameraDistance = cameraDistancePx
+                    }
+                } else {
+                    modifier
+                }
             },
         color = backgroundColor,
-        shape = RoundedCornerShape(
-            calculateCornerRadius(drawerState.offset, screenWidth, contentCornerSize)
-        )
+        shape = shape
     ) {
         content()
     }
 }
 
+// Optimized calculation functions - reduced allocations and improved performance
 private fun calculateDrawerOffset(offset: Float, screenWidth: Float): IntOffset {
+    if (offset == 0f) return IntOffset.Zero // Fast path for closed state
+    
     val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
     val maxX = (screenWidth / THRESHOLD_X_POSITION).safeRoundToInt()
-    val x = safeOffset.safeRoundToInt()
-    val clampedX = if (x <= maxX) x else maxX
-    return IntOffset(clampedX, 0)
+    val x = safeOffset.safeRoundToInt().coerceAtMost(maxX)
+    return IntOffset(x, 0)
 }
 
 private fun calculateContentOffset(offset: Float, screenWidth: Float): IntOffset {
     val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
     val safeScreenWidth = screenWidth.takeIf { it.isFinite() && it > 0f } ?: FALLBACK_SCREEN_WIDTH
 
-    val offsetInt = safeOffset.safeRoundToInt()
-    val screenWidthInt = safeScreenWidth.safeRoundToInt()
-    val x = offsetInt + screenWidthInt
-
+    val x = (safeOffset + safeScreenWidth).safeRoundToInt()
     val maxX = (safeScreenWidth / THRESHOLD_X_POSITION).safeRoundToInt()
-    val clampedX = if (x <= maxX) x else maxX
+    val clampedX = x.coerceAtMost(maxX)
     return IntOffset(clampedX, 0)
 }
 
-private data class Transform3D(
-    val rotationY: Float,
-    val cameraDistance: Float
-)
-
-private fun calculate3DTransform(offset: Float, screenWidth: Float, density: Density): Transform3D {
+private fun calculateRotationY(offset: Float, screenWidth: Float): Float {
+    if (offset == 0f) return -THRESHOLD_Y_ROTATION.toFloat() // Fast path
+    
     val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
     val safeScreenWidth = screenWidth.takeIf { it.isFinite() && it > 0f } ?: FALLBACK_SCREEN_WIDTH
     val rotationRatio = safeOffset.safeDivision(safeScreenWidth)
-
-    return Transform3D(
-        rotationY = -((THRESHOLD_Y_ROTATION * rotationRatio) + THRESHOLD_Y_ROTATION),
-        cameraDistance = THRESHOLD_CAMERA_DISTANCE * density.density
-    )
+    return -((THRESHOLD_Y_ROTATION * rotationRatio) + THRESHOLD_Y_ROTATION)
 }
 
 private fun calculateCornerRadius(offset: Float, screenWidth: Float, contentCornerSize: Dp): Dp {
+    if (offset == 0f) return contentCornerSize // Fast path
+    
     val safeOffset = offset.takeIf { it.isFinite() } ?: 0f
     val safeScreenWidth = screenWidth.takeIf { it.isFinite() && it > 0f } ?: FALLBACK_SCREEN_WIDTH
     val cornerRatio = safeOffset.safeDivision(safeScreenWidth)
-    val cornerSize = ((contentCornerSize.value * cornerRatio) + contentCornerSize.value)
+    val cornerSize = contentCornerSize.value * (cornerRatio + 1f)
 
     return if (cornerSize.isFinite() && cornerSize >= 0f) {
-        cornerSize.safeRoundToInt().dp
+        cornerSize.coerceAtLeast(0f).dp
     } else {
         contentCornerSize
     }

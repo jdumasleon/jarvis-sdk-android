@@ -35,7 +35,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -54,12 +57,12 @@ import com.jarvis.core.designsystem.component.DSButtonSize
 import com.jarvis.core.designsystem.component.DSButtonStyle
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSDialog
-import com.jarvis.core.designsystem.component.DSDropdownMenu
 import com.jarvis.core.designsystem.component.DSDropdownMenuItem
 import com.jarvis.core.designsystem.component.DSFilterChip
 import com.jarvis.core.designsystem.component.DSIconButton
 import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSSearchBar
+import com.jarvis.core.designsystem.component.DSSelectField
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DSTextField
 import com.jarvis.core.designsystem.component.DSThreeDotsMenu
@@ -170,7 +173,6 @@ private fun PreferencesContent(
         }
     }
 
-    // Animated progress with optimized spring animation
     val filtersProgress by animateFloatAsState(
         targetValue = if (isFiltersVisible) 1f else 0f,
         animationSpec = tween(
@@ -180,7 +182,6 @@ private fun PreferencesContent(
         label = "filtersProgress"
     )
 
-    // Calculate animated offset
     val filtersOffsetPx = remember(filtersProgress, filtersHeightPx) {
         -filtersHeightPx * (1f - filtersProgress)
     }
@@ -190,7 +191,6 @@ private fun PreferencesContent(
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
     ) {
-        // Animated Filters Section
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -214,7 +214,6 @@ private fun PreferencesContent(
             )
         }
 
-        // Content below filters with dynamic height adjustment
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -241,14 +240,24 @@ private fun PreferencesContent(
                         modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
                     )
                 } else {
+                    val paginatedPreferences = remember(uiData.filteredPreferences) {
+                        uiData.filteredPreferences.take(50)
+                    }
+
                     LazyColumn(
                         state = listState,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = DSJarvisTheme.spacing.m),
-                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+                        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s),
+                        reverseLayout = false,
+                        userScrollEnabled = true
                     ) {
-                        items(uiData.filteredPreferences) { preference ->
+                        items(
+                            items = paginatedPreferences,
+                            key = { preference -> "pref_${preference.key}_${preference.storageType}" },
+                            contentType = { "preference" }
+                        ) { preference ->
                             PreferenceItem(
                                 preference = preference,
                                 onClick = { onEvent(PreferencesEvent.SelectPreference(preference)) },
@@ -263,7 +272,35 @@ private fun PreferencesContent(
                             )
                         }
 
-                        item { Spacer(Modifier.height(DSJarvisTheme.spacing.l)) }
+                        if (uiData.filteredPreferences.size > paginatedPreferences.size) {
+                            item(key = "pagination_info") {
+                                DSCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = DSJarvisTheme.shapes.m,
+                                    elevation = DSJarvisTheme.elevations.level1,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        DSText(
+                                            text = "Showing ${paginatedPreferences.size} of ${uiData.filteredPreferences.size} preferences",
+                                            style = DSJarvisTheme.typography.body.medium,
+                                            color = DSJarvisTheme.colors.neutral.neutral80
+                                        )
+                                        DSText(
+                                            text = "Use search to find specific preferences",
+                                            style = DSJarvisTheme.typography.body.small,
+                                            color = DSJarvisTheme.colors.neutral.neutral60
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item(key = "spacer_bottom") { 
+                            Spacer(Modifier.height(DSJarvisTheme.spacing.l)) 
+                        }
                     }
                 }
             }
@@ -337,6 +374,13 @@ private fun SearchAndFilters(
     onStorageTypeChange: (PreferenceStorageType) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val gradient = Brush.horizontalGradient(
+        colors = listOf(
+            DSJarvisTheme.colors.extra.jarvisPink,
+            DSJarvisTheme.colors.extra.jarvisBlue
+        )
+    )
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
@@ -352,12 +396,14 @@ private fun SearchAndFilters(
 
         PreferencesTypeChips(
             filter = filter,
-            onTypeFilterChange = onTypeFilterChange
+            onTypeFilterChange = onTypeFilterChange,
+            gradient = gradient
         )
         
         StorageTypeChips(
             uiData = uiData,
-            onTabSelected = { onStorageTypeChange(it) }
+            onTabSelected = { onStorageTypeChange(it) },
+            gradient = gradient
         )
     }
 }
@@ -365,7 +411,8 @@ private fun SearchAndFilters(
 @Composable
 private fun StorageTypeChips(
     uiData: PreferencesUiData,
-    onTabSelected: (PreferenceStorageType) -> Unit
+    onTabSelected: (PreferenceStorageType) -> Unit,
+    gradient: Brush
 ) {
     val storageTypes = listOf(
         PreferenceStorageType.SHARED_PREFERENCES,
@@ -380,8 +427,7 @@ private fun StorageTypeChips(
         DSText(
             text = stringResource(R.string.features_preferences_presentation_storages).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral100,
-            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
 
         Row(
@@ -394,7 +440,8 @@ private fun StorageTypeChips(
                         onTabSelected(preferencesType)
                     },
                     label = getPreferenceTypeName(preferencesType),
-                    selected = uiData.selectedTab == preferencesType
+                    selected = uiData.selectedTab == preferencesType,
+                    selectedGradient = gradient
                 )
             }
         }
@@ -404,7 +451,8 @@ private fun StorageTypeChips(
 @Composable
 private fun PreferencesTypeChips(
     filter: PreferenceFilter,
-    onTypeFilterChange: (PreferenceType?) -> Unit
+    onTypeFilterChange: (PreferenceType?) -> Unit,
+    gradient: Brush
 ) {
     Column(
         modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
@@ -413,8 +461,7 @@ private fun PreferencesTypeChips(
         DSText(
             text = stringResource(R.string.features_preferences_presentation_types).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
-            color = DSJarvisTheme.colors.neutral.neutral100,
-            modifier = Modifier.padding(start = DSJarvisTheme.spacing.s)
+            color = DSJarvisTheme.colors.neutral.neutral100
         )
 
         Row(
@@ -424,7 +471,8 @@ private fun PreferencesTypeChips(
             DSFilterChip(
                 selected = filter.typeFilter == null,
                 onClick = { onTypeFilterChange(null) },
-                label = stringResource(R.string.features_preferences_presentation_all)
+                label = stringResource(R.string.features_preferences_presentation_all),
+                selectedGradient = gradient
             )
 
             PreferenceType.entries.forEach { type ->
@@ -435,7 +483,8 @@ private fun PreferencesTypeChips(
                         val newType = if (isSelected) null else type
                         onTypeFilterChange(newType)
                     },
-                    label = type.name
+                    label = type.name,
+                    selectedGradient = gradient
                 )
             }
         }
@@ -447,6 +496,12 @@ private fun PreferencesActions(
     uiData: PreferencesUiData,
     onEvent: (PreferencesEvent) -> Unit
 ) {
+    val colors = listOf(
+        DSJarvisTheme.colors.extra.jarvisPink,
+        DSJarvisTheme.colors.extra.jarvisBlue
+    )
+    val brush = remember { Brush.linearGradient(colors) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -459,11 +514,21 @@ private fun PreferencesActions(
             color = DSJarvisTheme.colors.neutral.neutral100,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = DSJarvisTheme.spacing.l)
+                .padding(horizontal = DSJarvisTheme.spacing.m)
         )
 
         DSThreeDotsMenu(
-            iconTint = DSJarvisTheme.colors.primary.primary60,
+            modifier = Modifier
+                .graphicsLayer(alpha = 0.99f)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = brush,
+                            blendMode = BlendMode.SrcIn
+                        )
+                    }
+                },
             items = buildList {
                 add(
                     DSDropdownMenuItem(
@@ -514,6 +579,12 @@ private fun PreferenceItem(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // ✅ PERFORMANCE: Memoize expensive operations to reduce memory allocation
+    val preferenceValueText = remember(preference.value) { 
+        preference.value.toString().take(100) // Limit length to prevent huge strings
+    }
+    val preferenceTypeName = remember(preference.type) { preference.type.name }
+    
     DSCard(
         modifier = modifier
             .clickable(onClick = onClick)
@@ -555,7 +626,7 @@ private fun PreferenceItem(
                 
                 Column(horizontalAlignment = Alignment.End) {
                     DSText(
-                        text = preference.type.name,
+                        text = preferenceTypeName,
                         style = DSJarvisTheme.typography.label.small,
                         color = DSJarvisTheme.colors.primary.primary100
                     )
@@ -576,7 +647,7 @@ private fun PreferenceItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DSText(
-                    text = preference.value.toString(),
+                    text = preferenceValueText,
                     style = DSJarvisTheme.typography.body.medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -613,7 +684,10 @@ private fun AddPreferenceBottomSheet(
     var key by remember { mutableStateOf("") }
     var value by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(PreferenceType.STRING) }
-    var showTypeDropdown by remember { mutableStateOf(false) }
+    
+    // ✅ PERFORMANCE: Memoize callbacks to prevent DSTextField recreation
+    val onKeyChange = remember { { newKey: String -> key = newKey } }
+    val onValueChange = remember { { newValue: String -> value = newValue } }
     
     DSBottomSheet(
         onDismissRequest = onDismiss,
@@ -630,42 +704,25 @@ private fun AddPreferenceBottomSheet(
             
             DSTextField(
                 text = key,
-                onValueChange = { key = it },
+                onValueChange = onKeyChange,
                 title = stringResource(R.string.features_preferences_presentation_key),
                 placeholder = "preference_key",
                 modifier = Modifier.fillMaxWidth()
             )
             
-            Box {
-                DSButton(
-                    text = stringResource(
-                        R.string.features_preferences_presentation_type,
-                        selectedType.name
-                    ),
-                    onClick = { showTypeDropdown = true },
-                    style = DSButtonStyle.OUTLINE,
-                    size = DSButtonSize.SMALL,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                DSDropdownMenu(
-                    expanded = showTypeDropdown,
-                    onDismissRequest = { showTypeDropdown = false },
-                    items = PreferenceType.entries.map { type ->
-                        DSDropdownMenuItem(
-                            text = type.name,
-                            onClick = {
-                                selectedType = type
-                                showTypeDropdown = false
-                            }
-                        )
-                    }
-                )
-            }
+            DSSelectField(
+                options = PreferenceType.entries,
+                selectedOption = selectedType,
+                onSelectionChange = { selectedType = it },
+                displayText = { it.name },
+                label = "Type",
+                placeholder = "Select type",
+                modifier = Modifier.fillMaxWidth()
+            )
             
             DSTextField(
                 text = value,
-                onValueChange = { value = it },
+                onValueChange = onValueChange,
                 title = "Value",
                 placeholder = when (selectedType) {
                     PreferenceType.STRING -> stringResource(R.string.features_preferences_presentation_string_value)
@@ -717,6 +774,9 @@ private fun EditPreferenceBottomSheet(
 ) {
     var value by remember { mutableStateOf(preference.value.toString()) }
     
+    // ✅ PERFORMANCE: Memoize callback to prevent DSTextField recreation
+    val onValueChange = remember { { newValue: String -> value = newValue } }
+    
     DSBottomSheet(
         onDismissRequest = onDismiss,
         title = { DSText(stringResource(R.string.features_preferences_presentation_edit_preference)) },
@@ -741,7 +801,7 @@ private fun EditPreferenceBottomSheet(
             
             DSTextField(
                 text = value,
-                onValueChange = { value = it },
+                onValueChange = onValueChange,
                 title = stringResource(R.string.features_preferences_presentation_value),
                 placeholder = stringResource(R.string.features_preferences_presentation_enter_new_value),
                 modifier = Modifier.fillMaxWidth()

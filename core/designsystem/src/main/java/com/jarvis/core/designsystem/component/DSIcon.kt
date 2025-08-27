@@ -59,7 +59,7 @@ fun DSIcon(
     bitmap: ImageBitmap,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    tint: Color = DSJarvisTheme.colors.primary.primary100,
+    tint: Color = DSJarvisTheme.colors.primary.primary100
 ) {
     val painter = remember(bitmap) { BitmapPainter(bitmap) }
     DSIcon(

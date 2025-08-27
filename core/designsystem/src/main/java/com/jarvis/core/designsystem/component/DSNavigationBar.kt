@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -108,18 +110,28 @@ fun DSNavigationBar(
     containerColor: Color = DSJarvisTheme.colors.extra.background,
     contentColor: Color = DSNavigationDefaults.navigationContentColor(),
     tonalElevation: Dp = DSJarvisTheme.elevations.none,
-    scrollProgress: Float = 0f,
-    enableScrollTransparency: Boolean = true,
+    scrollDownBackgroundColor: Color = DSJarvisTheme.colors.neutral.neutral20,
+    defaultBackgroundColor: Color = DSJarvisTheme.colors.extra.background,
+    enableScrollColorChange: Boolean = false,
+    isScrolledDown: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val backgroundColorProgress by animateFloatAsState(
+        targetValue = if (isScrolledDown && enableScrollColorChange) 1f else 0f,
+        animationSpec = tween(300),
+        label = "navigationBarBackgroundColor"
+    )
+    
+    val currentBackgroundColor = if (enableScrollColorChange) {
+        lerp(defaultBackgroundColor, scrollDownBackgroundColor, backgroundColorProgress)
+    } else {
+        containerColor
+    }
+    
     val shape = RoundedCornerShape(topStart = topCornerRadius, topEnd = topCornerRadius)
 
     Surface(
-        color = if (enableScrollTransparency && scrollProgress > 0f) {
-            containerColor.copy(alpha = 0.25f)
-        } else {
-            containerColor
-        },
+        color = currentBackgroundColor,
         tonalElevation = tonalElevation,
         shape = shape
     ) {
@@ -179,7 +191,7 @@ fun DSNavigationBarPreview() {
 }
 
 object DSNavigationDefaults {
-    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.backgroun
+    @Composable fun navigationContentColor() = DSJarvisTheme.colors.extra.background
     @Composable fun navigationSelectedItemColor() = DSJarvisTheme.colors.primary.primary60
     @Composable fun navigationUnSelectedItemColor() = DSJarvisTheme.colors.neutral.neutral60
     @Composable fun navigationIndicatorColor() = Color.Transparent

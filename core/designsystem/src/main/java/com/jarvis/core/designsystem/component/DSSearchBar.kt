@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.res.stringResource
@@ -22,31 +23,40 @@ fun DSSearchBar(
     placeholder: String = stringResource(R.string.core_design_system_search_placeholder),
     onTextClean: () -> Unit
 ) {
+    // ✅ PERFORMANCE: Memoize icons and callbacks
+    val leadingIcon = remember {
+        @Composable {
+            DSIcon(
+                modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.xxs),
+                imageVector = Icons.Default.Search,
+                contentDescription = "",
+                tint = Gray
+            )
+        }
+    }
+    
+    val trailingIcon = remember(searchText.isNotEmpty()) {
+        if (searchText.isNotEmpty()) {
+            @Composable {
+                DSIcon(
+                    modifier = Modifier.clickable { onTextClean() },
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "",
+                    tint = Gray
+                )
+            }
+        } else null
+    }
+
     Box {
         DSTextField(
             modifier = modifier,
             text = searchText,
-            onValueChange = { onValueChange(it) },
+            onValueChange = onValueChange,
             singleLine = true,
-            leadingIcon = {
-                DSIcon(
-                    modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.xxs),
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "",
-                    tint = Gray
-                )
-            },
+            leadingIcon = leadingIcon,
             placeholder = placeholder,
-            trailingIcon = {
-                if (searchText.isNotEmpty()) {
-                    DSIcon(
-                        modifier = Modifier.clickable { onTextClean() },
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "",
-                        tint = Gray
-                    )
-                }
-            }
+            trailingIcon = trailingIcon
         )
     }
 }

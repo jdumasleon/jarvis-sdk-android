@@ -100,6 +100,7 @@ fun DSThreeDotsMenu(
         modifier = modifier
     ) {
         DSIcon(
+            modifier = modifier,
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More options",
             tint = iconTint

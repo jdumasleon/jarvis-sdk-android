@@ -63,17 +63,19 @@ fun DSTextField(
     isSecure: Boolean = false,
     appearance: DSTextFieldAppearance = DSTextFieldAppearance.default,
 ) {
+    // ✅ PERFORMANCE: Cache expensive operations and memoize appearance
     val context = LocalContext.current
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val focusRequester = remember { FocusRequester() }
-    val (isPasswordVisible, setPasswordVisible) = remember { mutableStateOf(isDisabled) }
+    val (isPasswordVisible, setPasswordVisible) = remember(isDisabled) { mutableStateOf(isDisabled) }
+    val memoizedAppearance = remember(appearance) { appearance }
 
-    val borderWidth = if (isFocused) appearance.focusedBorderWidth else appearance.borderWidth
+    val borderWidth = if (isFocused) memoizedAppearance.focusedBorderWidth else memoizedAppearance.borderWidth
 
     Column(modifier) {
         title?.let{
-            TextFieldTitle(title, isMandatory, appearance)
+            TextFieldTitle(title, isMandatory, memoizedAppearance)
         }
 
         TextFieldContainer(
@@ -87,7 +89,7 @@ fun DSTextField(
             isSecure = isSecure,
             isPasswordVisible = isPasswordVisible,
             setPasswordVisible = setPasswordVisible,
-            appearance = appearance,
+            appearance = memoizedAppearance,
             borderWidth = borderWidth,
             keyboardType = keyboardType,
             imeAction = imeAction,
@@ -99,7 +101,7 @@ fun DSTextField(
         )
 
         if (isError) {
-            ErrorMessage(errorMessage, appearance, context)
+            ErrorMessage(errorMessage, memoizedAppearance, context)
         }
     }
 }
@@ -317,6 +319,38 @@ data class DSTextFieldAppearance(
                 disabledBackgroundColor = DSJarvisTheme.colors.neutral.neutral20,
                 disabledColor = DSJarvisTheme.colors.neutral.neutral20,
                 disabledTextColor = DSJarvisTheme.colors.neutral.neutral40,
+                backgroundColor = DSJarvisTheme.colors.extra.white,
+                errorTextColor = DSJarvisTheme.colors.error.error100,
+                trailingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
+                leadingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,
+                borderColor = DSJarvisTheme.colors.neutral.neutral40,
+                focusedBorderColor = DSJarvisTheme.colors.neutral.neutral100,
+                mandatoryTextColor = DSJarvisTheme.colors.error.error80,
+
+                titleTextStyle =  DSJarvisTheme.typography.body.medium,
+                errorTextStyle = DSJarvisTheme.typography.body.small,
+                placeholderTextStyle = DSJarvisTheme.typography.body.medium,
+                mandatoryTextStyle = DSJarvisTheme.typography.body.medium,
+
+                borderWidth = DSJarvisTheme.dimensions.xxs,
+                focusedBorderWidth = DSJarvisTheme.dimensions.xxs,
+                cornerRadius = DSJarvisTheme.shapes.s,
+                disableAutoCorrection = false,
+                textFieldHeight = DSJarvisTheme.dimensions.xxxxxl,
+
+                secureTextIconOpen = R.drawable.ic_eye_open,
+                secureTextIconClose = R.drawable.ic_eye_closed
+            )
+
+        val select: DSTextFieldAppearance
+            @Composable
+            get() = DSTextFieldAppearance(
+                textColor = DSJarvisTheme.colors.neutral.neutral100,
+                titleColor = DSJarvisTheme.colors.neutral.neutral100,
+                placeholderTextColor = DSJarvisTheme.colors.neutral.neutral40,
+                disabledBackgroundColor = DSJarvisTheme.colors.extra.surface,
+                disabledColor = DSJarvisTheme.colors.neutral.neutral80,
+                disabledTextColor = DSJarvisTheme.colors.neutral.neutral100,
                 backgroundColor = DSJarvisTheme.colors.extra.white,
                 errorTextColor = DSJarvisTheme.colors.error.error100,
                 trailingIconForegroundColor =  DSJarvisTheme.colors.primary.primary100,

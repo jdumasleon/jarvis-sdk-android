@@ -1,15 +1,30 @@
 package com.jarvis.features.home.presentation.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.toSize
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.charts.DSAreaChart
@@ -20,6 +35,16 @@ import com.jarvis.features.home.domain.entity.TimeSeriesDataPoint
 import com.jarvis.features.home.presentation.R
 import java.text.SimpleDateFormat
 import java.util.*
+
+/**
+ * Data class for tooltip information
+ */
+data class TooltipData(
+    val value: Float,
+    val time: Long,
+    val x: Float,
+    val y: Float
+)
 
 /**
  * Network area chart component using the generic DSAreaChart.
@@ -36,6 +61,17 @@ fun NetworkAreaChart(
     enableInteraction: Boolean = true,
     animationDurationMs: Int = 1200
 ) {
+    // Track if animation has already been played to prevent re-animation
+    var hasAnimated by remember { mutableStateOf(false) }
+    
+    // Only animate on first load
+    val finalAnimationDuration = if (hasAnimated) 0 else animationDurationMs
+    
+    LaunchedEffect(dataPoints) {
+        if (!hasAnimated && dataPoints.isNotEmpty()) {
+            hasAnimated = true
+        }
+    }
     // Convert TimeSeriesDataPoint to DSChartDataPoint
     val chartDataPoints = remember(dataPoints) {
         dataPoints.sortedBy { it.timestamp }.mapIndexed { index, point ->
@@ -78,7 +114,7 @@ fun NetworkAreaChart(
                 dataPoints = dataPoints,
                 height = height,
                 showGrid = showGrid,
-                animationDurationMs = animationDurationMs,
+                animationDurationMs = finalAnimationDuration,
                 contentDesc = contentDesc
             )
         } else {
@@ -108,20 +144,117 @@ fun NetworkAreaChartContent(
     animationDurationMs: Int,
     contentDesc: String
 ) {
-    DSAreaChart(
-        dataPoints = chartDataPoints,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-        lineColor = DSJarvisTheme.colors.chart.primary,
-        fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
-        fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
-        backgroundColor = DSJarvisTheme.colors.extra.surface,
-        gridColor = DSJarvisTheme.colors.neutral.neutral20,
-        showGrid = showGrid,
-        animationDurationMs = animationDurationMs,
-        contentDescription = contentDesc
-    )
+    var tooltipData by remember { mutableStateOf<TooltipData?>(null) }
+    var chartSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
+    val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
+    
+    // Calculate Y-axis values for the right side
+    val yAxisValues = remember(dataPoints) {
+        if (dataPoints.isNotEmpty()) {
+            val maxValue = dataPoints.maxOf { it.value }
+            val minValue = dataPoints.minOf { it.value }
+            val range = maxValue - minValue
+            listOf(
+                maxValue,
+                minValue + (range * 0.75f),
+                minValue + (range * 0.5f),
+                minValue + (range * 0.25f),
+                minValue
+            )
+        } else {
+            emptyList()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Chart area (takes most of the space)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(height)
+                    .onSizeChanged { size ->
+                        chartSize = size.toSize()
+                    }
+                    .pointerInput(chartDataPoints) {
+                        detectTapGestures { offset ->
+                            if (dataPoints.isNotEmpty() && chartSize.width > 0) {
+                                // Calculate which data point was touched
+                                val tapX = offset.x
+                                val chartWidth = chartSize.width
+                                
+                                // Find the closest data point index
+                                val normalizedX = (tapX / chartWidth).coerceIn(0f, 1f)
+                                val index = (normalizedX * (dataPoints.size - 1)).roundToInt()
+                                    .coerceIn(0, dataPoints.lastIndex)
+                                
+                                if (index in dataPoints.indices) {
+                                    tooltipData = TooltipData(
+                                        value = dataPoints[index].value,
+                                        time = dataPoints[index].timestamp,
+                                        x = offset.x,
+                                        y = offset.y
+                                    )
+                                    
+                                    // Auto-hide tooltip after 3 seconds
+                                    scope.launch {
+                                        delay(3000)
+                                        tooltipData = null
+                                    }
+                                }
+                            }
+                        }
+                    }
+            ) {
+                DSAreaChart(
+                    dataPoints = chartDataPoints,
+                    modifier = Modifier.fillMaxSize(),
+                    lineColor = DSJarvisTheme.colors.chart.primary,
+                    fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
+                    fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
+                    backgroundColor = DSJarvisTheme.colors.extra.surface,
+                    gridColor = DSJarvisTheme.colors.neutral.neutral20,
+                    showGrid = showGrid,
+                    animationDurationMs = animationDurationMs,
+                    contentDescription = contentDesc
+                )
+            }
+            
+            // Y-axis numeric values on the right
+            if (yAxisValues.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(height)
+                        .padding(start = DSJarvisTheme.spacing.xs),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    yAxisValues.forEach { value ->
+                        DSText(
+                            text = value.roundToInt().toString(),
+                            style = DSJarvisTheme.typography.label.small,
+                            color = DSJarvisTheme.colors.neutral.neutral60,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Tooltip overlay
+        tooltipData?.let { tooltip ->
+            NetworkChartTooltip(
+                tooltipData = tooltip,
+                onDismiss = { tooltipData = null }
+            )
+        }
+    }
 
     // Time axis labels
     if (dataPoints.isNotEmpty()) {
@@ -129,6 +262,62 @@ fun NetworkAreaChartContent(
             dataPoints = dataPoints,
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+/**
+ * Tooltip component that shows detailed information about a data point
+ */
+@Composable
+private fun NetworkChartTooltip(
+    tooltipData: TooltipData,
+    onDismiss: () -> Unit
+) {
+    val timeFormat = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
+    
+    Popup(
+        offset = IntOffset(
+            x = tooltipData.x.roundToInt() - 60, // Center the tooltip
+            y = tooltipData.y.roundToInt() - 80  // Show above the tap point
+        ),
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            modifier = Modifier
+                .shadow(8.dp, RoundedCornerShape(8.dp))
+                .clickable { onDismiss() },
+            shape = RoundedCornerShape(8.dp),
+            color = DSJarvisTheme.colors.extra.surface,
+            shadowElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)
+            ) {
+                // Value
+                DSText(
+                    text = "${tooltipData.value.roundToInt()} requests",
+                    style = DSJarvisTheme.typography.body.large,
+                    fontWeight = FontWeight.Bold,
+                    color = DSJarvisTheme.colors.chart.primary
+                )
+                
+                // Time
+                DSText(
+                    text = timeFormat.format(Date(tooltipData.time)),
+                    style = DSJarvisTheme.typography.body.small,
+                    color = DSJarvisTheme.colors.neutral.neutral60
+                )
+                
+                // Tap to dismiss hint
+                DSText(
+                    text = "Tap to dismiss",
+                    style = DSJarvisTheme.typography.label.small,
+                    color = DSJarvisTheme.colors.neutral.neutral40
+                )
+            }
+        }
     }
 }
 
@@ -160,7 +349,13 @@ fun NetworkChartHeader(
                 val total = dataPoints.sumOf { it.value.toDouble() }.toInt()
                 val avg = total / dataPoints.size
                 DSText(
-                    text = stringResource(R.string.total_requests, total, avg),
+                    text = stringResource(R.string.total_requests, total),
+                    style = DSJarvisTheme.typography.title.large,
+                    fontWeight = FontWeight.Bold,
+                    color = DSJarvisTheme.colors.neutral.neutral100
+                )
+                DSText(
+                    text = stringResource(R.string.total_avg, avg),
                     style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral40
                 )

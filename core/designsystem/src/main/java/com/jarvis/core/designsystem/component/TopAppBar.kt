@@ -3,6 +3,8 @@
 package com.jarvis.core.designsystem.component
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -50,12 +61,21 @@ fun DSTopAppBar(
     logo: (@Composable () -> Unit)? = null,
     dismissable: Boolean = false,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
-    scrollProgress: Float = 0f,
-    enableScrollTransparency: Boolean = true,
+    scrollUpBackgroundColor: Color = DSJarvisTheme.colors.neutral.neutral20,
+    defaultBackgroundColor: Color = DSJarvisTheme.colors.extra.background,
+    enableScrollColorChange: Boolean = false,
+    isScrolledUp: Boolean = false,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
+    val backgroundColorProgress by animateFloatAsState(
+        targetValue = if (isScrolledUp && enableScrollColorChange) 1f else 0f,
+        animationSpec = tween(300),
+        label = "topAppBarBackgroundColor"
+    )
+    
+    val currentBackgroundColor = lerp(defaultBackgroundColor, scrollUpBackgroundColor, backgroundColorProgress)
     CenterAlignedTopAppBar(
             title = {
                 titleRes?.let {
@@ -75,7 +95,7 @@ fun DSTopAppBar(
                                     end = if (actionIcon != null && !dismissable) {
                                         DSJarvisTheme.spacing.xxxl
                                     } else if (actionIcon == null && !dismissable) {
-                                        DSJarvisTheme.spacing.l
+                                        DSJarvisTheme.spacing.xxxxl
                                     } else {
                                         DSJarvisTheme.spacing.none
                                     }
@@ -122,11 +142,7 @@ fun DSTopAppBar(
                 }
             },
             colors = colors.copy(
-                containerColor = if (enableScrollTransparency && scrollProgress > 0f) {
-                    DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-                } else {
-                    DSJarvisTheme.colors.extra.background
-                },
+                containerColor = currentBackgroundColor,
                 navigationIconContentColor = DSJarvisTheme.colors.extra.black,
                 actionIconContentColor = DSJarvisTheme.colors.extra.black,
                 titleContentColor = DSJarvisTheme.colors.extra.black,
@@ -151,7 +167,10 @@ fun DSMediumTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
-    enableScrollTransparency: Boolean = true,
+    scrollUpBackgroundColor: Color = DSJarvisTheme.colors.neutral.neutral20,
+    defaultBackgroundColor: Color = DSJarvisTheme.colors.extra.background,
+    enableScrollColorChange: Boolean = false,
+    isScrolledUp: Boolean = false,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -159,13 +178,22 @@ fun DSMediumTopAppBar(
     val collapsedFraction = scrollBehavior?.state?.collapsedFraction ?: 1f
     val isCollapsed = collapsedFraction >= collapseThreshold
     val titleText = titleRes?.let { stringResource(id = it) }
+    
+    val backgroundColorProgress by animateFloatAsState(
+        targetValue = if (isScrolledUp && enableScrollColorChange) 1f else 0f,
+        animationSpec = tween(300),
+        label = "mediumTopAppBarBackgroundColor"
+    )
+    
+    val currentBackgroundColor = lerp(defaultBackgroundColor, scrollUpBackgroundColor, backgroundColorProgress)
 
     MediumTopAppBar(
         title = {
             if (titleText != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
                     DSText(
                         text = titleText,
@@ -217,16 +245,8 @@ fun DSMediumTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
-            scrolledContainerColor = if (enableScrollTransparency) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
+            containerColor = currentBackgroundColor,
+            scrolledContainerColor = currentBackgroundColor,
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,
@@ -252,7 +272,10 @@ fun DSLargeTopAppBar(
     collapsedLogoSize: Dp = DSJarvisTheme.dimensions.l,
     logoSpacing: Dp = DSJarvisTheme.spacing.m,
     collapseThreshold: Float = 0.5f,
-    enableScrollTransparency: Boolean = true,
+    scrollUpBackgroundColor: Color = DSJarvisTheme.colors.neutral.neutral20,
+    defaultBackgroundColor: Color = DSJarvisTheme.colors.extra.background,
+    enableScrollColorChange: Boolean = false,
+    isScrolledUp: Boolean = false,
     onBackClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -260,6 +283,14 @@ fun DSLargeTopAppBar(
     val collapsedFraction = scrollBehavior?.state?.collapsedFraction ?: 1f
     val isCollapsed = collapsedFraction >= collapseThreshold
     val titleText = titleRes?.let { stringResource(id = it) }
+    
+    val backgroundColorProgress by animateFloatAsState(
+        targetValue = if (isScrolledUp && enableScrollColorChange) 1f else 0f,
+        animationSpec = tween(300),
+        label = "largeTopAppBarBackgroundColor"
+    )
+    
+    val currentBackgroundColor = lerp(defaultBackgroundColor, scrollUpBackgroundColor, backgroundColorProgress)
 
     LargeTopAppBar(
         title = {
@@ -317,16 +348,8 @@ fun DSLargeTopAppBar(
             }
         },
         colors = colors.copy(
-            containerColor = if (enableScrollTransparency && collapsedFraction > 0f) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
-            scrolledContainerColor = if (enableScrollTransparency) {
-                DSJarvisTheme.colors.extra.background.copy(alpha = 0.25f)
-            } else {
-                DSJarvisTheme.colors.extra.background
-            },
+            containerColor = currentBackgroundColor,
+            scrolledContainerColor = currentBackgroundColor,
             navigationIconContentColor = DSJarvisTheme.colors.extra.black,
             actionIconContentColor = DSJarvisTheme.colors.extra.black,
             titleContentColor = DSJarvisTheme.colors.extra.black,

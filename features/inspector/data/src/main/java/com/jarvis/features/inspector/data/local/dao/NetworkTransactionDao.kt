@@ -11,8 +11,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NetworkTransactionDao {
     
-    @Query("SELECT * FROM network_transactions ORDER BY start_time DESC")
+    @Query("SELECT * FROM network_transactions ORDER BY start_time DESC LIMIT 1000")
     fun getAllTransactions(): Flow<List<NetworkTransactionEntity>>
+    
+    // ✅ PAGINATION: Add paginated query for better performance with large datasets
+    @Query("SELECT * FROM network_transactions ORDER BY start_time DESC LIMIT :limit OFFSET :offset")
+    fun getTransactionsPaged(limit: Int, offset: Int): Flow<List<NetworkTransactionEntity>>
+    
+    // ✅ PERFORMANCE: Get recent transactions only (last hour by default)
+    @Query("SELECT * FROM network_transactions WHERE start_time >= :afterTimestamp ORDER BY start_time DESC LIMIT :limit")
+    fun getRecentTransactions(afterTimestamp: Long = System.currentTimeMillis() - 3600000L, limit: Int = 100): Flow<List<NetworkTransactionEntity>>
     
     @Query("SELECT * FROM network_transactions WHERE id = :id")
     fun getTransaction(id: String): Flow<NetworkTransactionEntity?>

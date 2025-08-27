@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,35 +31,41 @@ fun DSFilterChip(
     onClick: () -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    selectedGradient: Brush? = null
 ) {
     val backgroundColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral20
-        selected -> DSJarvisTheme.colors.primary.primary100
+        selected -> DSJarvisTheme.colors.primary.primary100 // used as a fallback when no gradient
         else -> DSJarvisTheme.colors.extra.white
     }
-    
+
     val borderColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral40
-        selected -> DSJarvisTheme.colors.primary.primary100
+        selected -> DSJarvisTheme.colors.extra.transparent
         else -> DSJarvisTheme.colors.neutral.neutral60
     }
-    
+
     val textColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral40
         selected -> DSJarvisTheme.colors.neutral.neutral0
         else -> DSJarvisTheme.colors.neutral.neutral80
     }
 
+    val shape = DSJarvisTheme.shapes.l
+
     Box(
         modifier = modifier
-            .clip(DSJarvisTheme.shapes.l)
-            .background(backgroundColor)
-            .border(
-                width = 1.dp,
-                color = borderColor,
-                shape = DSJarvisTheme.shapes.l
+            .clip(shape)
+            .then(
+                if (selected && enabled)
+                    selectedGradient?.let {
+                        Modifier.background(brush = it, shape = shape)
+                    } ?: Modifier.background(color = backgroundColor, shape = shape)
+                else
+                    Modifier.background(color = backgroundColor, shape = shape)
             )
+            .border(width = 1.dp, color = borderColor, shape = shape)
             .clickable(enabled = enabled) { onClick() }
             .padding(
                 horizontal = DSJarvisTheme.spacing.m,
@@ -77,7 +84,7 @@ fun DSFilterChip(
                     modifier = Modifier.size(DSJarvisTheme.dimensions.m)
                 )
             }
-            
+
             DSText(
                 text = label,
                 style = DSJarvisTheme.typography.body.small,

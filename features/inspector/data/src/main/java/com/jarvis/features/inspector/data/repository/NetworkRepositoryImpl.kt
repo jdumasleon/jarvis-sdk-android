@@ -21,6 +21,13 @@ class NetworkRepositoryImpl @Inject constructor(
         }
     }
     
+    // ✅ PAGINATION: Implement paginated transactions for better performance
+    override fun getTransactionsPaged(limit: Int, offset: Int): Flow<List<NetworkTransaction>> {
+        return dao.getTransactionsPaged(limit, offset).map { entities ->
+            entities.map { mapper.toDomain(it) }
+        }
+    }
+    
     override fun getTransaction(id: String): Flow<NetworkTransaction?> {
         return dao.getTransaction(id).map { entity ->
             entity?.let { mapper.toDomain(it) }

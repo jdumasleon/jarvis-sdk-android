@@ -50,4 +50,5 @@
     <!-- Bottom Sheet -->
     <string name="ds_primary_action">Primary Action</string>
     <string name="ds_secondary_action">Secondary Action</string>
+    <string name="core_designsystem_jarvis">JARVIS</string>
 </resources>
