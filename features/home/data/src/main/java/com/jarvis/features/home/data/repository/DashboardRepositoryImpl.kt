@@ -24,7 +24,7 @@ class DashboardRepositoryImpl @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     private val mapper: DashboardMetricsMapper,
     private val enhancedMapper: EnhancedDashboardMetricsMapper,
-    @com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher 
+    @param:com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
     private val ioDispatcher: CoroutineDispatcher
 ) : DashboardRepository {
 

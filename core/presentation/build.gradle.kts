@@ -15,6 +15,8 @@ android {
 
 dependencies {
     api(projects.core.designsystem)
+    api(projects.core.navigation)
+
     implementation(libs.androidx.savedstate)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)

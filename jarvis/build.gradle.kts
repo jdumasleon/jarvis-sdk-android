@@ -7,6 +7,13 @@ val githubProperties: Properties = Properties().apply {
     }
 }
 
+val securityProperties: Properties = Properties().apply {
+    val securityPropertiesFile = rootProject.file("security.properties")
+    if (securityPropertiesFile.exists()) {
+        load(securityPropertiesFile.inputStream())
+    }
+}
+
 plugins {
     alias(libs.plugins.jarvis.android.library)
     alias(libs.plugins.jarvis.android.library.compose)
@@ -19,6 +26,9 @@ plugins {
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Set manifest placeholders for Sentry configuration
+        manifestPlaceholders["sentryDsn"] = securityProperties["SENTRY_DSN"] ?: "https://dummy-sentry-dsn-replace-with-actual@sentry.io/project-id"
     }
 
     namespace = "com.jarvis.library"
@@ -33,7 +43,11 @@ dependencies {
     implementation(projects.features.home.lib)
     implementation(projects.features.inspector.lib)
     implementation(projects.features.preferences.lib)
+    implementation(projects.features.settings.lib)
     implementation(projects.features.preferences.domain)
+
+    implementation(projects.platform.lib)
+    implementation(projects.core.navigation)
     
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences.core)

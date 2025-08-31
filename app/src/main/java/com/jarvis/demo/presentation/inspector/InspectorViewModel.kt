@@ -2,10 +2,12 @@ package com.jarvis.demo.presentation.inspector
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.data.repository.ApiCallResult
 import com.jarvis.demo.data.repository.DemoApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InspectorViewModel @Inject constructor(
-    private val demoApiRepository: DemoApiRepository
+    private val demoApiRepository: DemoApiRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<InspectorUiState>(ResourceState.Idle)
@@ -41,7 +44,7 @@ class InspectorViewModel @Inject constructor(
     
     private fun performInitialApiCalls() {
         _uiState.update { ResourceState.Loading }
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 // Start with empty data but show we're performing calls
                 val initialData = InspectorUiData(
@@ -92,7 +95,7 @@ class InspectorViewModel @Inject constructor(
     }
     
     private fun addRandomApiCall() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 
@@ -127,7 +130,7 @@ class InspectorViewModel @Inject constructor(
     }
     
     private fun refreshCalls() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val currentData = _uiState.value.getDataOrNull() ?: InspectorUiData()
             
             // Set refresh state

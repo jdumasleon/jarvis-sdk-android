@@ -1,6 +1,7 @@
 package com.jarvis.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -95,17 +96,15 @@ fun DSThreeDotsMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    IconButton(
-        onClick = { expanded = !expanded },
-        modifier = modifier
-    ) {
-        DSIcon(
-            modifier = modifier,
+    Box {
+        DSIconButton(
+            onClick = { expanded = !expanded },
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More options",
+            modifier = modifier.padding(DSJarvisTheme.spacing.none),
             tint = iconTint
         )
-        
+
         DSDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },

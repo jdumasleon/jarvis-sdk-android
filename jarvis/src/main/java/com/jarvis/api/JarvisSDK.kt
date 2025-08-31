@@ -1,7 +1,6 @@
 package com.jarvis.api
 
 import android.app.Activity
-import android.content.Context
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -16,32 +15,41 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.jarvis.api.di.JarvisSDKEntryPoint
+import com.jarvis.core.navigation.JarvisSDKNavigator
 import com.jarvis.api.ui.JarvisSDKApplication
 import com.jarvis.api.ui.JarvisSDKFabTools
 import com.jarvis.config.ConfigurationSynchronizer
 import com.jarvis.config.JarvisConfig
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.data.performance.PerformanceManager
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.utils.ShakeDetectorEffect
-import com.jarvis.core.presentation.navigation.EntryProviderInstaller
-import com.jarvis.core.presentation.navigation.NavigationRoute
-import com.jarvis.core.presentation.navigation.Navigator
-import com.jarvis.features.home.lib.navigation.JarvisSDKHomeGraph
-import com.jarvis.features.inspector.lib.navigation.JarvisSDKInspectorGraph
-import com.jarvis.features.preferences.lib.navigation.JarvisSDKPreferencesGraph
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.Navigator
+import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
+import com.jarvis.core.navigation.routes.JarvisSDKInspectorGraph
+import com.jarvis.core.navigation.routes.JarvisSDKPreferencesGraph
 import com.jarvis.library.R
+import com.jarvis.platform.lib.JarvisPlatform
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityRetainedScoped
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Main Jarvis SDK interface for initialization and configuration
  */
-@Singleton
+@ActivityRetainedScoped
 class JarvisSDK @Inject constructor(
     private val configurationSynchronizer: ConfigurationSynchronizer,
-    private val performanceManager: PerformanceManager
+    private val performanceManager: PerformanceManager,
+    private val jarvisPlatform: JarvisPlatform,
+    @JarvisSDKNavigator private val navigator: Navigator,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
     private var coreInitialized = false
     private var configuration = JarvisConfig()
@@ -50,36 +58,40 @@ class JarvisSDK @Inject constructor(
 
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
     private var composeView: ComposeView? = null
-    
+
     // Store the previous state to restore on recomposition
     private var previousJarvisActiveState = false
     private var previousShowingState = false
 
-    private val navigator: Navigator = Navigator()
-    private val route: NavigationRoute = JarvisSDKHomeGraph.JarvisHome
 
     fun initialize(
         config: JarvisConfig = JarvisConfig(),
         hostActivity: Activity
     ) {
-
         if (!coreInitialized) {
             configuration = config
-            configurationSynchronizer.updateConfigurations(config)
-            performanceManager.initialize()
 
-            val ep = EntryPointAccessors.fromActivity(hostActivity, JarvisSDKEntryPoint::class.java)
-            entryProviderBuilders = ep.entryProviderBuilders()
+            CoroutineScope(ioDispatcher).launch {
 
-            navigator.initialize(route)
+                configurationSynchronizer.updateConfigurations(config)
+                performanceManager.initialize()
+                jarvisPlatform.initialize()
+                jarvisPlatform.onAppStart()
+                
+                // Get entry providers on main thread (UI-bound)
+                withContext(Dispatchers.Main) {
+                    val ep = EntryPointAccessors.fromActivity(hostActivity, JarvisSDKEntryPoint::class.java)
+                    entryProviderBuilders = ep.entryProviderBuilders()
+                }
+            }
+
             _isShowing = false
-
             coreInitialized = true
         } else {
             // Store current state before recreating the view
             previousJarvisActiveState = _isJarvisActive
             previousShowingState = _isShowing
-            
+
             composeView?.let { old ->
                 (old.parent as? ViewGroup)?.removeView(old)
             }
@@ -94,7 +106,7 @@ class JarvisSDK @Inject constructor(
 
             setContent {
                 val darkTheme = isSystemInDarkTheme()
-                
+
                 // Restore previous state if this is a recomposition after orientation change
                 LaunchedEffect(Unit) {
                     if (previousJarvisActiveState) {
@@ -137,7 +149,7 @@ class JarvisSDK @Inject constructor(
                     }
 
                     if (_isShowing) {
-                       JarvisSDKApplication(
+                        JarvisSDKApplication(
                             navigator = navigator,
                             entryProviderBuilders = entryProviderBuilders,
                             onDismiss = {
@@ -160,7 +172,27 @@ class JarvisSDK @Inject constructor(
         composeView = view
     }
 
+    private suspend fun initPlatform() = withContext(ioDispatcher) {
+        try {
+            jarvisPlatform.initialize()
+            jarvisPlatform.onAppStart()
+        } catch (e: Exception) {
+            // Proper error handling
+        }
+    }
+
     fun dismiss() {
+        // Notify platform services about app stop
+        CoroutineScope(ioDispatcher).launch {
+            try {
+                if (jarvisPlatform.isInitialized()) {
+                    jarvisPlatform.onAppStop()
+                }
+            } catch (e: Exception) {
+                // Handle gracefully
+            }
+        }
+
         navigator.clear()
         composeView?.let { v -> (v.parent as? ViewGroup)?.removeView(v) }
         composeView = null
@@ -189,5 +221,17 @@ class JarvisSDK @Inject constructor(
     fun toggle(): Boolean {
         if (_isJarvisActive) deactivate() else activate()
         return _isJarvisActive
+    }
+
+    /**
+     * Get access to platform services (Analytics, Crash Reporting, Feature Flags)
+     * Only available after initialization
+     */
+    fun getPlatform(): JarvisPlatform? {
+        return if (coreInitialized && jarvisPlatform.isInitialized()) {
+            jarvisPlatform
+        } else {
+            null
+        }
     }
 }

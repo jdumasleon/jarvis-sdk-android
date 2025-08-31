@@ -1,9 +1,8 @@
 package com.jarvis.features.preferences.lib.di.presentation
 
 import androidx.navigation3.runtime.entry
-import com.jarvis.core.presentation.navigation.EntryProviderInstaller
-import com.jarvis.core.presentation.navigation.Navigator
-import com.jarvis.features.preferences.lib.navigation.JarvisSDKPreferencesGraph
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.routes.JarvisSDKPreferencesGraph
 import com.jarvis.features.preferences.presentation.ui.PreferencesRoute
 import dagger.Module
 import dagger.Provides

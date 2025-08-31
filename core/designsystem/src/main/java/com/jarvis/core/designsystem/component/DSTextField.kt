@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -38,9 +39,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import kotlin.math.min
 
 @Composable
 fun DSTextField(
@@ -59,7 +62,8 @@ fun DSTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     singleLine: Boolean = false,
-    maxLine: Int = 1,
+    minLine: Int = 1,
+    maxLine: Int = 10,
     isSecure: Boolean = false,
     appearance: DSTextFieldAppearance = DSTextFieldAppearance.default,
 ) {
@@ -70,6 +74,15 @@ fun DSTextField(
     val focusRequester = remember { FocusRequester() }
     val (isPasswordVisible, setPasswordVisible) = remember(isDisabled) { mutableStateOf(isDisabled) }
     val memoizedAppearance = remember(appearance) { appearance }
+    // Calculate minimum height only for multiline fields
+    val minHeight = if (minLine > 1) {
+        // Each line is approximately 20dp + padding for multiline
+        val estimatedLineHeight = 20f
+        val verticalPadding = DSJarvisTheme.spacing.s.value * 2 + DSJarvisTheme.dimensions.xs.value * 4
+        estimatedLineHeight * minLine + verticalPadding
+    } else {
+        null // No fixed height for single line
+    }
 
     val borderWidth = if (isFocused) memoizedAppearance.focusedBorderWidth else memoizedAppearance.borderWidth
 
@@ -94,8 +107,10 @@ fun DSTextField(
             keyboardType = keyboardType,
             imeAction = imeAction,
             keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLine = maxLine,
+            singleLine = if (minLine > 1) false else singleLine,
+            minLine = minLine,
+            maxLine = if (minLine > 1) maxLine else (if (singleLine) 1 else maxLine),
+            minHeight = minHeight,
             focusRequester = focusRequester,
             interactionSource = interactionSource
         )
@@ -147,7 +162,9 @@ private fun TextFieldContainer(
     imeAction: ImeAction,
     keyboardActions: KeyboardActions,
     singleLine: Boolean,
+    minLine: Int,
     maxLine: Int,
+    minHeight: Float?,
     focusRequester: FocusRequester,
     interactionSource: MutableInteractionSource
 ) {
@@ -168,11 +185,15 @@ private fun TextFieldContainer(
             )
             .focusRequester(focusRequester)
             .fillMaxWidth()
+            .let { modifier ->
+                minHeight?.let { modifier.height(it.dp) } ?: modifier
+            }
             .padding(horizontal = DSJarvisTheme.dimensions.xs)
             .padding(vertical = DSJarvisTheme.spacing.s),
         value = text,
         onValueChange = onValueChange,
         textStyle = appearance.titleTextStyle.copy(color =  if(isDisabled) appearance.disabledTextColor else appearance.textColor),
+        minLines = minLine,
         maxLines = maxLine,
         singleLine = singleLine,
         interactionSource = interactionSource,
@@ -186,14 +207,17 @@ private fun TextFieldContainer(
         cursorBrush = SolidColor(appearance.textColor),
         enabled = !isDisabled,
         decorationBox = { innerTextField ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = if (minLine > 1) Alignment.Top else Alignment.CenterVertically
+            ) {
                 leadingIcon?.invoke()
 
                 Box(
                     modifier = Modifier
                         .weight(1.0f)
                         .padding(vertical = DSJarvisTheme.dimensions.xs)
-                        .padding(horizontal = DSJarvisTheme.dimensions.xs)
+                        .padding(horizontal = DSJarvisTheme.dimensions.xs),
+                    contentAlignment = if (minLine > 1) Alignment.TopStart else Alignment.CenterStart
                 ) {
                     if (text.isEmpty()) {
                         DSText(
@@ -332,7 +356,7 @@ data class DSTextFieldAppearance(
                 placeholderTextStyle = DSJarvisTheme.typography.body.medium,
                 mandatoryTextStyle = DSJarvisTheme.typography.body.medium,
 
-                borderWidth = DSJarvisTheme.dimensions.xxs,
+                borderWidth = DSJarvisTheme.dimensions.xxxs,
                 focusedBorderWidth = DSJarvisTheme.dimensions.xxs,
                 cornerRadius = DSJarvisTheme.shapes.s,
                 disableAutoCorrection = false,
@@ -364,7 +388,7 @@ data class DSTextFieldAppearance(
                 placeholderTextStyle = DSJarvisTheme.typography.body.medium,
                 mandatoryTextStyle = DSJarvisTheme.typography.body.medium,
 
-                borderWidth = DSJarvisTheme.dimensions.xxs,
+                borderWidth = DSJarvisTheme.dimensions.xxxs,
                 focusedBorderWidth = DSJarvisTheme.dimensions.xxs,
                 cornerRadius = DSJarvisTheme.shapes.s,
                 disableAutoCorrection = false,
@@ -396,7 +420,7 @@ data class DSTextFieldAppearance(
                 placeholderTextStyle = DSJarvisTheme.typography.body.medium,
                 mandatoryTextStyle = DSJarvisTheme.typography.body.medium,
 
-                borderWidth = DSJarvisTheme.dimensions.xxs,
+                borderWidth = DSJarvisTheme.dimensions.xxxs,
                 focusedBorderWidth = DSJarvisTheme.dimensions.xxs,
                 cornerRadius = DSJarvisTheme.shapes.s,
                 disableAutoCorrection = false,

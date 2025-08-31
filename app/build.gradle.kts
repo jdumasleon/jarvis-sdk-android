@@ -1,4 +1,5 @@
 import com.jarvis.buildlogic.extensions.JarvisBuildType
+import org.gradle.kotlin.dsl.debugImplementation
 
 plugins {
     alias(libs.plugins.jarvis.android.application)
@@ -55,6 +56,9 @@ android {
         }
     }
     namespace = "com.jarvis.demo"
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
 }
 
 dependencies {
@@ -99,14 +103,15 @@ dependencies {
     "classicImplementation"("androidx.drawerlayout:drawerlayout:1.2.0")
     "classicImplementation"("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    debugImplementation("com.github.anrwatchdog:anrwatchdog:1.4.0")
+
     implementation(libs.androidx.metrics)
     implementation(libs.androidx.dataStore)
     implementation(libs.androidx.dataStore.preferences)
     implementation(libs.androidx.dataStore.preferences.core)
     implementation(libs.protobuf.javalite)
     implementation(libs.protobuf.kotlin.lite)
-    
-    // Network dependencies for demo API calls
+
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofitConverterGson)
     implementation(libs.okhttp.logging.interceptor)

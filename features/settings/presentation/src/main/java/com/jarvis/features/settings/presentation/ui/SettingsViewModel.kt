@@ -1,0 +1,154 @@
+package com.jarvis.features.settings.presentation.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
+import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.features.settings.domain.entity.AppInfo
+import com.jarvis.features.settings.domain.entity.Rating
+import com.jarvis.features.settings.domain.entity.SettingsGroup
+import com.jarvis.features.settings.domain.usecase.GetAppInfoUseCase
+import com.jarvis.features.settings.domain.usecase.GetSettingsItemsUseCase
+import com.jarvis.features.settings.domain.usecase.SubmitRatingUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import kotlin.getOrThrow
+
+/**
+ * ViewModel for Settings screen following clean architecture pattern
+ */
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val getSettingsItemsUseCase: GetSettingsItemsUseCase,
+    private val getAppInfoUseCase: GetAppInfoUseCase,
+    private val submitRatingUseCase: SubmitRatingUseCase,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<SettingsUiState>(ResourceState.Idle)
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    init {
+        onEvent(SettingsEvent.LoadSettings)
+    }
+
+    fun onEvent(event: SettingsEvent) {
+        when (event) {
+            is SettingsEvent.LoadSettings -> loadSettings()
+            is SettingsEvent.ShowRatingDialog -> showRatingDialog()
+            is SettingsEvent.HideRatingDialog -> hideRatingDialog()
+            is SettingsEvent.UpdateRatingStars -> updateRatingStars(event.stars)
+            is SettingsEvent.UpdateRatingDescription -> updateRatingDescription(event.description)
+            is SettingsEvent.SubmitRating -> submitRating()
+        }
+    }
+
+    private fun showRatingDialog() {
+        updateCurrentData { it.copy(showRatingDialog = true) }
+    }
+
+    private fun hideRatingDialog() {
+        updateCurrentData { 
+            it.copy(
+                showRatingDialog = false,
+                ratingStars = 0,
+                ratingDescription = "",
+            )
+        }
+    }
+
+    private fun updateRatingStars(stars: Int) {
+        updateCurrentData { it.copy(ratingStars = stars) }
+    }
+
+    private fun updateRatingDescription(description: String) {
+        updateCurrentData { it.copy(ratingDescription = description) }
+    }
+
+    private fun submitRating() {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        viewModelScope.launch(ioDispatcher) {
+            updateCurrentData { it.copy(isSubmittingRating = true) }
+
+            val rating = Rating(
+                stars = currentData.ratingStars,
+                description = currentData.ratingDescription,
+                version = currentData.appInfo?.version
+            )
+
+            submitRatingUseCase(rating).collectLatest { result ->
+                result.onSuccess { submissionResult ->
+                    updateCurrentData {
+                        it.copy(
+                            isSubmittingRating = false,
+                            showRatingDialog = false,
+                            ratingStars = 0,
+                            ratingDescription = ""
+                        )
+                    }
+                }.onFailure { exception ->
+                    _uiState.update {
+                        ResourceState.Error(exception, "Failed to load settings")
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun updateCurrentData(update: (SettingsUiData) -> SettingsUiData) {
+        val currentData = _uiState.value.getDataOrNull() ?: return
+        _uiState.update { ResourceState.Success(update(currentData)) }
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch(ioDispatcher) {
+            _uiState.update { ResourceState.Loading }
+
+            combine(
+                getSettingsItemsUseCase()
+                    .catch { emit(Result.failure(it)) },
+                getAppInfoUseCase()
+                    .catch { emit(Result.failure(it)) }
+            ) { settingsRes: Result<List<SettingsGroup>>, appInfoRes: Result<AppInfo> ->
+                when {
+                    settingsRes.isFailure -> {
+                        val e = settingsRes.exceptionOrNull() ?: Exception("Unknown error")
+                        ResourceState.Error(e, "Failed to load settings items")
+                    }
+                    appInfoRes.isFailure -> {
+                        val e = appInfoRes.exceptionOrNull() ?: Exception("Unknown error")
+                        ResourceState.Error(e, "Failed to load app info")
+                    }
+                    else -> {
+                        val settings = settingsRes.getOrThrow()
+                        val appInfo = appInfoRes.getOrThrow()
+                        ResourceState.Success(
+                            SettingsUiData(
+                                settingsItems = settings,
+                                appInfo = appInfo
+                            )
+                        )
+                    }
+                }
+            }
+                .onStart { emit(ResourceState.Loading) }
+                .distinctUntilChanged()
+                .collect { state ->
+                    _uiState.update { state }
+                }
+
+        }
+    }
+}

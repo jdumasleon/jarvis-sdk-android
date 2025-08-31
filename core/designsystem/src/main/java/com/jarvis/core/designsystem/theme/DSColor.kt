@@ -49,7 +49,7 @@ val Info60 = Color(0xFF70B8D7)
 val Info40 = Color(0xFFA5CCE2)
 val Info20 = Color(0xFFDEF2F4)
 
-val background0 = Color(0xFFF2F2F7)
+val background0 = Color(0xFFF9F9FF)
 val JarvisPink = Color(0xFFFF68FF)
 val JarvisBlue = Color(0xFF009BF6)
 

@@ -2,9 +2,11 @@ package com.jarvis.features.inspector.presentation.ui.transactionsDetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.inspector.domain.repository.NetworkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NetworkTransactionDetailViewModel @Inject constructor(
-    private val networkRepository: NetworkRepository
+    private val networkRepository: NetworkRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NetworkTransactionDetailUiState>(ResourceState.Idle)
@@ -32,7 +35,7 @@ class NetworkTransactionDetailViewModel @Inject constructor(
 
     private fun loadTransaction(transactionId: String) {
         _uiState.update { ResourceState.Loading }
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 networkRepository.getTransaction(transactionId).collect { transaction ->
                     if (transaction != null) {
@@ -72,7 +75,7 @@ class NetworkTransactionDetailViewModel @Inject constructor(
 
     private fun deleteTransaction() {
         val currentData = _uiState.value.getDataOrNull() ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 networkRepository.deleteTransaction(currentData.transaction.id)
                 // Transaction deleted successfully - the UI should navigate back

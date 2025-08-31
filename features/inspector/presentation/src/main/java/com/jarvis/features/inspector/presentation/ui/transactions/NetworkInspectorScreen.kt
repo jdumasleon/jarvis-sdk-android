@@ -1,5 +1,6 @@
 package com.jarvis.features.inspector.presentation.ui.transactions
 
+import android.net.Network
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -112,7 +113,6 @@ internal fun NetworkInspectorScreen(
 ) {
     Box(
         modifier = modifier
-            .padding(top = DSJarvisTheme.spacing.m)
             .fillMaxSize()
     ) {
         ResourceStateContent(
@@ -217,7 +217,6 @@ private fun NetworkInspectorContent(
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
     ) {
-        // Animated Filters Section
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,6 +249,7 @@ private fun NetworkInspectorContent(
         ) {
             InspectorActions(
                 uiData = uiData,
+                onEvent = onEvent,
                 onNavigateToRules = onNavigateToRules
             )
 
@@ -360,6 +360,8 @@ private fun NetworkInspectorFilters(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
     ) {
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs))
+
         DSSearchBar(
             searchText = uiData.searchQuery,
             onValueChange = { onEvent(NetworkInspectorEvent.SearchQueryChanged(it)) },
@@ -472,6 +474,7 @@ private fun StatusChips(
 @Composable
 private fun InspectorActions(
     uiData: NetworkInspectorUiData,
+    onEvent: (NetworkInspectorEvent) -> Unit,
     onNavigateToRules: () -> Unit,
 ) {
     val colors = listOf(
@@ -481,9 +484,7 @@ private fun InspectorActions(
     val brush = remember { Brush.linearGradient(colors) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = DSJarvisTheme.spacing.s),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         DSText(
@@ -524,6 +525,15 @@ private fun InspectorActions(
                         text = "Rules",
                         icon = Icons.Default.Dehaze,
                         onClick = onNavigateToRules
+                    )
+                )
+                add(
+                    DSDropdownMenuItem(
+                        text = stringResource(R.string.features_inspector_presentation_clear_all),
+                        textColor = DSJarvisTheme.colors.error.error100,
+                        icon = Icons.Default.DeleteForever,
+                        iconTint = DSJarvisTheme.colors.error.error100,
+                        onClick = { onEvent(NetworkInspectorEvent.ShowClearConfirmation(true)) }
                     )
                 )
             }
@@ -624,20 +634,24 @@ private fun ClearConfirmationDialog(
 ) {
     DSDialog(
         onDismissRequest = onDismiss,
-        title = { DSText("Clear All Transactions") },
-        text = { DSText("Are you sure you want to clear all network transactions? This action cannot be undone.") },
+        title = { DSText(stringResource(R.string.features_inspector_presentation_clear_all_transactions)) },
+        text = { DSText(stringResource(R.string.features_inspector_presentation_clear_all_transactions_decription)) },
         confirmButton = {
             DSButton(
-                text = "Clear All",
+                text = stringResource(R.string.features_inspector_presentation_clear_all),
+                onClick = onConfirm,
                 style = DSButtonStyle.PRIMARY,
-                onClick = onConfirm
+                size = DSButtonSize.MEDIUM,
+                modifier = Modifier.fillMaxWidth()
             )
         },
         dismissButton = {
             DSButton(
-                text = "Cancel",
+                text = stringResource(R.string.features_inspector_presentation_cancel),
+                onClick = onDismiss,
                 style = DSButtonStyle.SECONDARY,
-                onClick = onDismiss
+                size = DSButtonSize.MEDIUM,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     )

@@ -20,6 +20,9 @@
       <SelectionState runConfigName="AiRingsAnimatedPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="DSThreeDotsMenuPreview - Three Dots Menu">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

@@ -26,11 +26,11 @@ import com.jarvis.core.designsystem.component.DSNavigationBar
 import com.jarvis.core.designsystem.component.DSNavigationBarItem
 import com.jarvis.core.designsystem.component.DSTopAppBar
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.navigation.ActionRegistry
-import com.jarvis.core.presentation.navigation.EntryProviderInstaller
-import com.jarvis.core.presentation.navigation.NavigationRoute
-import com.jarvis.core.presentation.navigation.Navigator
-import com.jarvis.core.presentation.navigation.TopAppBarType
+import com.jarvis.core.navigation.ActionRegistry
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.NavigationRoute
+import com.jarvis.core.navigation.Navigator
+import com.jarvis.core.navigation.TopAppBarType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -220,7 +220,7 @@ private fun JarvisSDKBottomBar(
     currentDestination?.takeIf { it.shouldShowBottomBar }?.let {
         DSNavigationBar(
             topCornerRadius = DSJarvisTheme.dimensions.l,
-            tonalElevation = DSJarvisTheme.elevations.level4
+            tonalElevation = DSJarvisTheme.elevations.level4,
         ) {
             JarvisTopLevelDestinations.entries.forEachIndexed { _, item ->
                 DSNavigationBarItem(
@@ -326,6 +326,9 @@ private fun isDestinationSelected(
         // Home tab: select if we're on any home screen
         tabRoute.contains("home", ignoreCase = true) && 
         currentRoute.contains("home", ignoreCase = true) -> true
+
+        tabRoute.contains("settings", ignoreCase = true) &&
+        currentRoute.contains("settings", ignoreCase = true) -> true
         
         else -> false
     }

@@ -28,16 +28,14 @@ import com.jarvis.core.designsystem.theme.Neutral80
 import com.jarvis.core.designsystem.theme.Primary100
 import com.jarvis.core.designsystem.R
 
-enum class DSButtonStyle {
-    PRIMARY, SECONDARY, OUTLINE, TEXT, LINK
-}
+enum class DSButtonStyle { PRIMARY, SECONDARY, OUTLINE, TEXT, LINK }
 
 enum class DSButtonSize {
     EXTRA_SMALL, SMALL, MEDIUM, LARGE;
 
     val height: Dp
         @Composable
-        get() = when(this) {
+        get() = when (this) {
             EXTRA_SMALL -> DSJarvisTheme.dimensions.xl
             SMALL -> DSJarvisTheme.dimensions.xxxl
             MEDIUM -> DSJarvisTheme.dimensions.xxxxl
@@ -46,7 +44,7 @@ enum class DSButtonSize {
 
     val cornerRadius: CornerBasedShape
         @Composable
-        get() = when(this) {
+        get() = when (this) {
             EXTRA_SMALL, SMALL -> DSJarvisTheme.shapes.xs
             LARGE, MEDIUM -> DSJarvisTheme.shapes.s
         }
@@ -61,32 +59,34 @@ fun DSButton(
     textColor: Color? = null,
     elevation: Dp? = null,
     disabled: Boolean = false,
+    isLoading: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     onClick: () -> Unit
 ) {
     val backgroundColor = when (style) {
-        PRIMARY -> if (disabled) Neutral40 else Primary100
-        SECONDARY -> if (disabled) Neutral40 else Neutral0
+        PRIMARY -> if (disabled || isLoading) Neutral40 else Primary100
+        SECONDARY -> if (disabled || isLoading) Neutral40 else Neutral0
         OUTLINE, TEXT, LINK -> Color.Transparent
     }
     val color = textColor ?: when (style) {
-        PRIMARY -> if (disabled) Neutral80 else Neutral0
-        SECONDARY, OUTLINE -> if (disabled) Neutral80 else Primary100
-        TEXT, LINK -> if (disabled) Neutral80 else Primary100
+        PRIMARY -> if (disabled || isLoading) Neutral80 else Neutral0
+        SECONDARY, OUTLINE -> if (disabled || isLoading) Neutral80 else Primary100
+        TEXT, LINK -> if (disabled || isLoading) Neutral80 else Primary100
     }
 
     val borderColor = if (style == OUTLINE) Neutral80 else Color.Transparent
     val textDecoration = if (style == LINK) TextDecoration.Underline else TextDecoration.None
+    val effectiveDisabled = disabled || isLoading
 
     Button(
-        onClick = { if (!disabled) onClick() },
+        onClick = { if (!effectiveDisabled) onClick() },
         modifier = modifier
             .height(size.height)
             .shadow(elevation = elevation ?: DSJarvisTheme.elevations.none, shape = size.cornerRadius)
             .background(backgroundColor, size.cornerRadius)
             .border(DSJarvisTheme.dimensions.xxs, borderColor, size.cornerRadius),
-        enabled = !disabled,
+        enabled = !effectiveDisabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             contentColor = color,
@@ -95,31 +95,39 @@ fun DSButton(
         ),
         shape = size.cornerRadius
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            leadingIcon?.let {
-                DSIcon(
-                    imageVector = it,
-                    contentDescription = "DSButton left icon",
-                    tint = color
-                )
-            }
-            Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
-            DSText(
-                text = text,
+        if (isLoading) {
+            DSCircularProgressIndicator(
+                modifier = Modifier.size(size.height * 0.5f),
                 color = color,
-                style = DSJarvisTheme.typography.body.medium,
-                textDecoration = textDecoration,
+                strokeWidth = DSJarvisTheme.dimensions.xs
             )
-            Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
-            trailingIcon?.let {
-                DSIcon(
-                    imageVector = it,
-                    contentDescription = "DSButton right icon",
-                    tint = color
+        } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                leadingIcon?.let {
+                    DSIcon(
+                        imageVector = it,
+                        contentDescription = "DSButton left icon",
+                        tint = color
+                    )
+                    Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
+                }
+                DSText(
+                    text = text,
+                    color = color,
+                    style = DSJarvisTheme.typography.body.medium,
+                    textDecoration = textDecoration,
                 )
+                trailingIcon?.let {
+                    Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
+                    DSIcon(
+                        imageVector = it,
+                        contentDescription = "DSButton right icon",
+                        tint = color
+                    )
+                }
             }
         }
     }
@@ -141,75 +149,207 @@ fun DSButtonPreview() {
                 style = PRIMARY,
                 onClick = {}
             )
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = PRIMARY, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_primary),
+                style = PRIMARY,
+                isLoading = true, // 👈 ejemplo cargando
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = PRIMARY,
+                disabled = true,
+                onClick = {}
+            )
 
             Text("Secondary Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = stringResource(R.string.ds_secondary), style = SECONDARY, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = SECONDARY, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = DSJarvisTheme.elevations.level2,
+                text = stringResource(R.string.ds_secondary),
+                style = SECONDARY,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_secondary),
+                style = SECONDARY,
+                isLoading = true,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = SECONDARY,
+                disabled = true,
+                onClick = {}
+            )
 
             Text("Outline Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_outline), style = OUTLINE, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = OUTLINE, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_outline),
+                style = OUTLINE,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = OUTLINE,
+                disabled = true,
+                onClick = {}
+            )
 
             Text("Text Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = TEXT, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_text),
+                style = TEXT,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_text),
+                style = TEXT,
+                size = DSButtonSize.EXTRA_SMALL,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = TEXT,
+                disabled = true,
+                onClick = {}
+            )
 
             Text("Link Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_link), style = LINK, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = LINK, disabled = true, onClick = {})
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_link),
+                style = LINK,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = LINK,
+                disabled = true,
+                onClick = {}
+            )
         }
     }
 }
 
 @Preview(
-    showBackground = true, 
-    name = "All DSButton styles - Dark", 
+    showBackground = true,
+    name = "All DSButton styles - Dark",
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
 fun DSButtonDarkPreview() {
     DSJarvisTheme(darkTheme = true) {
-        Column {
+        Column(
+            modifier = Modifier.padding(DSJarvisTheme.spacing.m),
+            verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+        ) {
             Text("Primary Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_primary), style = PRIMARY, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = PRIMARY, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-            
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_primary),
+                style = PRIMARY,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_primary),
+                style = PRIMARY,
+                isLoading = true,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = PRIMARY,
+                disabled = true,
+                onClick = {}
+            )
+
             Text("Secondary Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), elevation = DSJarvisTheme.elevations.level2, text = stringResource(R.string.ds_secondary), style = SECONDARY, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = SECONDARY, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-            
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = DSJarvisTheme.elevations.level2,
+                text = stringResource(R.string.ds_secondary),
+                style = SECONDARY,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_secondary),
+                style = SECONDARY,
+                isLoading = true,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = SECONDARY,
+                disabled = true,
+                onClick = {}
+            )
+
             Text("Outline Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_outline), style = OUTLINE, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = OUTLINE, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-            
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_outline),
+                style = OUTLINE,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = OUTLINE,
+                disabled = true,
+                onClick = {}
+            )
+
             Text("Text Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {})
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_text), style = TEXT, onClick = {}, size = DSButtonSize.EXTRA_SMALL)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = TEXT, disabled = true, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-            
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_text),
+                style = TEXT,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_text),
+                style = TEXT,
+                size = DSButtonSize.EXTRA_SMALL,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = TEXT,
+                disabled = true,
+                onClick = {}
+            )
+
             Text("Link Buttons", fontWeight = FontWeight.Bold)
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_link), style = LINK, onClick = {})
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xxs))
-            DSButton(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.ds_disabled), style = LINK, disabled = true, onClick = {})
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_link),
+                style = LINK,
+                onClick = {}
+            )
+            DSButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.ds_disabled),
+                style = LINK,
+                disabled = true,
+                onClick = {}
+            )
         }
     }
 }

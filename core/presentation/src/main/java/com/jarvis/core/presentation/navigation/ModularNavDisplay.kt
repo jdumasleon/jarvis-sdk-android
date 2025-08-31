@@ -5,9 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.EntryProviderBuilder
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.NavigationRoute
+import com.jarvis.core.navigation.Navigator
 
 /**
  * Modular navigation display component using simple composable mapping

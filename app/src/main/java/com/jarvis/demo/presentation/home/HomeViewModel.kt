@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.api.JarvisSDK
-import com.jarvis.core.common.di.CoroutineDispatcherModule
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.data.api.FakeStoreApiService
 import com.jarvis.demo.data.api.RestfulApiService
@@ -24,7 +24,7 @@ class HomeViewModel @Inject constructor(
     private val fakeStoreApiService: FakeStoreApiService,
     private val restfulApiService: RestfulApiService,
     private val jarvisSDK: JarvisSDK,
-    @param:CoroutineDispatcherModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     // ✅ PERFORMANCE: Cache API results and throttle requests
@@ -50,48 +50,48 @@ class HomeViewModel @Inject constructor(
     private fun refreshData() {
         Log.d("HomeViewModel", "Refresh action triggered from top app bar")
         
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 _uiState.update { ResourceState.Loading }
-                
+
                 // ✅ PERFORMANCE: Make API calls with timeout and throttling to prevent excessive requests
                 val result = withContext(ioDispatcher) {
                     try {
                         // Only make API calls every 10 seconds to reduce load
                         val currentTime = System.currentTimeMillis()
                         val timeSinceLastCall = currentTime - lastApiCallTime
-                        
+
                         if (timeSinceLastCall < 10000) { // 10 seconds throttle
                             return@withContext cachedApiResults ?: Triple(null, null, null)
                         }
-                        
+
                         lastApiCallTime = currentTime
-                        
-                        val productsCall = async { 
+
+                        val productsCall = async {
                             kotlinx.coroutines.withTimeoutOrNull(3000) { // Reduced to 3s
-                                fakeStoreApiService.getAllProducts() 
+                                fakeStoreApiService.getAllProducts()
                             }
                         }
-                        val categoriesCall = async { 
-                            kotlinx.coroutines.withTimeoutOrNull(3000) { 
-                                fakeStoreApiService.getAllCategories() 
+                        val categoriesCall = async {
+                            kotlinx.coroutines.withTimeoutOrNull(3000) {
+                                fakeStoreApiService.getAllCategories()
                             }
                         }
-                        val objectsCall = async { 
-                            kotlinx.coroutines.withTimeoutOrNull(3000) { 
-                                restfulApiService.getAllObjects() 
+                        val objectsCall = async {
+                            kotlinx.coroutines.withTimeoutOrNull(3000) {
+                                restfulApiService.getAllObjects()
                             }
                         }
-                        
+
                         // Execute API calls with timeout protection and log results
                         val productsResponse = productsCall.await()
                         val categoriesResponse = categoriesCall.await()
                         val objectsResponse = objectsCall.await()
-                        
+
                         Log.d("HomeViewModel", "Products response: ${productsResponse?.code() ?: "timeout"}")
                         Log.d("HomeViewModel", "Categories response: ${categoriesResponse?.code() ?: "timeout"}")
                         Log.d("HomeViewModel", "Objects response: ${objectsResponse?.code() ?: "timeout"}")
-                        
+
                         val result = Triple(productsResponse, categoriesResponse, objectsResponse)
                         cachedApiResults = result // Cache the results
                         result
@@ -100,12 +100,12 @@ class HomeViewModel @Inject constructor(
                         cachedApiResults ?: Triple(null, null, null) // Return cached or null values
                     }
                 }
-                
+
                 val uiData = HomeUiData(
                     lastRefreshTime = System.currentTimeMillis(),
                     isJarvisActive = jarvisSDK.isActive()
                 )
-                
+
                 _uiState.update { ResourceState.Success(uiData) }
             } catch (exception: Exception) {
                 Log.e("HomeViewModel", "Error during refresh", exception)

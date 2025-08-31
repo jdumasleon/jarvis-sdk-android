@@ -2,9 +2,11 @@ package com.jarvis.demo.presentation.preferences
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.data.preferences.DemoPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    private val demoPreferencesRepository: DemoPreferencesRepository
+    private val demoPreferencesRepository: DemoPreferencesRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<PreferencesUiState>(ResourceState.Idle)
@@ -47,7 +50,7 @@ class PreferencesViewModel @Inject constructor(
     
     private fun loadPreferences() {
         _uiState.update { ResourceState.Loading }
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 // Set up reactive subscription to all three preference stores
                 combine(
@@ -76,7 +79,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun generateSamplePreferencesForAllTabs() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 // Generate sample data for all three storage types
                 demoPreferencesRepository.generateAllSampleData()
@@ -136,7 +139,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun refreshPreferences() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val currentData = _uiState.value.getDataOrNull() ?: PreferencesUiData()
             
             // Set refresh state
@@ -175,7 +178,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun clearAllPreferences() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 
@@ -201,7 +204,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun deletePreference(key: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 
@@ -242,7 +245,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun updatePreference(key: String, value: String, type: PreferenceType) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 

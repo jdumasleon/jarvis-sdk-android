@@ -44,4 +44,8 @@
     <string name="features_inspector_presentation_url">URL:</string>
     <string name="features_inspector_presentation_general">General</string>
     <string name="features_inspector_presentation_response_info">Response Info</string>
+    <string name="features_inspector_presentation_clear_all">Clear All</string>
+    <string name="features_inspector_presentation_cancel">Cancel</string>
+    <string name="features_inspector_presentation_clear_all_transactions">Clear All Transactions</string>
+    <string name="features_inspector_presentation_clear_all_transactions_decription">Are you sure you want to clear all network transactions? This action cannot be undone.</string>
 </resources>
