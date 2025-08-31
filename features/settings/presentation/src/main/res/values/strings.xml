@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    
+    <!-- Actions -->
+    <string name="settings_delete_all_data">Delete All Data</string>
+    <string name="settings_delete_all_data_subtitle">Remove all network logs and preferences</string>
+    <string name="settings_rate_app">Rate Jarvis SDK</string>
+    <string name="settings_rate_app_subtitle">Help us improve with your feedback</string>
+    <string name="settings_share_app">Share Jarvis SDK</string>
+    <string name="settings_share_app_subtitle">Tell others about this tool</string>
+    <string name="settings_about">About Jarvis</string>
+    <string name="settings_about_subtitle">Learn more about this SDK</string>
+    
+    <!-- Info -->
+    <string name="settings_version">Version</string>
+    <string name="settings_version_format">%1$s (%2$s)</string>
+    
+    <!-- External Links -->
+    <string name="settings_twitter">Follow on Twitter</string>
+    <string name="settings_twitter_subtitle">\@JarvisSDK</string>
+    <string name="settings_docs">Documentation</string>
+    <string name="settings_docs_subtitle">View complete documentation</string>
+    <string name="settings_release_notes">Release Notes</string>
+    <string name="settings_release_notes_subtitle">What\'s new in this version</string>
+    <string name="settings_write_review">Write a Review</string>
+    <string name="settings_write_review_subtitle">Share your experience</string>
+    <string name="settings_contact">Contact Developer</string>
+    <string name="settings_contact_subtitle">Get support or report issues</string>
+    
+    <!-- Data Stats -->
+    <string name="settings_storage_usage">Storage Usage</string>
+    <string name="settings_network_logs">Network Logs</string>
+    <string name="settings_preferences">Preferences</string>
+    <string name="settings_storage">Storage</string>
+    
+    <!-- Delete Dialog -->
+    <string name="settings_delete_dialog_title">Delete All Data</string>
+    <string name="settings_delete_dialog_message">This will permanently delete all network logs, preferences, and cached data. This action cannot be undone.</string>
+    <string name="settings_delete_dialog_confirm">Delete</string>
+    <string name="settings_delete_dialog_deleting">Deleting…</string>
+    <string name="settings_delete_dialog_cancel">Cancel</string>
+    
+    <!-- Messages -->
+    <string name="settings_delete_success">All data deleted successfully</string>
+    <string name="settings_delete_error">Failed to delete data: %1$s</string>
+    <string name="settings_load_error">Failed to load settings</string>
+    
+    <!-- Share Text -->
+    <string name="settings_share_text">Check out Jarvis SDK - The ultimate debugging tool for Android developers!</string>
+    
+    <!-- Email -->
+    <string name="settings_email_subject">Jarvis SDK Support</string>
+    
+    <!-- Rating -->
+    <string name="rate_sdk_title">Rate Our SDK</string>
+    <string name="rate_sdk_subtitle">Help us improve by sharing your experience</string>
+    <string name="rate_sdk_description_label">Description</string>
+    <string name="rate_sdk_description_placeholder">Tell us about your experience with the SDK...</string>
+    <string name="star_rating">%1$d star</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    
+    <!-- Rating Success/Error -->
+    <string name="rating_submitted_success">Thank you for your feedback!</string>
+    <string name="rating_submission_error">Failed to submit rating: %1$s</string>
+    <string name="rating_invalid_data">Please provide a rating and description</string>
+    
+    <!-- Legacy strings for backward compatibility -->
+    <string name="features_settings_presentation_delete_all_data">Delete All Data</string>
+    <string name="features_settings_presentation_delete_all_data_description">This will permanently delete all network logs, preferences, and cached data. This action cannot be undone.</string>
+    <string name="features_settings_presentation_delete">Delete</string>
+    <string name="features_settings_presentation_cancel">Cancel</string>
+    <string name="jarvis_settings_bottom_bar_icon_content_description">Settings bottom navigation icon</string>
+    <string name="features_settings_presentation_please_provide_a_rating_and_description">Please provide a rating and description</string>
+    <string name="features_settings_presentation_rating_submitted_successfully">Rating submitted successfully!</string>
+</resources>

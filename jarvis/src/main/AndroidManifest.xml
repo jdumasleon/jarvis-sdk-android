@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <application>
+        <!-- Required: set your sentry.io project identifier (DSN) -->
+        <!-- This will be replaced with actual DSN from security.properties during build -->
+        <meta-data android:name="io.sentry.dsn" android:value="${sentryDsn}" />
+        <!-- enable automatic breadcrumbs for user interactions (clicks, swipes, scrolls) -->
+        <meta-data android:name="io.sentry.traces.user-interaction.enable" android:value="true" />
+        <!-- enable screenshot for crashes -->
+        <meta-data android:name="io.sentry.attach-screenshot" android:value="true" />
+        <!-- enable view hierarchy for crashes -->
+        <meta-data android:name="io.sentry.attach-view-hierarchy" android:value="true" />
+        <!-- enable logs to be sent to Sentry -->
+        <meta-data android:name="io.sentry.logs.enabled" android:value="true" />
+    </application>
 </manifest>

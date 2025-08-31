@@ -27,7 +27,7 @@ import com.jarvis.core.designsystem.component.DSTag
 import com.jarvis.core.designsystem.component.DSTagStyle
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.navigation.ActionRegistry
+import com.jarvis.core.navigation.ActionRegistry
 import com.jarvis.demo.R
 
 @Composable

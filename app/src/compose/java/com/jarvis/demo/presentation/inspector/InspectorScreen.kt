@@ -35,8 +35,8 @@ import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.FlagStyle
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.navigation.ActionRegistry
 import com.jarvis.core.presentation.components.ResourceStateContent
-import com.jarvis.core.presentation.navigation.ActionRegistry
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.R
 import com.jarvis.demo.data.repository.ApiCallResult

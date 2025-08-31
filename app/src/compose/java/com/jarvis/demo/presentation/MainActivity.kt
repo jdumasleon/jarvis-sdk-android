@@ -1,15 +1,18 @@
 package com.jarvis.demo.presentation
 
 import android.os.Bundle
+import android.os.StrictMode
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import com.github.anrwatchdog.ANRWatchDog
 import com.jarvis.api.JarvisSDK
 import com.jarvis.config.JarvisConfig
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.navigation.EntryProviderInstaller
-import com.jarvis.core.presentation.navigation.Navigator
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.Navigator
 import com.jarvis.demo.data.preferences.PreferencesDataStoreManager
 import com.jarvis.demo.data.preferences.ProtoDataStoreManager
 import com.jarvis.demo.data.preferences.proto.UserSettings

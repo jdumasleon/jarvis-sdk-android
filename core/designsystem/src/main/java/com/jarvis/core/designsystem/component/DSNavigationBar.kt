@@ -6,13 +6,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -139,7 +136,7 @@ fun DSNavigationBar(
             modifier = modifier.clip(shape),
             containerColor = Color.Transparent,
             contentColor = contentColor,
-            tonalElevation = 0.dp,
+            tonalElevation = tonalElevation,
             content = content,
         )
     }
@@ -149,8 +146,8 @@ fun DSNavigationBar(
 @Composable
 private fun DSNavigationBarWithoutLabelPreview() {
     val items = listOf("Home", "Inspector", "Preferences", "More")
-    val iconsFilled = listOf(DSIcons.Filled.home, DSIcons.Filled.networkCheck, DSIcons.Filled.settings, DSIcons.Filled.moreVert)
-    val icons = listOf(DSIcons.Outlined.home, DSIcons.Outlined.networkCheck, DSIcons.Outlined.settings, DSIcons.Outlined.moreVert)
+    val iconsFilled = listOf(DSIcons.Filled.home, DSIcons.Filled.inspector, DSIcons.Filled.settings, DSIcons.Filled.moreVert)
+    val icons = listOf(DSIcons.Outlined.home, DSIcons.Outlined.inspector, DSIcons.Outlined.settings, DSIcons.Outlined.moreVert)
 
     DSJarvisTheme {
         DSNavigationBar {
@@ -170,8 +167,8 @@ private fun DSNavigationBarWithoutLabelPreview() {
 @Composable
 fun DSNavigationBarPreview() {
     val items = listOf("Home", "Inspector", "Preferences", "More")
-    val iconsFilled = listOf(DSIcons.Filled.home, DSIcons.Filled.networkCheck, DSIcons.Filled.settings, DSIcons.Filled.moreVert)
-    val icons = listOf(DSIcons.Outlined.home, DSIcons.Outlined.networkCheck, DSIcons.Outlined.settings, DSIcons.Outlined.moreVert)
+    val iconsFilled = listOf(DSIcons.Filled.home, DSIcons.Filled.inspector, DSIcons.Filled.settings, DSIcons.Filled.moreVert)
+    val icons = listOf(DSIcons.Outlined.home, DSIcons.Outlined.inspector, DSIcons.Outlined.settings, DSIcons.Outlined.moreVert)
 
     DSJarvisTheme {
         DSNavigationBar {

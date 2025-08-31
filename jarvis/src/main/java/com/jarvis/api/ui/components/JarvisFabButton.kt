@@ -194,7 +194,7 @@ private fun JarvisFabIcon(
         launch {
             imageRotationZ.animateTo(
                 360f,
-                tween(durationMillis = 5000, easing = FastOutSlowInEasing)
+                tween(durationMillis = 500, easing = FastOutSlowInEasing)
             )
             imageRotationZ.snapTo(0f)
         }
@@ -257,7 +257,7 @@ private fun JarvisFabIcon(
                 .graphicsLayer {
                     scaleX = scale.value
                     scaleY = scale.value
-                    // rotationZ = if(expanded) imageRotationZ.value else -imageRotationZ.value
+                    rotationZ = if(expanded) imageRotationZ.value else -imageRotationZ.value
                     cameraDistance = cameraDistancePx
                 },
             painter = painterResource(R.drawable.ic_jarvis_logo_shape),
@@ -280,7 +280,7 @@ private fun DrawMiniFabs(miniFabType: MiniFabType) {
             iconSize = DSJarvisTheme.dimensions.l
         )
         PREFERENCES -> MiniFabIcon(
-            icon = DSIcons.settings,
+            icon = DSIcons.Filled.preference,
             description = "API Calls Monitoring",
             iconSize = DSJarvisTheme.dimensions.l
         )
@@ -328,7 +328,7 @@ enum class MiniFabType {
     fun getPositionPx(expanded: Boolean, density: Density): Pair<State<Int>, State<Int>> {
 
         @Composable
-        fun a(target: Dp, duration: Int = 300): State<Int> =
+        fun a(target: Dp, duration: Int = 500): State<Int> =
             animateIntAsState(
                 targetValue = with(density) { target.roundToPx() },
                 animationSpec = tween(duration),
@@ -336,9 +336,9 @@ enum class MiniFabType {
             )
 
         return when (this) {
-            HOME -> Pair(a(0.dp), a(if (expanded) (-60).dp else 0.dp))
-            INSPECTOR -> Pair(a(if (expanded) 45.dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
-            PREFERENCES -> Pair(a(if (expanded) (-45).dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
+            HOME -> Pair(a(if (expanded) (-45).dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
+            INSPECTOR -> Pair(a(0.dp), a(if (expanded) (-60).dp else 0.dp))
+            PREFERENCES -> Pair(a(if (expanded) 45.dp else 0.dp), a(if (expanded) (-45).dp else 0.dp))
             CLOSE -> Pair(a(if (expanded) 60.dp else 0.dp), a(0.dp, duration = 400))
         }
     }

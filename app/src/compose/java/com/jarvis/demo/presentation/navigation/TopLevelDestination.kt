@@ -3,7 +3,7 @@ package com.jarvis.demo.presentation.navigation
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.presentation.navigation.NavigationRoute
+import com.jarvis.core.navigation.NavigationRoute
 import com.jarvis.demo.R
 import com.jarvis.demo.presentation.home.HomeGraph
 import com.jarvis.demo.presentation.inspector.InspectorGraph

@@ -14,11 +14,13 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.common)
     implementation(projects.core.presentation)
     implementation(projects.core.domain)
     implementation(projects.core.data)
-    implementation(projects.features.home.domain)
     implementation(projects.core.designsystem)
+    implementation(projects.core.navigation)
+    implementation(projects.features.home.domain)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtimeCompose)

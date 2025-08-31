@@ -2,6 +2,7 @@ package com.jarvis.features.preferences.presentation.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.preferences.domain.entity.AppPreference
 import com.jarvis.features.preferences.domain.entity.PreferenceFilter
@@ -16,6 +17,7 @@ import com.jarvis.features.preferences.domain.usecase.GetPreferencesByStorageTyp
 import com.jarvis.features.preferences.domain.usecase.ImportPreferencesUseCase
 import com.jarvis.features.preferences.domain.usecase.UpdatePreferenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +34,8 @@ class PreferencesViewModel @Inject constructor(
     private val addPreferenceUseCase: AddPreferenceUseCase,
     private val clearAllPreferencesUseCase: ClearAllPreferencesUseCase,
     private val exportPreferencesUseCase: ExportPreferencesUseCase,
-    private val importPreferencesUseCase: ImportPreferencesUseCase
+    private val importPreferencesUseCase: ImportPreferencesUseCase,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<PreferencesUiState>(ResourceState.Idle)
@@ -70,7 +73,7 @@ class PreferencesViewModel @Inject constructor(
     }
 
     private fun loadAllPreferences() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             _uiState.update { currentState ->
                 val isFirstLoad = currentState !is ResourceState.Success
                 if (isFirstLoad) {
@@ -79,7 +82,7 @@ class PreferencesViewModel @Inject constructor(
                 } else {
                     // Refresh - show pull-to-refresh state
                     ResourceState.Success(
-                        (currentState as ResourceState.Success).data.copy(isRefreshing = true)
+                        currentState.data.copy(isRefreshing = true)
                     )
                 }
             }
@@ -161,21 +164,21 @@ class PreferencesViewModel @Inject constructor(
     }
 
     private fun loadSharedPrefs() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val group = fetchGroup(PreferenceStorageType.SHARED_PREFERENCES)
             updateGroupInState(PreferenceStorageType.SHARED_PREFERENCES, group)
         }
     }
 
     private fun loadPrefsDataStore() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val group = fetchGroup(PreferenceStorageType.PREFERENCES_DATASTORE)
             updateGroupInState(PreferenceStorageType.PREFERENCES_DATASTORE, group)
         }
     }
 
     private fun loadProtoDataStore() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val group = fetchGroup(PreferenceStorageType.PROTO_DATASTORE)
             updateGroupInState(PreferenceStorageType.PROTO_DATASTORE, group)
         }
@@ -271,7 +274,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun updatePreference(preference: AppPreference, newValue: Any) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 updatePreferenceUseCase(preference, newValue)
                 // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
@@ -289,7 +292,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun deletePreference(preference: AppPreference) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 deletePreferenceUseCase(preference)
                 // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
@@ -307,7 +310,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun addPreference(key: String, value: Any, type: PreferenceType, storageType: PreferenceStorageType) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 addPreferenceUseCase(key, value, type, storageType)
                 // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
@@ -325,7 +328,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun clearPreferences(storageType: PreferenceStorageType) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 clearAllPreferencesUseCase(storageType)
                 // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
@@ -343,7 +346,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun exportPreferences(storageType: PreferenceStorageType?) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val exportData = exportPreferencesUseCase(storageType)
                 _uiState.update { currentState ->
@@ -365,7 +368,7 @@ class PreferencesViewModel @Inject constructor(
     }
     
     private fun importPreferences(data: String, targetStorageType: PreferenceStorageType) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val result = importPreferencesUseCase(data, targetStorageType)
                 if (result.isSuccess) {

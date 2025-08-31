@@ -3,6 +3,9 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="JarvisDemo.app-classic" target="21" />
+      <module name="JarvisDemo.core.firebase.api" target="21" />
+      <module name="JarvisDemo.core.firebase.data" target="21" />
+      <module name="JarvisDemo.core.firebase.lib" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

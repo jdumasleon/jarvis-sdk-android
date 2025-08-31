@@ -1,6 +1,8 @@
 package com.jarvis.demo.presentation.preferences
 
-import com.jarvis.core.presentation.navigation.NavigationRoute
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.jarvis.core.designsystem.icons.DSIcons
+import com.jarvis.core.navigation.NavigationRoute
 import com.jarvis.demo.R
 import kotlinx.serialization.Serializable
 
@@ -13,5 +15,8 @@ object PreferencesGraph {
     data object Preferences : NavigationRoute {
         override val titleTextId: Int = R.string.preferences
         override val shouldShowTopAppBar: Boolean = true
+        override val actionIcon: ImageVector = DSIcons.refresh
+        override val actionIconContentDescription: Int = R.string.add_random_preferences
+        override val actionKey: String = "preferences_add_preferences"
     }
 }

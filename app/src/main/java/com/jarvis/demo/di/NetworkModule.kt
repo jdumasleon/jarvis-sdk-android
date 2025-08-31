@@ -41,8 +41,18 @@ object NetworkModule {
         @Named("jarvis") jarvisNetworkInterceptor: Interceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(jarvisNetworkInterceptor) // Add Jarvis inspector first
+            .addInterceptor(jarvisNetworkInterceptor)
             .addInterceptor(loggingInterceptor)
+            .build()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDefaultRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.example.com/") // Default base URL for general API services
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
     

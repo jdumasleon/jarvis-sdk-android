@@ -2,10 +2,12 @@ package com.jarvis.features.inspector.presentation.ui.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.inspector.domain.entity.NetworkTransaction
 import com.jarvis.features.inspector.domain.repository.NetworkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NetworkInspectorViewModel @Inject constructor(
-    private val networkRepository: NetworkRepository
+    private val networkRepository: NetworkRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NetworkInspectorUiState>(ResourceState.Idle)
@@ -48,7 +51,7 @@ class NetworkInspectorViewModel @Inject constructor(
     
     private fun loadTransactions() {
         _uiState.update { ResourceState.Loading }
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 // Load initial page with pagination
                 networkRepository.getTransactionsPaged(INITIAL_PAGE_SIZE, 0).collect { transactions ->
@@ -81,7 +84,7 @@ class NetworkInspectorViewModel @Inject constructor(
         val updatedData = currentData.copy(isLoadingMore = true)
         _uiState.update { ResourceState.Success(updatedData) }
 
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val nextPage = currentData.currentPage + 1
                 val offset = nextPage * PAGE_SIZE
@@ -137,7 +140,7 @@ class NetworkInspectorViewModel @Inject constructor(
 
     private fun clearAllTransactions() {
         _uiState.update { ResourceState.Loading }
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 networkRepository.deleteAllTransactions()
                 loadTransactions()
@@ -148,7 +151,7 @@ class NetworkInspectorViewModel @Inject constructor(
     }
 
     private fun deleteTransaction(transactionId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 networkRepository.deleteTransaction(transactionId)
                 // Data will be updated automatically through the Flow
@@ -178,7 +181,7 @@ class NetworkInspectorViewModel @Inject constructor(
     }
 
     private fun refreshFilters() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 // Apply filters to all loaded transactions

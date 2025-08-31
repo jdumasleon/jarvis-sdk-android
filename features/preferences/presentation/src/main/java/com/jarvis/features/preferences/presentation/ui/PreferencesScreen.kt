@@ -101,9 +101,7 @@ internal fun PreferencesScreen(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .padding(top = DSJarvisTheme.spacing.m)
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         ResourceStateContent(
             resourceState = uiState,
@@ -385,6 +383,8 @@ private fun SearchAndFilters(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
     ) {
+        Spacer(modifier = Modifier.height(DSJarvisTheme.dimensions.xs))
+
         DSSearchBar(
             searchText = filter.searchQuery,
             onValueChange = onSearchQueryChange,
@@ -505,7 +505,7 @@ private fun PreferencesActions(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = DSJarvisTheme.spacing.s),
+            .padding(top = DSJarvisTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically
     ) {
         DSText(

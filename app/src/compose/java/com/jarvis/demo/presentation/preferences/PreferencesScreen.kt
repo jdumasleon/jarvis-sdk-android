@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,14 +33,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSFilterChip
+import com.jarvis.core.designsystem.component.DSFlag
 import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSSearchBar
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DSTextField
+import com.jarvis.core.designsystem.component.FlagStyle
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.navigation.ActionRegistry
 import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.demo.R
+import com.jarvis.demo.presentation.inspector.InspectorEvent
+import com.jarvis.demo.presentation.inspector.InspectorGraph
 
 @Composable
 fun PreferencesScreen(
@@ -47,6 +53,18 @@ fun PreferencesScreen(
     viewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Register the action callback when the screen is composed
+    DisposableEffect(viewModel) {
+        ActionRegistry.registerAction(PreferencesGraph.Preferences.actionKey) {
+            viewModel.onEvent(PreferencesEvent.ClearAllPreferences)
+            viewModel.onEvent(PreferencesEvent.GenerateRandomPreferences)
+            viewModel.onEvent(PreferencesEvent.LoadPreferences)
+        }
+        onDispose {
+            ActionRegistry.unregisterAction(PreferencesGraph.Preferences.actionKey)
+        }
+    }
 
     PreferencesScreen(
         modifier = modifier,
@@ -194,32 +212,15 @@ private fun TabContentHeader(storageType: PreferenceStorageType) {
         )
     }
 
-    DSCard(
+    DSFlag(
+        title = title,
+        description = description,
+        style = FlagStyle.Info,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = DSJarvisTheme.spacing.m)
-            .fillMaxWidth(),
-        shape = DSJarvisTheme.shapes.m,
-        elevation = DSJarvisTheme.elevations.level3
-    ) {
-        Column(
-            modifier = Modifier.padding(DSJarvisTheme.spacing.s)
-        ) {
-            DSText(
-                text = title,
-                style = DSJarvisTheme.typography.body.large,
-                fontWeight = FontWeight.Medium,
-                color = DSJarvisTheme.colors.primary.primary60
-            )
-
-            Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.xs))
-
-            DSText(
-                text = description,
-                style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.neutral.neutral80
-            )
-        }
-    }
+            .padding(bottom = DSJarvisTheme.spacing.s)
+    )
 }
 
 @Composable

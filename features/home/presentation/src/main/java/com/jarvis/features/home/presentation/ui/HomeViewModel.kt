@@ -2,25 +2,29 @@ package com.jarvis.features.home.presentation.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.home.domain.entity.DashboardCardType
 import com.jarvis.features.home.domain.entity.SessionFilter
 import com.jarvis.features.home.domain.repository.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeoutException
 import kotlin.time.Duration.Companion.seconds
 import javax.inject.Inject
 
 /**
  * ViewModel for Home screen following the standard feature architecture pattern
  */
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository,
-    private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase
+    private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(ResourceState.Idle)
@@ -32,7 +36,7 @@ class HomeViewModel @Inject constructor(
     }
     
     private fun startContinuousPerformanceMonitoring() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             getPerformanceMetricsUseCase()
                 .catch { /* Handle errors gracefully */ }
                 .collect { performanceSnapshot ->
@@ -65,14 +69,14 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadDashboard() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             _uiState.update { currentState ->
                 val isFirstLoad = currentState !is ResourceState.Success
                 if (isFirstLoad) {
                     ResourceState.Loading
                 } else {
                     ResourceState.Success(
-                        (currentState as ResourceState.Success).data.copy(isRefreshing = true)
+                        currentState.data.copy(isRefreshing = true)
                     )
                 }
             }
@@ -86,8 +90,7 @@ class HomeViewModel @Inject constructor(
                     dashboardRepository.getEnhancedDashboardMetrics(sessionFilter)
                         .timeout(3.seconds) // 3 second timeout
                         .first()
-                } catch (e: Exception) {
-                    // Use cached data if available, otherwise null
+                } catch (_: Exception) {
                     currentData?.enhancedMetrics
                 }
 
@@ -95,8 +98,7 @@ class HomeViewModel @Inject constructor(
                     getPerformanceMetricsUseCase()
                         .timeout(2.seconds) // 2 second timeout for lighter operation
                         .first()
-                } catch (e: Exception) {
-                    // Use cached data if available, otherwise null
+                } catch (_: Exception) {
                     currentData?.performanceSnapshot
                 }
 
@@ -129,7 +131,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun changeSessionFilter(filter: SessionFilter) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val currentData = _uiState.value.getDataOrNull()
 
@@ -154,7 +156,7 @@ class HomeViewModel @Inject constructor(
                     dashboardRepository.getEnhancedDashboardMetrics(filter)
                         .timeout(3.seconds)
                         .first()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
 
@@ -162,7 +164,7 @@ class HomeViewModel @Inject constructor(
                     getPerformanceMetricsUseCase()
                         .timeout(2.seconds)
                         .first()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     currentData?.performanceSnapshot
                 }
 

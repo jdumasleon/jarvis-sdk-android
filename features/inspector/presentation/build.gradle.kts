@@ -14,6 +14,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.common)
     implementation(projects.core.presentation)
     implementation(projects.features.inspector.domain)
     implementation(projects.core.designsystem)

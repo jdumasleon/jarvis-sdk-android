@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 val DimensionsNone = 0.dp
+val DimensionsXXXS = 1.dp
 val DimensionsXXS = 2.dp
 val DimensionsXS = 4.dp
 val DimensionsS = 8.dp
@@ -24,6 +25,7 @@ val DimensionsXXXXXXXXXL = 200.dp
 @Immutable
 data class DSDimensions(
     val none: Dp = DimensionsNone,
+    val xxxs: Dp = DimensionsXXXS,
     val xxs: Dp = DimensionsXXS,
     val xs: Dp = DimensionsXS,
     val s: Dp = DimensionsS,

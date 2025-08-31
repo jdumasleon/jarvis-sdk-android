@@ -23,7 +23,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,12 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import com.jarvis.api.JarvisSDK
-import com.jarvis.api.ui.components.JarvisFabButton
 import com.jarvis.core.designsystem.component.DSBackground
-import com.jarvis.core.presentation.navigation.ActionRegistry
-import com.jarvis.core.presentation.navigation.Navigator
 import com.jarvis.core.designsystem.component.DSDrawer
 import com.jarvis.core.designsystem.component.DSDrawerValue
 import com.jarvis.core.designsystem.component.DSIcon
@@ -51,8 +45,10 @@ import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.rememberDSDrawerState
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.navigation.EntryProviderInstaller
-import com.jarvis.core.presentation.navigation.NavigationRoute
+import com.jarvis.core.navigation.ActionRegistry
+import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.navigation.NavigationRoute
+import com.jarvis.core.navigation.Navigator
 import com.jarvis.demo.R
 import com.jarvis.demo.presentation.home.HomeGraph
 import com.jarvis.demo.presentation.inspector.InspectorGraph
