@@ -98,23 +98,6 @@ class AndroidLibraryMavenPublishConventionPlugin : Plugin<Project> {
                     }
 
                     repositories {
-                        // Maven Central via Sonatype OSSRH
-                        maven {
-                            name = "CentralPortalOSSRH"
-                            val isSnapshot = version.toString().endsWith("SNAPSHOT")
-                            url = if (isSnapshot) {
-                                uri("https://central.sonatype.com/repository/maven-snapshots/")
-                            } else {
-                                uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-                            }
-                            credentials {
-                                username = publishingProperties["ossrh.username"].toString().takeIf { it != "null" }
-                                    ?: System.getenv("OSSRH_USERNAME")
-                                password = publishingProperties["ossrh.password"].toString().takeIf { it != "null" }
-                                    ?: System.getenv("OSSRH_PASSWORD")
-                            }
-                        }
-
                         // GitHub Packages (backup repository)
                         maven {
                             name = "GitHubPackages"
@@ -134,6 +117,8 @@ class AndroidLibraryMavenPublishConventionPlugin : Plugin<Project> {
                         }
                     }
                 }
+
+                // Central Portal plugin will be configured in individual modules
 
                 extensions.configure<SigningExtension> {
                     val signingKey = publishingProperties["signing.key"].toString().takeIf { it != "null" }

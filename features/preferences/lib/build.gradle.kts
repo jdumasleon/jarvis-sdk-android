@@ -15,7 +15,7 @@ dependencies {
     implementation(projects.features.preferences.data)
     implementation(projects.features.preferences.domain)
 
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)

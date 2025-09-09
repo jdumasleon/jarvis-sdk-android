@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     "composeImplementation"(libs.androidx.navigation3.ui.android)
-    "composeImplementation"(libs.androidx.lifecycle.viewmodel.navigation3.android)
+    "composeImplementation"(libs.androidx.lifecycle.viewmodel.compose)
     "composeImplementation"(libs.androidx.material3)
     "composeImplementation"(libs.androidx.activity.compose)
     "composeImplementation"(libs.androidx.compose.material3)
@@ -89,7 +89,7 @@ dependencies {
     "composeImplementation"(libs.androidx.compose.runtime.tracing)
     "composeImplementation"(libs.androidx.hilt.navigation.compose)
     "composeImplementation"(libs.androidx.lifecycle.runtimeCompose)
-    "composeImplementation"(libs.androidx.navigation.compose)
+    "composeImplementation"(libs.androidx.navigation3.ui.android)
     
     // Classic Views dependencies (only for classic flavor)
     "classicImplementation"(libs.material)

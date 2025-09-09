@@ -15,7 +15,7 @@ dependencies {
     implementation(projects.features.home.data)
     implementation(projects.features.home.domain)
     
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.navigation3.runtime)
     
     testImplementation(libs.junit)
