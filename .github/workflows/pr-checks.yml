@@ -16,7 +16,7 @@ jobs:
     
     steps:
       - name: 🏗️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: 🔍 Validate PR Title
         run: |
@@ -36,7 +36,7 @@ jobs:
     
     steps:
       - name: 🏗️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: ☕ Set up JDK
         uses: actions/setup-java@v4
@@ -87,7 +87,7 @@ jobs:
     
     steps:
       - name: 🏗️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: 🔍 Run Security Scan
         uses: securecodewarrior/github-action-add-sarif@v1
