@@ -1,0 +1,160 @@
+name: 🔍 PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: 🎯 Validate PR
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🏗️ Checkout
+        uses: actions/checkout@v4
+        
+      - name: 🔍 Validate PR Title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          
+          # Check if title starts with version bump indicator
+          if [[ "$PR_TITLE" =~ ^(MAJOR|MINOR|PATCH) ]]; then
+            echo "✅ PR title has valid version bump prefix"
+          else
+            echo "ℹ️  PR title doesn't specify version bump (MAJOR|MINOR|PATCH). Will default to PATCH on merge."
+          fi
+
+  build:
+    name: 🏗️ Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🏗️ Checkout
+        uses: actions/checkout@v4
+        
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '18'
+          distribution: 'corretto'
+          
+      - name: 🐘 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+          
+      - name: 🔍 Run Lint
+        run: ./gradlew ktlintCheck detekt lint
+        
+      - name: 🧪 Run Tests
+        run: ./gradlew test testProdComposeReleaseUnitTest
+        
+      - name: 📊 Generate Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: 🧪 Test Results
+          path: '**/build/test-results/**/*.xml'
+          reporter: java-junit
+          
+      - name: 🏗️ Build Debug APK
+        run: ./gradlew :app:assembleProdComposeDebug
+        
+      - name: 🏗️ Build Release APK
+        run: ./gradlew :app:assembleProdComposeRelease
+        
+      - name: 📦 Build SDK
+        run: ./gradlew :jarvis:bundleProdComposeReleaseAar
+        
+      - name: 📤 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            app/build/outputs/apk/**/*.apk
+            jarvis/build/outputs/aar/*.aar
+          retention-days: 7
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🏗️ Checkout
+        uses: actions/checkout@v4
+        
+      - name: 🔍 Run Security Scan
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-scan.sarif'
+        continue-on-error: true
+
+  preview:
+    name: 📱 Preview Build
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
+    
+    steps:
+      - name: 💬 Comment PR with Preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const runId = context.runId;
+            const repository = context.repo;
+            
+            const comment = `## 📱 Preview Build Ready!
+            
+            Your PR build is complete and ready for testing:
+            
+            ### 🚀 Download Links
+            - [📥 Debug APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [📥 Release APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [📦 SDK AAR](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            
+            ### 🔍 Build Status
+            - ✅ Lint checks passed
+            - ✅ Unit tests passed  
+            - ✅ Build successful
+            
+            ### 🎯 What's Changed
+            This build includes the changes from commit: \`${context.sha.substring(0, 7)}\`
+            
+            ---
+            *This comment will be updated automatically on new commits.*`;
+            
+            // Try to find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: repository.owner,
+              repo: repository.repo,
+              issue_number: prNumber
+            });
+            
+            const existingComment = comments.data.find(comment => 
+              comment.body.includes('## 📱 Preview Build Ready!')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: repository.owner,
+                repo: repository.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: repository.owner,
+                repo: repository.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }

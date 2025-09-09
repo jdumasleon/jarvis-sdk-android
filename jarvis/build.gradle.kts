@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.jarvis.android.library)
     alias(libs.plugins.jarvis.android.library.compose)
     alias(libs.plugins.jarvis.android.library.jacoco)
+    alias(libs.plugins.jarvis.android.library.maven.publish)
     alias(libs.plugins.jarvis.hilt)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.kotlin.serialization)
@@ -66,3 +67,4 @@ dependencies {
 
     androidTestImplementation(libs.androidx.junit)
 }
+

@@ -41,10 +41,10 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // For debug builds only
-    debugImplementation 'com.jarvis:jarvis-sdk:1.0.0'
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.0")
     
-    // Optional: Release no-op version
-    releaseImplementation 'com.jarvis:jarvis-sdk-noop:1.0.0'
+    // Optional: Release no-op version (coming soon)
+    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.0")
 }
 ```
 
@@ -52,11 +52,26 @@ dependencies {
 
 ```xml
 <dependency>
-    <groupId>com.jarvis</groupId>
-    <artifactId>jarvis-sdk</artifactId>
+    <groupId>io.github.jdumasleon</groupId>
+    <artifactId>jarvis-android-sdk</artifactId>
     <version>1.0.0</version>
     <scope>runtime</scope>
 </dependency>
+```
+
+### GitHub Packages
+
+```kotlin
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/jdumasleon/jarvis-sdk-android")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
 ```
 
 ## Integration
@@ -506,7 +521,7 @@ For issues and questions:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/jarvis-android-sdk.git
+git clone https://github.com/jdumasleon/jarvis-sdk-android.git
 
 # Open in Android Studio
 # Select "Open an existing Android Studio project"

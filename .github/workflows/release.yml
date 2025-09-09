@@ -1,0 +1,256 @@
+name: 🚀 Release and Publish
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  release:
+    name: 🎯 Create Release and Publish
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: read
+      
+    outputs:
+      new-version: ${{ steps.version.outputs.new-version }}
+      version-type: ${{ steps.version.outputs.version-type }}
+      
+    steps:
+      - name: 🏗️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '18'
+          distribution: 'corretto'
+          
+      - name: 🐘 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+          
+      - name: 🔍 Determine Version Bump Type
+        id: version
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          
+          # Extract version bump type from PR title
+          if [[ "$PR_TITLE" =~ ^MAJOR ]]; then
+            VERSION_TYPE="major"
+          elif [[ "$PR_TITLE" =~ ^MINOR ]]; then
+            VERSION_TYPE="minor"
+          elif [[ "$PR_TITLE" =~ ^PATCH ]]; then
+            VERSION_TYPE="patch"
+          else
+            # Default to patch if no prefix is found
+            VERSION_TYPE="patch"
+          fi
+          
+          echo "version-type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          
+          # Get current version from gradle.properties or version catalog
+          CURRENT_VERSION=$(grep -E "jarvisVersion\s*=" gradle/libs.versions.toml | sed -E 's/.*=\s*"([^"]+)".*/\1/')
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Calculate new version
+          IFS='.' read -r -a version_parts <<< "$CURRENT_VERSION"
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
+          
+          case $VERSION_TYPE in
+            "major")
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            "minor")
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            "patch")
+              patch=$((patch + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$major.$minor.$patch"
+          echo "New version: $NEW_VERSION"
+          echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: 📝 Update Version in Files
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new-version }}"
+          
+          # Update version catalog
+          sed -i "s/jarvisVersion = \".*\"/jarvisVersion = \"$NEW_VERSION\"/" gradle/libs.versions.toml
+          
+          # Update any other version references if needed
+          # Add more sed commands here for other files that contain version numbers
+          
+      - name: 🏗️ Build Demo App
+        run: |
+          ./gradlew :app:assembleProdComposeRelease
+          ./gradlew :app:bundleProdComposeRelease
+          
+      - name: 📦 Build SDK
+        run: |
+          ./gradlew :jarvis:bundleProdComposeReleaseAar
+          ./gradlew :jarvis:sourceProdComposeReleaseJar
+          ./gradlew :jarvis:javaDocProdComposeReleaseJar
+          
+      - name: 🔐 Setup Signing
+        run: |
+          # Create signing key file from secret
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > signing-key.gpg
+          
+          # Create publishing.properties
+          cat > publishing.properties << EOF
+          ossrh.username=${{ secrets.OSSRH_USERNAME }}
+          ossrh.password=${{ secrets.OSSRH_PASSWORD }}
+          signing.key=${{ secrets.SIGNING_KEY }}
+          signing.password=${{ secrets.SIGNING_PASSWORD }}
+          EOF
+          
+      - name: 🚀 Publish to Maven Central
+        run: |
+          ./gradlew :jarvis:publishReleasePublicationToCentralPortalOSSRHRepository
+          
+      - name: 📤 Publish to GitHub Packages
+        run: |
+          ./gradlew :jarvis:publishReleasePublicationToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          
+      - name: 🏷️ Create Git Tag
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new-version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit version changes
+          git add gradle/libs.versions.toml
+          git commit -m "🔖 Release version $NEW_VERSION"
+          
+          # Create and push tag
+          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+          git push origin main
+          git push origin "v$NEW_VERSION"
+          
+      - name: 📋 Generate Release Notes
+        id: release-notes
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new-version }}"
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          # Generate release notes from commits
+          if [ -n "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --oneline --no-merges --format="- %s (%an)")
+          else
+            COMMITS=$(git log --oneline --no-merges --format="- %s (%an)" -10)
+          fi
+          
+          # Create release notes
+          cat > release-notes.md << EOF
+          ## 🚀 What's Changed
+          
+          $COMMITS
+          
+          ## 📱 Demo App
+          
+          Download the latest demo app to test the new features:
+          - **APK**: [jarvis-demo-v$NEW_VERSION.apk](https://github.com/${{ github.repository }}/releases/download/v$NEW_VERSION/jarvis-demo-v$NEW_VERSION.apk)
+          - **AAB**: [jarvis-demo-v$NEW_VERSION.aab](https://github.com/${{ github.repository }}/releases/download/v$NEW_VERSION/jarvis-demo-v$NEW_VERSION.aab)
+          
+          ## 📦 SDK Usage
+          
+          ### Gradle (Kotlin DSL)
+          \`\`\`kotlin
+          dependencies {
+              implementation("io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION")
+          }
+          \`\`\`
+          
+          ### Gradle (Groovy)
+          \`\`\`groovy
+          dependencies {
+              implementation 'io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION'
+          }
+          \`\`\`
+          
+          ## 🔗 Links
+          
+          - [Maven Central](https://central.sonatype.com/artifact/io.github.jdumasleon/jarvis-android-sdk/$NEW_VERSION)
+          - [GitHub Packages](https://github.com/${{ github.repository }}/packages)
+          - [Documentation](https://github.com/${{ github.repository }}#readme)
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...v$NEW_VERSION
+          EOF
+          
+      - name: 🎉 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.new-version }}
+          name: "🚀 Jarvis SDK v${{ steps.version.outputs.new-version }}"
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            app/build/outputs/apk/prodCompose/release/app-prod-compose-release.apk
+            app/build/outputs/bundle/prodComposeRelease/app-prod-compose-release.aab
+            jarvis/build/outputs/aar/jarvis-prod-compose-release.aar
+          
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          rm -f signing-key.gpg
+          rm -f publishing.properties
+          rm -f release-notes.md
+
+  notify:
+    name: 📢 Post-Release Notifications
+    needs: release
+    if: always() && needs.release.result == 'success'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📊 Update Analytics
+        if: vars.POSTHOG_PROJECT_API_KEY != ''
+        run: |
+          curl -X POST 'https://app.posthog.com/capture/' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "api_key": "${{ vars.POSTHOG_PROJECT_API_KEY }}",
+              "event": "sdk_release",
+              "properties": {
+                "version": "${{ needs.release.outputs.new-version }}",
+                "version_type": "${{ needs.release.outputs.version-type }}",
+                "repository": "${{ github.repository }}"
+              }
+            }'
+            
+      - name: 🚨 Update Sentry Release
+        if: vars.SENTRY_ORG != '' && vars.SENTRY_PROJECT != ''
+        run: |
+          curl -X POST \
+            https://sentry.io/api/0/organizations/${{ vars.SENTRY_ORG }}/releases/ \
+            -H 'Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "version": "${{ needs.release.outputs.new-version }}",
+              "projects": ["${{ vars.SENTRY_PROJECT }}"],
+              "refs": [{
+                "repository": "${{ github.repository }}",
+                "commit": "${{ github.sha }}"
+              }]
+            }'

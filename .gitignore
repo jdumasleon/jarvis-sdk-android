@@ -1,6 +1,10 @@
+# Gradle
 *.iml
 .gradle
 /local.properties
+/.kotlin
+
+# IDE
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -8,15 +12,39 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
+
+# Build outputs
 /build
+*/build/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Publishing credentials (NEVER commit these!)
 security.properties
-/.kotlin
+publishing.properties
+github.properties
+
+# Local testing and publishing artifacts
+/repo
+**/repo/
+maven-metadata-*.xml
+maven-metadata-*.xml.md5
+maven-metadata-*.xml.sha1
+
+# Release artifacts
 /release
 /presentation/ui/release
 /pro/
 /dev/
+
+# macOS
+.DS_Store
+
+# Gradle publishing issues - catch malformed directories
+property(*
+*Property*
+*Directory*
+
+# Local properties
+local.properties

@@ -68,7 +68,7 @@ gradlePlugin {
         }
         register("androidLibraryMavenPublish") {
             id = libs.plugins.jarvis.android.library.maven.publish.get().pluginId
-            implementationClass = "AndroidLibraryMavenPublishConventionPlugin"
+            implementationClass = "com.jarvis.buildlogic.AndroidLibraryMavenPublishConventionPlugin"
         }
         register("androidTest") {
             id = libs.plugins.jarvis.android.test.get().pluginId
