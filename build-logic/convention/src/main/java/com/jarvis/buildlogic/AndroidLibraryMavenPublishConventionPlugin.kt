@@ -51,14 +51,26 @@ class AndroidLibraryMavenPublishConventionPlugin : Plugin<Project> {
                     publications {
                         create<MavenPublication>("release") {
                             groupId = "io.github.jdumasleon"
-                            artifactId = "jarvis-android-sdk"
+                            artifactId = if (project.name == "jarvis-noop") {
+                                "jarvis-android-sdk-noop"
+                            } else {
+                                "jarvis-android-sdk"
+                            }
                             version = libs.findVersion("jarvisVersion").get().toString()
                             
                             from(components["prodComposeRelease"])
 
                             pom {
-                                name.set("Jarvis Android SDK")
-                                description.set("Android SDK for Jarvis network inspection and debugging toolkit")
+                                name.set(if (project.name == "jarvis-noop") {
+                                    "Jarvis Android SDK (No-Op)"
+                                } else {
+                                    "Jarvis Android SDK"
+                                })
+                                description.set(if (project.name == "jarvis-noop") {
+                                    "No-op version of Jarvis Android SDK for release builds - provides same API with zero overhead"
+                                } else {
+                                    "Android SDK for Jarvis network inspection and debugging toolkit"
+                                })
                                 url.set("https://github.com/jdumasleon/jarvis-sdk-android")
                                 
                                 licenses {

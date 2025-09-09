@@ -107,6 +107,9 @@ jobs:
           ./gradlew :jarvis:bundleProdComposeReleaseAar
           ./gradlew :jarvis:sourceProdComposeReleaseJar
           ./gradlew :jarvis:javaDocProdComposeReleaseJar
+          ./gradlew :jarvis-noop:bundleProdComposeReleaseAar
+          ./gradlew :jarvis-noop:sourceProdComposeReleaseJar
+          ./gradlew :jarvis-noop:javaDocProdComposeReleaseJar
           
       - name: 🔐 Setup Signing
         run: |
@@ -124,10 +127,12 @@ jobs:
       - name: 🚀 Publish to Maven Central
         run: |
           ./gradlew :jarvis:publishReleasePublicationToCentralPortalOSSRHRepository
+          ./gradlew :jarvis-noop:publishReleasePublicationToCentralPortalOSSRHRepository
           
       - name: 📤 Publish to GitHub Packages
         run: |
           ./gradlew :jarvis:publishReleasePublicationToGitHubPackagesRepository
+          ./gradlew :jarvis-noop:publishReleasePublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
@@ -177,14 +182,19 @@ jobs:
           ### Gradle (Kotlin DSL)
           \`\`\`kotlin
           dependencies {
-              implementation("io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION")
+              // Full SDK for debug builds
+              debugImplementation("io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION")
+              
+              // No-op version for release builds (zero overhead)
+              releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:$NEW_VERSION")
           }
           \`\`\`
           
           ### Gradle (Groovy)
           \`\`\`groovy
           dependencies {
-              implementation 'io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION'
+              debugImplementation 'io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION'
+              releaseImplementation 'io.github.jdumasleon:jarvis-android-sdk-noop:$NEW_VERSION'
           }
           \`\`\`
           
@@ -209,6 +219,7 @@ jobs:
             app/build/outputs/apk/prodCompose/release/app-prod-compose-release.apk
             app/build/outputs/bundle/prodComposeRelease/app-prod-compose-release.aab
             jarvis/build/outputs/aar/jarvis-prod-compose-release.aar
+            jarvis-noop/build/outputs/aar/jarvis-noop-prod-compose-release.aar
           
       - name: 🧹 Cleanup
         if: always()

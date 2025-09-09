@@ -193,34 +193,60 @@ fi
 # Step 5: Build artifacts
 log_step "Step 5: Building Artifacts"
 
-echo "  🏗️ Building SDK AAR..."
+echo "  🏗️ Building main SDK AAR..."
 ./gradlew :jarvis:bundleProdComposeReleaseAar --quiet
 
-echo "  📄 Building sources JAR..."
+echo "  📄 Building main SDK sources JAR..."
 ./gradlew :jarvis:sourceProdComposeReleaseJar --quiet
 
-echo "  📚 Building Javadoc JAR..."
+echo "  📚 Building main SDK Javadoc JAR..."
 ./gradlew :jarvis:javaDocProdComposeReleaseJar --quiet
 
-log_success "All artifacts built successfully"
+echo "  🔄 Building no-op SDK AAR..."
+./gradlew :jarvis-noop:bundleProdComposeReleaseAar --quiet
+
+echo "  📄 Building no-op SDK sources JAR..."
+./gradlew :jarvis-noop:sourceProdComposeReleaseJar --quiet
+
+echo "  📚 Building no-op SDK Javadoc JAR..."
+./gradlew :jarvis-noop:javaDocProdComposeReleaseJar --quiet
+
+log_success "All artifacts built successfully (main SDK + no-op SDK)"
 
 # Step 6: Publishing
 log_step "Step 6: Publishing Artifacts"
 
 publish_local() {
     echo "  🏠 Publishing to local repository..."
+    
+    echo "    📦 Publishing main SDK..."
     if ./gradlew :jarvis:publishReleasePublicationToLocalRepository --quiet; then
-        log_success "Published to local repository (~/.m2/repository)"
-        
-        # Verify local publication
-        LOCAL_PATH="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
-        if [ -d "$LOCAL_PATH" ]; then
-            echo "    📁 Artifacts available at: $LOCAL_PATH"
-            ls -la "$LOCAL_PATH"
-        fi
+        log_success "Main SDK published to local repository"
     else
-        log_error "Failed to publish to local repository"
+        log_error "Failed to publish main SDK to local repository"
         return 1
+    fi
+    
+    echo "    🔄 Publishing no-op SDK..."
+    if ./gradlew :jarvis-noop:publishReleasePublicationToLocalRepository --quiet; then
+        log_success "No-op SDK published to local repository"
+    else
+        log_error "Failed to publish no-op SDK to local repository"
+        return 1
+    fi
+    
+    # Verify local publication
+    LOCAL_PATH_MAIN="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
+    LOCAL_PATH_NOOP="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-noop/$NEW_VERSION"
+    
+    if [ -d "$LOCAL_PATH_MAIN" ]; then
+        echo "    📁 Main SDK artifacts: $LOCAL_PATH_MAIN"
+        ls -la "$LOCAL_PATH_MAIN" | head -5
+    fi
+    
+    if [ -d "$LOCAL_PATH_NOOP" ]; then
+        echo "    📁 No-op SDK artifacts: $LOCAL_PATH_NOOP"  
+        ls -la "$LOCAL_PATH_NOOP" | head -5
     fi
 }
 
@@ -236,11 +262,20 @@ publish_github() {
         fi
     fi
     
+    echo "    📦 Publishing main SDK..."
     if ./gradlew :jarvis:publishReleasePublicationToGitHubPackagesRepository --quiet; then
-        log_success "Published to GitHub Packages"
+        log_success "Main SDK published to GitHub Packages"
+    else
+        log_error "Failed to publish main SDK to GitHub Packages"
+        return 1
+    fi
+    
+    echo "    🔄 Publishing no-op SDK..."
+    if ./gradlew :jarvis-noop:publishReleasePublicationToGitHubPackagesRepository --quiet; then
+        log_success "No-op SDK published to GitHub Packages"
         echo "    🔗 View at: https://github.com/jdumasleon/jarvis-sdk-android/packages"
     else
-        log_error "Failed to publish to GitHub Packages"
+        log_error "Failed to publish no-op SDK to GitHub Packages"
         return 1
     fi
 }
@@ -258,12 +293,21 @@ publish_maven() {
         return 1
     fi
     
+    echo "    📦 Publishing main SDK..."
     if ./gradlew :jarvis:publishReleasePublicationToCentralPortalOSSRHRepository --quiet; then
-        log_success "Published to Maven Central staging"
+        log_success "Main SDK published to Maven Central staging"
+    else
+        log_error "Failed to publish main SDK to Maven Central"
+        return 1
+    fi
+    
+    echo "    🔄 Publishing no-op SDK..."
+    if ./gradlew :jarvis-noop:publishReleasePublicationToCentralPortalOSSRHRepository --quiet; then
+        log_success "No-op SDK published to Maven Central staging"
         echo "    🔗 Monitor at: https://central.sonatype.com/"
         log_info "Note: You may need to manually release from staging in Central Portal"
     else
-        log_error "Failed to publish to Maven Central"
+        log_error "Failed to publish no-op SDK to Maven Central"
         return 1
     fi
 }

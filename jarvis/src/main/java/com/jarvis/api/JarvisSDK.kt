@@ -29,6 +29,7 @@ import com.jarvis.core.navigation.Navigator
 import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
 import com.jarvis.core.navigation.routes.JarvisSDKInspectorGraph
 import com.jarvis.core.navigation.routes.JarvisSDKPreferencesGraph
+import com.jarvis.library.BuildConfig
 import com.jarvis.library.R
 import com.jarvis.platform.lib.JarvisPlatform
 import dagger.hilt.android.EntryPointAccessors
@@ -68,6 +69,12 @@ class JarvisSDK @Inject constructor(
         config: JarvisConfig = JarvisConfig(),
         hostActivity: Activity
     ) {
+        // No-op for release builds
+        if (!BuildConfig.JARVIS_ENABLED) {
+            configuration = config
+            return
+        }
+        
         if (!coreInitialized) {
             configuration = config
 
@@ -182,6 +189,9 @@ class JarvisSDK @Inject constructor(
     }
 
     fun dismiss() {
+        // No-op for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return
+        
         // Notify platform services about app stop
         CoroutineScope(ioDispatcher).launch {
             try {
@@ -203,22 +213,39 @@ class JarvisSDK @Inject constructor(
     fun getConfiguration(): JarvisConfig = configuration
 
     fun hideOverlay() {
+        // No-op for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return
+        
         navigator.clear()
         _isShowing = false
     }
 
     fun activate() {
+        // No-op for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return
+        
         if (coreInitialized) _isJarvisActive = true
     }
 
     fun deactivate() {
+        // No-op for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return
+        
         _isJarvisActive = false
         hideOverlay()
     }
 
-    fun isActive(): Boolean = _isJarvisActive
+    fun isActive(): Boolean {
+        // Always return false for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return false
+        
+        return _isJarvisActive
+    }
 
     fun toggle(): Boolean {
+        // Always return false for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return false
+        
         if (_isJarvisActive) deactivate() else activate()
         return _isJarvisActive
     }
@@ -228,6 +255,9 @@ class JarvisSDK @Inject constructor(
      * Only available after initialization
      */
     fun getPlatform(): JarvisPlatform? {
+        // Always return null for release builds
+        if (!BuildConfig.JARVIS_ENABLED) return null
+        
         return if (coreInitialized && jarvisPlatform.isInitialized()) {
             jarvisPlatform
         } else {

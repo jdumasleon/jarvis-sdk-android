@@ -33,6 +33,21 @@ android {
     }
 
     namespace = "com.jarvis.library"
+    
+    buildFeatures {
+        buildConfig = true
+    }
+    
+    buildTypes {
+        getByName("debug") {
+            // Debug builds get full functionality
+            buildConfigField("boolean", "JARVIS_ENABLED", "true")
+        }
+        getByName("release") {
+            // Release builds get no-op functionality
+            buildConfigField("boolean", "JARVIS_ENABLED", "false")
+        }
+    }
 }
 
 dependencies {

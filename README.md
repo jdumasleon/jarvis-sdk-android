@@ -40,11 +40,22 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 
 ```kotlin
 dependencies {
-    // For debug builds only
+    // Single artifact automatically provides full functionality in debug, no-op in release
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.0")
+}
+```
+
+#### Alternative: Separate Artifacts (Advanced)
+
+For fine-grained control, you can use separate artifacts:
+
+```kotlin
+dependencies {
+    // Full SDK for debug builds
     debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.0")
     
-    // Optional: Release no-op version (coming soon)
-    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.0")
+    // No-op version for release builds (zero overhead)
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.0")
 }
 ```
 
@@ -71,6 +82,32 @@ repositories {
             password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
         }
     }
+}
+```
+
+### Automatic Debug/Release Optimization
+
+The Jarvis SDK automatically adapts based on your build type:
+
+#### Single Artifact Approach (Recommended)
+- ✅ **Automatic switching** - Full functionality in debug, no-op in release
+- ✅ **Zero overhead in production** - All methods become no-ops in release builds
+- ✅ **Same API everywhere** - No code changes needed
+- ✅ **ProGuard/R8 optimization** - Dead code elimination removes unused code
+
+```kotlin
+dependencies {
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.0")  // Works everywhere
+}
+```
+
+#### Separate Artifacts (Advanced)
+For projects requiring explicit control:
+
+```kotlin
+dependencies {
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.0")        // Full features
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.0") // Zero overhead
 }
 ```
 

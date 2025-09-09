@@ -33,6 +33,7 @@ rootProject.name = "JarvisDemo"
 
 include(":app")
 include(":jarvis")
+include(":jarvis-noop")
 include(":core:designsystem")
 include(":core:domain")
 include(":core:data")
