@@ -13,6 +13,10 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 
+# GITHUB
+.github/MANUAL_PUBLISH_GUIDE.md
+.github/RELEASE_GUIDE.md
+
 # Build outputs
 /build
 */build/
