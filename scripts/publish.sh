@@ -348,7 +348,7 @@ create_git_tag() {
     log_step "Creating git tag..."
     
     git add gradle/libs.versions.toml
-    git commit -m "Release v$NEW_VERSION
+    git commit -m "Release v$NEW_VERSION"
     
     git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
     
