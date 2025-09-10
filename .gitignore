@@ -14,7 +14,8 @@
 /.idea/assetWizardSettings.xml
 
 # GITHUB
-MANUAL_PUBLISH_GUIDE.md
+PUBLISHING_GUIDE.md
+new_pgp_key.asc
 .github/RELEASE_GUIDE.md
 
 # Build outputs
