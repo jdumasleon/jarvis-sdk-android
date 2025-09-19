@@ -73,7 +73,7 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
 }
 ```
 
@@ -183,7 +183,7 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // Single artifact automatically provides full functionality in debug, no-op in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
 }
 ```
 
@@ -194,10 +194,10 @@ For fine-grained control, you can use separate artifacts:
 ```kotlin
 dependencies {
     // Full SDK for debug builds
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
 
     // No-op version for release builds (zero overhead)
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0")
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.1")
 }
 ```
 
@@ -239,7 +239,7 @@ The Jarvis SDK automatically adapts based on your build type:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")  // Works everywhere
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")  // Works everywhere
 }
 ```
 
@@ -248,8 +248,8 @@ For projects requiring explicit control:
 
 ```kotlin
 dependencies {
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")        // Full features
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0") // Zero overhead
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")        // Full features
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.1") // Zero overhead
 }
 ```
 
@@ -452,11 +452,11 @@ android {
 
 dependencies {
     // Single artifact approach (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
 
     // Or separate artifacts for explicit control
-    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
-    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0")
+    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
+    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.1")
 }
 ```
 
@@ -910,7 +910,13 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.1.0 (Latest)
+### Version 1.1.1 (Latest)
+- 🔧 **Critical Dependency Fix** - Resolved Maven Central dependency resolution issues with internal project dependencies
+- ✅ **Clean POM Generation** - Removed problematic "JarvisDemo.core:common:unspecified" dependencies from published artifacts
+- 🚀 **Improved Consumer Experience** - SDK now properly resolves all dependencies when added to consumer projects
+- 🛠️ **Build System** - Enhanced publishing configuration to exclude internal project dependencies from transitive resolution
+
+### Version 1.1.0
 - ✅ **Enhanced DSIcon Tint System** - Migrated to DSIconTint sealed interface for better type safety and gradient support
 - ✅ **Improved Design System** - Updated all icon components to use new tint system with solid colors and gradients
 - ✅ **Maven Central Validation** - Fixed dependency version information for okhttp to meet Maven Central publishing requirements
