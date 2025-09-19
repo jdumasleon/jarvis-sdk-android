@@ -5,6 +5,13 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  security-events: write
+  actions: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -81,19 +88,24 @@ jobs:
             jarvis/build/outputs/aar/*.aar
           retention-days: 7
 
-  security:
-    name: 🔒 Security Scan
+  codeql:
+    name: 🔒 CodeQL
     runs-on: ubuntu-latest
-    
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
     steps:
       - name: 🏗️ Checkout
         uses: actions/checkout@v4
-        
-      - name: 🔍 Run Security Scan
-        uses: securecodewarrior/github-action-add-sarif@v1
+      - name: 🔧 Init CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          sarif-file: 'security-scan.sarif'
-        continue-on-error: true
+          languages: java-kotlin
+      - name: ⚙️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: 📈 Analyze (uploads SARIF)
+        uses: github/codeql-action/analyze@v3
 
   preview:
     name: 📱 Preview Build
