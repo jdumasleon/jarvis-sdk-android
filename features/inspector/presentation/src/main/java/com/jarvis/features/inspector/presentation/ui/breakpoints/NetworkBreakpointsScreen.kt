@@ -337,7 +337,7 @@ private fun NetworkBrackpointsHeader(
                     DSIcon(
                         imageVector = Icons.Default.Security,
                         contentDescription = "Active",
-                        tint = DSJarvisTheme.colors.success.success80
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.success.success80)
                     )
                     
                     DSText(

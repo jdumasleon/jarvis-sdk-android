@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Search
@@ -61,15 +62,15 @@ fun DSDropdownMenu(
                             modifier = Modifier.weight(1f),
                             text = item.text,
                             style = DSJarvisTheme.typography.body.small,
-                            color = item.textColor ?: DSJarvisTheme.colors.extra.black
+                            color = if (item.enabled) item.textColor ?: DSJarvisTheme.colors.extra.black else DSJarvisTheme.colors.neutral.neutral40
                         )
                         Spacer(modifier = Modifier.width(DSJarvisTheme.dimensions.l))
                         if (item.icon != null) {
                             DSIcon(
                                 imageVector = item.icon,
                                 contentDescription = item.text,
-                                modifier = Modifier.size(DSJarvisTheme.dimensions.m),
-                                tint = item.iconTint ?: DSJarvisTheme.colors.extra.black
+                                size =DSJarvisTheme.dimensions.m,
+                                tint = DSIconTint.Solid(if (item.enabled) item.iconTint ?: DSJarvisTheme.colors.extra.black else DSJarvisTheme.colors.neutral.neutral40)
                             )
                         }
                     }
@@ -102,7 +103,7 @@ fun DSThreeDotsMenu(
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More options",
             modifier = modifier.padding(DSJarvisTheme.spacing.none),
-            tint = iconTint
+            tint = DSIconTint.Solid(iconTint)
         )
 
         DSDropdownMenu(

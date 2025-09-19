@@ -108,7 +108,7 @@ fun DSTag(
                 contentDescription = null,
                 modifier = Modifier.size(DSJarvisTheme.dimensions.m)
                     .padding(end = DSJarvisTheme.spacing.xxs),
-                tint = iconColor
+                tint = DSIconTint.Solid(iconColor)
             )
         }
         DSText(

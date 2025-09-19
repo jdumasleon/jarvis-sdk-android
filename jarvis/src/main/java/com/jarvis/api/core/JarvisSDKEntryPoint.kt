@@ -1,25 +1,12 @@
 package com.jarvis.api.core
 
-import com.jarvis.config.ConfigurationSynchronizer
-import com.jarvis.core.data.performance.PerformanceManager
+import com.jarvis.core.navigation.EntryProviderInstaller
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ActivityComponent
 
-/**
- * Entry point for accessing Jarvis SDK dependencies through Hilt
- */
 @EntryPoint
-@InstallIn(SingletonComponent::class)
+@InstallIn(ActivityComponent::class)
 interface JarvisSDKEntryPoint {
-    
-    /**
-     * Get ConfigurationSynchronizer instance
-     */
-    fun getConfigurationSynchronizer(): ConfigurationSynchronizer
-    
-    /**
-     * Get PerformanceManager instance
-     */
-    fun getPerformanceManager(): PerformanceManager
+    fun entryProviderBuilders(): Set<@JvmSuppressWildcards EntryProviderInstaller>
 }

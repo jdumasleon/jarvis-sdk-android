@@ -18,6 +18,7 @@ import com.jarvis.core.designsystem.component.DSButtonStyle
 import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DSTextField
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.settings.presentation.R
 
@@ -122,10 +123,10 @@ private fun StarRating(
             DSIcon(
                 imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
                 contentDescription = stringResource(R.string.star_rating, starIndex),
-                tint = if (isSelected) 
+                tint = DSIconTint.Solid(if (isSelected)
                     DSJarvisTheme.colors.warning.warning60
-                else 
-                    DSJarvisTheme.colors.neutral.neutral60,
+                else
+                    DSJarvisTheme.colors.neutral.neutral60),
                 modifier = Modifier
                     .size(DSJarvisTheme.dimensions.xxxxl)
                     .clickable(

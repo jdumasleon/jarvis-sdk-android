@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.icons.DSIcons
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
 /**
@@ -65,7 +66,7 @@ fun <T> DSSelectField(
                     DSIcon(
                         imageVector = if (isDropdownExpanded) DSIcons.arrowUp else DSIcons.arrowDown,
                         contentDescription = if (isDropdownExpanded) "Collapse dropdown" else "Expand dropdown",
-                        tint = if (enabled) DSJarvisTheme.colors.neutral.neutral80 else DSJarvisTheme.colors.neutral.neutral40
+                        tint = DSIconTint.Solid(if (enabled) DSJarvisTheme.colors.neutral.neutral80 else DSJarvisTheme.colors.neutral.neutral40)
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),

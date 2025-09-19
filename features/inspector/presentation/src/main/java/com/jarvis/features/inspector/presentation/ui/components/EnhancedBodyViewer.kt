@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.IconButton
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSIconButton
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.component.DSSearchableJsonViewerDialog
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
@@ -91,7 +93,7 @@ fun EnhancedBodyViewer(
                                     onClick = {
                                         showSearchDialog = true
                                     },
-                                    tint = DSJarvisTheme.colors.primary.primary60
+                                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary60)
                                 )
                             }
                             Spacer(modifier = Modifier.weight(1f))
@@ -115,7 +117,7 @@ fun EnhancedBodyViewer(
                                         ).show()
                                     }
                                 },
-                                tint = DSJarvisTheme.colors.primary.primary60
+                                tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary60)
                             )
 
                             // Expand/collapse button

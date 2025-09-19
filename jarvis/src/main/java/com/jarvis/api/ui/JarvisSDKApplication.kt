@@ -9,10 +9,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,7 +16,9 @@ import com.jarvis.api.ui.navigation.JarvisSDKNavDisplay
 import com.jarvis.api.ui.navigation.JarvisTopLevelDestinations
 import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.component.DSLargeTopAppBar
+import com.jarvis.core.designsystem.component.rememberJarvisPrimaryGradient
 import com.jarvis.core.designsystem.component.DSMediumTopAppBar
 import com.jarvis.core.designsystem.component.DSNavigationBar
 import com.jarvis.core.designsystem.component.DSNavigationBarItem
@@ -211,12 +209,7 @@ private fun JarvisSDKBottomBar(
     currentDestination: NavigationRoute?,
     navigator: Navigator
 ) {
-    val colors = listOf(
-        DSJarvisTheme.colors.extra.jarvisPink,
-        DSJarvisTheme.colors.extra.jarvisBlue
-    )
-    val brush = remember { Brush.linearGradient(colors) }
-
+    val iconGradientTint = DSIconTint.Gradient(rememberJarvisPrimaryGradient())
     currentDestination?.takeIf { it.shouldShowBottomBar }?.let {
         DSNavigationBar(
             topCornerRadius = DSJarvisTheme.dimensions.l,
@@ -228,34 +221,14 @@ private fun JarvisSDKBottomBar(
                         DSIcon(
                             imageVector = item.icon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
-                            modifier = Modifier
-                                .graphicsLayer(alpha = 0.99f)
-                                .drawWithCache {
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = brush,
-                                            blendMode = BlendMode.SrcIn
-                                        )
-                                    }
-                                }
+                            tint = iconGradientTint
                         )
                     },
                     selectedIcon = {
                         DSIcon(
                             imageVector = item.selectedIcon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
-                            modifier = Modifier
-                                .graphicsLayer(alpha = 0.99f)
-                                .drawWithCache {
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = brush,
-                                            blendMode = BlendMode.SrcIn
-                                        )
-                                    }
-                                }
+                            tint = iconGradientTint
                         )
                     },
                     selected = isDestinationSelected(currentDestination, item.destination),

@@ -110,7 +110,7 @@ fun DSSearchableJsonViewerDialog(
                         onClick = onDismiss,
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.extra.black
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black)
                     )
                 }
 

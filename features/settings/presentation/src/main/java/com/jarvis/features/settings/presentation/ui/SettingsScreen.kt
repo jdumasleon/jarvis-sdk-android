@@ -23,6 +23,7 @@ import com.jarvis.features.settings.presentation.ui.components.RatingData
 import androidx.core.net.toUri
 import com.jarvis.core.presentation.utils.openUrl
 import com.jarvis.core.presentation.utils.shareUrl
+import com.jarvis.features.settings.presentation.ui.components.AppDetailsBottomSheet
 
 /**
  * Settings screen route with state management
@@ -58,6 +59,7 @@ fun SettingsRoute(
                 is SettingsAction.NavigateToPreferences -> onNavigateToPreferences()
                 is SettingsAction.NavigateToLogging -> onNavigateToLogging()
                 is SettingsAction.RateApp -> viewModel.onEvent(SettingsEvent.ShowRatingDialog)
+                is SettingsAction.ShowCallingAppDetails -> viewModel.onEvent(SettingsEvent.ShowCallingAppDetailsDialog)
                 is SettingsAction.Version -> { }
             }
         }
@@ -158,6 +160,16 @@ private fun SettingsContent(
                 },
                 onCancel = {
                     onEvent(SettingsEvent.HideRatingDialog)
+                }
+            )
+        }
+
+        // Calling App Details Bottom Sheet
+        if (uiData.showCallingAppDetailsDialog && uiData.settingsAppInfo != null) {
+            AppDetailsBottomSheet(
+                hostAppInfo = uiData.settingsAppInfo.hostAppInfo,
+                onCancel = {
+                    onEvent(SettingsEvent.HideCallingAppDetailsDialog)
                 }
             )
         }

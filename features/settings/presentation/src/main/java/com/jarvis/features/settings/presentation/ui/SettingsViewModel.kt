@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.settings.domain.entity.AppInfo
+import com.jarvis.features.settings.domain.entity.SettingsAppInfo
 import com.jarvis.features.settings.domain.entity.Rating
 import com.jarvis.features.settings.domain.entity.SettingsGroup
 import com.jarvis.features.settings.domain.usecase.GetAppInfoUseCase
 import com.jarvis.features.settings.domain.usecase.GetSettingsItemsUseCase
 import com.jarvis.features.settings.domain.usecase.SubmitRatingUseCase
+import com.jarvis.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +35,7 @@ class SettingsViewModel @Inject constructor(
     private val getSettingsItemsUseCase: GetSettingsItemsUseCase,
     private val getAppInfoUseCase: GetAppInfoUseCase,
     private val submitRatingUseCase: SubmitRatingUseCase,
+    private val settingsRepository: SettingsRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -51,6 +54,8 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.UpdateRatingStars -> updateRatingStars(event.stars)
             is SettingsEvent.UpdateRatingDescription -> updateRatingDescription(event.description)
             is SettingsEvent.SubmitRating -> submitRating()
+            is SettingsEvent.ShowCallingAppDetailsDialog -> showCallingAppDetailsDialog()
+            is SettingsEvent.HideCallingAppDetailsDialog -> hideCallingAppDetailsDialog()
         }
     }
 
@@ -59,13 +64,21 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun hideRatingDialog() {
-        updateCurrentData { 
+        updateCurrentData {
             it.copy(
                 showRatingDialog = false,
                 ratingStars = 0,
                 ratingDescription = "",
             )
         }
+    }
+
+    private fun showCallingAppDetailsDialog() {
+        updateCurrentData { it.copy(showCallingAppDetailsDialog = true) }
+    }
+
+    private fun hideCallingAppDetailsDialog() {
+        updateCurrentData { it.copy(showCallingAppDetailsDialog = false) }
     }
 
     private fun updateRatingStars(stars: Int) {
@@ -120,8 +133,10 @@ class SettingsViewModel @Inject constructor(
                 getSettingsItemsUseCase()
                     .catch { emit(Result.failure(it)) },
                 getAppInfoUseCase()
+                    .catch { emit(Result.failure(it)) },
+                settingsRepository.getSettingsAppInfo()
                     .catch { emit(Result.failure(it)) }
-            ) { settingsRes: Result<List<SettingsGroup>>, appInfoRes: Result<AppInfo> ->
+            ) { settingsRes: Result<List<SettingsGroup>>, appInfoRes: Result<AppInfo>, settingsAppInfoRes: Result<SettingsAppInfo> ->
                 when {
                     settingsRes.isFailure -> {
                         val e = settingsRes.exceptionOrNull() ?: Exception("Unknown error")
@@ -131,13 +146,19 @@ class SettingsViewModel @Inject constructor(
                         val e = appInfoRes.exceptionOrNull() ?: Exception("Unknown error")
                         ResourceState.Error(e, "Failed to load app info")
                     }
+                    settingsAppInfoRes.isFailure -> {
+                        val e = settingsAppInfoRes.exceptionOrNull() ?: Exception("Unknown error")
+                        ResourceState.Error(e, "Failed to load settings app info")
+                    }
                     else -> {
                         val settings = settingsRes.getOrThrow()
                         val appInfo = appInfoRes.getOrThrow()
+                        val settingsAppInfo = settingsAppInfoRes.getOrThrow()
                         ResourceState.Success(
                             SettingsUiData(
                                 settingsItems = settings,
-                                appInfo = appInfo
+                                appInfo = appInfo,
+                                settingsAppInfo = settingsAppInfo
                             )
                         )
                     }

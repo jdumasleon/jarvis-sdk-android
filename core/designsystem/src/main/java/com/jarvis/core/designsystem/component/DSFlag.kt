@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.icons.DSIcons
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.theme.Error100
 import com.jarvis.core.designsystem.theme.Error20
@@ -98,7 +99,7 @@ private fun Header(
             DSIcon(
                 imageVector = it,
                 contentDescription = "DSFlag leading header icon",
-                tint = style.iconTint,
+                tint = DSIconTint.Solid(style.iconTint),
                 modifier = Modifier.size(DSJarvisTheme.dimensions.l)
             )
         }
@@ -118,7 +119,7 @@ private fun Header(
             DSIcon(
                 imageVector = DSIcons.Rounded.close,
                 contentDescription = "DSFlag trailing header close icon",
-                tint = style?.iconTint ?: DSJarvisTheme.colors.neutral.neutral100,
+                tint = DSIconTint.Solid(style?.iconTint ?: DSJarvisTheme.colors.neutral.neutral100),
                 modifier = Modifier.size(DSJarvisTheme.dimensions.l)
                     .clickable(onClick = onClose)
             )

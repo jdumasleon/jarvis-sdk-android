@@ -82,7 +82,9 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             try {
                 // Generate sample data for all three storage types
+                demoPreferencesRepository.clearAllPreferences()
                 demoPreferencesRepository.generateAllSampleData()
+                loadPreferences()
                 // The reactive flow will automatically update the UI state
             } catch (exception: Exception) {
                 _uiState.update { 

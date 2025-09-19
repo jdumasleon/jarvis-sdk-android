@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.R
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import kotlin.math.min
@@ -263,10 +264,10 @@ private fun SecureTextToggle(
     DSIcon(
         imageVector = ImageVector.vectorResource(id = icon),
         contentDescription = null,
-        tint = when {
+        tint = DSIconTint.Solid(when {
             isDisabled -> appearance.disabledColor
             else -> appearance.trailingIconForegroundColor
-        },
+        }),
         modifier = Modifier.size(DSJarvisTheme.dimensions.l)
             .padding(horizontal = DSJarvisTheme.dimensions.xxs)
             .clickable { setPasswordVisible(!isPasswordVisible) }
@@ -297,10 +298,10 @@ private fun ErrorIcon(
             .padding(horizontal = DSJarvisTheme.dimensions.xxs),
         imageVector = DSIcons.Outlined.info,
         contentDescription = null,
-        tint = when {
+        tint = DSIconTint.Solid(when {
             isDisabled -> appearance.disabledColor
             else -> appearance.errorTextColor
-        }
+        })
     )
 }
 
@@ -583,14 +584,14 @@ fun DSTextFieldPreviewDark() {
                 DSIcon(
                     imageVector = DSIcons.dateRange,
                     contentDescription = "Leading DSIcon",
-                    tint = DSTextFieldAppearance.dark.leadingIconForegroundColor
+                    tint = DSIconTint.Solid(DSTextFieldAppearance.dark.leadingIconForegroundColor)
                 )
             },
             trailingIcon = {
                 DSIcon(
                     imageVector = DSIcons.arrowForward,
                     contentDescription = "Trailing DSIcon",
-                    tint = DSTextFieldAppearance.dark.trailingIconForegroundColor
+                    tint = DSIconTint.Solid(DSTextFieldAppearance.dark.trailingIconForegroundColor)
                 )
             },
             appearance = DSTextFieldAppearance.dark

@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.R
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import androidx.compose.material3.MediumTopAppBar
@@ -104,7 +105,7 @@ fun DSTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = navigationIconContentDescription,
-                            tint = DSJarvisTheme.colors.extra.black,
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                         )
                     }
 
@@ -116,7 +117,7 @@ fun DSTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = actionIconContentDescription,
-                            tint = DSJarvisTheme.colors.extra.black,
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                         )
                     }
                 }
@@ -125,7 +126,7 @@ fun DSTopAppBar(
                         DSIcon(
                             imageVector = DSIcons.Rounded.close,
                             contentDescription = "Close",
-                            tint = DSJarvisTheme.colors.extra.black,
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                         )
                     }
                 }
@@ -202,7 +203,7 @@ fun DSMediumTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = navigationIconContentDescription,
-                            tint = DSJarvisTheme.colors.extra.black,
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                         )
                     }
                 }
@@ -219,7 +220,7 @@ fun DSMediumTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.extra.black,
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                     )
                 }
             }
@@ -228,7 +229,7 @@ fun DSMediumTopAppBar(
                     DSIcon(
                         imageVector = DSIcons.Rounded.close,
                         contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.extra.black,
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                     )
                 }
             }
@@ -306,7 +307,7 @@ fun DSLargeTopAppBar(
                         DSIcon(
                             imageVector = it,
                             contentDescription = navigationIconContentDescription,
-                            tint = DSJarvisTheme.colors.extra.black,
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                         )
                     }
                 }
@@ -322,7 +323,7 @@ fun DSLargeTopAppBar(
                     DSIcon(
                         imageVector = it,
                         contentDescription = actionIconContentDescription,
-                        tint = DSJarvisTheme.colors.extra.black,
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                     )
                 }
             }
@@ -331,7 +332,7 @@ fun DSLargeTopAppBar(
                     DSIcon(
                         imageVector = DSIcons.Rounded.close,
                         contentDescription = "Close",
-                        tint = DSJarvisTheme.colors.extra.black,
+                        tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                     )
                 }
             }

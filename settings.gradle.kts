@@ -21,6 +21,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()  // For testing locally published SDK
         maven {
             url = uri("https://androidx.dev/snapshots/builds/13617490/artifacts/repository")
         }

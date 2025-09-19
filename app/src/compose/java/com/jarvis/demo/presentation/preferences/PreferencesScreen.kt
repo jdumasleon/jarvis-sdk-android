@@ -57,9 +57,7 @@ fun PreferencesScreen(
     // Register the action callback when the screen is composed
     DisposableEffect(viewModel) {
         ActionRegistry.registerAction(PreferencesGraph.Preferences.actionKey) {
-            viewModel.onEvent(PreferencesEvent.ClearAllPreferences)
             viewModel.onEvent(PreferencesEvent.GenerateRandomPreferences)
-            viewModel.onEvent(PreferencesEvent.LoadPreferences)
         }
         onDispose {
             ActionRegistry.unregisterAction(PreferencesGraph.Preferences.actionKey)

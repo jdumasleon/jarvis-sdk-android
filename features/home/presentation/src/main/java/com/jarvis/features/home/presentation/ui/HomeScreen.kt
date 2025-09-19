@@ -42,6 +42,7 @@ import com.jarvis.core.designsystem.component.DSPullToRefresh
 import com.jarvis.core.designsystem.component.DSReorderableItem
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.rememberReorderableLazyStaggeredGridState
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.ResourceStateContent
 import com.jarvis.core.presentation.state.ResourceState
@@ -361,7 +362,7 @@ private fun DraggableCardGrid(
                                 DSIconButton(
                                     imageVector = Icons.Rounded.DragHandle,
                                     contentDescription = "Reordering",
-                                    tint = DSJarvisTheme.colors.neutral.neutral60,
+                                    tint = DSIconTint.Solid(DSJarvisTheme.colors.neutral.neutral60),
                                     modifier = Modifier
                                         .size(DSJarvisTheme.spacing.l)
                                         .draggableHandle(

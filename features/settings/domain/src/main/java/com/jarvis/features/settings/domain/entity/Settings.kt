@@ -43,6 +43,7 @@ sealed class SettingsAction {
     object NavigateToInspector : SettingsAction()
     object NavigateToPreferences : SettingsAction()
     object NavigateToLogging : SettingsAction()
+    object ShowCallingAppDetails : SettingsAction()
     data class OpenUrl(val url: String) : SettingsAction()
     data class ShareApp(val url: String) : SettingsAction()
     data class OpenEmail(val email: String, val subject: String) : SettingsAction()
@@ -63,5 +64,6 @@ enum class SettingsIcon {
     RELEASE_NOTES,
     LOGS,
     INSPECTOR,
-    PREFERENCES
+    PREFERENCES,
+    APP
 }

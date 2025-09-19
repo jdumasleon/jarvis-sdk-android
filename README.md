@@ -9,6 +9,61 @@ A comprehensive debugging and development toolkit for Android applications, prov
 
 **🎯 Perfect for development and debugging | 📱 Zero overhead in production builds**
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+  - [1. Add Dependency](#1-add-dependency)
+  - [2. Enable Hilt in Application](#2-enable-hilt-in-application)
+  - [3. Initialize in Activity](#3-initialize-in-activity)
+  - [4. Activate Jarvis](#4-activate-jarvis)
+- [Features](#features)
+  - [🌐 Network Inspection](#-network-inspection)
+  - [📊 Preferences Management](#-preferences-management)
+  - [🏠 Application Overview](#-application-overview)
+  - [🎨 Design System](#-design-system)
+- [Installation](#installation)
+  - [Maven Central (Recommended)](#maven-central-recommended)
+  - [Maven Central](#maven-central)
+  - [GitHub Packages](#github-packages)
+  - [Automatic Debug/Release Optimization](#automatic-debugrelease-optimization)
+- [Integration Guide](#integration-guide)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step Integration](#step-by-step-integration)
+  - [Complete Configuration Options](#complete-configuration-options)
+  - [Integration Checklist](#integration-checklist)
+- [Usage](#usage)
+  - [Activation Methods](#activation-methods)
+  - [Network Monitoring](#network-monitoring)
+  - [Preferences Management](#preferences-management-1)
+  - [Performance Monitoring](#performance-monitoring)
+  - [Error Tracking](#error-tracking)
+- [Advanced Configuration](#advanced-configuration)
+  - [Runtime Configuration Updates](#runtime-configuration-updates)
+  - [Production Build Behavior](#production-build-behavior)
+- [Demo Applications](#demo-applications)
+  - [1. Jarvis Classic Demo](#1-jarvis-classic-demo-appsrcclassic)
+  - [2. Jarvis Compose Demo](#2-jarvis-compose-demo-appsrccompose)
+  - [Running Demo Apps](#running-demo-apps)
+- [Advanced Usage](#advanced-usage)
+  - [Custom Feature Integration](#custom-feature-integration)
+  - [Data Export](#data-export)
+  - [Remote Integration](#remote-integration)
+- [Architecture](#architecture)
+  - [Module Structure](#module-structure)
+  - [Key Components](#key-components)
+- [Proguard/R8 Configuration](#proguardr8-configuration)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debug Mode](#debug-mode)
+  - [Support](#support)
+- [License](#license)
+- [Changelog](#changelog)
+  - [Version 1.0.28 (Latest)](#version-1028-latest)
+  - [Version 1.0.20](#version-1020)
+  - [Version 1.0.0-1.0.19](#version-100-1019)
+
+---
+
 ## Quick Start
 
 ### 1. Add Dependency
@@ -17,30 +72,71 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
 }
 ```
 
-### 2. Initialize in Application
+### 2. Enable Hilt in Application
 
 ```kotlin
+@HiltAndroidApp
 class MyApplication : Application() {
-    override fun onCreate() {
+    // Jarvis SDK components are automatically available via Hilt
+}
+```
+
+### 3. Initialize in Activity
+
+```kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var jarvisSDK: JarvisSDK
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate()
-        
-        if (BuildConfig.DEBUG) {
-            JarvisSDK.initialize(this)
+
+        // Initialize Jarvis SDK with configuration
+        initializeJarvisSDK()
+
+        setContent {
+            MyAppContent()
         }
+    }
+
+    private fun initializeJarvisSDK() {
+        val config = JarvisConfig.builder()
+            .enableShakeDetection(true)
+            .enableDebugLogging(true)
+            .networkInspection {
+                enableNetworkLogging(true)
+                enableRequestLogging(true)
+                enableResponseLogging(true)
+            }
+            .preferences {
+                autoDiscoverDataStores(true)
+                autoDiscoverSharedPrefs(true)
+                enablePreferenceEditing(true)
+            }
+            .build()
+
+        jarvisSDK.initialize(config = config, hostActivity = this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        jarvisSDK.dismiss()
     }
 }
 ```
 
-### 3. Activate Jarvis
+### 4. Activate Jarvis
 
-- **Shake your device** (default activation method)
-- **Or call programmatically**: `JarvisSDK.activate()`
+- **Shake your device** (if enabled in config)
+- **Or call programmatically**: `jarvisSDK.activate()`
 
-That's it! 🎉 Jarvis will automatically detect network requests and app preferences.
+That's it! 🎉 Jarvis will now provide debugging capabilities and network inspection.
 
 ## Features
 
@@ -61,9 +157,6 @@ That's it! 🎉 Jarvis will automatically detect network requests and app prefer
 ### 🏠 Application Overview
 - **System information** - Device details, OS version, app version
 - **Performance metrics** - Memory usage, CPU utilization, battery impact
-- **Feature toggles** - Runtime configuration switching
-- **Crash reporting** - Automatic crash detection and reporting
-- **Analytics tracking** - Event monitoring and user behavior insights
 
 ### 🎨 Design System
 - **Material 3 integration** - Modern Material Design components
@@ -89,7 +182,7 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // Single artifact automatically provides full functionality in debug, no-op in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
 }
 ```
 
@@ -100,10 +193,10 @@ For fine-grained control, you can use separate artifacts:
 ```kotlin
 dependencies {
     // Full SDK for debug builds
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")
-    
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+
     // No-op version for release builds (zero overhead)
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.21")
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
 }
 ```
 
@@ -113,7 +206,7 @@ dependencies {
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.0.21</version>
+    <version>1.0.28</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -145,7 +238,7 @@ The Jarvis SDK automatically adapts based on your build type:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")  // Works everywhere
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")  // Works everywhere
 }
 ```
 
@@ -154,8 +247,8 @@ For projects requiring explicit control:
 
 ```kotlin
 dependencies {
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")        // Full features
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.21") // Zero overhead
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")        // Full features
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28") // Zero overhead
 }
 ```
 
@@ -164,8 +257,8 @@ dependencies {
 ### Prerequisites
 
 **🔧 Required:**
-- Android API 21+ (Android 5.0 Lollipop)
-- Kotlin 1.9+
+- Android API 24+ (Android 7.0 Nougat)
+- Kotlin 2.2+
 - Hilt for dependency injection
 - Jetpack Compose (recommended) or Android Views
 
@@ -183,53 +276,44 @@ Add `@HiltAndroidApp` to your Application class:
 ```kotlin
 @HiltAndroidApp
 class MyApplication : Application() {
-    // No additional code needed - SDK is auto-injected via Hilt
+    // Jarvis SDK components are automatically available via Hilt
 }
 ```
 
 #### 2. Activity Integration
 
-**For Jetpack Compose Activities:**
-
 ```kotlin
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     @Inject
     lateinit var jarvisSDK: JarvisSDK
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Configure and initialize Jarvis SDK
+
+        // Initialize Jarvis SDK
         initializeJarvisSDK()
-        
+
         setContent {
             MyAppTheme {
                 MyAppContent()
             }
         }
     }
-    
+
     private fun initializeJarvisSDK() {
         val config = JarvisConfig.builder()
             .enableShakeDetection(true)
-            .enableDebugLogging(BuildConfig.DEBUG)
-            .preferences {
-                autoDiscoverDataStores(true)
-                autoDiscoverSharedPrefs(true)
-                enablePreferenceEditing(true)
-            }
+            .enableDebugLogging(true)
             .networkInspection {
                 enableNetworkLogging(true)
-                enableRequestLogging(true)
-                enableResponseLogging(true)
             }
             .build()
-            
+
         jarvisSDK.initialize(config = config, hostActivity = this)
     }
-    
+
     override fun onDestroy() {
         super.onDestroy()
         jarvisSDK.dismiss()
@@ -237,54 +321,36 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-**For Traditional Activities (Views):**
+#### 3. Network Monitoring Setup (Optional)
+
+**Automatic Network Interception:**
+Network requests are automatically intercepted when using OkHttp. For manual integration:
 
 ```kotlin
-@AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    
-    @Inject
-    lateinit var jarvisSDK: JarvisSDK
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        // Initialize Jarvis SDK
-        val config = JarvisConfig.builder()
-            .enableShakeDetection(true)
-            .build()
-            
-        jarvisSDK.initialize(config = config, hostActivity = this)
-    }
-    
-    override fun onDestroy() {
-        super.onDestroy()
-        jarvisSDK.dismiss()
-    }
-}
-```
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule {
 
-#### 3. Network Monitoring Setup
-
-**Automatic OkHttp Integration:**
-
-```kotlin
-@Singleton
-class NetworkModule {
-    
-    @Inject
-    lateinit var jarvisNetworkInspector: JarvisNetworkInspector
-    
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        networkInspectorProvider: NetworkInspectorProvider
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(jarvisNetworkInspector.createInterceptor())
+            .addInterceptor(loggingInterceptor)
+            .apply {
+                // Add Jarvis network interceptor if available
+                networkInspectorProvider.createInterceptor()?.let { interceptor ->
+                    addInterceptor(interceptor)
+                }
+            }
             .build()
     }
 }
 ```
+
+**Note:** The `NetworkInspectorProvider` is automatically available for injection when Jarvis SDK is included.
 
 **Manual Network Logging:**
 
@@ -385,11 +451,11 @@ android {
 
 dependencies {
     // Single artifact approach (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")
-    
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+
     // Or separate artifacts for explicit control
-    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.21")
-    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.21")
+    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
 }
 ```
 
@@ -481,23 +547,31 @@ Before deploying to production, verify:
 
 ### Activation Methods
 
-#### 1. Shake Detection (Default)
-Simply shake your device to open Jarvis.
+#### 1. Shake Detection
+Simply shake your device to open Jarvis (if enabled in configuration).
 
 #### 2. Programmatic Activation
 ```kotlin
-// Activate Jarvis
-jarvisSDK.activate()
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var jarvisSDK: JarvisSDK
 
-// Deactivate Jarvis
-jarvisSDK.deactivate()
+    fun controlJarvis() {
+        // Activate Jarvis
+        jarvisSDK.activate()
 
-// Toggle Jarvis state
-val isActive = jarvisSDK.toggle()
+        // Deactivate Jarvis
+        jarvisSDK.deactivate()
 
-// Check if active
-if (jarvisSDK.isActive()) {
-    // Jarvis is currently active
+        // Toggle Jarvis state
+        val isActive = jarvisSDK.toggle()
+
+        // Check if active
+        if (jarvisSDK.isActive()) {
+            // Jarvis is currently active
+        }
+    }
 }
 ```
 
@@ -815,62 +889,6 @@ For issues and questions:
 - Check existing documentation and examples
 - Review demo applications for integration patterns
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Update documentation
-6. Submit a pull request
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/jdumasleon/mobile-jarvis-android-sdk.git
-
-# Open in Android Studio
-# Select "Open an existing Android Studio project"
-# Choose the cloned directory
-
-# Build project
-./gradlew build
-
-# Run tests
-./gradlew test
-```
-
-### Publishing Workflow
-
-The project includes an automated publishing script for maintainers:
-
-```bash
-# Publish to all repositories (GitHub Packages + Maven Central)
-./scripts/publish.sh 1.0.22 all
-
-# Publish to specific repository
-./scripts/publish.sh 1.0.22 github    # GitHub Packages only
-./scripts/publish.sh 1.0.22 maven     # Maven Central only  
-./scripts/publish.sh 1.0.22 local     # Local Maven only
-
-# Dry run (test without publishing)
-./scripts/publish.sh 1.0.22 all --dry-run
-```
-
-**Publishing Requirements:**
-- Valid PGP key for artifact signing
-- Maven Central credentials (username/password)
-- GitHub Personal Access Token for GitHub Packages
-- Proper repository permissions
-
-The publishing script automatically:
-- ✅ Updates version numbers
-- ✅ Builds and signs artifacts
-- ✅ Publishes to repositories simultaneously
-- ✅ Creates git tags
-- ✅ Validates signatures and credentials
-
 ## License
 
 ```
@@ -891,14 +909,14 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.0.21 (Latest)
-- ✅ **Stable Release** - Production-ready SDK
+### Version 1.0.28 (Latest)
+- ✅ **Interface-Based DI** - Clean dependency injection with NetworkInspectorProvider and PreferencesProvider
+- ✅ **Enhanced DSFilterChip** - Fixed visual state issues with proper interaction feedback
+- ✅ **Improved Architecture** - Cleaner separation between public API and internal implementation
+- ✅ **No-op Implementations** - Graceful degradation when services are unavailable
 - ✅ **Maven Central** - Available on Maven Central Repository
-- ✅ **GitHub Packages** - Available on GitHub Packages
-- ✅ **Optimized Publishing** - Single execution publishing workflow
 - ✅ **PGP Signed** - All artifacts properly signed for security
-- 🛠️ **Improved Build System** - Enhanced Gradle configuration
-- 📚 **Complete Documentation** - Comprehensive setup and usage guide
+- 🛠️ **Updated Dependencies** - Kotlin 2.2+, Android API 24+, latest Compose BOM
 
 ### Version 1.0.20
 - 🔧 **Publishing Fixes** - Resolved signature validation issues

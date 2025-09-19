@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.jarvis.core.designsystem.component.DSButtonStyle.*
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.designsystem.theme.Neutral0
 import com.jarvis.core.designsystem.theme.Neutral40
@@ -110,7 +111,7 @@ fun DSButton(
                     DSIcon(
                         imageVector = it,
                         contentDescription = "DSButton left icon",
-                        tint = color
+                        tint = DSIconTint.Solid(color)
                     )
                     Spacer(modifier = Modifier.width(DSJarvisTheme.spacing.xxs))
                 }
@@ -125,7 +126,7 @@ fun DSButton(
                     DSIcon(
                         imageVector = it,
                         contentDescription = "DSButton right icon",
-                        tint = color
+                        tint = DSIconTint.Solid(color)
                     )
                 }
             }

@@ -44,10 +44,12 @@ android {
         getByName("debug") {
             // Debug builds get full functionality
             buildConfigField("boolean", "JARVIS_ENABLED", "true")
+            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
         }
         getByName("release") {
             // Release builds get no-op functionality
             buildConfigField("boolean", "JARVIS_ENABLED", "false")
+            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
         }
     }
 }
@@ -158,6 +160,8 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
+
+    api(libs.okhttp)
 
     testImplementation(libs.junit)
 

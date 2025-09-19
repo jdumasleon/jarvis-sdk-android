@@ -3,6 +3,8 @@ package com.jarvis.core.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
 /**
@@ -34,21 +39,30 @@ fun DSFilterChip(
     enabled: Boolean = true,
     selectedGradient: Brush? = null
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    // Enhanced state logic that considers both selection and interaction states
     val backgroundColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral20
-        selected -> DSJarvisTheme.colors.primary.primary100 // used as a fallback when no gradient
-        else -> DSJarvisTheme.colors.extra.white
+        selected && !isPressed -> DSJarvisTheme.colors.primary.primary100 // Normal selected state
+        selected && isPressed -> DSJarvisTheme.colors.primary.primary80  // Pressed selected state
+        !selected && isPressed -> DSJarvisTheme.colors.neutral.neutral20 // Pressed unselected state
+        else -> DSJarvisTheme.colors.extra.white // Normal unselected state
     }
 
     val borderColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral40
-        selected -> DSJarvisTheme.colors.extra.transparent
+        selected && !isPressed -> DSJarvisTheme.colors.extra.transparent
+        selected && isPressed -> DSJarvisTheme.colors.primary.primary60
+        !selected && isPressed -> DSJarvisTheme.colors.neutral.neutral40
         else -> DSJarvisTheme.colors.neutral.neutral60
     }
 
     val textColor = when {
         !enabled -> DSJarvisTheme.colors.neutral.neutral40
         selected -> DSJarvisTheme.colors.neutral.neutral0
+        isPressed -> DSJarvisTheme.colors.neutral.neutral60
         else -> DSJarvisTheme.colors.neutral.neutral80
     }
 
@@ -58,15 +72,20 @@ fun DSFilterChip(
         modifier = modifier
             .clip(shape)
             .then(
-                if (selected && enabled)
-                    selectedGradient?.let {
-                        Modifier.background(brush = it, shape = shape)
-                    } ?: Modifier.background(color = backgroundColor, shape = shape)
+                // Use gradient only for selected state when not pressed
+                if (selected && !isPressed && enabled && selectedGradient != null)
+                    Modifier.background(brush = selectedGradient, shape = shape)
                 else
                     Modifier.background(color = backgroundColor, shape = shape)
             )
             .border(width = 1.dp, color = borderColor, shape = shape)
-            .clickable(enabled = enabled) { onClick() }
+            .clickable(
+                enabled = enabled,
+                interactionSource = interactionSource,
+                indication = null // We handle visual feedback manually
+            ) { 
+                onClick() 
+            }
             .padding(
                 horizontal = DSJarvisTheme.spacing.m,
                 vertical = DSJarvisTheme.spacing.s
@@ -80,8 +99,8 @@ fun DSFilterChip(
                 DSIcon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = textColor,
-                    modifier = Modifier.size(DSJarvisTheme.dimensions.m)
+                    tint = DSIconTint.Solid(textColor),
+                    size = DSJarvisTheme.dimensions.m
                 )
             }
 

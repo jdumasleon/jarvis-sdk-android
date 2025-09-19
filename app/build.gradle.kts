@@ -62,12 +62,14 @@ android {
 }
 
 dependencies {
+    // For demo purposes - using local project reference
+    // In host applications, use: implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation(projects.jarvis)
+    
+    // Core modules are now accessible through the main jarvis module via API dependencies
     api(projects.core.common)
-    api(projects.core.designsystem)
+    api(projects.core.designsystem)  
     api(projects.core.presentation)
-    api(projects.jarvis)
-    api(projects.features.inspector.lib)
-    api(projects.features.preferences.lib)
 
     // Common dependencies for both flavors
     implementation(libs.androidx.core.ktx)

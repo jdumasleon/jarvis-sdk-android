@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.R
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
 @Composable
@@ -41,7 +42,7 @@ fun DSSwitch(
                 {
                     DSIcon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_ellipse),
-                        tint = if (isDisabled) DSJarvisTheme.colors.neutral.neutral20 else DSJarvisTheme.colors.neutral.neutral0,
+                        tint = DSIconTint.Solid(if (isDisabled) DSJarvisTheme.colors.neutral.neutral20 else DSJarvisTheme.colors.neutral.neutral0),
                         contentDescription = null,
                         modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
@@ -50,7 +51,7 @@ fun DSSwitch(
                 {
                     DSIcon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_ellipse),
-                        tint = if (isDisabled) DSJarvisTheme.colors.neutral.neutral20 else DSJarvisTheme.colors.neutral.neutral0,
+                        tint = DSIconTint.Solid(if (isDisabled) DSJarvisTheme.colors.neutral.neutral20 else DSJarvisTheme.colors.neutral.neutral0),
                         contentDescription = null,
                         modifier = Modifier.size(SwitchDefaults.IconSize),
                     )

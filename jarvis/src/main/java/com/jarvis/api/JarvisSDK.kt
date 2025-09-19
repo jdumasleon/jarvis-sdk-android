@@ -14,7 +14,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.jarvis.api.di.JarvisSDKEntryPoint
+import com.jarvis.api.core.JarvisSDKEntryPoint
 import com.jarvis.core.navigation.JarvisSDKNavigator
 import com.jarvis.api.ui.JarvisSDKApplication
 import com.jarvis.api.ui.JarvisSDKFabTools
@@ -215,7 +215,7 @@ class JarvisSDK @Inject constructor(
     fun hideOverlay() {
         // No-op for release builds
         if (!BuildConfig.JARVIS_ENABLED) return
-        
+
         navigator.clear()
         _isShowing = false
     }
@@ -264,4 +264,5 @@ class JarvisSDK @Inject constructor(
             null
         }
     }
+    
 }

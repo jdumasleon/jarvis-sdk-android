@@ -2,7 +2,9 @@ package com.jarvis.features.settings.presentation.ui
 
 import com.jarvis.core.presentation.state.ResourceState
 import com.jarvis.features.settings.domain.entity.AppInfo
+import com.jarvis.features.settings.domain.entity.SettingsAppInfo
 import com.jarvis.features.settings.domain.entity.AppInfoMock.mockAppInfo
+import com.jarvis.features.settings.domain.entity.AppInfoMock.mockSettingsAppInfo
 import com.jarvis.features.settings.domain.entity.SettingsAction
 import com.jarvis.features.settings.domain.entity.SettingsGroup
 import com.jarvis.features.settings.domain.entity.SettingsIcon
@@ -20,20 +22,35 @@ typealias SettingsUiState = ResourceState<SettingsUiData>
 data class SettingsUiData(
     val settingsItems: List<SettingsGroup> = emptyList(),
     val appInfo: AppInfo? = null,
+    val settingsAppInfo: SettingsAppInfo? = null,
     val showDeleteDialog: Boolean = false,
     val isDeletingData: Boolean = false,
     val deleteResult: String? = null,
     val showRatingDialog: Boolean = false,
     val ratingStars: Int = 0,
     val ratingDescription: String = "",
-    val isSubmittingRating: Boolean = false
+    val isSubmittingRating: Boolean = false,
+    val showCallingAppDetailsDialog: Boolean = false
 ) {
     companion object {
         val mockSettingsUiData: SettingsUiData
             get() = SettingsUiData(
                 settingsItems = listOf(
                     SettingsGroup(
-                        title = "About",
+                        title = "App",
+                        items = listOf(
+                            SettingsItem(
+                                id = "calling_app_details",
+                                title = mockSettingsAppInfo.hostAppInfo.appName,
+                                value = "Version ${mockSettingsAppInfo.hostAppInfo.version}",
+                                icon = SettingsIcon.APP,
+                                type = SettingsItemType.NAVIGATE,
+                                action = SettingsAction.ShowCallingAppDetails
+                            )
+                        )
+                    ),
+                    SettingsGroup(
+                        title = "Jarvis SDK",
                         items = listOf(
                             SettingsItem(
                                 id = "version",
@@ -141,4 +158,8 @@ sealed class SettingsEvent {
     data class UpdateRatingStars(val stars: Int) : SettingsEvent()
     data class UpdateRatingDescription(val description: String) : SettingsEvent()
     object SubmitRating : SettingsEvent()
+
+    // Calling App Events
+    object ShowCallingAppDetailsDialog : SettingsEvent()
+    object HideCallingAppDetailsDialog : SettingsEvent()
 }

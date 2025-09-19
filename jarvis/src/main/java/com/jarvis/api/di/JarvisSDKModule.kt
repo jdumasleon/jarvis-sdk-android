@@ -1,7 +1,6 @@
 package com.jarvis.api.di
 
 import com.jarvis.core.navigation.JarvisSDKNavigator
-import com.jarvis.core.navigation.NavigationRoute
 import com.jarvis.core.navigation.Navigator
 import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
 import dagger.Module

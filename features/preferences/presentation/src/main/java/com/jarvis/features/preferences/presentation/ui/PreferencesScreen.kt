@@ -66,6 +66,7 @@ import com.jarvis.core.designsystem.component.DSSelectField
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.DSTextField
 import com.jarvis.core.designsystem.component.DSThreeDotsMenu
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.presentation.components.EmptyContent
 import com.jarvis.core.presentation.components.ResourceStateContent
@@ -660,7 +661,7 @@ private fun PreferenceItem(
                     onClick = onEditClick,
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit",
-                    tint = DSJarvisTheme.colors.primary.primary100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary100)
                 )
 
                 DSIconButton(
@@ -668,7 +669,7 @@ private fun PreferenceItem(
                     onClick = onDeleteClick,
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
-                    tint = DSJarvisTheme.colors.error.error100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.error.error100)
                 )
             }
         }

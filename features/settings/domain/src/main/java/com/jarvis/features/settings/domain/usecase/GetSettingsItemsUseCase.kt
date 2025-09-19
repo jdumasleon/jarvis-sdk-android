@@ -1,6 +1,7 @@
 package com.jarvis.features.settings.domain.usecase
 
 import com.jarvis.features.settings.domain.entity.AppInfo
+import com.jarvis.features.settings.domain.entity.SettingsAppInfo
 import com.jarvis.features.settings.domain.entity.SettingsAction
 import com.jarvis.features.settings.domain.entity.SettingsGroup
 import com.jarvis.features.settings.domain.entity.SettingsIcon
@@ -19,30 +20,42 @@ class GetSettingsItemsUseCase @Inject constructor(
 ) {
 
     operator fun invoke(): Flow<Result<List<SettingsGroup>>> = channelFlow {
-        settingsRepository.getAppInfo().collect {
-            it.fold(
+        settingsRepository.getSettingsAppInfo().collect { result ->
+            result.fold(
                 onFailure = {
                     send(Result.failure(it))
                 },
-                onSuccess = {
-                    val settingsItems = getSettingsItems(it)
+                onSuccess = { settingsAppInfo ->
+                    val settingsItems = getSettingsItems(settingsAppInfo)
                     send(Result.success(settingsItems))
                 }
             )
         }
-
     }
 
 
-    private fun getSettingsItems(appInfo: AppInfo): List<SettingsGroup> =
+    private fun getSettingsItems(settingsAppInfo: SettingsAppInfo): List<SettingsGroup> =
         listOf(
             SettingsGroup(
-                title = "About",
+                title = "App",
+                items = listOf(
+                    SettingsItem(
+                        id = "calling_app_details",
+                        title = settingsAppInfo.hostAppInfo.appName,
+                        value = "Version ${settingsAppInfo.hostAppInfo.version}",
+                        icon = SettingsIcon.APP,
+                        type = SettingsItemType.NAVIGATE,
+                        action = SettingsAction.ShowCallingAppDetails
+                    )
+                )
+            ),
+            SettingsGroup(
+                title = "Jarvis",
                 items = listOf(
                     SettingsItem(
                         id = "version",
                         title = "Version",
-                        value = "${appInfo.version} (${appInfo.buildNumber})",
+                        value = "${settingsAppInfo.sdkInfo.version} (${settingsAppInfo.sdkInfo.buildNumber})",
                         icon = SettingsIcon.VERSION,
                         type = SettingsItemType.INFO,
                         action = SettingsAction.Version
@@ -61,7 +74,7 @@ class GetSettingsItemsUseCase @Inject constructor(
                         description = "What's new in this version",
                         icon = SettingsIcon.RELEASE_NOTES,
                         type = SettingsItemType.EXTERNAL_LINK,
-                        action = SettingsAction.OpenUrl("https://jdumasleon.com/work/jarvis")
+                        action = SettingsAction.OpenUrl("https://github.com/jdumasleon/jarvis-sdk-android/tree/main")
                     ),
                 )
             ),

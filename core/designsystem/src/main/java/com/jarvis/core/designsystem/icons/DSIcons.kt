@@ -3,6 +3,7 @@ package com.jarvis.core.designsystem.icons
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
@@ -65,6 +66,7 @@ object DSIcons {
     val arrowForwards = Icons.Default.ArrowForwardIos
     val search = Icons.Default.Search
     val adb = Icons.Rounded.Adb
+    val android = Icons.Default.Android
     
     // Navigation icons
     val home = Icons.Default.Home

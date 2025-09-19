@@ -44,6 +44,7 @@ import com.jarvis.core.designsystem.component.DSTopAppBar
 import com.jarvis.core.designsystem.component.DSText
 import com.jarvis.core.designsystem.component.rememberDSDrawerState
 import com.jarvis.core.designsystem.icons.DSIcons
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.navigation.ActionRegistry
 import com.jarvis.core.navigation.EntryProviderInstaller
@@ -188,7 +189,7 @@ fun DrawerContent(
                 DSIcon(
                     imageVector = DSIcons.Rounded.close,
                     contentDescription = "Drawer close",
-                    tint = DSJarvisTheme.colors.extra.black,
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.extra.black),
                     modifier = Modifier
                         .padding(vertical = DSJarvisTheme.spacing.m)
                         .clickable(onClick = { onClose() })
@@ -238,7 +239,7 @@ fun DrawerContent(
                         imageVector = destination.icon,
                         contentDescription = stringResource(destination.titleRes),
                         modifier = Modifier.size(DSJarvisTheme.dimensions.l),
-                        tint = if (currentDestination == destination.destination) DSJarvisTheme.colors.primary.primary60  else DSJarvisTheme.colors.neutral.neutral60,
+                        tint = DSIconTint.Solid(if (currentDestination == destination.destination) DSJarvisTheme.colors.primary.primary60  else DSJarvisTheme.colors.neutral.neutral60),
                     )
                 },
                 label = {

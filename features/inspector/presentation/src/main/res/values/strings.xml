@@ -48,4 +48,5 @@
     <string name="features_inspector_presentation_cancel">Cancel</string>
     <string name="features_inspector_presentation_clear_all_transactions">Clear All Transactions</string>
     <string name="features_inspector_presentation_clear_all_transactions_decription">Are you sure you want to clear all network transactions? This action cannot be undone.</string>
+    <string name="features_inspector_detail_presentation_status">Status:</string>
 </resources>

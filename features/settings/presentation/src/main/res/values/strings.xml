@@ -75,4 +75,12 @@
     <string name="jarvis_settings_bottom_bar_icon_content_description">Settings bottom navigation icon</string>
     <string name="features_settings_presentation_please_provide_a_rating_and_description">Please provide a rating and description</string>
     <string name="features_settings_presentation_rating_submitted_successfully">Rating submitted successfully!</string>
+    <string name="features_settings_presentation_permissions">Permissions</string>
+    <string name="features_settings_presentation_app_details">App Details</string>
+    <string name="features_settings_presentation_name">Name:</string>
+    <string name="features_settings_presentation_version">Version:</string>
+    <string name="features_settings_presentation_build_number">Build Number:</string>
+    <string name="features_settings_presentation_package_name">Package Name:</string>
+    <string name="features_settings_presentation_min_sdk_version">Min SDK Version:</string>
+    <string name="features_settings_presentation_target_sdk_version">Target SDK Version:</string>
 </resources>

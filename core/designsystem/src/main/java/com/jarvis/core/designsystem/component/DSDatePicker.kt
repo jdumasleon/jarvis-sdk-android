@@ -29,6 +29,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.jarvis.core.designsystem.R
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import java.text.SimpleDateFormat
@@ -200,7 +201,7 @@ private fun ErrorIcon(
         modifier = Modifier.padding(horizontal = DSJarvisTheme.dimensions.xxs),
         imageVector = DSIcons.Outlined.info,
         contentDescription = null,
-        tint = appearance.errorColor
+        tint = DSIconTint.Solid(appearance.errorColor)
     )
 }
 
@@ -214,11 +215,11 @@ private fun ExpandableIcon(
     DSIcon(
         imageVector = icon,
         contentDescription = null,
-        tint = when {
+        tint = DSIconTint.Solid(when {
             isError -> appearance.errorColor
             isDisabled -> appearance.disabledColor
             else -> appearance.textColor
-        }
+        })
     )
 }
 
@@ -392,7 +393,7 @@ fun DSDatePickerPreview() {
                 DSIcon(
                     imageVector = DSIcons.dateRange,
                     contentDescription = "Error icon",
-                    tint = DSJarvisTheme.colors.primary.primary100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary100)
                 )
             },
             title = "Title - Error and focused"
@@ -416,7 +417,7 @@ fun DSDatePickerPreview() {
                 DSIcon(
                     imageVector = DSIcons.dateRange,
                     contentDescription = null,
-                    tint = DSJarvisTheme.colors.primary.primary100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary100)
                 )
             },
             appearance = DSDatePickerAppearance.default
@@ -479,7 +480,7 @@ fun DSDatePickerPreviewDark() {
                 DSIcon(
                     imageVector = DSIcons.dateRange,
                     contentDescription = "Error icon",
-                    tint = DSJarvisTheme.colors.error.error100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.error.error100)
                 )
             },
             title = "Title - Error and focused",
@@ -505,7 +506,7 @@ fun DSDatePickerPreviewDark() {
                 DSIcon(
                     imageVector = DSIcons.dateRange,
                     contentDescription = null,
-                    tint = DSJarvisTheme.colors.primary.primary100
+                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary100)
                 )
             },
             appearance = DSDatePickerAppearance.dark

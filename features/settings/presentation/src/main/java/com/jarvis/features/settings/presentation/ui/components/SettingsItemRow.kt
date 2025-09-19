@@ -8,17 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jarvis.core.designsystem.component.DSCard
 import com.jarvis.core.designsystem.component.DSIcon
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.rememberJarvisPrimaryGradient
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.settings.domain.entity.SettingsAction
@@ -71,11 +69,6 @@ fun SettingsItemRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = listOf(
-        DSJarvisTheme.colors.extra.jarvisPink,
-        DSJarvisTheme.colors.extra.jarvisBlue
-    )
-    val brush = remember { Brush.linearGradient(colors) }
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
@@ -100,26 +93,13 @@ fun SettingsItemRow(
         ) {
             // Icon
             DSIcon(
-                modifier = when {
-                     item.isEnabled && isJarvisTool(item) ->
-                        Modifier.graphicsLayer(alpha = 0.99f)
-                            .size(DSJarvisTheme.dimensions.l)
-                            .drawWithCache {
-                                onDrawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        brush = brush,
-                                        blendMode = BlendMode.SrcIn
-                                    )
-                                }
-                            }
-                    else -> Modifier.size(DSJarvisTheme.dimensions.l)
-                },
+                size = DSJarvisTheme.dimensions.l,
                 imageVector = item.icon.toImageVector(),
                 contentDescription = item.title,
                 tint = when {
-                    !item.isEnabled -> DSJarvisTheme.colors.neutral.neutral40
-                    else -> item.icon.toTintColor()
+                    !item.isEnabled -> DSIconTint.Solid(DSJarvisTheme.colors.neutral.neutral40)
+                    item.isEnabled && isJarvisTool(item) -> DSIconTint.Gradient(rememberJarvisPrimaryGradient())
+                    else -> DSIconTint.Solid(item.icon.toTintColor())
                 }
             )
 
@@ -152,22 +132,12 @@ fun SettingsItemRow(
                 DSIcon(
                     imageVector = DSIcons.arrowForwards,
                     contentDescription = "External link",
-                    tint = item.icon.toTintColor(),
-                    modifier = when {
-                        isJarvisTool(item) ->
-                            Modifier.graphicsLayer(alpha = 0.99f)
-                                .size(DSJarvisTheme.dimensions.m)
-                                .drawWithCache {
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = brush,
-                                            blendMode = BlendMode.SrcIn
-                                        )
-                                    }
-                                }
-                        else -> Modifier.size(DSJarvisTheme.dimensions.m)
+                    tint = if (isJarvisTool(item)) {
+                        DSIconTint.Gradient(rememberJarvisPrimaryGradient())
+                    } else {
+                        DSIconTint.Solid(item.icon.toTintColor())
                     },
+                    size = DSJarvisTheme.dimensions.m
                 )
             }
         }
@@ -197,6 +167,7 @@ private fun SettingsIcon.toImageVector(): ImageVector = when (this) {
     SettingsIcon.TWITTER -> DSIcons.link
     SettingsIcon.GITHUB -> DSIcons.link
     SettingsIcon.RELEASE_NOTES -> DSIcons.description
+    SettingsIcon.APP -> DSIcons.android
 }
 
 @Composable
@@ -213,6 +184,7 @@ private fun SettingsIcon.toTintColor(): Color = when (this) {
     SettingsIcon.TWITTER -> DSJarvisTheme.colors.primary.primary60
     SettingsIcon.GITHUB -> DSJarvisTheme.colors.primary.primary60
     SettingsIcon.RELEASE_NOTES -> DSJarvisTheme.colors.primary.primary60
+    SettingsIcon.APP -> DSJarvisTheme.colors.success.success100
 }
 
 @Preview(showBackground = true, name = "Settings Item - Action")

@@ -514,16 +514,9 @@ private fun InspectorActions(
             items = buildList {
                 add(
                     DSDropdownMenuItem(
-                        text = "Add rule",
-                        icon = Icons.Default.Add,
-                        enabled = false,
-                        onClick = { }
-                    )
-                )
-                add(
-                    DSDropdownMenuItem(
-                        text = "Rules",
+                        text = "Rules (coming soon)",
                         icon = Icons.Default.Dehaze,
+                        enabled = false,
                         onClick = onNavigateToRules
                     )
                 )

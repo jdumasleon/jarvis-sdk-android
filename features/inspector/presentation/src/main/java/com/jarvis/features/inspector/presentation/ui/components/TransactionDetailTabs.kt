@@ -61,7 +61,7 @@ fun TransactionOverviewTab(
                 modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),
                 color = DSJarvisTheme.colors.neutral.neutral0
             )
-            InfoRow(stringResource(R.string.features_inspector_presentation_status), transaction.status.name)
+            InfoRow(stringResource(R.string.features_inspector_detail_presentation_status), transaction.status.name)
             transaction.response?.let { response ->
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = DSJarvisTheme.spacing.s),

@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.icons.DSIcons
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 
@@ -20,7 +21,7 @@ fun DSIconButton(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = DSJarvisTheme.colors.neutral.neutral80,
+    tint: DSIconTint = DSIconTint.Solid(DSJarvisTheme.colors.neutral.neutral80),
     enabled: Boolean = true
 ) {
     IconButton(
@@ -31,7 +32,7 @@ fun DSIconButton(
         DSIcon(
             imageVector = imageVector,
             contentDescription = contentDescription,
-            tint = if (enabled) tint else DSJarvisTheme.colors.neutral.neutral40
+            tint = if (enabled) tint else DSIconTint.Solid(DSJarvisTheme.colors.neutral.neutral40)
         )
     }
 }

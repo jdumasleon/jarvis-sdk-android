@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jarvis.core.designsystem.component.DSIcon
 import com.jarvis.core.designsystem.component.DSText
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 import com.jarvis.features.home.domain.entity.SessionFilter
 
@@ -98,8 +99,8 @@ fun SessionFilterChip(
         DSIcon(
             imageVector = filter.icon,
             contentDescription = filter.displayName,
-            tint = contentColor,
-            modifier = Modifier.size(DSJarvisTheme.dimensions.m)
+            tint = DSIconTint.Solid(contentColor),
+            size = DSJarvisTheme.dimensions.m
         )
 
         DSText(

@@ -30,7 +30,7 @@ fun DSSearchBar(
                 modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.xxs),
                 imageVector = Icons.Default.Search,
                 contentDescription = "",
-                tint = Gray
+                tint = DSIconTint.Solid(Gray)
             )
         }
     }
@@ -42,7 +42,7 @@ fun DSSearchBar(
                     modifier = Modifier.clickable { onTextClean() },
                     imageVector = Icons.Default.Close,
                     contentDescription = "",
-                    tint = Gray
+                    tint = DSIconTint.Solid(Gray)
                 )
             }
         } else null
