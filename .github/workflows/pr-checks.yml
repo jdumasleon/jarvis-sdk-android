@@ -60,15 +60,25 @@ jobs:
         run: ./gradlew ktlintCheck detekt lint
         
       - name: 🧪 Run Tests
-        run: ./gradlew test testProdComposeReleaseUnitTest
-        
+        run: ./gradlew test testProdComposeReleaseUnitTest --continue
+
+      - name: 📋 List Test Results
+        if: always()
+        run: |
+          echo "Looking for test result files..."
+          find . -name "*.xml" -path "*/test-results/*" -type f | head -20 || true
+          echo "Test result directories:"
+          find . -path "*/build/test-results" -type d || true
+
       - name: 📊 Generate Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: always()
+        continue-on-error: true
         with:
           name: 🧪 Test Results
           path: '**/build/test-results/**/*.xml'
           reporter: java-junit
+          fail-on-error: false
           
       - name: 🏗️ Build Debug APK
         run: ./gradlew :app:assembleProdComposeDebug
@@ -98,12 +108,28 @@ jobs:
     steps:
       - name: 🏗️ Checkout
         uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '18'
+          distribution: 'corretto'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+
       - name: 🔧 Init CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: java-kotlin
-      - name: ⚙️ Autobuild
-        uses: github/codeql-action/autobuild@v3
+
+      - name: 🏗️ Custom Build
+        run: |
+          # Build the project for CodeQL analysis
+          ./gradlew assembleDevClassicDebug --no-daemon --continue
+
       - name: 📈 Analyze (uploads SARIF)
         uses: github/codeql-action/analyze@v3
 

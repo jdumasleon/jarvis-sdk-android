@@ -1,8 +1,3 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
-
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-import io.gitlab.arturbosch.detekt.Detekt
-
 buildscript {
     repositories {
         google {
@@ -22,10 +17,9 @@ buildscript {
     }
     dependencies {
         classpath(libs.google.oss.licenses.plugin) {
-            //exclude(group = "com.google.protobuf")
+            // exclude(group = "com.google.protobuf")
         }
     }
-
 }
 
 // Lists all plugins used throughout the project

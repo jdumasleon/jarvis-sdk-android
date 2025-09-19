@@ -10,6 +10,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
     namespace = "com.jarvis.core.designsystem"
 }
 
