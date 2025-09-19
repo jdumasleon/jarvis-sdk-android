@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.jarvis.core.designsystem.component.DSIconTint
 import com.jarvis.core.designsystem.R
 import com.jarvis.core.designsystem.theme.DSJarvisTheme
 

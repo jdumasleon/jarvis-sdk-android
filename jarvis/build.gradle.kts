@@ -109,14 +109,14 @@ mavenPublishing {
         name.set("Jarvis Android SDK")
         description.set("Android SDK for Jarvis network inspection and debugging toolkit")
         url.set("https://github.com/jdumasleon/jarvis-sdk-android")
-        
+
         licenses {
             license {
                 name.set("MIT License")
                 url.set("https://opensource.org/licenses/MIT")
             }
         }
-        
+
         developers {
             developer {
                 id.set("jdumasleon")
@@ -124,11 +124,37 @@ mavenPublishing {
                 email.set("jdumasleon@gmail.com")
             }
         }
-        
+
         scm {
             connection.set("scm:git:git://github.com/jdumasleon/jarvis-sdk-android.git")
             developerConnection.set("scm:git:ssh://github.com/jdumasleon/jarvis-sdk-android.git")
             url.set("https://github.com/jdumasleon/jarvis-sdk-android")
+        }
+
+        withXml {
+            val dependenciesNode = asNode().get("dependencies")
+            if (dependenciesNode is List<*> && dependenciesNode.isNotEmpty()) {
+                val deps = dependenciesNode.first()
+                if (deps is groovy.util.Node) {
+                    val toRemove = deps.children().filter { child ->
+                        if (child is groovy.util.Node) {
+                            val groupIdNodes = child.get("groupId")
+                            if (groupIdNodes is List<*> && groupIdNodes.isNotEmpty()) {
+                                val groupIdNode = groupIdNodes.first()
+                                if (groupIdNode is groovy.util.Node) {
+                                    val groupId = groupIdNode.text()
+                                    groupId.startsWith("JarvisDemo")
+                                } else false
+                            } else false
+                        } else false
+                    }
+                    toRemove.forEach { node ->
+                        if (node is groovy.util.Node) {
+                            deps.remove(node)
+                        }
+                    }
+                }
+            }
         }
     }
 }
