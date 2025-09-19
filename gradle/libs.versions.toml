@@ -179,7 +179,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version = "stdlib" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver" }
-okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpBom" }
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttpBom" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttpBom" }
 
