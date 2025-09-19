@@ -1,6 +1,5 @@
 package com.jarvis.features.settings.domain.usecase
 
-import com.jarvis.features.settings.domain.entity.AppInfo
 import com.jarvis.features.settings.domain.entity.SettingsAppInfo
 import com.jarvis.features.settings.domain.entity.SettingsAction
 import com.jarvis.features.settings.domain.entity.SettingsGroup
@@ -74,7 +73,7 @@ class GetSettingsItemsUseCase @Inject constructor(
                         description = "What's new in this version",
                         icon = SettingsIcon.RELEASE_NOTES,
                         type = SettingsItemType.EXTERNAL_LINK,
-                        action = SettingsAction.OpenUrl("https://github.com/jdumasleon/jarvis-sdk-android/tree/main")
+                        action = SettingsAction.OpenUrl("https://github.com/jdumasleon/jarvis-sdk-android?tab=readme-ov-file#jarvis-android-sdk")
                     ),
                 )
             ),

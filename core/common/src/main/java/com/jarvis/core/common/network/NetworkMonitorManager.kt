@@ -1,5 +1,6 @@
 package com.jarvis.core.common.network
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
@@ -22,6 +23,7 @@ class NetworkMonitorManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : NetworkMonitor {
+    @SuppressLint("MissingPermission")
     override val isOnline: Flow<Boolean> = callbackFlow {
         trace("NetworkMonitor.callbackFlow") {
             val connectivityManager = context.getSystemService<ConnectivityManager>()
@@ -64,6 +66,7 @@ class NetworkMonitorManager @Inject constructor(
         .conflate()
 
     @Suppress("DEPRECATION")
+    @SuppressLint("MissingPermission")
     private fun ConnectivityManager.isCurrentlyConnected() =
         activeNetwork?.let(::getNetworkCapabilities)
             ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false

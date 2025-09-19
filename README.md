@@ -58,7 +58,8 @@ A comprehensive debugging and development toolkit for Android applications, prov
   - [Support](#support)
 - [License](#license)
 - [Changelog](#changelog)
-  - [Version 1.0.28 (Latest)](#version-1028-latest)
+  - [Version 1.1.0 (Latest)](#version-110-latest)
+  - [Version 1.0.28](#version-1028)
   - [Version 1.0.20](#version-1020)
   - [Version 1.0.0-1.0.19](#version-100-1019)
 
@@ -72,7 +73,7 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
 }
 ```
 
@@ -182,7 +183,7 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // Single artifact automatically provides full functionality in debug, no-op in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
 }
 ```
 
@@ -193,10 +194,10 @@ For fine-grained control, you can use separate artifacts:
 ```kotlin
 dependencies {
     // Full SDK for debug builds
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
 
     // No-op version for release builds (zero overhead)
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0")
 }
 ```
 
@@ -206,7 +207,7 @@ dependencies {
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.0.28</version>
+    <version>1.1.0</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -238,7 +239,7 @@ The Jarvis SDK automatically adapts based on your build type:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")  // Works everywhere
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")  // Works everywhere
 }
 ```
 
@@ -247,8 +248,8 @@ For projects requiring explicit control:
 
 ```kotlin
 dependencies {
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")        // Full features
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28") // Zero overhead
+    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")        // Full features
+    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0") // Zero overhead
 }
 ```
 
@@ -451,11 +452,11 @@ android {
 
 dependencies {
     // Single artifact approach (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
 
     // Or separate artifacts for explicit control
-    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
-    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
+    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.1.0")
+    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.1.0")
 }
 ```
 
@@ -909,7 +910,15 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.0.28 (Latest)
+### Version 1.1.0 (Latest)
+- ✅ **Enhanced DSIcon Tint System** - Migrated to DSIconTint sealed interface for better type safety and gradient support
+- ✅ **Improved Design System** - Updated all icon components to use new tint system with solid colors and gradients
+- ✅ **Maven Central Validation** - Fixed dependency version information for okhttp to meet Maven Central publishing requirements
+- ✅ **Build System Improvements** - Enhanced gradle configuration for better dependency management
+- 🛠️ **Code Quality** - Comprehensive DSIcon component updates across all features and design system
+- 🔧 **Type Safety** - Better compile-time validation for icon tinting throughout the SDK
+
+### Version 1.0.28
 - ✅ **Interface-Based DI** - Clean dependency injection with NetworkInspectorProvider and PreferencesProvider
 - ✅ **Enhanced DSFilterChip** - Fixed visual state issues with proper interaction feedback
 - ✅ **Improved Architecture** - Cleaner separation between public API and internal implementation

@@ -2,20 +2,57 @@
 
 echo "
 ========================================================
-|        Running detekt check on staged files...       |
+|         Running code quality checks...               |
 ========================================================
 "
 
-OUTPUT="/tmp/detekt-$(date +%s)"
-./gradlew detekt > $OUTPUT
-EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ]; then
-  cat $OUTPUT
-  rm $OUTPUT
+# Create a temporary output file
+OUTPUT="/tmp/code-quality-$(date +%s)"
+
+# Run ktlint check
+echo "🔍 Running ktlint check..."
+./gradlew ktlintCheck > $OUTPUT 2>&1
+KTLINT_EXIT_CODE=$?
+
+if [ $KTLINT_EXIT_CODE -ne 0 ]; then
   echo "***********************************************"
-  echo "                 Detekt failed                 "
+  echo "               ktlint failed                   "
   echo " Please fix the above issues before committing "
   echo "***********************************************"
-  exit $EXIT_CODE
+  cat $OUTPUT
+  rm $OUTPUT
+  exit $KTLINT_EXIT_CODE
 fi
+
+# Run detekt check
+echo "🔍 Running detekt check..."
+./gradlew detekt >> $OUTPUT 2>&1
+DETEKT_EXIT_CODE=$?
+
+if [ $DETEKT_EXIT_CODE -ne 0 ]; then
+  echo "***********************************************"
+  echo "                Detekt failed                  "
+  echo " Please fix the above issues before committing "
+  echo "***********************************************"
+  cat $OUTPUT
+  rm $OUTPUT
+  exit $DETEKT_EXIT_CODE
+fi
+
+# Run lint check on changed modules only (to keep it fast)
+echo "🔍 Running lint check..."
+./gradlew lint --continue >> $OUTPUT 2>&1
+LINT_EXIT_CODE=$?
+
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+  echo "***********************************************"
+  echo "                 Lint failed                   "
+  echo " Please fix the above issues before committing "
+  echo "***********************************************"
+  cat $OUTPUT
+  rm $OUTPUT
+  exit $LINT_EXIT_CODE
+fi
+
 rm $OUTPUT
+echo "✅ All code quality checks passed!"
