@@ -26,39 +26,11 @@
             <option value="$PROJECT_DIR$/build-logic" />
             <option value="$PROJECT_DIR$/build-logic/convention" />
             <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/core/common" />
-            <option value="$PROJECT_DIR$/core/data" />
-            <option value="$PROJECT_DIR$/core/designsystem" />
-            <option value="$PROJECT_DIR$/core/domain" />
-            <option value="$PROJECT_DIR$/core/navigation" />
-            <option value="$PROJECT_DIR$/core/presentation" />
             <option value="$PROJECT_DIR$/features" />
-            <option value="$PROJECT_DIR$/features/home" />
-            <option value="$PROJECT_DIR$/features/home/data" />
-            <option value="$PROJECT_DIR$/features/home/domain" />
-            <option value="$PROJECT_DIR$/features/home/lib" />
-            <option value="$PROJECT_DIR$/features/home/presentation" />
             <option value="$PROJECT_DIR$/features/inspector" />
-            <option value="$PROJECT_DIR$/features/inspector/data" />
-            <option value="$PROJECT_DIR$/features/inspector/domain" />
-            <option value="$PROJECT_DIR$/features/inspector/lib" />
-            <option value="$PROJECT_DIR$/features/inspector/presentation" />
             <option value="$PROJECT_DIR$/features/preferences" />
-            <option value="$PROJECT_DIR$/features/preferences/data" />
-            <option value="$PROJECT_DIR$/features/preferences/domain" />
-            <option value="$PROJECT_DIR$/features/preferences/lib" />
-            <option value="$PROJECT_DIR$/features/preferences/presentation" />
-            <option value="$PROJECT_DIR$/features/settings" />
-            <option value="$PROJECT_DIR$/features/settings/data" />
-            <option value="$PROJECT_DIR$/features/settings/domain" />
-            <option value="$PROJECT_DIR$/features/settings/lib" />
-            <option value="$PROJECT_DIR$/features/settings/presentation" />
             <option value="$PROJECT_DIR$/jarvis" />
             <option value="$PROJECT_DIR$/jarvis-noop" />
-            <option value="$PROJECT_DIR$/platform" />
-            <option value="$PROJECT_DIR$/platform/api" />
-            <option value="$PROJECT_DIR$/platform/data" />
-            <option value="$PROJECT_DIR$/platform/lib" />
           </set>
         </option>
       </GradleProjectSettings>

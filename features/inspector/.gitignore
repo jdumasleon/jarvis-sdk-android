@@ -1,0 +1,17 @@
+# Build outputs
+/build
+/release
+/pro
+/dev
+
+# Publishing artifacts and repositories
+/repo
+**/repo/
+maven-metadata-*.xml
+maven-metadata-*.xml.md5
+maven-metadata-*.xml.sha1
+
+# Gradle publishing issues - catch any malformed directory names
+property(*
+*Property*
+*Directory*

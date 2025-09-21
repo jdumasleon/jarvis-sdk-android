@@ -124,6 +124,6 @@ class MainActivity : ComponentActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = demoConfig, hostActivity = this)
+        jarvisSDK.initializeAsync(config = demoConfig, hostActivity = this)
     }
 }

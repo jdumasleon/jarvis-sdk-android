@@ -180,7 +180,7 @@ fun DrawerContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(com.jarvis.core.designsystem.R.drawable.ic_jarvis_logo),
+                        painter = painterResource(com.jarvis.core.R.drawable.ic_jarvis_logo),
                         contentDescription = "Jarvis Logo",
                         modifier = Modifier.size(DSJarvisTheme.dimensions.xxxxxxxxxl)
                     )
@@ -281,7 +281,6 @@ private fun JarvisTopBar(
             actionIconContentDescription = destination.actionIconContentDescription?.let {
                 stringResource(id = it)
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
             onActionClick = {
                 destination.actionKey?.let { actionKey ->
                     ActionRegistry.executeAction(actionKey)

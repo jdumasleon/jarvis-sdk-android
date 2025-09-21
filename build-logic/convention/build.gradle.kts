@@ -26,6 +26,7 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
     compileOnly(libs.room.gradlePlugin)
+    compileOnly(libs.vanniktech.maven.publish.gradlePlugin)
     implementation(libs.truth)
 }
 
@@ -89,6 +90,10 @@ gradlePlugin {
         register("jvmLibrary") {
             id = libs.plugins.jarvis.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
+        }
+        register("jarvisModulePublish") {
+            id = "jarvis.module.publish"
+            implementationClass = "com.jarvis.buildlogic.JarvisModulePublishConventionPlugin"
         }
     }
 }

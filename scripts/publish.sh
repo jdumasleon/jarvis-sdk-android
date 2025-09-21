@@ -215,21 +215,37 @@ clean_and_build() {
     fi
     
     ./gradlew clean
+    ./gradlew :core:bundleProdComposeReleaseAar
+    ./gradlew :features:inspector:bundleProdComposeReleaseAar
+    ./gradlew :features:preferences:bundleProdComposeReleaseAar
     ./gradlew :jarvis:bundleProdComposeReleaseAar :jarvis-noop:bundleProdComposeReleaseAar
     
     # Verify artifacts were created
+    local core_aar=$(find core/build -name "*-prod-compose-release.aar" | head -1)
+    local inspector_aar=$(find features/inspector/build -name "*-prod-compose-release.aar" | head -1)
+    local preferences_aar=$(find features/preferences/build -name "*-prod-compose-release.aar" | head -1)
     local main_aar=$(find jarvis/build -name "*-prod-compose-release.aar" | head -1)
     local noop_aar=$(find jarvis-noop/build -name "*-prod-compose-release.aar" | head -1)
     
-    if [ ! -f "$main_aar" ] || [ ! -f "$noop_aar" ]; then
+    if [ ! -f "$core_aar" ] ||
+       [ ! -f "$inspector_aar" ] ||
+       [ ! -f "$preferences_aar" ] ||
+       [ ! -f "$main_aar" ] ||
+       [ ! -f "$noop_aar" ]; then
         log_error "Artifact build failed. Missing AAR files."
         return 1
     fi
-    
+
+    local core_size=$(ls -lh "$core_aar" | awk '{print $5}')
+    local inspector_size=$(ls -lh "$inspector_aar" | awk '{print $5}')
+    local preferences_size=$(ls -lh "$preferences_aar" | awk '{print $5}')
     local main_size=$(ls -lh "$main_aar" | awk '{print $5}')
     local noop_size=$(ls -lh "$noop_aar" | awk '{print $5}')
     
     log_success "Artifacts built successfully"
+    log_info "Core SDK: $core_size"
+    log_info "Inspector SDK: $inspector_size"
+    log_info "Preferences SDK: $preferences_size"
     log_info "Main SDK: $main_size"
     log_info "No-op SDK: $noop_size"
 }
@@ -290,7 +306,7 @@ publish_to_local() {
     fi
     
     # Use publishToMavenLocal which doesn't require signing
-    ./gradlew :jarvis:publishToMavenLocal :jarvis-noop:publishToMavenLocal
+    ./gradlew :core:publishToMavenLocal :features:inspector:publishToMavenLocal :features:preferences:publishToMavenLocal :jarvis:publishToMavenLocal :jarvis-noop:publishToMavenLocal
     
     log_success "Published to local Maven repository"
     log_info "Location: ~/.m2/repository/io/github/jdumasleon/"

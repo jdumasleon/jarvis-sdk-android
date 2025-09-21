@@ -1,6 +1,7 @@
 package com.jarvis.api
 
 import android.app.Activity
+import android.os.StrictMode
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -14,10 +15,10 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.jarvis.api.core.JarvisSDKEntryPoint
+import com.jarvis.internal.di.JarvisSDKEntryProvider
 import com.jarvis.core.navigation.JarvisSDKNavigator
-import com.jarvis.api.ui.JarvisSDKApplication
-import com.jarvis.api.ui.JarvisSDKFabTools
+import com.jarvis.internal.ui.JarvisSDKApplication
+import com.jarvis.internal.ui.JarvisSDKFabTools
 import com.jarvis.config.ConfigurationSynchronizer
 import com.jarvis.config.JarvisConfig
 import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
@@ -29,21 +30,18 @@ import com.jarvis.core.navigation.Navigator
 import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
 import com.jarvis.core.navigation.routes.JarvisSDKInspectorGraph
 import com.jarvis.core.navigation.routes.JarvisSDKPreferencesGraph
-import com.jarvis.library.BuildConfig
 import com.jarvis.library.R
-import com.jarvis.platform.lib.JarvisPlatform
+import com.jarvis.core.platform.JarvisPlatform
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-/**
- * Main Jarvis SDK interface for initialization and configuration
- */
 @ActivityRetainedScoped
 class JarvisSDK @Inject constructor(
     private val configurationSynchronizer: ConfigurationSynchronizer,
@@ -60,42 +58,39 @@ class JarvisSDK @Inject constructor(
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
     private var composeView: ComposeView? = null
 
-    // Store the previous state to restore on recomposition
     private var previousJarvisActiveState = false
     private var previousShowingState = false
 
-
-    fun initialize(
+    suspend fun initialize(
         config: JarvisConfig = JarvisConfig(),
         hostActivity: Activity
     ) {
-        // No-op for release builds
-        if (!BuildConfig.JARVIS_ENABLED) {
-            configuration = config
-            return
-        }
-        
         if (!coreInitialized) {
             configuration = config
 
-            CoroutineScope(ioDispatcher).launch {
-
-                configurationSynchronizer.updateConfigurations(config)
-                performanceManager.initialize()
-                jarvisPlatform.initialize()
-                jarvisPlatform.onAppStart()
-                
-                // Get entry providers on main thread (UI-bound)
-                withContext(Dispatchers.Main) {
-                    val ep = EntryPointAccessors.fromActivity(hostActivity, JarvisSDKEntryPoint::class.java)
-                    entryProviderBuilders = ep.entryProviderBuilders()
+            withContext(ioDispatcher) {
+                val old = StrictMode.allowThreadDiskReads()
+                try {
+                    configurationSynchronizer.updateConfigurations(config)
+                    performanceManager.initialize()
+                    jarvisPlatform.initialize()
+                    jarvisPlatform.onAppStart()
+                } finally {
+                    StrictMode.setThreadPolicy(old)
                 }
+            }
+
+            withContext(Dispatchers.Main) {
+                val ep = EntryPointAccessors.fromActivity(
+                    hostActivity,
+                    JarvisSDKEntryProvider::class.java
+                )
+                entryProviderBuilders = ep.entryProviderBuilders()
             }
 
             _isShowing = false
             coreInitialized = true
         } else {
-            // Store current state before recreating the view
             previousJarvisActiveState = _isJarvisActive
             previousShowingState = _isShowing
 
@@ -105,102 +100,85 @@ class JarvisSDK @Inject constructor(
             composeView = null
         }
 
-        val view = ComposeView(hostActivity).apply {
-            id = R.id.jarvis_compose_view
-            setViewTreeLifecycleOwner(hostActivity as LifecycleOwner)
-            setViewTreeViewModelStoreOwner(hostActivity as ViewModelStoreOwner)
-            setViewTreeSavedStateRegistryOwner(hostActivity as SavedStateRegistryOwner)
+        withContext(Dispatchers.Main) {
+            val view = ComposeView(hostActivity).apply {
+                id = R.id.jarvis_compose_view
+                setViewTreeLifecycleOwner(hostActivity as LifecycleOwner)
+                setViewTreeViewModelStoreOwner(hostActivity as ViewModelStoreOwner)
+                setViewTreeSavedStateRegistryOwner(hostActivity as SavedStateRegistryOwner)
 
-            setContent {
-                val darkTheme = isSystemInDarkTheme()
+                setContent {
+                    val darkTheme = isSystemInDarkTheme()
 
-                // Restore previous state if this is a recomposition after orientation change
-                LaunchedEffect(Unit) {
-                    if (previousJarvisActiveState) {
-                        _isJarvisActive = previousJarvisActiveState
-                    }
-                    if (previousShowingState) {
-                        _isShowing = previousShowingState
-                    }
-                }
-
-                DSJarvisTheme(darkTheme = darkTheme) {
-
-                    if (coreInitialized && _isJarvisActive) {
-                        JarvisSDKFabTools(
-                            onShowOverlay = {
-                                navigator.goTo(JarvisSDKHomeGraph.JarvisHome)
-                                _isShowing = true
-                            },
-                            onShowInspector = {
-                                navigator.goTo(JarvisSDKInspectorGraph.JarvisInspectorTransactions)
-                                _isShowing = true
-                            },
-                            onShowPreferences = {
-                                navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
-                                _isShowing = true
-                            },
-                            onCloseSDK = {
-                                this@JarvisSDK.deactivate()
-                            },
-                            isJarvisActive = this@JarvisSDK.isActive(),
-                        )
+                    LaunchedEffect(Unit) {
+                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
+                        if (previousShowingState) _isShowing = previousShowingState
                     }
 
-                    if (this@JarvisSDK.getConfiguration().enableShakeDetection) {
-                        ShakeDetectorEffect(
-                            onShakeDetected = {
-                                this@JarvisSDK.toggle()
-                            }
-                        )
-                    }
+                    DSJarvisTheme(darkTheme = darkTheme) {
 
-                    if (_isShowing) {
-                        JarvisSDKApplication(
-                            navigator = navigator,
-                            entryProviderBuilders = entryProviderBuilders,
-                            onDismiss = {
-                                this@JarvisSDK.hideOverlay()
-                            }
-                        )
+                        if (coreInitialized && _isJarvisActive) {
+                            JarvisSDKFabTools(
+                                onShowOverlay = {
+                                    navigator.goTo(JarvisSDKHomeGraph.JarvisHome)
+                                    _isShowing = true
+                                },
+                                onShowInspector = {
+                                    navigator.goTo(JarvisSDKInspectorGraph.JarvisInspectorTransactions)
+                                    _isShowing = true
+                                },
+                                onShowPreferences = {
+                                    navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
+                                    _isShowing = true
+                                },
+                                onCloseSDK = { this@JarvisSDK.deactivate() },
+                                isJarvisActive = this@JarvisSDK.isActive(),
+                            )
+                        }
+
+                        if (this@JarvisSDK.getConfiguration().enableShakeDetection) {
+                            ShakeDetectorEffect(
+                                onShakeDetected = { this@JarvisSDK.toggle() }
+                            )
+                        }
+
+                        if (_isShowing) {
+                            JarvisSDKApplication(
+                                navigator = navigator,
+                                entryProviderBuilders = entryProviderBuilders,
+                                onDismiss = { this@JarvisSDK.hideOverlay() }
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        hostActivity.addContentView(
-            view,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+            hostActivity.addContentView(
+                view,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
             )
-        )
-
-        composeView = view
+            composeView = view
+        }
     }
 
-    private suspend fun initPlatform() = withContext(ioDispatcher) {
-        try {
-            jarvisPlatform.initialize()
-            jarvisPlatform.onAppStart()
-        } catch (e: Exception) {
-            // Proper error handling
-        }
+    fun initializeAsync(
+        config: JarvisConfig = JarvisConfig(),
+        hostActivity: Activity,
+        scope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+    ): Job = scope.launch {
+        initialize(config, hostActivity)
     }
 
     fun dismiss() {
-        // No-op for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return
-        
-        // Notify platform services about app stop
         CoroutineScope(ioDispatcher).launch {
             try {
                 if (jarvisPlatform.isInitialized()) {
                     jarvisPlatform.onAppStop()
                 }
-            } catch (e: Exception) {
-                // Handle gracefully
-            }
+            } catch (_: Exception) { }
         }
 
         navigator.clear()
@@ -213,56 +191,21 @@ class JarvisSDK @Inject constructor(
     fun getConfiguration(): JarvisConfig = configuration
 
     fun hideOverlay() {
-        // No-op for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return
-
         navigator.clear()
         _isShowing = false
     }
 
-    fun activate() {
-        // No-op for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return
-        
-        if (coreInitialized) _isJarvisActive = true
-    }
+    fun activate() { if (coreInitialized) _isJarvisActive = true }
 
     fun deactivate() {
-        // No-op for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return
-        
         _isJarvisActive = false
         hideOverlay()
     }
 
-    fun isActive(): Boolean {
-        // Always return false for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return false
-        
-        return _isJarvisActive
-    }
+    fun isActive(): Boolean = _isJarvisActive
 
-    fun toggle(): Boolean {
-        // Always return false for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return false
-        
-        if (_isJarvisActive) deactivate() else activate()
-        return _isJarvisActive
-    }
+    fun toggle(): Boolean { if (_isJarvisActive) deactivate() else activate(); return _isJarvisActive }
 
-    /**
-     * Get access to platform services (Analytics, Crash Reporting, Feature Flags)
-     * Only available after initialization
-     */
-    fun getPlatform(): JarvisPlatform? {
-        // Always return null for release builds
-        if (!BuildConfig.JARVIS_ENABLED) return null
-        
-        return if (coreInitialized && jarvisPlatform.isInitialized()) {
-            jarvisPlatform
-        } else {
-            null
-        }
-    }
-    
+    fun getPlatform(): JarvisPlatform? =
+        if (coreInitialized && jarvisPlatform.isInitialized()) jarvisPlatform else null
 }

@@ -437,19 +437,6 @@ private fun initializeJarvisSDK() {
 
 ```kotlin
 // app/build.gradle.kts
-android {
-    buildTypes {
-        debug {
-            // Jarvis SDK is automatically enabled in debug builds
-            buildConfigField("boolean", "JARVIS_ENABLED", "true")
-        }
-        release {
-            // Jarvis SDK is automatically disabled in release builds
-            buildConfigField("boolean", "JARVIS_ENABLED", "false")
-        }
-    }
-}
-
 dependencies {
     // Single artifact approach (recommended)
     implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")

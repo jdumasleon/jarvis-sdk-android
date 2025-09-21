@@ -1,6 +1,7 @@
 import java.util.Properties
 import java.util.Base64
 import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
 
 val githubProperties: Properties = Properties().apply {
     val bitbucketPropertiesFile = rootProject.file("bitbucket.properties")
@@ -29,7 +30,7 @@ plugins {
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         // Set manifest placeholders for Sentry configuration
         manifestPlaceholders["sentryDsn"] = securityProperties["SENTRY_DSN"] ?: "https://dummy-sentry-dsn-replace-with-actual@sentry.io/project-id"
     }
@@ -38,19 +39,6 @@ android {
     
     buildFeatures {
         buildConfig = true
-    }
-    
-    buildTypes {
-        getByName("debug") {
-            // Debug builds get full functionality
-            buildConfigField("boolean", "JARVIS_ENABLED", "true")
-            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
-        }
-        getByName("release") {
-            // Release builds get no-op functionality
-            buildConfigField("boolean", "JARVIS_ENABLED", "false")
-            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
-        }
     }
 }
 
@@ -68,12 +56,17 @@ publishing {
     }
 }
 
+// Disable Gradle metadata generation to prevent dependency resolution issues
+tasks.withType<GenerateModuleMetadata> {
+    enabled = false
+}
+
 // Configure Vanniktech Maven Publish Plugin for Central Portal
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    
+
     // Configure signing for Central Portal with base64 key decoding
-    signAllPublications()
+    // signAllPublications() // Disabled for local testing
     
     // Decode base64 PGP key if provided
     val base64Key = project.findProperty("signingInMemoryKey") as String?
@@ -143,7 +136,8 @@ mavenPublishing {
                                 val groupIdNode = groupIdNodes.first()
                                 if (groupIdNode is groovy.util.Node) {
                                     val groupId = groupIdNode.text()
-                                    groupId.startsWith("JarvisDemo")
+                                    // Remove internal project dependencies since they're included in the fat AAR
+                                    groupId.startsWith("JarvisDemo") || groupId == project.group
                                 } else false
                             } else false
                         } else false
@@ -160,37 +154,48 @@ mavenPublishing {
 }
 
 dependencies {
-    implementation(projects.core.common)
-    implementation(projects.core.data)
-    implementation(projects.core.designsystem)
-    implementation(projects.core.presentation)
+    // Use implementation to include internal modules in AAR
+    implementation(projects.core)
 
-    implementation(projects.features.home.lib)
-    implementation(projects.features.inspector.lib)
-    implementation(projects.features.preferences.lib)
-    implementation(projects.features.settings.lib)
-    implementation(projects.features.preferences.domain)
+    // Features that remain as separate modules
+    implementation(projects.features.inspector)
+    implementation(projects.features.preferences)
 
-    implementation(projects.platform.lib)
-    implementation(projects.core.navigation)
-    
+    // Dependencies from consolidated home and settings modules
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences.core)
+    implementation(libs.androidx.dataStore.preferences)
     implementation(libs.protobuf.kotlin.lite)
-    
+
+    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
+
+
+    // UI and lifecycle dependencies from home/settings presentation layers
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+
+    // Network dependencies from settings data layer
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofitConverterGson)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.gson)
 
     api(libs.okhttp)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }
 
