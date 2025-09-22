@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.data.mapper
+
+import androidx.annotation.RestrictTo
 
 import com.jarvis.internal.feature.home.data.analyzer.PreferencesAnalyzer
 import com.jarvis.internal.feature.home.domain.entity.EndpointData
@@ -14,8 +17,8 @@ import com.jarvis.internal.feature.home.domain.entity.SessionFilter
 import com.jarvis.internal.feature.home.domain.entity.SessionInfo
 import com.jarvis.internal.feature.home.domain.entity.SlowEndpointData
 import com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint
-import com.jarvis.features.inspector.domain.entity.NetworkTransaction
-import com.jarvis.features.preferences.domain.entity.AppPreference
+import com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction
+import com.jarvis.features.preferences.internal.domain.entity.AppPreference
 import javax.inject.Inject
 
 /**

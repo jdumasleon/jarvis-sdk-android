@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.settings.domain.usecase
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.settings.domain.entity.Rating
 import com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult
 import com.jarvis.internal.feature.settings.domain.repository.RatingRepository
@@ -11,6 +13,7 @@ import javax.inject.Inject
 /**
  * Use case for submitting SDK rating
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SubmitRatingUseCase @Inject constructor(
     private val ratingRepository: RatingRepository
 ) {

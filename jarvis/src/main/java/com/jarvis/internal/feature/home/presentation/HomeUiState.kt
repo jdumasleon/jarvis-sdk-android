@@ -1,12 +1,15 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation
 
-import com.jarvis.core.domain.performance.PerformanceSnapshot
-import com.jarvis.core.presentation.state.ResourceState
+import androidx.annotation.RestrictTo
+
+import com.jarvis.core.internal.domain.performance.PerformanceSnapshot
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.home.domain.entity.DashboardCardType
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetricsMock
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
-import com.jarvis.core.domain.performance.PerformanceSnapshotMock
+import com.jarvis.core.internal.domain.performance.PerformanceSnapshotMock
 
 typealias HomeUiState = ResourceState<HomeUiData>
 

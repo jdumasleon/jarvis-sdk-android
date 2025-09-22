@@ -1,10 +1,12 @@
 package com.jarvis.internal.feature.settings.data.repository
 
+import androidx.annotation.RestrictTo
+
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.jarvis.core.common.di.CoroutineDispatcherModule
-import com.jarvis.core.data.helpers.requestFlow
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule
+import com.jarvis.core.internal.data.helpers.requestFlow
 import com.jarvis.internal.feature.settings.domain.entity.AppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SdkInfo
@@ -19,6 +21,7 @@ import javax.inject.Inject
 /**
  * Implementation of SettingsRepository
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SettingsRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:CoroutineDispatcherModule.IoDispatcher

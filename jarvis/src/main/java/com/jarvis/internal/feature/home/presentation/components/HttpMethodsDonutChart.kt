@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
@@ -16,11 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.charts.DSDonutChart
-import com.jarvis.core.designsystem.component.charts.DSDonutChartData
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.charts.DSDonutChart
+import com.jarvis.core.internal.designsystem.component.charts.DSDonutChartData
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.internal.feature.home.domain.entity.HttpMethodData
 import com.jarvis.library.R
@@ -161,6 +164,7 @@ private fun HttpMethodLegendItem(
  * Expanded HTTP methods card with additional metrics
  */
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun HttpMethodsCard(
     title: String? = null,
     httpMethods: List<HttpMethodData>,
@@ -181,6 +185,7 @@ fun HttpMethodsCard(
 }
 
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun HttpMethodsWithDetails(
     title: String? = null,
     httpMethods: List<HttpMethodData>,

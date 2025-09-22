@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.di
+
+import androidx.annotation.RestrictTo
 
 import com.jarvis.internal.feature.settings.domain.repository.SettingsRepository
 import com.jarvis.internal.feature.settings.data.remote.RatingApiService

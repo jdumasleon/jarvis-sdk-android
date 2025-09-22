@@ -1,8 +1,8 @@
 package com.jarvis.demo.presentation.inspector
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.navigation.NavigationRoute
+import com.jarvis.core.internal.designsystem.icons.DSIcons
+import com.jarvis.core.internal.navigation.NavigationRoute
 import com.jarvis.demo.R
 import kotlinx.serialization.Serializable
 

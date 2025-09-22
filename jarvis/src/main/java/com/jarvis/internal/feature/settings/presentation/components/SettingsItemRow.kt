@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,13 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSIconTint
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.rememberJarvisPrimaryGradient
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSIcon
+import com.jarvis.core.internal.designsystem.component.DSIconTint
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.rememberJarvisPrimaryGradient
+import com.jarvis.core.internal.designsystem.icons.DSIcons
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAction
 import com.jarvis.internal.feature.settings.domain.entity.SettingsGroup
 import com.jarvis.internal.feature.settings.domain.entity.SettingsIcon

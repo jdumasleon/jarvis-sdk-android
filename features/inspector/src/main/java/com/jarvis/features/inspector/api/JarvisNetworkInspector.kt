@@ -1,8 +1,8 @@
 package com.jarvis.features.inspector.api
 
 import android.content.Context
-import com.jarvis.features.inspector.data.network.JarvisNetworkCollector
-import com.jarvis.features.inspector.data.network.JarvisNetworkInterceptor
+import com.jarvis.features.inspector.internal.data.network.JarvisNetworkCollector
+import com.jarvis.features.inspector.internal.data.network.JarvisNetworkInterceptor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.Interceptor
 import javax.inject.Inject

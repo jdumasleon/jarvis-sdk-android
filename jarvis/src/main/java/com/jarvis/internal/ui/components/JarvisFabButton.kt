@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.ui.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -49,10 +52,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.jarvis.core.R
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSIcon
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.icons.DSIcons
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import kotlinx.coroutines.launch
 
 /**

@@ -1,9 +1,11 @@
 package com.jarvis.internal.feature.settings.presentation
 
+import androidx.annotation.RestrictTo
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.settings.domain.entity.AppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.Rating
@@ -31,6 +33,7 @@ import kotlin.getOrThrow
  * ViewModel for Settings screen following clean architecture pattern
  */
 @HiltViewModel
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SettingsViewModel @Inject constructor(
     private val getSettingsItemsUseCase: GetSettingsItemsUseCase,
     private val getAppInfoUseCase: GetAppInfoUseCase,

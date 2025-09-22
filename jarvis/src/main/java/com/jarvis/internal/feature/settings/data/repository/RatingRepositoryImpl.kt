@@ -1,6 +1,8 @@
 package com.jarvis.internal.feature.settings.data.repository
 
-import com.jarvis.core.data.helpers.requestFlow
+import androidx.annotation.RestrictTo
+
+import com.jarvis.core.internal.data.helpers.requestFlow
 import com.jarvis.internal.feature.settings.data.remote.RatingApiService
 import com.jarvis.internal.feature.settings.data.remote.dto.toDomain
 import com.jarvis.internal.feature.settings.data.remote.dto.toDto
@@ -15,6 +17,7 @@ import javax.inject.Singleton
  * Implementation of RatingRepository
  */
 @Singleton
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class RatingRepositoryImpl @Inject constructor(
     private val ratingApiService: RatingApiService,
 ) : RatingRepository {

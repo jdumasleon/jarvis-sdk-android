@@ -1,0 +1,1556 @@
+// Signature format: 4.0
+package com.jarvis.api {
+
+  @dagger.hilt.android.scopes.ActivityRetainedScoped public final class JarvisSDK {
+    ctor @javax.inject.Inject public JarvisSDK(com.jarvis.config.ConfigurationSynchronizer configurationSynchronizer, com.jarvis.core.internal.data.performance.PerformanceManager performanceManager, com.jarvis.core.internal.platform.JarvisPlatform jarvisPlatform, @com.jarvis.core.internal.navigation.JarvisSDKNavigator com.jarvis.core.internal.navigation.Navigator navigator, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public void activate();
+    method public void deactivate();
+    method public void dismiss();
+    method public com.jarvis.config.JarvisConfig getConfiguration();
+    method public com.jarvis.core.internal.platform.JarvisPlatform? getPlatform();
+    method public void hideOverlay();
+    method public suspend Object? initialize(optional com.jarvis.config.JarvisConfig config, android.app.Activity hostActivity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.Job initializeAsync(optional com.jarvis.config.JarvisConfig config, android.app.Activity hostActivity, optional kotlinx.coroutines.CoroutineScope scope);
+    method public boolean isActive();
+    method public boolean toggle();
+  }
+
+}
+
+package com.jarvis.config {
+
+  @javax.inject.Singleton public final class ConfigurationSynchronizer {
+    ctor @javax.inject.Inject public ConfigurationSynchronizer(com.jarvis.features.preferences.internal.domain.config.PreferencesConfigProvider preferencesConfigProvider);
+    method public void updateConfigurations(com.jarvis.config.JarvisConfig jarvisConfig);
+  }
+
+  public final class JarvisConfig {
+    ctor public JarvisConfig(optional com.jarvis.config.PreferencesConfig preferences, optional com.jarvis.config.NetworkInspectionConfig networkInspection, optional boolean enableDebugLogging, optional boolean enableShakeDetection);
+    method public com.jarvis.config.PreferencesConfig component1();
+    method public com.jarvis.config.NetworkInspectionConfig component2();
+    method public boolean component3();
+    method public boolean component4();
+    method public com.jarvis.config.JarvisConfig copy(com.jarvis.config.PreferencesConfig preferences, com.jarvis.config.NetworkInspectionConfig networkInspection, boolean enableDebugLogging, boolean enableShakeDetection);
+    method public boolean getEnableDebugLogging();
+    method public boolean getEnableShakeDetection();
+    method public com.jarvis.config.NetworkInspectionConfig getNetworkInspection();
+    method public com.jarvis.config.PreferencesConfig getPreferences();
+    property public final boolean enableDebugLogging;
+    property public final boolean enableShakeDetection;
+    property public final com.jarvis.config.NetworkInspectionConfig networkInspection;
+    property public final com.jarvis.config.PreferencesConfig preferences;
+    field public static final com.jarvis.config.JarvisConfig.Companion Companion;
+  }
+
+  public static final class JarvisConfig.Builder {
+    ctor public JarvisConfig.Builder();
+    method public com.jarvis.config.JarvisConfig build();
+    method public com.jarvis.config.JarvisConfig.Builder enableDebugLogging(boolean enabled);
+    method public com.jarvis.config.JarvisConfig.Builder enableShakeDetection(boolean enabled);
+    method public com.jarvis.config.JarvisConfig.Builder networkInspection(kotlin.jvm.functions.Function1<? super com.jarvis.config.NetworkInspectionConfig.Builder,kotlin.Unit> block);
+    method public com.jarvis.config.JarvisConfig.Builder preferences(kotlin.jvm.functions.Function1<? super com.jarvis.config.PreferencesConfig.Builder,kotlin.Unit> block);
+  }
+
+  public static final class JarvisConfig.Companion {
+    method public com.jarvis.config.JarvisConfig.Builder builder();
+  }
+
+  public final class NetworkInspectionConfig {
+    ctor public NetworkInspectionConfig(optional boolean enableNetworkLogging, optional long maxRequestBodySize, optional long maxResponseBodySize, optional boolean enableRequestLogging, optional boolean enableResponseLogging, optional java.util.List<java.lang.String> excludeHosts, optional java.util.List<java.lang.String> includeOnlyHosts);
+    method public boolean component1();
+    method public long component2();
+    method public long component3();
+    method public boolean component4();
+    method public boolean component5();
+    method public java.util.List<java.lang.String> component6();
+    method public java.util.List<java.lang.String> component7();
+    method public com.jarvis.config.NetworkInspectionConfig copy(boolean enableNetworkLogging, long maxRequestBodySize, long maxResponseBodySize, boolean enableRequestLogging, boolean enableResponseLogging, java.util.List<java.lang.String> excludeHosts, java.util.List<java.lang.String> includeOnlyHosts);
+    method public boolean getEnableNetworkLogging();
+    method public boolean getEnableRequestLogging();
+    method public boolean getEnableResponseLogging();
+    method public java.util.List<java.lang.String> getExcludeHosts();
+    method public java.util.List<java.lang.String> getIncludeOnlyHosts();
+    method public long getMaxRequestBodySize();
+    method public long getMaxResponseBodySize();
+    property public final boolean enableNetworkLogging;
+    property public final boolean enableRequestLogging;
+    property public final boolean enableResponseLogging;
+    property public final java.util.List<java.lang.String> excludeHosts;
+    property public final java.util.List<java.lang.String> includeOnlyHosts;
+    property public final long maxRequestBodySize;
+    property public final long maxResponseBodySize;
+    field public static final com.jarvis.config.NetworkInspectionConfig.Companion Companion;
+  }
+
+  public static final class NetworkInspectionConfig.Builder {
+    ctor public NetworkInspectionConfig.Builder();
+    method public com.jarvis.config.NetworkInspectionConfig build();
+    method public com.jarvis.config.NetworkInspectionConfig.Builder enableNetworkLogging(boolean enabled);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder enableRequestLogging(boolean enabled);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder enableResponseLogging(boolean enabled);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder excludeHosts(java.lang.String... hosts);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder excludeHosts(java.util.List<java.lang.String> hosts);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder includeOnlyHosts(java.lang.String... hosts);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder includeOnlyHosts(java.util.List<java.lang.String> hosts);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder maxRequestBodySize(long sizeInBytes);
+    method public com.jarvis.config.NetworkInspectionConfig.Builder maxResponseBodySize(long sizeInBytes);
+  }
+
+  public static final class NetworkInspectionConfig.Companion {
+    method public com.jarvis.config.NetworkInspectionConfig.Builder builder();
+  }
+
+  public final class PreferencesConfig {
+    ctor public PreferencesConfig(optional boolean autoDiscoverDataStores, optional java.util.List<java.lang.String> includeDataStores, optional java.util.List<java.lang.String> excludeDataStores, optional boolean autoDiscoverSharedPrefs, optional java.util.List<java.lang.String> includeSharedPrefs, optional java.util.List<java.lang.String> excludeSharedPrefs, optional boolean autoDiscoverProtoDataStores, optional java.util.List<java.lang.String> includeProtoDataStores, optional java.util.List<java.lang.String> excludeProtoDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, optional java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, optional long maxFileSize, optional boolean enablePreferenceEditing, optional boolean showSystemPreferences);
+    method public boolean component1();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> component10();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> component11();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> component12();
+    method public long component13();
+    method public boolean component14();
+    method public boolean component15();
+    method public java.util.List<java.lang.String> component2();
+    method public java.util.List<java.lang.String> component3();
+    method public boolean component4();
+    method public java.util.List<java.lang.String> component5();
+    method public java.util.List<java.lang.String> component6();
+    method public boolean component7();
+    method public java.util.List<java.lang.String> component8();
+    method public java.util.List<java.lang.String> component9();
+    method public com.jarvis.config.PreferencesConfig copy(boolean autoDiscoverDataStores, java.util.List<java.lang.String> includeDataStores, java.util.List<java.lang.String> excludeDataStores, boolean autoDiscoverSharedPrefs, java.util.List<java.lang.String> includeSharedPrefs, java.util.List<java.lang.String> excludeSharedPrefs, boolean autoDiscoverProtoDataStores, java.util.List<java.lang.String> includeProtoDataStores, java.util.List<java.lang.String> excludeProtoDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, long maxFileSize, boolean enablePreferenceEditing, boolean showSystemPreferences);
+    method public boolean getAutoDiscoverDataStores();
+    method public boolean getAutoDiscoverProtoDataStores();
+    method public boolean getAutoDiscoverSharedPrefs();
+    method public boolean getEnablePreferenceEditing();
+    method public java.util.List<java.lang.String> getExcludeDataStores();
+    method public java.util.List<java.lang.String> getExcludeProtoDataStores();
+    method public java.util.List<java.lang.String> getExcludeSharedPrefs();
+    method public java.util.List<java.lang.String> getIncludeDataStores();
+    method public java.util.List<java.lang.String> getIncludeProtoDataStores();
+    method public java.util.List<java.lang.String> getIncludeSharedPrefs();
+    method public long getMaxFileSize();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> getProtoExtractors();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> getRegisteredDataStores();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> getRegisteredProtoDataStores();
+    method public boolean getShowSystemPreferences();
+    property public final boolean autoDiscoverDataStores;
+    property public final boolean autoDiscoverProtoDataStores;
+    property public final boolean autoDiscoverSharedPrefs;
+    property public final boolean enablePreferenceEditing;
+    property public final java.util.List<java.lang.String> excludeDataStores;
+    property public final java.util.List<java.lang.String> excludeProtoDataStores;
+    property public final java.util.List<java.lang.String> excludeSharedPrefs;
+    property public final java.util.List<java.lang.String> includeDataStores;
+    property public final java.util.List<java.lang.String> includeProtoDataStores;
+    property public final java.util.List<java.lang.String> includeSharedPrefs;
+    property public final long maxFileSize;
+    property public final java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> protoExtractors;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> registeredProtoDataStores;
+    property public final boolean showSystemPreferences;
+    field public static final com.jarvis.config.PreferencesConfig.Companion Companion;
+  }
+
+  public static final class PreferencesConfig.Builder {
+    ctor public PreferencesConfig.Builder();
+    method public com.jarvis.config.PreferencesConfig.Builder autoDiscoverDataStores(boolean enabled);
+    method public com.jarvis.config.PreferencesConfig.Builder autoDiscoverProtoDataStores(boolean enabled);
+    method public com.jarvis.config.PreferencesConfig.Builder autoDiscoverSharedPrefs(boolean enabled);
+    method public com.jarvis.config.PreferencesConfig build();
+    method public com.jarvis.config.PreferencesConfig.Builder enablePreferenceEditing(boolean enabled);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeDataStores(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeDataStores(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeProtoDataStores(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeProtoDataStores(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeSharedPrefs(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder excludeSharedPrefs(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeDataStores(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeDataStores(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeProtoDataStores(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeProtoDataStores(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeSharedPrefs(java.lang.String... names);
+    method public com.jarvis.config.PreferencesConfig.Builder includeSharedPrefs(java.util.List<java.lang.String> names);
+    method public com.jarvis.config.PreferencesConfig.Builder maxFileSize(long sizeInBytes);
+    method public com.jarvis.config.PreferencesConfig.Builder registerDataStore(String name, androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> dataStore);
+    method public <T extends com.google.protobuf.MessageLite> com.jarvis.config.PreferencesConfig.Builder registerProtoDataStore(String name, androidx.datastore.core.DataStore<T> dataStore, kotlin.jvm.functions.Function1<? super T,? extends java.util.Map<java.lang.String,?>> extractor);
+    method public com.jarvis.config.PreferencesConfig.Builder showSystemPreferences(boolean enabled);
+  }
+
+  public static final class PreferencesConfig.Companion {
+    method public com.jarvis.config.PreferencesConfig.Builder builder();
+  }
+
+}
+
+package com.jarvis.internal.di {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(ActivityRetainedComponent::class) public final class JarvisSDKModule {
+    method @com.jarvis.core.internal.navigation.JarvisSDKNavigator @dagger.Provides @dagger.hilt.android.scopes.ActivityRetainedScoped public com.jarvis.core.internal.navigation.Navigator provideJarvisSDKNavigator();
+    field public static final com.jarvis.internal.di.JarvisSDKModule INSTANCE;
+  }
+
+}
+
+package com.jarvis.internal.feature.home.data.analyzer {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreferencesAnalyzer {
+    ctor @javax.inject.Inject public PreferencesAnalyzer();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics analyzePreferencesMetrics(java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter);
+  }
+
+}
+
+package com.jarvis.internal.feature.home.data.mapper {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DashboardMetricsMapper {
+    ctor @javax.inject.Inject public DashboardMetricsMapper();
+    method public com.jarvis.internal.feature.home.domain.entity.DashboardMetrics mapToDashboardMetrics(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> networkTransactions, java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EnhancedDashboardMetricsMapper {
+    ctor @javax.inject.Inject public EnhancedDashboardMetricsMapper(com.jarvis.internal.feature.home.data.mapper.DashboardMetricsMapper basicMapper, com.jarvis.internal.feature.home.data.mapper.HealthScoreCalculator healthScoreCalculator, com.jarvis.internal.feature.home.data.mapper.NetworkAnalyzer networkAnalyzer, com.jarvis.internal.feature.home.data.analyzer.PreferencesAnalyzer preferencesAnalyzer);
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics mapToEnhancedDashboardMetrics(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> networkTransactions, java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HealthScoreCalculator {
+    ctor @javax.inject.Inject public HealthScoreCalculator();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthScore calculateHealthScore(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions, java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class NetworkAnalyzer {
+    ctor @javax.inject.Inject public NetworkAnalyzer();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics analyzeNetworkMetrics(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter);
+  }
+
+}
+
+package com.jarvis.internal.feature.home.data.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DashboardRepositoryImpl implements com.jarvis.internal.feature.home.domain.repository.DashboardRepository {
+    ctor @javax.inject.Inject public DashboardRepositoryImpl(com.jarvis.features.inspector.internal.domain.repository.NetworkRepository networkRepository, com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository preferencesRepository, com.jarvis.internal.feature.home.data.mapper.DashboardMetricsMapper mapper, com.jarvis.internal.feature.home.data.mapper.EnhancedDashboardMetricsMapper enhancedMapper, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.internal.feature.home.domain.entity.DashboardMetrics> getDashboardMetrics();
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics> getEnhancedDashboardMetrics(com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter);
+    method public suspend Object? refreshMetrics(kotlin.coroutines.Continuation<? super com.jarvis.internal.feature.home.domain.entity.DashboardMetrics>);
+  }
+
+}
+
+package com.jarvis.internal.feature.home.di {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(SingletonComponent::class) public abstract class HomeDataModule {
+    ctor public HomeDataModule();
+    method @dagger.Binds @javax.inject.Singleton public abstract com.jarvis.internal.feature.home.domain.repository.DashboardRepository bindDashboardRepository(com.jarvis.internal.feature.home.data.repository.DashboardRepositoryImpl dashboardRepositoryImpl);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(ActivityRetainedComponent::class) public final class HomePresentationModule {
+    method @dagger.Provides @dagger.multibindings.IntoSet public error.NonExistentClass! provideEntryProviderInstaller();
+    field public static final com.jarvis.internal.feature.home.di.HomePresentationModule INSTANCE;
+  }
+
+}
+
+package com.jarvis.internal.feature.home.domain.entity {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum DashboardCardType {
+    method public final String! getDescription();
+    method public final String! getTitle();
+    method public static com.jarvis.internal.feature.home.domain.entity.DashboardCardType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.home.domain.entity.DashboardCardType[] values();
+    property public final String! description;
+    property public final String! title;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType HEALTH_SUMMARY;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType HTTP_METHODS;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType NETWORK_OVERVIEW;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType PERFORMANCE_METRICS;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType PREFERENCES_OVERVIEW;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType SLOW_ENDPOINTS;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType TOP_ENDPOINTS;
+    field public static final com.jarvis.internal.feature.home.domain.entity.DashboardCardType.Companion Companion;
+  }
+
+  public static final class DashboardCardType.Companion {
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.DashboardCardType> getAllCards();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DashboardMetrics {
+    ctor public DashboardMetrics(com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics, com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics, com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics);
+    method public com.jarvis.internal.feature.home.domain.entity.NetworkMetrics component1();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics component2();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics component3();
+    method public com.jarvis.internal.feature.home.domain.entity.DashboardMetrics copy(com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics, com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics, com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics);
+    method public com.jarvis.internal.feature.home.domain.entity.NetworkMetrics getNetworkMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics getPerformanceMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics getPreferencesMetrics();
+    property public final com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EndpointData {
+    ctor public EndpointData(String endpoint, String method, int requestCount, float averageResponseTime, float errorRate, long totalTraffic);
+    method public String component1();
+    method public String component2();
+    method public int component3();
+    method public float component4();
+    method public float component5();
+    method public long component6();
+    method public com.jarvis.internal.feature.home.domain.entity.EndpointData copy(String endpoint, String method, int requestCount, float averageResponseTime, float errorRate, long totalTraffic);
+    method public float getAverageResponseTime();
+    method public String getEndpoint();
+    method public float getErrorRate();
+    method public String getMethod();
+    method public int getRequestCount();
+    method public long getTotalTraffic();
+    property public final float averageResponseTime;
+    property public final String endpoint;
+    property public final float errorRate;
+    property public final String method;
+    property public final int requestCount;
+    property public final long totalTraffic;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EnhancedDashboardMetrics {
+    ctor public EnhancedDashboardMetrics(com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics, com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics, com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics, com.jarvis.internal.feature.home.domain.entity.HealthScore? healthScore, com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics enhancedNetworkMetrics, com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics enhancedPreferencesMetrics, com.jarvis.internal.feature.home.domain.entity.SessionInfo? sessionInfo, optional long lastUpdated);
+    method public com.jarvis.internal.feature.home.domain.entity.NetworkMetrics component1();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics component2();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics component3();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthScore? component4();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics component5();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics component6();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionInfo? component7();
+    method public long component8();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics copy(com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics, com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics, com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics, com.jarvis.internal.feature.home.domain.entity.HealthScore? healthScore, com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics enhancedNetworkMetrics, com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics enhancedPreferencesMetrics, com.jarvis.internal.feature.home.domain.entity.SessionInfo? sessionInfo, long lastUpdated);
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics getEnhancedNetworkMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics getEnhancedPreferencesMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthScore? getHealthScore();
+    method public long getLastUpdated();
+    method public com.jarvis.internal.feature.home.domain.entity.NetworkMetrics getNetworkMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics getPerformanceMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics getPreferencesMetrics();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionInfo? getSessionInfo();
+    property public final com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics enhancedNetworkMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics enhancedPreferencesMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.HealthScore? healthScore;
+    property public final long lastUpdated;
+    property public final com.jarvis.internal.feature.home.domain.entity.NetworkMetrics networkMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics performanceMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics preferencesMetrics;
+    property public final com.jarvis.internal.feature.home.domain.entity.SessionInfo? sessionInfo;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EnhancedNetworkMetrics {
+    ctor public EnhancedNetworkMetrics(int totalCalls, double averageSpeed, int successfulCalls, int failedCalls, double successRate, long averageRequestSize, long averageResponseSize, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> requestsOverTime, java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethodDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> topEndpoints, java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowestEndpoints, java.util.Map<java.lang.Integer,java.lang.Integer> statusCodeDistribution, com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution responseTimeDistribution, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter, optional long lastUpdated);
+    method public int component1();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> component10();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> component11();
+    method public java.util.Map<java.lang.Integer,java.lang.Integer> component12();
+    method public com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution component13();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter component14();
+    method public long component15();
+    method public double component2();
+    method public int component3();
+    method public int component4();
+    method public double component5();
+    method public long component6();
+    method public long component7();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> component8();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> component9();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetrics copy(int totalCalls, double averageSpeed, int successfulCalls, int failedCalls, double successRate, long averageRequestSize, long averageResponseSize, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> requestsOverTime, java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethodDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> topEndpoints, java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowestEndpoints, java.util.Map<java.lang.Integer,java.lang.Integer> statusCodeDistribution, com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution responseTimeDistribution, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter, long lastUpdated);
+    method public long getAverageRequestSize();
+    method public long getAverageResponseSize();
+    method public double getAverageSpeed();
+    method public int getFailedCalls();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> getHttpMethodDistribution();
+    method public long getLastUpdated();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> getRequestsOverTime();
+    method public com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution getResponseTimeDistribution();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter getSessionFilter();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> getSlowestEndpoints();
+    method public java.util.Map<java.lang.Integer,java.lang.Integer> getStatusCodeDistribution();
+    method public double getSuccessRate();
+    method public int getSuccessfulCalls();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> getTopEndpoints();
+    method public int getTotalCalls();
+    property public final long averageRequestSize;
+    property public final long averageResponseSize;
+    property public final double averageSpeed;
+    property public final int failedCalls;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethodDistribution;
+    property public final long lastUpdated;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> requestsOverTime;
+    property public final com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution responseTimeDistribution;
+    property public final com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowestEndpoints;
+    property public final java.util.Map<java.lang.Integer,java.lang.Integer> statusCodeDistribution;
+    property public final double successRate;
+    property public final int successfulCalls;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> topEndpoints;
+    property public final int totalCalls;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EnhancedPreferencesMetrics {
+    ctor public EnhancedPreferencesMetrics(int totalPreferences, java.util.Map<java.lang.String,java.lang.Integer> preferencesByType, String? mostCommonType, Long? lastModified, java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData> typeDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData> sizeDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> activityOverTime, com.jarvis.internal.feature.home.domain.entity.StorageUsageData storageUsage, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter, optional long lastUpdated);
+    method public int component1();
+    method public long component10();
+    method public java.util.Map<java.lang.String,java.lang.Integer> component2();
+    method public String? component3();
+    method public Long? component4();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData> component5();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData> component6();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> component7();
+    method public com.jarvis.internal.feature.home.domain.entity.StorageUsageData component8();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter component9();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics copy(int totalPreferences, java.util.Map<java.lang.String,java.lang.Integer> preferencesByType, String? mostCommonType, Long? lastModified, java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData> typeDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData> sizeDistribution, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> activityOverTime, com.jarvis.internal.feature.home.domain.entity.StorageUsageData storageUsage, com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter, long lastUpdated);
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> getActivityOverTime();
+    method public Long? getLastModified();
+    method public long getLastUpdated();
+    method public String? getMostCommonType();
+    method public java.util.Map<java.lang.String,java.lang.Integer> getPreferencesByType();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter getSessionFilter();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData> getSizeDistribution();
+    method public com.jarvis.internal.feature.home.domain.entity.StorageUsageData getStorageUsage();
+    method public int getTotalPreferences();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData> getTypeDistribution();
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> activityOverTime;
+    property public final Long? lastModified;
+    property public final long lastUpdated;
+    property public final String? mostCommonType;
+    property public final java.util.Map<java.lang.String,java.lang.Integer> preferencesByType;
+    property public final com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData> sizeDistribution;
+    property public final com.jarvis.internal.feature.home.domain.entity.StorageUsageData storageUsage;
+    property public final int totalPreferences;
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData> typeDistribution;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HealthKeyMetrics {
+    ctor public HealthKeyMetrics(int totalRequests, float errorRate, float averageResponseTime, float performanceScore, float networkScore, float uptime);
+    method public int component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public float component5();
+    method public float component6();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics copy(int totalRequests, float errorRate, float averageResponseTime, float performanceScore, float networkScore, float uptime);
+    method public float getAverageResponseTime();
+    method public float getErrorRate();
+    method public float getNetworkScore();
+    method public float getPerformanceScore();
+    method public int getTotalRequests();
+    method public float getUptime();
+    property public final float averageResponseTime;
+    property public final float errorRate;
+    property public final float networkScore;
+    property public final float performanceScore;
+    property public final int totalRequests;
+    property public final float uptime;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum HealthRating {
+    method public final String! getColor();
+    method public final String! getDisplayName();
+    method public static com.jarvis.internal.feature.home.domain.entity.HealthRating valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.home.domain.entity.HealthRating[] values();
+    property public final String! color;
+    property public final String! displayName;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.HealthRating AVERAGE;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.HealthRating CRITICAL;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.HealthRating EXCELLENT;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.HealthRating GOOD;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.HealthRating POOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HealthScore {
+    ctor public HealthScore(float overallScore, com.jarvis.internal.feature.home.domain.entity.HealthRating rating, com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics keyMetrics, optional long lastUpdated);
+    method public float component1();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthRating component2();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics component3();
+    method public long component4();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthScore copy(float overallScore, com.jarvis.internal.feature.home.domain.entity.HealthRating rating, com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics keyMetrics, long lastUpdated);
+    method public com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics getKeyMetrics();
+    method public long getLastUpdated();
+    method public float getOverallScore();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthRating getRating();
+    property public final com.jarvis.internal.feature.home.domain.entity.HealthKeyMetrics keyMetrics;
+    property public final long lastUpdated;
+    property public final float overallScore;
+    property public final com.jarvis.internal.feature.home.domain.entity.HealthRating rating;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HealthScoreFactors {
+    ctor public HealthScoreFactors(float networkPerformance, float errorRate, float responseTime, float systemResources);
+    method public float component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public com.jarvis.internal.feature.home.domain.entity.HealthScoreFactors copy(float networkPerformance, float errorRate, float responseTime, float systemResources);
+    method public float getErrorRate();
+    method public float getNetworkPerformance();
+    method public float getResponseTime();
+    method public float getSystemResources();
+    property public final float errorRate;
+    property public final float networkPerformance;
+    property public final float responseTime;
+    property public final float systemResources;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HttpMethodData {
+    ctor public HttpMethodData(String method, int count, float percentage, float averageResponseTime, optional String color);
+    method public String component1();
+    method public int component2();
+    method public float component3();
+    method public float component4();
+    method public String component5();
+    method public com.jarvis.internal.feature.home.domain.entity.HttpMethodData copy(String method, int count, float percentage, float averageResponseTime, String color);
+    method public float getAverageResponseTime();
+    method public String getColor();
+    method public int getCount();
+    method public String getMethod();
+    method public float getPercentage();
+    property public final float averageResponseTime;
+    property public final String color;
+    property public final int count;
+    property public final String method;
+    property public final float percentage;
+    field public static final com.jarvis.internal.feature.home.domain.entity.HttpMethodData.Companion Companion;
+  }
+
+  public static final class HttpMethodData.Companion {
+    method public String getMethodColor(String method);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class NetworkMetrics {
+    ctor public NetworkMetrics(int totalCalls, double averageSpeed, int successfulCalls, int failedCalls, double successRate, long averageRequestSize, long averageResponseSize, String? mostUsedEndpoint, double p50, double p90, double p95, double p99, java.util.List<java.lang.String> topSlowEndpoints);
+    method public int component1();
+    method public double component10();
+    method public double component11();
+    method public double component12();
+    method public java.util.List<java.lang.String> component13();
+    method public double component2();
+    method public int component3();
+    method public int component4();
+    method public double component5();
+    method public long component6();
+    method public long component7();
+    method public String? component8();
+    method public double component9();
+    method public com.jarvis.internal.feature.home.domain.entity.NetworkMetrics copy(int totalCalls, double averageSpeed, int successfulCalls, int failedCalls, double successRate, long averageRequestSize, long averageResponseSize, String? mostUsedEndpoint, double p50, double p90, double p95, double p99, java.util.List<java.lang.String> topSlowEndpoints);
+    method public long getAverageRequestSize();
+    method public long getAverageResponseSize();
+    method public double getAverageSpeed();
+    method public int getFailedCalls();
+    method public String? getMostUsedEndpoint();
+    method public double getP50();
+    method public double getP90();
+    method public double getP95();
+    method public double getP99();
+    method public double getSuccessRate();
+    method public int getSuccessfulCalls();
+    method public java.util.List<java.lang.String> getTopSlowEndpoints();
+    method public int getTotalCalls();
+    property public final long averageRequestSize;
+    property public final long averageResponseSize;
+    property public final double averageSpeed;
+    property public final int failedCalls;
+    property public final String? mostUsedEndpoint;
+    property public final double p50;
+    property public final double p90;
+    property public final double p95;
+    property public final double p99;
+    property public final double successRate;
+    property public final int successfulCalls;
+    property public final java.util.List<java.lang.String> topSlowEndpoints;
+    property public final int totalCalls;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PerformanceMetrics {
+    ctor public PerformanceMetrics(com.jarvis.internal.feature.home.domain.entity.PerformanceRating overallRating, double averageResponseTime, Double? slowestCall, Double? fastestCall, double errorRate, double p95, double apdex);
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceRating component1();
+    method public double component2();
+    method public Double? component3();
+    method public Double? component4();
+    method public double component5();
+    method public double component6();
+    method public double component7();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics copy(com.jarvis.internal.feature.home.domain.entity.PerformanceRating overallRating, double averageResponseTime, Double? slowestCall, Double? fastestCall, double errorRate, double p95, double apdex);
+    method public double getApdex();
+    method public double getAverageResponseTime();
+    method public double getErrorRate();
+    method public Double? getFastestCall();
+    method public com.jarvis.internal.feature.home.domain.entity.PerformanceRating getOverallRating();
+    method public double getP95();
+    method public Double? getSlowestCall();
+    property public final double apdex;
+    property public final double averageResponseTime;
+    property public final double errorRate;
+    property public final Double? fastestCall;
+    property public final com.jarvis.internal.feature.home.domain.entity.PerformanceRating overallRating;
+    property public final double p95;
+    property public final Double? slowestCall;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum PerformanceRating {
+    method public static com.jarvis.internal.feature.home.domain.entity.PerformanceRating valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.home.domain.entity.PerformanceRating[] values();
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.PerformanceRating AVERAGE;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.PerformanceRating CRITICAL;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.PerformanceRating EXCELLENT;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.PerformanceRating GOOD;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.PerformanceRating POOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreferenceInfo {
+    ctor public PreferenceInfo(String key, String type, long size, String storageType, Long? lastModified);
+    method public String component1();
+    method public String component2();
+    method public long component3();
+    method public String component4();
+    method public Long? component5();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferenceInfo copy(String key, String type, long size, String storageType, Long? lastModified);
+    method public String getKey();
+    method public Long? getLastModified();
+    method public long getSize();
+    method public String getStorageType();
+    method public String getType();
+    property public final String key;
+    property public final Long? lastModified;
+    property public final long size;
+    property public final String storageType;
+    property public final String type;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreferenceSizeData {
+    ctor public PreferenceSizeData(String sizeRange, int count, float percentage, long minSize, long maxSize);
+    method public String component1();
+    method public int component2();
+    method public float component3();
+    method public long component4();
+    method public long component5();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData copy(String sizeRange, int count, float percentage, long minSize, long maxSize);
+    method public int getCount();
+    method public long getMaxSize();
+    method public long getMinSize();
+    method public float getPercentage();
+    method public String getSizeRange();
+    property public final int count;
+    property public final long maxSize;
+    property public final long minSize;
+    property public final float percentage;
+    property public final String sizeRange;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreferenceTypeData {
+    ctor public PreferenceTypeData(String type, int count, float percentage, long totalSize, optional String color);
+    method public String component1();
+    method public int component2();
+    method public float component3();
+    method public long component4();
+    method public String component5();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData copy(String type, int count, float percentage, long totalSize, String color);
+    method public String getColor();
+    method public int getCount();
+    method public float getPercentage();
+    method public long getTotalSize();
+    method public String getType();
+    property public final String color;
+    property public final int count;
+    property public final float percentage;
+    property public final long totalSize;
+    property public final String type;
+    field public static final com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData.Companion Companion;
+  }
+
+  public static final class PreferenceTypeData.Companion {
+    method public String getTypeColor(String type);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreferencesMetrics {
+    ctor public PreferencesMetrics(int totalPreferences, java.util.Map<java.lang.String,java.lang.Integer> preferencesByType, String? mostCommonType, Long? lastModified);
+    method public int component1();
+    method public java.util.Map<java.lang.String,java.lang.Integer> component2();
+    method public String? component3();
+    method public Long? component4();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics copy(int totalPreferences, java.util.Map<java.lang.String,java.lang.Integer> preferencesByType, String? mostCommonType, Long? lastModified);
+    method public Long? getLastModified();
+    method public String? getMostCommonType();
+    method public java.util.Map<java.lang.String,java.lang.Integer> getPreferencesByType();
+    method public int getTotalPreferences();
+    property public final Long? lastModified;
+    property public final String? mostCommonType;
+    property public final java.util.Map<java.lang.String,java.lang.Integer> preferencesByType;
+    property public final int totalPreferences;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResponseTimeDistribution {
+    ctor public ResponseTimeDistribution(int under100ms, int under500ms, int under1s, int under5s, int over5s);
+    method public int component1();
+    method public int component2();
+    method public int component3();
+    method public int component4();
+    method public int component5();
+    method public com.jarvis.internal.feature.home.domain.entity.ResponseTimeDistribution copy(int under100ms, int under500ms, int under1s, int under5s, int over5s);
+    method public int getOver5s();
+    method public com.jarvis.internal.feature.home.domain.entity.ResponseTimePercentages getPercentages();
+    method public int getTotal();
+    method public int getUnder100ms();
+    method public int getUnder1s();
+    method public int getUnder500ms();
+    method public int getUnder5s();
+    property public final int over5s;
+    property public final com.jarvis.internal.feature.home.domain.entity.ResponseTimePercentages percentages;
+    property public final int total;
+    property public final int under100ms;
+    property public final int under1s;
+    property public final int under500ms;
+    property public final int under5s;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResponseTimePercentages {
+    ctor public ResponseTimePercentages(float under100ms, float under500ms, float under1s, float under5s, float over5s);
+    method public float component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public float component5();
+    method public com.jarvis.internal.feature.home.domain.entity.ResponseTimePercentages copy(float under100ms, float under500ms, float under1s, float under5s, float over5s);
+    method public float getOver5s();
+    method public float getUnder100ms();
+    method public float getUnder1s();
+    method public float getUnder500ms();
+    method public float getUnder5s();
+    property public final float over5s;
+    property public final float under100ms;
+    property public final float under1s;
+    property public final float under500ms;
+    property public final float under5s;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum SessionFilter {
+    method public static com.jarvis.internal.feature.home.domain.entity.SessionFilter valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.home.domain.entity.SessionFilter[] values();
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.SessionFilter GENERAL;
+    enum_constant public static final com.jarvis.internal.feature.home.domain.entity.SessionFilter LAST_SESSION;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SessionInfo {
+    ctor public SessionInfo(String sessionId, long startTime, Long? endTime, optional boolean isCurrentSession);
+    method public String component1();
+    method public long component2();
+    method public Long? component3();
+    method public boolean component4();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionInfo copy(String sessionId, long startTime, Long? endTime, boolean isCurrentSession);
+    method public Long? getEndTime();
+    method public String getSessionId();
+    method public long getStartTime();
+    method public boolean isCurrentSession();
+    property public final Long? endTime;
+    property public final boolean isCurrentSession;
+    property public final String sessionId;
+    property public final long startTime;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SlowEndpointData {
+    ctor public SlowEndpointData(String endpoint, String method, float averageResponseTime, float p95ResponseTime, int requestCount, long lastSlowRequest);
+    method public String component1();
+    method public String component2();
+    method public float component3();
+    method public float component4();
+    method public int component5();
+    method public long component6();
+    method public com.jarvis.internal.feature.home.domain.entity.SlowEndpointData copy(String endpoint, String method, float averageResponseTime, float p95ResponseTime, int requestCount, long lastSlowRequest);
+    method public float getAverageResponseTime();
+    method public String getEndpoint();
+    method public long getLastSlowRequest();
+    method public String getMethod();
+    method public float getP95ResponseTime();
+    method public int getRequestCount();
+    property public final float averageResponseTime;
+    property public final String endpoint;
+    property public final long lastSlowRequest;
+    property public final String method;
+    property public final float p95ResponseTime;
+    property public final int requestCount;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class StorageUsageData {
+    ctor public StorageUsageData(long totalSize, long averageSize, com.jarvis.internal.feature.home.domain.entity.PreferenceInfo? largestPreference, float storageEfficiency);
+    method public long component1();
+    method public long component2();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferenceInfo? component3();
+    method public float component4();
+    method public com.jarvis.internal.feature.home.domain.entity.StorageUsageData copy(long totalSize, long averageSize, com.jarvis.internal.feature.home.domain.entity.PreferenceInfo? largestPreference, float storageEfficiency);
+    method public long getAverageSize();
+    method public com.jarvis.internal.feature.home.domain.entity.PreferenceInfo? getLargestPreference();
+    method public float getStorageEfficiency();
+    method public long getTotalSize();
+    property public final long averageSize;
+    property public final com.jarvis.internal.feature.home.domain.entity.PreferenceInfo? largestPreference;
+    property public final float storageEfficiency;
+    property public final long totalSize;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TimeSeriesDataPoint {
+    ctor public TimeSeriesDataPoint(long timestamp, float value, optional String? label);
+    method public long component1();
+    method public float component2();
+    method public String? component3();
+    method public com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint copy(long timestamp, float value, String? label);
+    method public String? getLabel();
+    method public long getTimestamp();
+    method public float getValue();
+    property public final String? label;
+    property public final long timestamp;
+    property public final float value;
+  }
+
+}
+
+package com.jarvis.internal.feature.home.domain.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface DashboardRepository {
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.internal.feature.home.domain.entity.DashboardMetrics> getDashboardMetrics();
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics> getEnhancedDashboardMetrics(com.jarvis.internal.feature.home.domain.entity.SessionFilter sessionFilter);
+    method public suspend Object? refreshMetrics(kotlin.coroutines.Continuation<? super com.jarvis.internal.feature.home.domain.entity.DashboardMetrics>);
+  }
+
+}
+
+package com.jarvis.internal.feature.home.presentation {
+
+  public sealed interface HomeEvent {
+  }
+
+  public static final class HomeEvent.ChangeSessionFilter implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    ctor public HomeEvent.ChangeSessionFilter(com.jarvis.internal.feature.home.domain.entity.SessionFilter filter);
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter component1();
+    method public com.jarvis.internal.feature.home.presentation.HomeEvent.ChangeSessionFilter copy(com.jarvis.internal.feature.home.domain.entity.SessionFilter filter);
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter getFilter();
+    property public final com.jarvis.internal.feature.home.domain.entity.SessionFilter filter;
+  }
+
+  public static final class HomeEvent.EndDrag implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    field public static final com.jarvis.internal.feature.home.presentation.HomeEvent.EndDrag INSTANCE;
+  }
+
+  public static final class HomeEvent.MoveCard implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    ctor public HomeEvent.MoveCard(int fromIndex, int toIndex);
+    method public int component1();
+    method public int component2();
+    method public com.jarvis.internal.feature.home.presentation.HomeEvent.MoveCard copy(int fromIndex, int toIndex);
+    method public int getFromIndex();
+    method public int getToIndex();
+    property public final int fromIndex;
+    property public final int toIndex;
+  }
+
+  public static final class HomeEvent.RefreshDashboard implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    field public static final com.jarvis.internal.feature.home.presentation.HomeEvent.RefreshDashboard INSTANCE;
+  }
+
+  public static final class HomeEvent.StartDrag implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    ctor public HomeEvent.StartDrag(int index);
+    method public int component1();
+    method public com.jarvis.internal.feature.home.presentation.HomeEvent.StartDrag copy(int index);
+    method public int getIndex();
+    property public final int index;
+  }
+
+  public static final class HomeEvent.UpdateDragPosition implements com.jarvis.internal.feature.home.presentation.HomeEvent {
+    ctor public HomeEvent.UpdateDragPosition(int fromIndex, int toIndex);
+    method public int component1();
+    method public int component2();
+    method public com.jarvis.internal.feature.home.presentation.HomeEvent.UpdateDragPosition copy(int fromIndex, int toIndex);
+    method public int getFromIndex();
+    method public int getToIndex();
+    property public final int fromIndex;
+    property public final int toIndex;
+  }
+
+  public final class HomeScreenKt {
+    method @androidx.compose.runtime.Composable public static void HomeRoute(optional androidx.compose.ui.Modifier modifier, optional com.jarvis.internal.feature.home.presentation.HomeViewModel viewModel);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HomeScreen(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.home.presentation.HomeUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.home.presentation.HomeEvent,kotlin.Unit> onEvent, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HomeUiData {
+    ctor public HomeUiData(optional com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics? enhancedMetrics, optional com.jarvis.core.internal.domain.performance.PerformanceSnapshot? performanceSnapshot, optional com.jarvis.internal.feature.home.domain.entity.SessionFilter selectedSessionFilter, optional java.util.List<? extends com.jarvis.internal.feature.home.domain.entity.DashboardCardType> cardOrder, optional boolean isDragging, optional Integer? dragFromIndex, optional Integer? dragToIndex, optional boolean isRefreshing, optional long lastUpdated);
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics? component1();
+    method public com.jarvis.core.internal.domain.performance.PerformanceSnapshot? component2();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter component3();
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.DashboardCardType> component4();
+    method public boolean component5();
+    method public Integer? component6();
+    method public Integer? component7();
+    method public boolean component8();
+    method public long component9();
+    method public com.jarvis.internal.feature.home.presentation.HomeUiData copy(com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics? enhancedMetrics, com.jarvis.core.internal.domain.performance.PerformanceSnapshot? performanceSnapshot, com.jarvis.internal.feature.home.domain.entity.SessionFilter selectedSessionFilter, java.util.List<? extends com.jarvis.internal.feature.home.domain.entity.DashboardCardType> cardOrder, boolean isDragging, Integer? dragFromIndex, Integer? dragToIndex, boolean isRefreshing, long lastUpdated);
+    method public java.util.List<com.jarvis.internal.feature.home.domain.entity.DashboardCardType> getCardOrder();
+    method public Integer? getDragFromIndex();
+    method public Integer? getDragToIndex();
+    method public com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics? getEnhancedMetrics();
+    method public long getLastUpdated();
+    method public com.jarvis.core.internal.domain.performance.PerformanceSnapshot? getPerformanceSnapshot();
+    method public com.jarvis.internal.feature.home.domain.entity.SessionFilter getSelectedSessionFilter();
+    method public boolean isDragging();
+    method public boolean isRefreshing();
+    property public final java.util.List<com.jarvis.internal.feature.home.domain.entity.DashboardCardType> cardOrder;
+    property public final Integer? dragFromIndex;
+    property public final Integer? dragToIndex;
+    property public final com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics? enhancedMetrics;
+    property public final boolean isDragging;
+    property public final boolean isRefreshing;
+    property public final long lastUpdated;
+    property public final com.jarvis.core.internal.domain.performance.PerformanceSnapshot? performanceSnapshot;
+    property public final com.jarvis.internal.feature.home.domain.entity.SessionFilter selectedSessionFilter;
+    field public static final com.jarvis.internal.feature.home.presentation.HomeUiData.Companion Companion;
+  }
+
+  public static final class HomeUiData.Companion {
+    method public com.jarvis.internal.feature.home.presentation.HomeUiData getMockHomeUiData();
+    property public final com.jarvis.internal.feature.home.presentation.HomeUiData mockHomeUiData;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class HomeViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public HomeViewModel(com.jarvis.internal.feature.home.domain.repository.DashboardRepository dashboardRepository, com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase getPerformanceMetricsUseCase, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.home.presentation.HomeUiData>> getUiState();
+    method public void onEvent(com.jarvis.internal.feature.home.presentation.HomeEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.home.presentation.HomeUiData>> uiState;
+  }
+
+}
+
+package com.jarvis.internal.feature.home.presentation.components {
+
+  public final class HealthScoreGaugeKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HealthScoreGauge(com.jarvis.internal.feature.home.domain.entity.HealthScore healthScore, optional androidx.compose.ui.Modifier modifier, optional float size, optional float strokeWidth, optional int indicatorCount, optional int animationDurationMs);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HealthSummary(com.jarvis.internal.feature.home.domain.entity.HealthScore healthScore, optional androidx.compose.ui.Modifier modifier, optional float gaugeSize);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HealthSummaryCard(com.jarvis.internal.feature.home.domain.entity.HealthScore healthScore, optional androidx.compose.ui.Modifier modifier, optional float gaugeSize);
+  }
+
+  public final class HttpMethodsDonutChartKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HttpMethodsCard(optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethods, optional androidx.compose.ui.Modifier modifier, optional float chartSize);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HttpMethodsDonutChart(java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethods, optional androidx.compose.ui.Modifier modifier, optional float size, optional float strokeWidth, optional int animationDurationMs, optional boolean showCenterTotal);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void HttpMethodsWithDetails(optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.HttpMethodData> httpMethods, optional float chartSize, optional boolean inline);
+  }
+
+  public final class NetworkAreaChartKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void NetworkAreaChart(java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> dataPoints, optional androidx.compose.ui.Modifier modifier, optional String? title, optional float height, optional boolean showGrid, optional boolean showAverageLine, optional boolean enableInteraction, optional int animationDurationMs);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void NetworkAreaChartContent(java.util.List<com.jarvis.core.internal.designsystem.component.charts.DSChartDataPoint> chartDataPoints, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> dataPoints, float height, boolean showGrid, int animationDurationMs, String contentDesc);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void NetworkChartHeader(optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> dataPoints, long lineColor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void NetworkOverviewCard(java.util.List<com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint> dataPoints, int totalRequests, float averageResponseTime, float errorRate, optional androidx.compose.ui.Modifier modifier, optional float chartHeight);
+  }
+
+  public final class PerformanceChartComponentsKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void CpuChart(com.jarvis.core.internal.domain.performance.CpuMetrics? cpuMetrics, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void MemoryChart(com.jarvis.core.internal.domain.performance.MemoryMetrics? memoryMetrics, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void PerformanceOverviewCardChart(com.jarvis.core.internal.domain.performance.PerformanceSnapshot? performanceSnapshot, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void PerformanceOverviewCharts(com.jarvis.core.internal.domain.performance.PerformanceSnapshot performanceSnapshot, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final class PreferencesOverviewChartKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void PreferencesOverviewCardChart(optional androidx.compose.ui.Modifier modifier, optional String? title, com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics preferencesMetrics, optional float donutSize, optional float donutStroke);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void PreferencesOverviewChart(optional androidx.compose.ui.Modifier modifier, optional String? title, com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics preferencesMetrics, optional float donutSize, optional float donutStroke);
+  }
+
+  public final class SessionFilterChipKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void ExtendedSessionFilterChips(com.jarvis.internal.feature.home.domain.entity.SessionFilter selectedFilter, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.home.domain.entity.SessionFilter,kotlin.Unit> onFilterSelected, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SessionFilterChip(com.jarvis.internal.feature.home.domain.entity.SessionFilter filter, boolean isSelected, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.home.domain.entity.SessionFilter,kotlin.Unit> onSelected, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Brush selectedGradient);
+  }
+
+  public final class SlowestEndpointsListKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SlowestEndpointsList(optional androidx.compose.ui.Modifier modifier, optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowEndpoints, optional int maxItems);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SlowestEndpointsListCard(optional androidx.compose.ui.Modifier modifier, optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowEndpoints, optional int maxItems);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SlowestEndpointsSummary(java.util.List<com.jarvis.internal.feature.home.domain.entity.SlowEndpointData> slowEndpoints, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TooltipData {
+    ctor public TooltipData(float value, long time, float x, float y);
+    method public float component1();
+    method public long component2();
+    method public float component3();
+    method public float component4();
+    method public com.jarvis.internal.feature.home.presentation.components.TooltipData copy(float value, long time, float x, float y);
+    method public long getTime();
+    method public float getValue();
+    method public float getX();
+    method public float getY();
+    property public final long time;
+    property public final float value;
+    property public final float x;
+    property public final float y;
+  }
+
+  public final class TopEndpointsBarChartKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void CompactEndpointsChart(java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> endpoints, optional androidx.compose.ui.Modifier modifier, optional int height);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void TopEndpointsBarChart(optional androidx.compose.ui.Modifier modifier, optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> endpoints, optional int maxItems);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void TopEndpointsBarChartCard(optional String? title, java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> endpoints, optional androidx.compose.ui.Modifier modifier, optional int maxItems);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void TopEndpointsCard(java.util.List<com.jarvis.internal.feature.home.domain.entity.EndpointData> endpoints, optional androidx.compose.ui.Modifier modifier);
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.data.remote {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface RatingApiService {
+    method @retrofit2.http.POST("ratings") public suspend Object? submitRating(@retrofit2.http.Body com.jarvis.internal.feature.settings.data.remote.dto.RatingDto rating, kotlin.coroutines.Continuation<? super com.jarvis.internal.feature.settings.data.remote.dto.RatingSubmissionResponseDto>);
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.data.remote.dto {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RatingDto {
+    ctor public RatingDto(@com.google.gson.annotations.SerializedName("stars") int stars, @com.google.gson.annotations.SerializedName("description") String description, optional @com.google.gson.annotations.SerializedName("user_id") String? userId, @com.google.gson.annotations.SerializedName("timestamp") long timestamp, optional @com.google.gson.annotations.SerializedName("version") String? version, optional @com.google.gson.annotations.SerializedName("platform") String platform, optional @com.google.gson.annotations.SerializedName("sdk_version") String sdkVersion);
+    method public int component1();
+    method public String component2();
+    method public String? component3();
+    method public long component4();
+    method public String? component5();
+    method public String component6();
+    method public String component7();
+    method public com.jarvis.internal.feature.settings.data.remote.dto.RatingDto copy(int stars, String description, String? userId, long timestamp, String? version, String platform, String sdkVersion);
+    method public String getDescription();
+    method public String getPlatform();
+    method public String getSdkVersion();
+    method public int getStars();
+    method public long getTimestamp();
+    method public String? getUserId();
+    method public String? getVersion();
+    property public final String description;
+    property public final String platform;
+    property public final String sdkVersion;
+    property public final int stars;
+    property public final long timestamp;
+    property public final String? userId;
+    property public final String? version;
+  }
+
+  public final class RatingDtoKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult toDomain(com.jarvis.internal.feature.settings.data.remote.dto.RatingSubmissionResponseDto);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.jarvis.internal.feature.settings.data.remote.dto.RatingDto toDto(com.jarvis.internal.feature.settings.domain.entity.Rating);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RatingSubmissionResponseDto {
+    ctor public RatingSubmissionResponseDto(@com.google.gson.annotations.SerializedName("success") boolean success, @com.google.gson.annotations.SerializedName("message") String message, optional @com.google.gson.annotations.SerializedName("submission_id") String? submissionId, optional @com.google.gson.annotations.SerializedName("timestamp") Long? timestamp);
+    method public boolean component1();
+    method public String component2();
+    method public String? component3();
+    method public Long? component4();
+    method public com.jarvis.internal.feature.settings.data.remote.dto.RatingSubmissionResponseDto copy(boolean success, String message, String? submissionId, Long? timestamp);
+    method public String getMessage();
+    method public String? getSubmissionId();
+    method public boolean getSuccess();
+    method public Long? getTimestamp();
+    property public final String message;
+    property public final String? submissionId;
+    property public final boolean success;
+    property public final Long? timestamp;
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.data.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class RatingRepositoryImpl implements com.jarvis.internal.feature.settings.domain.repository.RatingRepository {
+    ctor @javax.inject.Inject public RatingRepositoryImpl(com.jarvis.internal.feature.settings.data.remote.RatingApiService ratingApiService);
+    method public suspend Object? submitRating(com.jarvis.internal.feature.settings.domain.entity.Rating rating, kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult>>>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SettingsRepositoryImpl implements com.jarvis.internal.feature.settings.domain.repository.SettingsRepository {
+    ctor @javax.inject.Inject public SettingsRepositoryImpl(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public suspend Object? getAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.AppInfo>>>);
+    method public suspend Object? getHostAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.HostAppInfo>>>);
+    method public suspend Object? getSdkInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.SdkInfo>>>);
+    method public suspend Object? getSettingsAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo>>>);
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.di {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(SingletonComponent::class) public abstract class SettingsDataModule {
+    ctor public SettingsDataModule();
+    method @dagger.Binds @javax.inject.Singleton public abstract com.jarvis.internal.feature.settings.domain.repository.RatingRepository bindRatingRepository(com.jarvis.internal.feature.settings.data.repository.RatingRepositoryImpl ratingRepositoryImpl);
+    method @dagger.Binds @javax.inject.Singleton public abstract com.jarvis.internal.feature.settings.domain.repository.SettingsRepository bindSettingsRepository(com.jarvis.internal.feature.settings.data.repository.SettingsRepositoryImpl settingsRepositoryImpl);
+    field public static final com.jarvis.internal.feature.settings.di.SettingsDataModule.Companion Companion;
+  }
+
+  public static final class SettingsDataModule.Companion {
+    method @dagger.Provides @javax.inject.Singleton public com.jarvis.internal.feature.settings.data.remote.RatingApiService provideRatingApiService(@javax.inject.Named("RatingApi") retrofit2.Retrofit retrofit);
+    method @dagger.Provides @javax.inject.Named("RatingApiOkHttp") @javax.inject.Singleton public okhttp3.OkHttpClient provideRatingOkHttpClient();
+    method @dagger.Provides @javax.inject.Named("RatingApi") @javax.inject.Singleton public retrofit2.Retrofit provideRatingRetrofit(@javax.inject.Named("RatingApiOkHttp") okhttp3.OkHttpClient okHttpClient);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(ActivityRetainedComponent::class) public final class SettingsPresentationModule {
+    method @dagger.Provides @dagger.multibindings.IntoSet public error.NonExistentClass! provideEntryProviderInstaller(@com.jarvis.core.internal.navigation.JarvisSDKNavigator com.jarvis.core.internal.navigation.Navigator navigator);
+    field public static final com.jarvis.internal.feature.settings.di.SettingsPresentationModule INSTANCE;
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.domain.entity {
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class AppInfo {
+    ctor @Deprecated public AppInfo(String appName, String version, String buildNumber, String packageName);
+    method @Deprecated public String component1();
+    method @Deprecated public String component2();
+    method @Deprecated public String component3();
+    method @Deprecated public String component4();
+    method @Deprecated public com.jarvis.internal.feature.settings.domain.entity.AppInfo copy(String appName, String version, String buildNumber, String packageName);
+    method @Deprecated public String getAppName();
+    method @Deprecated public String getBuildNumber();
+    method @Deprecated public String getPackageName();
+    method @Deprecated public String getVersion();
+    property @Deprecated public final String appName;
+    property @Deprecated public final String buildNumber;
+    property @Deprecated public final String packageName;
+    property @Deprecated public final String version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class HostAppInfo {
+    ctor public HostAppInfo(String appName, String version, String buildNumber, String packageName, optional Integer? minSdkVersion, optional Integer? targetSdkVersion, optional java.util.List<java.lang.String> permissions);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public Integer? component5();
+    method public Integer? component6();
+    method public java.util.List<java.lang.String> component7();
+    method public com.jarvis.internal.feature.settings.domain.entity.HostAppInfo copy(String appName, String version, String buildNumber, String packageName, Integer? minSdkVersion, Integer? targetSdkVersion, java.util.List<java.lang.String> permissions);
+    method public String getAppName();
+    method public String getBuildNumber();
+    method public Integer? getMinSdkVersion();
+    method public String getPackageName();
+    method public java.util.List<java.lang.String> getPermissions();
+    method public Integer? getTargetSdkVersion();
+    method public String getVersion();
+    property public final String appName;
+    property public final String buildNumber;
+    property public final Integer? minSdkVersion;
+    property public final String packageName;
+    property public final java.util.List<java.lang.String> permissions;
+    property public final Integer? targetSdkVersion;
+    property public final String version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Rating {
+    ctor public Rating(int stars, String description, optional String? userId, optional long timestamp, optional String? version);
+    method public int component1();
+    method public String component2();
+    method public String? component3();
+    method public long component4();
+    method public String? component5();
+    method public com.jarvis.internal.feature.settings.domain.entity.Rating copy(int stars, String description, String? userId, long timestamp, String? version);
+    method public String getDescription();
+    method public int getStars();
+    method public long getTimestamp();
+    method public String? getUserId();
+    method public String? getVersion();
+    property public final String description;
+    property public final int stars;
+    property public final long timestamp;
+    property public final String? userId;
+    property public final String? version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RatingSubmissionResult {
+    ctor public RatingSubmissionResult(boolean success, optional String? submissionId);
+    method public boolean component1();
+    method public String? component2();
+    method public com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult copy(boolean success, String? submissionId);
+    method public String? getSubmissionId();
+    method public boolean getSuccess();
+    property public final String? submissionId;
+    property public final boolean success;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SdkInfo {
+    ctor public SdkInfo(optional String name, String version, String buildNumber);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public com.jarvis.internal.feature.settings.domain.entity.SdkInfo copy(String name, String version, String buildNumber);
+    method public String getBuildNumber();
+    method public String getName();
+    method public String getVersion();
+    property public final String buildNumber;
+    property public final String name;
+    property public final String version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract sealed class SettingsAction {
+  }
+
+  public static final class SettingsAction.NavigateToInspector extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.NavigateToInspector INSTANCE;
+  }
+
+  public static final class SettingsAction.NavigateToLogging extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.NavigateToLogging INSTANCE;
+  }
+
+  public static final class SettingsAction.NavigateToPreferences extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.NavigateToPreferences INSTANCE;
+  }
+
+  public static final class SettingsAction.OpenEmail extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    ctor public SettingsAction.OpenEmail(String email, String subject);
+    method public String component1();
+    method public String component2();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAction.OpenEmail copy(String email, String subject);
+    method public String getEmail();
+    method public String getSubject();
+    property public final String email;
+    property public final String subject;
+  }
+
+  public static final class SettingsAction.OpenUrl extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    ctor public SettingsAction.OpenUrl(String url);
+    method public String component1();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAction.OpenUrl copy(String url);
+    method public String getUrl();
+    property public final String url;
+  }
+
+  public static final class SettingsAction.RateApp extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.RateApp INSTANCE;
+  }
+
+  public static final class SettingsAction.ShareApp extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    ctor public SettingsAction.ShareApp(String url);
+    method public String component1();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAction.ShareApp copy(String url);
+    method public String getUrl();
+    property public final String url;
+  }
+
+  public static final class SettingsAction.ShowCallingAppDetails extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.ShowCallingAppDetails INSTANCE;
+  }
+
+  public static final class SettingsAction.Version extends com.jarvis.internal.feature.settings.domain.entity.SettingsAction {
+    field public static final com.jarvis.internal.feature.settings.domain.entity.SettingsAction.Version INSTANCE;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SettingsAppInfo {
+    ctor public SettingsAppInfo(com.jarvis.internal.feature.settings.domain.entity.SdkInfo sdkInfo, com.jarvis.internal.feature.settings.domain.entity.HostAppInfo hostAppInfo);
+    method public com.jarvis.internal.feature.settings.domain.entity.SdkInfo component1();
+    method public com.jarvis.internal.feature.settings.domain.entity.HostAppInfo component2();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo copy(com.jarvis.internal.feature.settings.domain.entity.SdkInfo sdkInfo, com.jarvis.internal.feature.settings.domain.entity.HostAppInfo hostAppInfo);
+    method public com.jarvis.internal.feature.settings.domain.entity.HostAppInfo getHostAppInfo();
+    method public com.jarvis.internal.feature.settings.domain.entity.SdkInfo getSdkInfo();
+    property public final com.jarvis.internal.feature.settings.domain.entity.HostAppInfo hostAppInfo;
+    property public final com.jarvis.internal.feature.settings.domain.entity.SdkInfo sdkInfo;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SettingsGroup {
+    ctor public SettingsGroup(String title, optional String? description, java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsItem> items);
+    method public String component1();
+    method public String? component2();
+    method public java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsItem> component3();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsGroup copy(String title, String? description, java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsItem> items);
+    method public String? getDescription();
+    method public java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsItem> getItems();
+    method public String getTitle();
+    property public final String? description;
+    property public final java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsItem> items;
+    property public final String title;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum SettingsIcon {
+    method public static com.jarvis.internal.feature.settings.domain.entity.SettingsIcon valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.settings.domain.entity.SettingsIcon[] values();
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon APP;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon EMAIL;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon GITHUB;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon INFO;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon INSPECTOR;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon LINK;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon LOGS;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon PREFERENCES;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon RELEASE_NOTES;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon SHARE;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon STAR;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon TWITTER;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon VERSION;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SettingsItem {
+    ctor public SettingsItem(String id, String title, optional String? description, optional String? value, optional com.jarvis.internal.feature.settings.domain.entity.SettingsIcon icon, optional com.jarvis.internal.feature.settings.domain.entity.SettingsItemType type, com.jarvis.internal.feature.settings.domain.entity.SettingsAction action, optional boolean isEnabled);
+    method public String component1();
+    method public String component2();
+    method public String? component3();
+    method public String? component4();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsIcon component5();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsItemType component6();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAction component7();
+    method public boolean component8();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsItem copy(String id, String title, String? description, String? value, com.jarvis.internal.feature.settings.domain.entity.SettingsIcon icon, com.jarvis.internal.feature.settings.domain.entity.SettingsItemType type, com.jarvis.internal.feature.settings.domain.entity.SettingsAction action, boolean isEnabled);
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAction getAction();
+    method public String? getDescription();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsIcon getIcon();
+    method public String getId();
+    method public String getTitle();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsItemType getType();
+    method public String? getValue();
+    method public boolean isEnabled();
+    property public final com.jarvis.internal.feature.settings.domain.entity.SettingsAction action;
+    property public final String? description;
+    property public final com.jarvis.internal.feature.settings.domain.entity.SettingsIcon icon;
+    property public final String id;
+    property public final boolean isEnabled;
+    property public final String title;
+    property public final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType type;
+    property public final String? value;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum SettingsItemType {
+    method public static com.jarvis.internal.feature.settings.domain.entity.SettingsItemType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.feature.settings.domain.entity.SettingsItemType[] values();
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType ACTION;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType EXTERNAL_LINK;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType INFO;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType NAVIGATE;
+    enum_constant public static final com.jarvis.internal.feature.settings.domain.entity.SettingsItemType TOGGLE;
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.domain.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface RatingRepository {
+    method public suspend Object? submitRating(com.jarvis.internal.feature.settings.domain.entity.Rating rating, kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult>>>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface SettingsRepository {
+    method @Deprecated public suspend Object? getAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.AppInfo>>>);
+    method public suspend Object? getHostAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.HostAppInfo>>>);
+    method public suspend Object? getSdkInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.SdkInfo>>>);
+    method public suspend Object? getSettingsAppInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.Flow<? extends kotlin.Result<? extends com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo>>>);
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.domain.usecase {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetAppInfoUseCase {
+    ctor @javax.inject.Inject public GetAppInfoUseCase(com.jarvis.internal.feature.settings.domain.repository.SettingsRepository settingsRepository);
+    method public operator kotlinx.coroutines.flow.Flow<kotlin.Result<com.jarvis.internal.feature.settings.domain.entity.AppInfo>> invoke();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetSettingsAppInfoUseCase {
+    ctor @javax.inject.Inject public GetSettingsAppInfoUseCase(com.jarvis.internal.feature.settings.domain.repository.SettingsRepository settingsRepository);
+    method public operator kotlinx.coroutines.flow.Flow<kotlin.Result<com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo>> invoke();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetSettingsItemsUseCase {
+    ctor @javax.inject.Inject public GetSettingsItemsUseCase(com.jarvis.internal.feature.settings.domain.repository.SettingsRepository settingsRepository);
+    method public operator kotlinx.coroutines.flow.Flow<kotlin.Result<java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup>>> invoke();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SubmitRatingUseCase {
+    ctor @javax.inject.Inject public SubmitRatingUseCase(com.jarvis.internal.feature.settings.domain.repository.RatingRepository ratingRepository);
+    method public operator kotlinx.coroutines.flow.Flow<kotlin.Result<com.jarvis.internal.feature.settings.domain.entity.RatingSubmissionResult>> invoke(com.jarvis.internal.feature.settings.domain.entity.Rating rating);
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.presentation {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract sealed class SettingsEvent {
+  }
+
+  public static final class SettingsEvent.HideCallingAppDetailsDialog extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.HideCallingAppDetailsDialog INSTANCE;
+  }
+
+  public static final class SettingsEvent.HideRatingDialog extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.HideRatingDialog INSTANCE;
+  }
+
+  public static final class SettingsEvent.LoadSettings extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.LoadSettings INSTANCE;
+  }
+
+  public static final class SettingsEvent.ShowCallingAppDetailsDialog extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.ShowCallingAppDetailsDialog INSTANCE;
+  }
+
+  public static final class SettingsEvent.ShowRatingDialog extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.ShowRatingDialog INSTANCE;
+  }
+
+  public static final class SettingsEvent.SubmitRating extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsEvent.SubmitRating INSTANCE;
+  }
+
+  public static final class SettingsEvent.UpdateRatingDescription extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    ctor public SettingsEvent.UpdateRatingDescription(String description);
+    method public String component1();
+    method public com.jarvis.internal.feature.settings.presentation.SettingsEvent.UpdateRatingDescription copy(String description);
+    method public String getDescription();
+    property public final String description;
+  }
+
+  public static final class SettingsEvent.UpdateRatingStars extends com.jarvis.internal.feature.settings.presentation.SettingsEvent {
+    ctor public SettingsEvent.UpdateRatingStars(int stars);
+    method public int component1();
+    method public com.jarvis.internal.feature.settings.presentation.SettingsEvent.UpdateRatingStars copy(int stars);
+    method public int getStars();
+    property public final int stars;
+  }
+
+  public final class SettingsScreenKt {
+    method @androidx.compose.runtime.Composable public static void SettingsRoute(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onNavigateToInspector, kotlin.jvm.functions.Function0<kotlin.Unit> onNavigateToPreferences, kotlin.jvm.functions.Function0<kotlin.Unit> onNavigateToLogging, optional com.jarvis.internal.feature.settings.presentation.SettingsViewModel viewModel);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SettingsScreen(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.settings.presentation.SettingsUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.settings.presentation.SettingsEvent,kotlin.Unit> onEvent, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.settings.domain.entity.SettingsAction,kotlin.Unit> onAction, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SettingsUiData {
+    ctor public SettingsUiData(optional java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup> settingsItems, optional com.jarvis.internal.feature.settings.domain.entity.AppInfo? appInfo, optional com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo? settingsAppInfo, optional boolean showDeleteDialog, optional boolean isDeletingData, optional String? deleteResult, optional boolean showRatingDialog, optional int ratingStars, optional String ratingDescription, optional boolean isSubmittingRating, optional boolean showCallingAppDetailsDialog);
+    method public java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup> component1();
+    method public boolean component10();
+    method public boolean component11();
+    method public com.jarvis.internal.feature.settings.domain.entity.AppInfo? component2();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo? component3();
+    method public boolean component4();
+    method public boolean component5();
+    method public String? component6();
+    method public boolean component7();
+    method public int component8();
+    method public String component9();
+    method public com.jarvis.internal.feature.settings.presentation.SettingsUiData copy(java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup> settingsItems, com.jarvis.internal.feature.settings.domain.entity.AppInfo? appInfo, com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo? settingsAppInfo, boolean showDeleteDialog, boolean isDeletingData, String? deleteResult, boolean showRatingDialog, int ratingStars, String ratingDescription, boolean isSubmittingRating, boolean showCallingAppDetailsDialog);
+    method public com.jarvis.internal.feature.settings.domain.entity.AppInfo? getAppInfo();
+    method public String? getDeleteResult();
+    method public String getRatingDescription();
+    method public int getRatingStars();
+    method public com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo? getSettingsAppInfo();
+    method public java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup> getSettingsItems();
+    method public boolean getShowCallingAppDetailsDialog();
+    method public boolean getShowDeleteDialog();
+    method public boolean getShowRatingDialog();
+    method public boolean isDeletingData();
+    method public boolean isSubmittingRating();
+    property public final com.jarvis.internal.feature.settings.domain.entity.AppInfo? appInfo;
+    property public final String? deleteResult;
+    property public final boolean isDeletingData;
+    property public final boolean isSubmittingRating;
+    property public final String ratingDescription;
+    property public final int ratingStars;
+    property public final com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo? settingsAppInfo;
+    property public final java.util.List<com.jarvis.internal.feature.settings.domain.entity.SettingsGroup> settingsItems;
+    property public final boolean showCallingAppDetailsDialog;
+    property public final boolean showDeleteDialog;
+    property public final boolean showRatingDialog;
+    field public static final com.jarvis.internal.feature.settings.presentation.SettingsUiData.Companion Companion;
+  }
+
+  public static final class SettingsUiData.Companion {
+    method public com.jarvis.internal.feature.settings.presentation.SettingsUiData getMockSettingsUiData();
+    property public final com.jarvis.internal.feature.settings.presentation.SettingsUiData mockSettingsUiData;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class SettingsViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public SettingsViewModel(com.jarvis.internal.feature.settings.domain.usecase.GetSettingsItemsUseCase getSettingsItemsUseCase, com.jarvis.internal.feature.settings.domain.usecase.GetAppInfoUseCase getAppInfoUseCase, com.jarvis.internal.feature.settings.domain.usecase.GetSettingsAppInfoUseCase getSettingsAppInfoUseCase, com.jarvis.internal.feature.settings.domain.usecase.SubmitRatingUseCase submitRatingUseCase, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.settings.presentation.SettingsUiData>> getUiState();
+    method public void onEvent(com.jarvis.internal.feature.settings.presentation.SettingsEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.internal.feature.settings.presentation.SettingsUiData>> uiState;
+  }
+
+}
+
+package com.jarvis.internal.feature.settings.presentation.components {
+
+  public final class AppDetailsBottomSheetKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void AppDetailsBottomSheet(com.jarvis.internal.feature.settings.domain.entity.HostAppInfo hostAppInfo, kotlin.jvm.functions.Function0<kotlin.Unit> onCancel, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final class RatingBottomSheetKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void RatingBottomSheet(com.jarvis.internal.feature.settings.presentation.components.RatingData ratingData, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onRatingChange, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onDescriptionChange, kotlin.jvm.functions.Function0<kotlin.Unit> onSubmit, kotlin.jvm.functions.Function0<kotlin.Unit> onCancel, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RatingData {
+    ctor public RatingData(optional int stars, optional String description, optional boolean isSubmitting);
+    method public int component1();
+    method public String component2();
+    method public boolean component3();
+    method public com.jarvis.internal.feature.settings.presentation.components.RatingData copy(int stars, String description, boolean isSubmitting);
+    method public String getDescription();
+    method public int getStars();
+    method public boolean isSubmitting();
+    property public final String description;
+    property public final boolean isSubmitting;
+    property public final int stars;
+  }
+
+  public final class SettingsItemRowKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SettingsGroup(com.jarvis.internal.feature.settings.domain.entity.SettingsGroup group, kotlin.jvm.functions.Function1<? super com.jarvis.internal.feature.settings.domain.entity.SettingsAction,kotlin.Unit> onAction, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void SettingsItemRow(com.jarvis.internal.feature.settings.domain.entity.SettingsItem item, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier);
+  }
+
+}
+
+package com.jarvis.internal.navigation {
+
+  public final class JarvisNavDisplayKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void JarvisSDKNavDisplay(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super com.jarvis.core.internal.navigation.NavigationRoute,kotlin.Unit> onCurrentDestinationChanged, com.jarvis.core.internal.navigation.Navigator navigator, java.util.Set<? extends error.NonExistentClass> entryProviderBuilders);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum JarvisTopLevelDestinations {
+    method public final com.jarvis.core.internal.navigation.NavigationRoute! getDestination();
+    method public final androidx.compose.ui.graphics.vector.ImageVector! getIcon();
+    method public final Integer! getIconContentDescription();
+    method public final kotlin.reflect.KClass<?>! getRoute();
+    method public final androidx.compose.ui.graphics.vector.ImageVector! getSelectedIcon();
+    method public final Integer! getSelectedIconContentDescription();
+    method public final int getTitleRes();
+    method public static com.jarvis.internal.navigation.JarvisTopLevelDestinations valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.navigation.JarvisTopLevelDestinations[] values();
+    property public final com.jarvis.core.internal.navigation.NavigationRoute! destination;
+    property public final androidx.compose.ui.graphics.vector.ImageVector! icon;
+    property public final Integer! iconContentDescription;
+    property public final kotlin.reflect.KClass<?>! route;
+    property public final androidx.compose.ui.graphics.vector.ImageVector! selectedIcon;
+    property public final Integer! selectedIconContentDescription;
+    property public final int titleRes;
+    enum_constant public static final com.jarvis.internal.navigation.JarvisTopLevelDestinations HOME;
+    enum_constant public static final com.jarvis.internal.navigation.JarvisTopLevelDestinations INSPECTOR;
+    enum_constant public static final com.jarvis.internal.navigation.JarvisTopLevelDestinations PREFERENCES;
+    enum_constant public static final com.jarvis.internal.navigation.JarvisTopLevelDestinations SETTINGS;
+  }
+
+}
+
+package com.jarvis.internal.ui {
+
+  public final class JarvisSDKApplicationKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void JarvisSDKApplication(com.jarvis.core.internal.navigation.Navigator navigator, java.util.Set<? extends error.NonExistentClass> entryProviderBuilders, optional kotlin.jvm.functions.Function0<kotlin.Unit> onDismiss);
+    method @androidx.compose.runtime.Composable public static void JarvisSDKTopBarCenterAligned(com.jarvis.core.internal.navigation.NavigationRoute destination, com.jarvis.core.internal.navigation.Navigator navigator, kotlin.jvm.functions.Function0<kotlin.Unit> onDismiss);
+    method @androidx.compose.runtime.Composable public static void JarvisSDKTopBarLarge(com.jarvis.core.internal.navigation.NavigationRoute destination, com.jarvis.core.internal.navigation.Navigator navigator, androidx.compose.material3.TopAppBarScrollBehavior scrollBehavior, kotlin.jvm.functions.Function0<kotlin.Unit> onDismiss);
+    method @androidx.compose.runtime.Composable public static void JarvisSDKTopBarMedium(com.jarvis.core.internal.navigation.NavigationRoute destination, com.jarvis.core.internal.navigation.Navigator navigator, androidx.compose.material3.TopAppBarScrollBehavior scrollBehavior, kotlin.jvm.functions.Function0<kotlin.Unit> onDismiss);
+  }
+
+  public final class JarvisSDKFabToolsKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void JarvisSDKFabTools(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onShowOverlay, optional kotlin.jvm.functions.Function0<kotlin.Unit> onShowInspector, optional kotlin.jvm.functions.Function0<kotlin.Unit> onShowPreferences, optional kotlin.jvm.functions.Function0<kotlin.Unit> onCloseSDK, optional boolean isJarvisActive);
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true) public static void JarvisSDKFabToolsPreview();
+  }
+
+}
+
+package com.jarvis.internal.ui.components {
+
+  public final class JarvisFabButtonKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void JarvisFabButton(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onInspectorClick, kotlin.jvm.functions.Function0<kotlin.Unit> onPreferencesClick, kotlin.jvm.functions.Function0<kotlin.Unit> onHomeClick, optional kotlin.jvm.functions.Function0<kotlin.Unit> onCloseClick);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true) public static void JarvisFabButtonPreview();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum MiniFabType {
+    method @androidx.compose.runtime.Composable public final kotlin.Pair<androidx.compose.runtime.State<java.lang.Integer>,androidx.compose.runtime.State<java.lang.Integer>> getPositionPx(boolean expanded, androidx.compose.ui.unit.Density density);
+    method public static com.jarvis.internal.ui.components.MiniFabType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.internal.ui.components.MiniFabType[] values();
+    enum_constant public static final com.jarvis.internal.ui.components.MiniFabType CLOSE;
+    enum_constant public static final com.jarvis.internal.ui.components.MiniFabType HOME;
+    enum_constant public static final com.jarvis.internal.ui.components.MiniFabType INSPECTOR;
+    enum_constant public static final com.jarvis.internal.ui.components.MiniFabType PREFERENCES;
+  }
+
+}
+

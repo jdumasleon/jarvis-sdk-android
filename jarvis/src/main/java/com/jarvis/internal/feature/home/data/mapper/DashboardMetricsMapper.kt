@@ -1,17 +1,20 @@
 package com.jarvis.internal.feature.home.data.mapper
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.home.domain.entity.DashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.NetworkMetrics
 import com.jarvis.internal.feature.home.domain.entity.PerformanceMetrics
 import com.jarvis.internal.feature.home.domain.entity.PerformanceRating
 import com.jarvis.internal.feature.home.domain.entity.PreferencesMetrics
-import com.jarvis.features.inspector.domain.entity.NetworkTransaction
-import com.jarvis.features.preferences.domain.entity.AppPreference
+import com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction
+import com.jarvis.features.preferences.internal.domain.entity.AppPreference
 import javax.inject.Inject
 
 /**
  * Mapper to convert raw data into dashboard metrics
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DashboardMetricsMapper @Inject constructor() {
 
     // ---- Public API ----

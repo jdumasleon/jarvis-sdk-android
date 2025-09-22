@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.vanniktech.maven.publish)
+    alias(libs.plugins.metalava)
 }
 
 android {
@@ -36,10 +37,25 @@ android {
     }
 
     namespace = "com.jarvis.library"
-    
+
     buildFeatures {
         buildConfig = true
     }
+}
+
+// Configure Metalava for API tracking
+metalava {
+    // Source paths for API generation
+    sourcePaths.setFrom("src/main/java")
+
+    // Output API file
+    filename.set("api/jarvis-api.txt")
+
+    // Report lint issues as errors
+    reportLintsAsErrors.set(false)
+
+    // Include signature version info
+    includeSignatureVersion.set(false)
 }
 
 // Configure repositories
@@ -155,7 +171,7 @@ mavenPublishing {
 
 dependencies {
     // Use implementation to include internal modules in AAR
-    implementation(projects.core)
+    api(projects.core)
 
     // Features that remain as separate modules
     implementation(projects.features.inspector)

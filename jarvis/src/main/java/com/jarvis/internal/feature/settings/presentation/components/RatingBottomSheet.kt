@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,14 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.jarvis.core.designsystem.component.DSBottomSheet
-import com.jarvis.core.designsystem.component.DSButton
-import com.jarvis.core.designsystem.component.DSButtonStyle
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.DSTextField
-import com.jarvis.core.designsystem.component.DSIconTint
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSBottomSheet
+import com.jarvis.core.internal.designsystem.component.DSButton
+import com.jarvis.core.internal.designsystem.component.DSButtonStyle
+import com.jarvis.core.internal.designsystem.component.DSIcon
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.DSTextField
+import com.jarvis.core.internal.designsystem.component.DSIconTint
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.library.R
 
 /**

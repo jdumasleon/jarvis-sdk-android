@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.domain.entity
+
+import androidx.annotation.RestrictTo
 
 /**
  * Contains application information for Settings screen

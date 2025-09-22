@@ -10,6 +10,8 @@ jvmTargetVersion = "17"
 leakcanaryAndroid = "2.14"
 androidGradlePlugin = "8.11.2"
 vanniktech-maven-publish = "0.28.0"
+metalava = "0.3.5"
+binary-compatibility-validator = "0.14.0"
 androidDesugarJdkLibs = "2.1.4"
 kotlin = "2.2.0"
 junit = "4.13.2"
@@ -228,6 +230,8 @@ protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven-publish" }
+metalava = { id = "me.tylerbwong.gradle.metalava", version.ref = "metalava" }
+binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
 
 # Plugins defined by this project
 jarvis-android-application = { id = "jarvis.android.application" }

@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.settings.domain.usecase
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAction
 import com.jarvis.internal.feature.settings.domain.entity.SettingsGroup
@@ -14,6 +16,7 @@ import javax.inject.Inject
 /**
  * Use case to get all settings items for the Settings screen
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GetSettingsItemsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {

@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.settings.domain.usecase
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +12,7 @@ import javax.inject.Inject
 /**
  * Use case to get settings application information
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GetSettingsAppInfoUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {

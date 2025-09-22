@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -11,10 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.charts.DSGaugeChart
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.charts.DSGaugeChart
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.internal.feature.home.domain.entity.HealthRating
 import com.jarvis.internal.feature.home.domain.entity.HealthScore
 import com.jarvis.internal.feature.home.domain.entity.HealthScoreMock.mockHealthScore
@@ -133,6 +136,7 @@ private fun getHealthScoreColor(rating: HealthRating): Color {
  * Health summary card with gauge and key metrics.
  */
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun HealthSummaryCard(
     healthScore: HealthScore,
     modifier: Modifier = Modifier,
@@ -152,6 +156,7 @@ fun HealthSummaryCard(
 }
 
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun HealthSummary(
     healthScore: HealthScore,
     modifier: Modifier = Modifier,

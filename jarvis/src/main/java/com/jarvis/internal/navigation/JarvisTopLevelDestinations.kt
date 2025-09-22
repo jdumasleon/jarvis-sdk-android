@@ -1,18 +1,21 @@
 package com.jarvis.internal.navigation
 
+import androidx.annotation.RestrictTo
+
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.navigation.NavigationRoute
-import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
+import com.jarvis.core.internal.designsystem.icons.DSIcons
+import com.jarvis.core.internal.navigation.NavigationRoute
+import com.jarvis.core.internal.navigation.routes.JarvisSDKHomeGraph
 import com.jarvis.library.R
 import com.jarvis.features.inspector.R as InspectorR
 import com.jarvis.features.preferences.R as PreferencesR
-import com.jarvis.core.navigation.routes.JarvisSDKInspectorGraph
-import com.jarvis.core.navigation.routes.JarvisSDKPreferencesGraph
-import com.jarvis.core.navigation.routes.JarvisSDKSettingsGraph
+import com.jarvis.core.internal.navigation.routes.JarvisSDKInspectorGraph
+import com.jarvis.core.internal.navigation.routes.JarvisSDKPreferencesGraph
+import com.jarvis.core.internal.navigation.routes.JarvisSDKSettingsGraph
 import kotlin.reflect.KClass
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum class JarvisTopLevelDestinations(
     val destination: NavigationRoute,
     val route: KClass<*>,

@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.settings.domain.repository
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.settings.domain.entity.AppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SdkInfo
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Repository interface for Settings functionality
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SettingsRepository {
 
     /**

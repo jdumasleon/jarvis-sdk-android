@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.domain.entity
+
+import androidx.annotation.RestrictTo
 
 /**
  * Overall health score and key metrics for the application

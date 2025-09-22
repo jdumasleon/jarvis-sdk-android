@@ -1,10 +1,12 @@
 package com.jarvis.internal.feature.home.presentation
 
+import androidx.annotation.RestrictTo
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
-import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
+import com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.home.domain.entity.DashboardCardType
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
 import com.jarvis.internal.feature.home.domain.repository.DashboardRepository
@@ -21,6 +23,7 @@ import javax.inject.Inject
  */
 @OptIn(FlowPreview::class)
 @HiltViewModel
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class HomeViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository,
     private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase,

@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -27,11 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.charts.DSAreaChart
-import com.jarvis.core.designsystem.component.charts.DSChartDataPoint
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.charts.DSAreaChart
+import com.jarvis.core.internal.designsystem.component.charts.DSChartDataPoint
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.internal.feature.home.domain.entity.EnhancedNetworkMetricsMock.mockEnhancedNetworkMetrics
 import com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint
 import com.jarvis.library.R

@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,15 +35,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.domain.performance.CpuMetrics
-import com.jarvis.core.domain.performance.FpsMetrics
-import com.jarvis.core.domain.performance.FpsStability
-import com.jarvis.core.domain.performance.MemoryMetrics
-import com.jarvis.core.domain.performance.MemoryPressure
-import com.jarvis.core.domain.performance.PerformanceSnapshot
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.domain.performance.CpuMetrics
+import com.jarvis.core.internal.domain.performance.FpsMetrics
+import com.jarvis.core.internal.domain.performance.FpsStability
+import com.jarvis.core.internal.domain.performance.MemoryMetrics
+import com.jarvis.core.internal.domain.performance.MemoryPressure
+import com.jarvis.core.internal.domain.performance.PerformanceSnapshot
 import kotlin.math.roundToInt
 
 /**

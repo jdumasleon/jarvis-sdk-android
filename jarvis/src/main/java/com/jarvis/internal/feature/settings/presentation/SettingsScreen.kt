@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.presentation
+
+import androidx.annotation.RestrictTo
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -12,17 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.components.ResourceStateContent
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.presentation.components.ResourceStateContent
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.settings.domain.entity.SettingsAction
 import com.jarvis.internal.feature.settings.presentation.SettingsUiData.Companion.mockSettingsUiData
 import com.jarvis.internal.feature.settings.presentation.components.SettingsGroup
 import com.jarvis.internal.feature.settings.presentation.components.RatingBottomSheet
 import com.jarvis.internal.feature.settings.presentation.components.RatingData
 import androidx.core.net.toUri
-import com.jarvis.core.presentation.utils.openUrl
-import com.jarvis.core.presentation.utils.shareUrl
+import com.jarvis.core.internal.presentation.utils.openUrl
+import com.jarvis.core.internal.presentation.utils.shareUrl
 import com.jarvis.internal.feature.settings.presentation.components.AppDetailsBottomSheet
 
 /**
@@ -69,7 +72,7 @@ fun SettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SettingsScreen(
+fun SettingsScreen(
     uiState: SettingsUiState,
     onEvent: (SettingsEvent) -> Unit,
     onAction: (SettingsAction) -> Unit,

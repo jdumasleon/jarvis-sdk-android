@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.home.data.analyzer
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.home.domain.entity.EnhancedPreferencesMetrics
 import com.jarvis.internal.feature.home.domain.entity.PreferenceInfo
 import com.jarvis.internal.feature.home.domain.entity.PreferenceSizeData
@@ -7,14 +9,15 @@ import com.jarvis.internal.feature.home.domain.entity.PreferenceTypeData
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
 import com.jarvis.internal.feature.home.domain.entity.StorageUsageData
 import com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint
-import com.jarvis.features.preferences.domain.entity.AppPreference
-import com.jarvis.features.preferences.domain.entity.PreferenceStorageType
+import com.jarvis.features.preferences.internal.domain.entity.AppPreference
+import com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType
 import javax.inject.Inject
 import kotlin.math.max
 
 /**
  * Analyzer for preferences data to generate enhanced metrics and analytics
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PreferencesAnalyzer @Inject constructor() {
     
     fun analyzePreferencesMetrics(

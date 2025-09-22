@@ -1,8 +1,11 @@
 package com.jarvis.internal.feature.home.domain.entity
 
+import androidx.annotation.RestrictTo
+
 /**
  * Dashboard card types that can be displayed in the analytics grid
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum class DashboardCardType(
     val title: String,
     val description: String

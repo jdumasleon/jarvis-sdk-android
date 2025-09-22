@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.presentation
+
+import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -33,15 +36,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSPullToRefresh
-import com.jarvis.core.designsystem.component.DSReorderableItem
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.rememberReorderableLazyStaggeredGridState
-import com.jarvis.core.designsystem.component.DSIconTint
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.presentation.components.ResourceStateContent
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSPullToRefresh
+import com.jarvis.core.internal.designsystem.component.DSReorderableItem
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.rememberReorderableLazyStaggeredGridState
+import com.jarvis.core.internal.designsystem.component.DSIconTint
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.presentation.components.ResourceStateContent
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.home.domain.entity.DashboardCardType
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
 import com.jarvis.internal.feature.home.presentation.components.NetworkAreaChart
@@ -55,11 +58,11 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetricsMock
-import com.jarvis.core.designsystem.component.DSFlag
-import com.jarvis.core.designsystem.component.FlagStyle
-import com.jarvis.core.designsystem.component.DSIconButton
-import com.jarvis.core.domain.performance.PerformanceSnapshot
-import com.jarvis.core.domain.performance.PerformanceSnapshotMock
+import com.jarvis.core.internal.designsystem.component.DSFlag
+import com.jarvis.core.internal.designsystem.component.FlagStyle
+import com.jarvis.core.internal.designsystem.component.DSIconButton
+import com.jarvis.core.internal.domain.performance.PerformanceSnapshot
+import com.jarvis.core.internal.domain.performance.PerformanceSnapshotMock
 import com.jarvis.internal.feature.home.presentation.components.HealthSummary
 import com.jarvis.internal.feature.home.presentation.components.HttpMethodsWithDetails
 import com.jarvis.internal.feature.home.presentation.components.PerformanceOverviewCharts
@@ -83,7 +86,7 @@ fun HomeRoute(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-internal fun HomeScreen(
+fun HomeScreen(
     uiState: HomeUiState,
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier

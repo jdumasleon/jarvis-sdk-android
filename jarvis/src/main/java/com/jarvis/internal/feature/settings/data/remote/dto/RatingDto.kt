@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.data.remote.dto
+
+import androidx.annotation.RestrictTo
 
 import com.google.gson.annotations.SerializedName
 import com.jarvis.internal.feature.settings.domain.entity.Rating

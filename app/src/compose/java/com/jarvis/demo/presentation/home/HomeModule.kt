@@ -1,7 +1,7 @@
 package com.jarvis.demo.presentation.home
 
 import androidx.navigation3.runtime.entry
-import com.jarvis.core.navigation.EntryProviderInstaller
+import com.jarvis.core.internal.navigation.EntryProviderInstaller
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

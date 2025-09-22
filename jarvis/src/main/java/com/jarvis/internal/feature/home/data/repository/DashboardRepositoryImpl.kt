@@ -1,14 +1,16 @@
 package com.jarvis.internal.feature.home.data.repository
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.home.data.mapper.DashboardMetricsMapper
 import com.jarvis.internal.feature.home.data.mapper.EnhancedDashboardMetricsMapper
-import com.jarvis.core.common.di.CoroutineDispatcherModule
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule
 import com.jarvis.internal.feature.home.domain.entity.DashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
 import com.jarvis.internal.feature.home.domain.repository.DashboardRepository
-import com.jarvis.features.inspector.domain.repository.NetworkRepository
-import com.jarvis.features.preferences.domain.repository.PreferencesRepository
+import com.jarvis.features.inspector.internal.domain.repository.NetworkRepository
+import com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -20,6 +22,7 @@ import javax.inject.Inject
  * Implementation of DashboardRepository
  * Aggregates data from Inspector and Preferences repositories with enhanced analytics
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DashboardRepositoryImpl @Inject constructor(
     private val networkRepository: NetworkRepository,
     private val preferencesRepository: PreferencesRepository,

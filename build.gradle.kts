@@ -42,4 +42,17 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false // Plugin applied to allow module graph generation
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.ktlint) apply true
+    alias(libs.plugins.binaryCompatibilityValidator) apply true
+}
+
+// Configure Binary Compatibility Validator for API tracking
+apiValidation {
+    // Only validate these modules (our SDK modules)
+    validationDisabled = false
+
+    // Track these modules for binary compatibility
+    ignoredProjects += listOf("app") // Exclude demo app
+
+    // Generate API files in each module
+    apiDumpDirectory = "api"
 }

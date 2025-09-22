@@ -1,7 +1,10 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.di
 
-import com.jarvis.core.domain.performance.GetPerformanceMetricsUseCase
-import com.jarvis.core.domain.performance.PerformanceRepository
+import androidx.annotation.RestrictTo
+
+import com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase
+import com.jarvis.core.internal.domain.performance.PerformanceRepository
 import com.jarvis.internal.feature.home.data.analyzer.PreferencesAnalyzer
 import com.jarvis.internal.feature.home.data.repository.DashboardRepositoryImpl
 import com.jarvis.internal.feature.home.domain.repository.DashboardRepository

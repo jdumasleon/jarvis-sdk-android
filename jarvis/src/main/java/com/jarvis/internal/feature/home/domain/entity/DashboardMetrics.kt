@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.home.domain.entity
+
+import androidx.annotation.RestrictTo
 
 /**
  * Dashboard metrics aggregated from different Jarvis features
@@ -76,7 +79,7 @@ enum class PerformanceRating {
 
 
 // Mock objects for testing and previews
-object DashboardMetricsMocks {
+internal object DashboardMetricsMocks {
     val mockNetworkMetrics = NetworkMetrics(
         totalCalls = 247,
         averageSpeed = 156.8,

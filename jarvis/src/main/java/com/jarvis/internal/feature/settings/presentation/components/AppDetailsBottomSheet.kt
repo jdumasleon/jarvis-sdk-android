@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.feature.settings.presentation.components
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.jarvis.core.designsystem.component.DSBottomSheet
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.component.DSBottomSheet
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.internal.feature.settings.domain.entity.HostAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.AppInfoMock.mockHostAppInfo
 import com.jarvis.library.R

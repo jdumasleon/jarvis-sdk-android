@@ -1,5 +1,7 @@
 package com.jarvis.internal.feature.home.domain.repository
 
+import androidx.annotation.RestrictTo
+
 import com.jarvis.internal.feature.home.domain.entity.DashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
@@ -8,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Repository interface for dashboard metrics data
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface DashboardRepository {
     /**
      * Get real-time dashboard metrics

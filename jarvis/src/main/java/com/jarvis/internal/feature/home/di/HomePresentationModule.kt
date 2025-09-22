@@ -1,8 +1,10 @@
 package com.jarvis.internal.feature.home.di
 
+import androidx.annotation.RestrictTo
+
 import androidx.navigation3.runtime.entry
-import com.jarvis.core.navigation.EntryProviderInstaller
-import com.jarvis.core.navigation.routes.JarvisSDKHomeGraph
+import com.jarvis.core.internal.navigation.EntryProviderInstaller
+import com.jarvis.core.internal.navigation.routes.JarvisSDKHomeGraph
 import com.jarvis.internal.feature.home.presentation.HomeRoute
 import dagger.Module
 import dagger.Provides
@@ -12,6 +14,7 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object HomePresentationModule {
 
     @IntoSet

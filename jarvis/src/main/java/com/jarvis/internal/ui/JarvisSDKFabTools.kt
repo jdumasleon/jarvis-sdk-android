@@ -1,5 +1,7 @@
 package com.jarvis.internal.ui
 
+import androidx.annotation.RestrictTo
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -12,14 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.jarvis.internal.ui.components.JarvisFabButton
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 
 /**
  * Main Jarvis SDK overlay component
  * Provides floating UI and shake detection for development tools
  */
 @Composable
-internal fun JarvisSDKFabTools(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun JarvisSDKFabTools(
     modifier: Modifier = Modifier,
     onShowOverlay: () -> Unit,
     onShowInspector: () -> Unit = {},

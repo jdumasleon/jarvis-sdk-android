@@ -1,4 +1,7 @@
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package com.jarvis.internal.ui
+
+import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -15,24 +18,24 @@ import androidx.compose.ui.res.stringResource
 import com.jarvis.internal.navigation.JarvisSDKNavDisplay
 import com.jarvis.internal.navigation.JarvisTopLevelDestinations
 import com.jarvis.core.R
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSIconTint
-import com.jarvis.core.designsystem.component.DSLargeTopAppBar
-import com.jarvis.core.designsystem.component.rememberJarvisPrimaryGradient
-import com.jarvis.core.designsystem.component.DSMediumTopAppBar
-import com.jarvis.core.designsystem.component.DSNavigationBar
-import com.jarvis.core.designsystem.component.DSNavigationBarItem
-import com.jarvis.core.designsystem.component.DSTopAppBar
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.navigation.ActionRegistry
-import com.jarvis.core.navigation.EntryProviderInstaller
-import com.jarvis.core.navigation.NavigationRoute
-import com.jarvis.core.navigation.Navigator
-import com.jarvis.core.navigation.TopAppBarType
+import com.jarvis.core.internal.designsystem.component.DSIcon
+import com.jarvis.core.internal.designsystem.component.DSIconTint
+import com.jarvis.core.internal.designsystem.component.DSLargeTopAppBar
+import com.jarvis.core.internal.designsystem.component.rememberJarvisPrimaryGradient
+import com.jarvis.core.internal.designsystem.component.DSMediumTopAppBar
+import com.jarvis.core.internal.designsystem.component.DSNavigationBar
+import com.jarvis.core.internal.designsystem.component.DSNavigationBarItem
+import com.jarvis.core.internal.designsystem.component.DSTopAppBar
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.navigation.ActionRegistry
+import com.jarvis.core.internal.navigation.EntryProviderInstaller
+import com.jarvis.core.internal.navigation.NavigationRoute
+import com.jarvis.core.internal.navigation.Navigator
+import com.jarvis.core.internal.navigation.TopAppBarType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun JarvisSDKApplication(
+fun JarvisSDKApplication(
     navigator: Navigator,
     entryProviderBuilders: Set<@JvmSuppressWildcards EntryProviderInstaller>,
     onDismiss: () -> Unit = {}

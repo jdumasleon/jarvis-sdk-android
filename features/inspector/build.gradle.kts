@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jarvis.android.library.jacoco)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.vanniktech.maven.publish)
+    alias(libs.plugins.metalava)
 }
 
 android {
@@ -16,9 +17,24 @@ android {
     }
 }
 
+// Configure Metalava for API tracking
+metalava {
+    // Source paths for API generation
+    sourcePaths.setFrom("src/main/java")
+
+    // Output API file
+    filename.set("api/inspector-api.txt")
+
+    // Report lint issues as errors
+    reportLintsAsErrors.set(false)
+
+    // Include signature version info
+    includeSignatureVersion.set(false)
+}
+
 dependencies {
     // Core dependency
-    implementation(projects.core)
+    api(projects.core)
 
     // External libraries
     implementation(platform(libs.okhttp.bom))
