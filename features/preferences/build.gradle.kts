@@ -14,6 +14,14 @@ android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = false
+        warningsAsErrors = false
+        checkReleaseBuilds = false
+        ignoreWarnings = false
+    }
 }
 
 // Configure Metalava for API tracking

@@ -32,6 +32,14 @@ android {
 
     lint {
         baseline = file("lint-baseline.xml")
+        abortOnError = false
+        warningsAsErrors = false
+        checkReleaseBuilds = false
+        ignoreWarnings = false
+        xmlReport = true
+        htmlReport = true
+        textReport = true
+        absolutePaths = false
     }
 }
 

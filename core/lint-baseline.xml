@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.6.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.2)" variant="all" version="8.6.1">
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute startX is only used in API level 24 and higher (current min is 23)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older API levels"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only APIs available in older versions, or add a `targetApi` attribute to the tag to explicitly indicate that the attribute is only used in newer versions.">
+        <location
+            file="src/main/res/drawable/ai_rings_grouped.xml"
+            line="16"
+            column="11"/>
+    </issue>
+
+</issues>
