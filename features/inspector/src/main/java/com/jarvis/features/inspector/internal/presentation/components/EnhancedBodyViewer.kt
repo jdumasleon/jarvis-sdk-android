@@ -70,7 +70,6 @@ fun EnhancedBodyViewer(
         DSText(
             text = title,
             style = DSJarvisTheme.typography.body.medium,
-            fontWeight = FontWeight.Thin,
             color = DSJarvisTheme.colors.neutral.neutral100,
             modifier = Modifier.padding(
                 start = DSJarvisTheme.spacing.m,

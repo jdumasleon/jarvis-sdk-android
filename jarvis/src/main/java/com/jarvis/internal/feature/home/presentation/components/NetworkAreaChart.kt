@@ -4,6 +4,11 @@ package com.jarvis.internal.feature.home.presentation.components
 import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
@@ -17,8 +22,11 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +57,15 @@ data class TooltipData(
     val time: Long,
     val x: Float,
     val y: Float
+)
+
+/**
+ * Data class for chart interaction state
+ */
+data class ChartInteractionState(
+    val selectedXPosition: Float? = null,
+    val selectedDataIndex: Int? = null,
+    val isIndicatorVisible: Boolean = false
 )
 
 /**
@@ -151,8 +168,18 @@ fun NetworkAreaChartContent(
 ) {
     var tooltipData by remember { mutableStateOf<TooltipData?>(null) }
     var chartSize by remember { mutableStateOf(Size.Zero) }
+    var interactionState by remember { mutableStateOf(ChartInteractionState()) }
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+
+    // Animated indicator line position
+    val indicatorXPosition = remember { Animatable(0f) }
+
+    // Animation spec for smooth indicator movement
+    val indicatorAnimationSpec: AnimationSpec<Float> = spring(
+        dampingRatio = 0.8f,
+        stiffness = 300f
+    )
     
     // Calculate Y-axis values for the right side
     val yAxisValues = remember(dataPoints) {
@@ -191,24 +218,40 @@ fun NetworkAreaChartContent(
                                 // Calculate which data point was touched
                                 val tapX = offset.x
                                 val chartWidth = chartSize.width
-                                
+
                                 // Find the closest data point index
                                 val normalizedX = (tapX / chartWidth).coerceIn(0f, 1f)
                                 val index = (normalizedX * (dataPoints.size - 1)).roundToInt()
                                     .coerceIn(0, dataPoints.lastIndex)
-                                
+
                                 if (index in dataPoints.indices) {
+                                    // Update interaction state for indicator line
+                                    interactionState = ChartInteractionState(
+                                        selectedXPosition = tapX,
+                                        selectedDataIndex = index,
+                                        isIndicatorVisible = true
+                                    )
+
+                                    // Animate indicator line to the tapped position
+                                    scope.launch {
+                                        indicatorXPosition.animateTo(
+                                            targetValue = tapX,
+                                            animationSpec = indicatorAnimationSpec
+                                        )
+                                    }
+
                                     tooltipData = TooltipData(
                                         value = dataPoints[index].value,
                                         time = dataPoints[index].timestamp,
                                         x = offset.x,
                                         y = offset.y
                                     )
-                                    
-                                    // Auto-hide tooltip after 3 seconds
+
+                                    // Auto-hide tooltip and indicator after 4 seconds
                                     scope.launch {
-                                        delay(3000)
+                                        delay(4000)
                                         tooltipData = null
+                                        interactionState = interactionState.copy(isIndicatorVisible = false)
                                     }
                                 }
                             }
@@ -227,6 +270,26 @@ fun NetworkAreaChartContent(
                     animationDurationMs = animationDurationMs,
                     contentDescription = contentDesc
                 )
+
+                // Vertical indicator line overlay
+                if (interactionState.isIndicatorVisible && interactionState.selectedDataIndex != null) {
+                    val lineColor = DSJarvisTheme.colors.chart.primary
+                    val backgroundColor = DSJarvisTheme.colors.extra.surface
+
+                    Canvas(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        drawVerticalIndicator(
+                            xPosition = indicatorXPosition.value,
+                            chartSize = size,
+                            dataPoints = dataPoints,
+                            selectedIndex = interactionState.selectedDataIndex!!,
+                            lineColor = lineColor,
+                            pointColor = lineColor,
+                            backgroundColor = backgroundColor
+                        )
+                    }
+                }
             }
             
             // Y-axis numeric values on the right
@@ -324,6 +387,75 @@ private fun NetworkChartTooltip(
             }
         }
     }
+}
+
+/**
+ * Draws the vertical indicator line and point on the chart
+ */
+private fun DrawScope.drawVerticalIndicator(
+    xPosition: Float,
+    chartSize: Size,
+    dataPoints: List<TimeSeriesDataPoint>,
+    selectedIndex: Int,
+    lineColor: Color,
+    pointColor: Color,
+    backgroundColor: Color
+) {
+    if (selectedIndex !in dataPoints.indices || chartSize.width <= 0) return
+
+    // Calculate the Y position of the selected point on the curve
+    val minValue = dataPoints.minOf { it.value }
+    val maxValue = dataPoints.maxOf { it.value }
+    val valueRange = maxValue - minValue
+
+    if (valueRange == 0f) return
+
+    val selectedValue = dataPoints[selectedIndex].value
+    val normalizedY = if (valueRange > 0f) {
+        (selectedValue - minValue) / valueRange
+    } else {
+        0.5f
+    }
+
+    // Y position from bottom (inverted for screen coordinates)
+    val yPosition = chartSize.height * (1f - normalizedY)
+
+    // Draw vertical indicator line with dashed pattern
+    val dashPattern = floatArrayOf(10f, 5f)
+    val pathEffect = PathEffect.dashPathEffect(dashPattern, 0f)
+
+    drawLine(
+        color = lineColor.copy(alpha = 0.6f),
+        start = Offset(xPosition, 0f),
+        end = Offset(xPosition, chartSize.height),
+        strokeWidth = 2.dp.toPx(),
+        pathEffect = pathEffect
+    )
+
+    // Draw point indicator on the curve with white border
+    val pointRadius = 6.dp.toPx()
+    val borderRadius = pointRadius + 2.dp.toPx()
+
+    // White border for better visibility
+    drawCircle(
+        color = backgroundColor,
+        radius = borderRadius,
+        center = Offset(xPosition, yPosition)
+    )
+
+    // Main point
+    drawCircle(
+        color = pointColor,
+        radius = pointRadius,
+        center = Offset(xPosition, yPosition)
+    )
+
+    // Inner highlight
+    drawCircle(
+        color = backgroundColor.copy(alpha = 0.3f),
+        radius = pointRadius * 0.5f,
+        center = Offset(xPosition, yPosition)
+    )
 }
 
 /* ---------- Header & X labels ---------- */

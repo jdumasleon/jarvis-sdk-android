@@ -34,6 +34,9 @@ android {
 
         // Set manifest placeholders for Sentry configuration
         manifestPlaceholders["sentryDsn"] = securityProperties["SENTRY_DSN"] ?: "https://dummy-sentry-dsn-replace-with-actual@sentry.io/project-id"
+
+        // Add SDK version to BuildConfig
+        buildConfigField("String", "SDK_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
     }
 
     namespace = "com.jarvis.library"

@@ -173,7 +173,9 @@ private fun HomeContent(
         ) {
             HeaderContent(
                 selectedFilter = uiData.selectedSessionFilter,
-                onFilterChange = { onEvent(HomeEvent.ChangeSessionFilter(it)) }
+                onFilterChange = { onEvent(HomeEvent.ChangeSessionFilter(it)) },
+                isHeaderVisible = uiData.isHeaderContentVisible,
+                onDismissHeader = { onEvent(HomeEvent.DismissHeaderContent) }
             )
         }
 
@@ -210,17 +212,22 @@ private fun HomeContent(
 private fun HeaderContent(
     selectedFilter: SessionFilter,
     onFilterChange: (SessionFilter) -> Unit,
+    isHeaderVisible: Boolean,
+    onDismissHeader: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        // Wealth-themed information flag
-        DSFlag(
-            title = stringResource(R.string.features_home_presentation_wealth_dashboard),
-            description = stringResource(R.string.features_home_presentation_wealth_dashboard_description),
-            style = FlagStyle.Info,
-            closable = true,
-            modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
-        )
+        // Wealth-themed information flag - only show if visible
+        if (isHeaderVisible) {
+            DSFlag(
+                title = stringResource(R.string.features_home_presentation_wealth_dashboard),
+                description = stringResource(R.string.features_home_presentation_wealth_dashboard_description),
+                style = FlagStyle.Info,
+                closable = true,
+                onClose = onDismissHeader,
+                modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+            )
+        }
         
         Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
         

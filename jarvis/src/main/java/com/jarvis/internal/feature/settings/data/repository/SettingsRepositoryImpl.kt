@@ -12,6 +12,7 @@ import com.jarvis.internal.feature.settings.domain.entity.SettingsAppInfo
 import com.jarvis.internal.feature.settings.domain.entity.SdkInfo
 import com.jarvis.internal.feature.settings.domain.entity.HostAppInfo
 import com.jarvis.internal.feature.settings.domain.repository.SettingsRepository
+import com.jarvis.library.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -58,8 +59,8 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSdkInfo(): Flow<Result<SdkInfo>> = requestFlow {
-        // Get SDK version from a hardcoded value or from resources
-        val sdkVersion = "1.0.28" // This should ideally come from BuildConfig or resources
+        // Get SDK version from BuildConfig
+        val sdkVersion = BuildConfig.SDK_VERSION
         SdkInfo(
             version = sdkVersion,
             buildNumber = extractBuildNumber(sdkVersion)

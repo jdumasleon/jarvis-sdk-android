@@ -7,6 +7,10 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.jarvis.core.internal.data.preferences.datasource.JarvisInternalPreferencesDataSource
+import com.jarvis.core.internal.data.preferences.di.JarvisInternalDataStore
+import com.jarvis.core.internal.data.preferences.repository.JarvisInternalPreferencesRepositoryImpl
+import com.jarvis.core.internal.domain.preferences.repository.JarvisInternalPreferencesRepository
 import com.jarvis.core.internal.platform.analytics.Analytics
 import com.jarvis.core.internal.platform.crash.CrashReporter
 import com.jarvis.core.internal.platform.featureflags.FeatureFlags
@@ -24,6 +28,11 @@ import javax.inject.Singleton
 // Extension for DataStore
 private val Context.platformDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "platform_preferences"
+)
+
+// Internal SDK preferences DataStore - separate from external preferences
+private val Context.jarvisInternalDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "jarvis_internal_preferences"
 )
 
 @Module
@@ -47,12 +56,25 @@ abstract class PlatformDataModule {
     internal abstract fun bindFeatureFlags(
         postHogFeatureFlags: PostHogFeatureFlags
     ): FeatureFlags
-    
+
+    @Binds
+    @Singleton
+    internal abstract fun bindJarvisInternalPreferencesRepository(
+        jarvisInternalPreferencesRepositoryImpl: JarvisInternalPreferencesRepositoryImpl
+    ): JarvisInternalPreferencesRepository
+
     companion object {
         @Provides
         @Singleton
         fun providePlatformDataStore(
             @ApplicationContext context: Context
         ): DataStore<Preferences> = context.platformDataStore
+
+        @Provides
+        @Singleton
+        @JarvisInternalDataStore
+        fun provideJarvisInternalDataStore(
+            @ApplicationContext context: Context
+        ): DataStore<Preferences> = context.jarvisInternalDataStore
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase
+import com.jarvis.core.internal.domain.preferences.usecase.ManageHeaderContentStateUseCase
 import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.internal.feature.home.domain.entity.DashboardCardType
 import com.jarvis.internal.feature.home.domain.entity.SessionFilter
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository,
     private val getPerformanceMetricsUseCase: GetPerformanceMetricsUseCase,
+    private val manageHeaderContentStateUseCase: ManageHeaderContentStateUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -68,6 +70,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.StartDrag -> startDrag(event.index)
             is HomeEvent.UpdateDragPosition -> updateDragPosition(event.fromIndex, event.toIndex)
             is HomeEvent.EndDrag -> endDrag()
+            is HomeEvent.DismissHeaderContent -> dismissHeaderContent()
         }
     }
 
@@ -105,6 +108,13 @@ class HomeViewModel @Inject constructor(
                     currentData?.performanceSnapshot
                 }
 
+                // Get header visibility state from internal preferences
+                val isHeaderVisible = try {
+                    manageHeaderContentStateUseCase.shouldShowHeaderContent().first()
+                } catch (_: Exception) {
+                    currentData?.isHeaderContentVisible ?: true
+                }
+
                 val homeUiData = HomeUiData(
                     enhancedMetrics = enhancedMetrics,
                     performanceSnapshot = performanceSnapshot,
@@ -114,7 +124,8 @@ class HomeViewModel @Inject constructor(
                     dragFromIndex = currentData?.dragFromIndex,
                     dragToIndex = currentData?.dragToIndex,
                     isRefreshing = false,
-                    lastUpdated = System.currentTimeMillis()
+                    lastUpdated = System.currentTimeMillis(),
+                    isHeaderContentVisible = isHeaderVisible
                 )
 
                 _uiState.update { ResourceState.Success(homeUiData) }
@@ -171,6 +182,13 @@ class HomeViewModel @Inject constructor(
                     currentData?.performanceSnapshot
                 }
 
+                // Get header visibility state
+                val isHeaderVisible = try {
+                    manageHeaderContentStateUseCase.shouldShowHeaderContent().first()
+                } catch (_: Exception) {
+                    currentData?.isHeaderContentVisible ?: true
+                }
+
                 val newData = HomeUiData(
                     enhancedMetrics = enhancedMetrics,
                     performanceSnapshot = performanceSnapshot,
@@ -180,7 +198,8 @@ class HomeViewModel @Inject constructor(
                     dragFromIndex = null,
                     dragToIndex = null,
                     isRefreshing = false,
-                    lastUpdated = System.currentTimeMillis()
+                    lastUpdated = System.currentTimeMillis(),
+                    isHeaderContentVisible = isHeaderVisible
                 )
 
                 _uiState.update { ResourceState.Success(newData) }
@@ -270,6 +289,30 @@ class HomeViewModel @Inject constructor(
                 }
 
                 else -> currentState
+            }
+        }
+    }
+
+    private fun dismissHeaderContent() {
+        viewModelScope.launch(ioDispatcher) {
+            try {
+                // Use the use case to dismiss header content
+                manageHeaderContentStateUseCase.dismissHeaderContent()
+
+                // Update UI state immediately to hide the header
+                _uiState.update { currentState ->
+                    when (currentState) {
+                        is ResourceState.Success -> {
+                            ResourceState.Success(
+                                currentState.data.copy(isHeaderContentVisible = false)
+                            )
+                        }
+                        else -> currentState
+                    }
+                }
+            } catch (exception: Exception) {
+                // Handle error gracefully - header will remain visible
+                // Could log the error or show a toast if needed
             }
         }
     }

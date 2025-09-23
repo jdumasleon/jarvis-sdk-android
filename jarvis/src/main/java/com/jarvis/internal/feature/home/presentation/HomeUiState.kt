@@ -22,7 +22,8 @@ data class HomeUiData(
     val dragFromIndex: Int? = null,
     val dragToIndex: Int? = null,
     val isRefreshing: Boolean = false,
-    val lastUpdated: Long = System.currentTimeMillis()
+    val lastUpdated: Long = System.currentTimeMillis(),
+    val isHeaderContentVisible: Boolean = true
 ) {
     companion object {
         val mockHomeUiData: HomeUiData
@@ -33,7 +34,8 @@ data class HomeUiData(
                 cardOrder = DashboardCardType.getAllCards(),
                 isDragging = false,
                 isRefreshing = false,
-                lastUpdated = System.currentTimeMillis()
+                lastUpdated = System.currentTimeMillis(),
+                isHeaderContentVisible = true
             )
     }
 }
@@ -45,4 +47,5 @@ sealed interface HomeEvent {
     data class StartDrag(val index: Int) : HomeEvent
     data class UpdateDragPosition(val fromIndex: Int, val toIndex: Int) : HomeEvent
     object EndDrag : HomeEvent
+    object DismissHeaderContent : HomeEvent
 }

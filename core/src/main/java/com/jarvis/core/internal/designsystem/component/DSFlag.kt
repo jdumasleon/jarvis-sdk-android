@@ -55,6 +55,7 @@ fun DSFlag(
     description: String? = null,
     style: FlagStyle? = null,
     closable: Boolean = false,
+    onClose: (() -> Unit)? = null,
     content: (@Composable () -> Unit)? = null
 ) {
     var isVisible by remember { mutableStateOf(true) }
@@ -72,7 +73,10 @@ fun DSFlag(
                     title = title,
                     style = style,
                     closable = closable,
-                    onClose = { isVisible = false }
+                    onClose = {
+                        isVisible = false
+                        onClose?.invoke()
+                    }
                 )
 
                 description?.let {
