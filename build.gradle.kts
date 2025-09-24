@@ -43,6 +43,7 @@ plugins {
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.ktlint) apply true
     alias(libs.plugins.binaryCompatibilityValidator) apply true
+    alias(libs.plugins.vanniktech.maven.publish) apply false
 }
 
 // Configure Binary Compatibility Validator for API tracking
@@ -56,3 +57,4 @@ apiValidation {
     // Generate API files in each module
     apiDumpDirectory = "api"
 }
+

@@ -30,7 +30,6 @@
             <option value="$PROJECT_DIR$/features/inspector" />
             <option value="$PROJECT_DIR$/features/preferences" />
             <option value="$PROJECT_DIR$/jarvis" />
-            <option value="$PROJECT_DIR$/jarvis-noop" />
           </set>
         </option>
       </GradleProjectSettings>

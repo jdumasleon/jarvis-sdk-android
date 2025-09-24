@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.jarvis.android.library)
     alias(libs.plugins.jarvis.android.library.compose)
@@ -6,8 +8,8 @@ plugins {
     alias(libs.plugins.jarvis.hilt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.roborazzi)
-    alias(libs.plugins.vanniktech.maven.publish)
     alias(libs.plugins.metalava)
+    id("com.vanniktech.maven.publish")
 }
 
 android {
@@ -56,6 +58,67 @@ metalava {
 
     // Include signature version info
     includeSignatureVersion.set(false)
+}
+
+// Configure Vanniktech Maven Publish Plugin
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
+
+    coordinates(
+        groupId = "io.github.jdumasleon",
+        artifactId = "jarvis-android-sdk-core",
+        version = libs.versions.jarvisVersion.get()
+    )
+
+    configure(
+        com.vanniktech.maven.publish.AndroidSingleVariantLibrary(
+            variant = "prodComposeRelease",
+            sourcesJar = true,
+            publishJavadocJar = true
+        )
+    )
+
+    pom {
+        name.set("Jarvis SDK - Core")
+        description.set("Core utilities and base classes for Jarvis SDK")
+        url.set("https://github.com/jdumasleon/jarvis-sdk-android")
+
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("jdumasleon")
+                name.set("Jean Dumas Leon")
+                email.set("jdumasleon@gmail.com")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/jdumasleon/jarvis-sdk-android.git")
+            developerConnection.set("scm:git:ssh://github.com/jdumasleon/jarvis-sdk-android.git")
+            url.set("https://github.com/jdumasleon/jarvis-sdk-android")
+        }
+    }
+}
+
+// Add GitHub Packages repository
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/jdumasleon/jarvis-sdk-android")
+            credentials {
+                username = project.findProperty("gpr.usr") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -119,48 +182,4 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.compose.ui.test)
 }
 
-// Configure Maven Publishing
-mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-
-    coordinates(
-        groupId = "io.github.jdumasleon",
-        artifactId = "jarvis-android-sdk-core",
-        version = libs.versions.jarvisVersion.get()
-    )
-
-    configure(
-        com.vanniktech.maven.publish.AndroidSingleVariantLibrary(
-            variant = "prodComposeRelease",
-            sourcesJar = true,
-            publishJavadocJar = true
-        )
-    )
-
-    pom {
-        name.set("Jarvis Android SDK Core")
-        description.set("Core components for Jarvis Android SDK - networking, design system, and platform services")
-        url.set("https://github.com/jdumasleon/jarvis-sdk-android")
-
-        licenses {
-            license {
-                name.set("MIT License")
-                url.set("https://opensource.org/licenses/MIT")
-            }
-        }
-
-        developers {
-            developer {
-                id.set("jdumasleon")
-                name.set("Jean Dumas Leon")
-                email.set("jdumasleon@gmail.com")
-            }
-        }
-
-        scm {
-            connection.set("scm:git:git://github.com/jdumasleon/jarvis-sdk-android.git")
-            developerConnection.set("scm:git:ssh://github.com/jdumasleon/jarvis-sdk-android.git")
-            url.set("https://github.com/jdumasleon/jarvis-sdk-android")
-        }
-    }
-}
+// Publishing configuration is handled by jarvis.module.publish convention plugin

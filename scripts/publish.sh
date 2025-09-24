@@ -138,12 +138,17 @@ check_credentials() {
         fi
         
         if [ ! -f "new_pgp_key.asc" ]; then
-            log_warning "PGP key not found: new_pgp_key.asc"
-            log_info "Signing will be disabled for this release"
+            log_error "PGP key not found: new_pgp_key.asc"
+            log_error "Maven Central requires signed artifacts"
+            missing_creds=true
         elif [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]; then
             log_info "Setting up PGP signing..."
             export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=""
             export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat new_pgp_key.asc)"
+            # Also set the signing key ID if available
+            if [ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]; then
+                log_info "Using PGP key ID: $ORG_GRADLE_PROJECT_signingInMemoryKeyId"
+            fi
             log_success "PGP signing configured"
         else
             log_success "PGP signing already configured"
@@ -215,23 +220,21 @@ clean_and_build() {
     fi
     
     ./gradlew clean
-    ./gradlew :core:bundleProdComposeReleaseAar
-    ./gradlew :features:inspector:bundleProdComposeReleaseAar
-    ./gradlew :features:preferences:bundleProdComposeReleaseAar
-    ./gradlew :jarvis:bundleProdComposeReleaseAar :jarvis-noop:bundleProdComposeReleaseAar
+    ./gradlew :core:bundleProdComposeReleaseAar :core:sourceProdComposeReleaseJar :core:javaDocProdComposeReleaseJar
+    ./gradlew :features:inspector:bundleProdComposeReleaseAar :features:inspector:sourceProdComposeReleaseJar :features:inspector:javaDocProdComposeReleaseJar
+    ./gradlew :features:preferences:bundleProdComposeReleaseAar :features:preferences:sourceProdComposeReleaseJar :features:preferences:javaDocProdComposeReleaseJar
+    ./gradlew :jarvis:bundleProdComposeReleaseAar :jarvis:sourceProdComposeReleaseJar :jarvis:javaDocProdComposeReleaseJar
     
     # Verify artifacts were created
     local core_aar=$(find core/build -name "*-prod-compose-release.aar" | head -1)
     local inspector_aar=$(find features/inspector/build -name "*-prod-compose-release.aar" | head -1)
     local preferences_aar=$(find features/preferences/build -name "*-prod-compose-release.aar" | head -1)
     local main_aar=$(find jarvis/build -name "*-prod-compose-release.aar" | head -1)
-    local noop_aar=$(find jarvis-noop/build -name "*-prod-compose-release.aar" | head -1)
     
     if [ ! -f "$core_aar" ] ||
        [ ! -f "$inspector_aar" ] ||
        [ ! -f "$preferences_aar" ] ||
-       [ ! -f "$main_aar" ] ||
-       [ ! -f "$noop_aar" ]; then
+       [ ! -f "$main_aar" ]; then
         log_error "Artifact build failed. Missing AAR files."
         return 1
     fi
@@ -240,14 +243,12 @@ clean_and_build() {
     local inspector_size=$(ls -lh "$inspector_aar" | awk '{print $5}')
     local preferences_size=$(ls -lh "$preferences_aar" | awk '{print $5}')
     local main_size=$(ls -lh "$main_aar" | awk '{print $5}')
-    local noop_size=$(ls -lh "$noop_aar" | awk '{print $5}')
     
     log_success "Artifacts built successfully"
     log_info "Core SDK: $core_size"
     log_info "Inspector SDK: $inspector_size"
     log_info "Preferences SDK: $preferences_size"
     log_info "Main SDK: $main_size"
-    log_info "No-op SDK: $noop_size"
 }
 
 publish_to_github() {
@@ -265,15 +266,20 @@ publish_to_github() {
     export GITHUB_ACTOR="$github_user"
     export GITHUB_TOKEN="$github_token"
     
-    # Publish main SDK
-    log_info "Publishing main SDK..."
-    ./gradlew :jarvis:publishMavenPublicationToGitHubPackagesRepository
-    
-    # Publish no-op SDK
-    log_info "Publishing no-op SDK..."
-    ./gradlew :jarvis-noop:publishMavenPublicationToGitHubPackagesRepository
-    
-    log_success "Published to GitHub Packages"
+    # Publish all modules to GitHub Packages using Vanniktech-created tasks
+    log_info "Publishing core module to GitHub Packages..."
+    ./gradlew :core:publishAllPublicationsToGitHubPackagesRepository
+
+    log_info "Publishing features:inspector module to GitHub Packages..."
+    ./gradlew :features:inspector:publishAllPublicationsToGitHubPackagesRepository
+
+    log_info "Publishing features:preferences module to GitHub Packages..."
+    ./gradlew :features:preferences:publishAllPublicationsToGitHubPackagesRepository
+
+    log_info "Publishing jarvis SDK to GitHub Packages..."
+    ./gradlew :jarvis:publishAllPublicationsToGitHubPackagesRepository
+
+    log_success "All modules published to GitHub Packages"
     log_info "Repository: https://github.com/jdumasleon/mobile-jarvis-android-sdk/packages"
 }
 
@@ -285,15 +291,36 @@ publish_to_maven() {
         return 0
     fi
     
-    # Publish main SDK
-    log_info "Publishing main SDK..."
-    ./gradlew :jarvis:publishMavenPublicationToMavenCentralRepository
-    
-    # Publish no-op SDK
-    log_info "Publishing no-op SDK..."
-    ./gradlew :jarvis-noop:publishMavenPublicationToMavenCentralRepository
-    
-    log_success "Published to Maven Central"
+    # All modules now use Vanniktech plugin with publishToMavenCentral task
+    log_info "Publishing core module to Maven Central..."
+    ORG_GRADLE_PROJECT_mavenCentralUsername="$ORG_GRADLE_PROJECT_mavenCentralUsername" \
+    ORG_GRADLE_PROJECT_mavenCentralPassword="$ORG_GRADLE_PROJECT_mavenCentralPassword" \
+    ORG_GRADLE_PROJECT_signingInMemoryKey="$ORG_GRADLE_PROJECT_signingInMemoryKey" \
+    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" \
+    ./gradlew :core:publishToMavenCentral
+
+    log_info "Publishing features:inspector module to Maven Central..."
+    ORG_GRADLE_PROJECT_mavenCentralUsername="$ORG_GRADLE_PROJECT_mavenCentralUsername" \
+    ORG_GRADLE_PROJECT_mavenCentralPassword="$ORG_GRADLE_PROJECT_mavenCentralPassword" \
+    ORG_GRADLE_PROJECT_signingInMemoryKey="$ORG_GRADLE_PROJECT_signingInMemoryKey" \
+    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" \
+    ./gradlew :features:inspector:publishToMavenCentral
+
+    log_info "Publishing features:preferences module to Maven Central..."
+    ORG_GRADLE_PROJECT_mavenCentralUsername="$ORG_GRADLE_PROJECT_mavenCentralUsername" \
+    ORG_GRADLE_PROJECT_mavenCentralPassword="$ORG_GRADLE_PROJECT_mavenCentralPassword" \
+    ORG_GRADLE_PROJECT_signingInMemoryKey="$ORG_GRADLE_PROJECT_signingInMemoryKey" \
+    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" \
+    ./gradlew :features:preferences:publishToMavenCentral
+
+    log_info "Publishing jarvis SDK to Maven Central (using Vanniktech)..."
+    ORG_GRADLE_PROJECT_mavenCentralUsername="$ORG_GRADLE_PROJECT_mavenCentralUsername" \
+    ORG_GRADLE_PROJECT_mavenCentralPassword="$ORG_GRADLE_PROJECT_mavenCentralPassword" \
+    ORG_GRADLE_PROJECT_signingInMemoryKey="$ORG_GRADLE_PROJECT_signingInMemoryKey" \
+    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" \
+    ./gradlew :jarvis:publishToMavenCentral
+
+    log_success "All 4 modules published to Maven Central"
     log_info "Will be available at: https://repo1.maven.org/maven2/io/github/jdumasleon/"
 }
 
@@ -305,8 +332,18 @@ publish_to_local() {
         return 0
     fi
     
-    # Use publishToMavenLocal which doesn't require signing
-    ./gradlew :core:publishToMavenLocal :features:inspector:publishToMavenLocal :features:preferences:publishToMavenLocal :jarvis:publishToMavenLocal :jarvis-noop:publishToMavenLocal
+    # Use publishToMavenLocal (no signing required)
+    log_info "Publishing core module to local..."
+    SKIP_SIGNING=true ./gradlew :core:publishReleasePublicationToMavenLocal
+
+    log_info "Publishing features:inspector module to local..."
+    SKIP_SIGNING=true ./gradlew :features:inspector:publishReleasePublicationToMavenLocal
+
+    log_info "Publishing features:preferences module to local..."
+    SKIP_SIGNING=true ./gradlew :features:preferences:publishReleasePublicationToMavenLocal
+
+    log_info "Publishing jarvis SDK to local..."
+    ./gradlew :jarvis:publishToMavenLocal
     
     log_success "Published to local Maven repository"
     log_info "Location: ~/.m2/repository/io/github/jdumasleon/"
@@ -322,12 +359,17 @@ show_usage_instructions() {
     if [[ "$PUBLISH_TARGET" == "all" || "$PUBLISH_TARGET" == "maven" ]]; then
         echo -e "${GREEN}Maven Central (Recommended):${NC}"
         echo "dependencies {"
+        echo "    // Main SDK (includes all features)"
         echo "    debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
-        echo "    releaseImplementation(\"io.github.jdumasleon:jarvis-android-sdk-noop:$NEW_VERSION\")"
+        echo ""
+        echo "    // Or individual modules:"
+        echo "    // debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-core:$NEW_VERSION\")"
+        echo "    // debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-features-inspector:$NEW_VERSION\")"
+        echo "    // debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-features-preferences:$NEW_VERSION\")"
         echo "}"
         echo ""
     fi
-    
+
     if [[ "$PUBLISH_TARGET" == "all" || "$PUBLISH_TARGET" == "github" ]]; then
         echo -e "${BLUE}GitHub Packages:${NC}"
         echo "repositories {"
@@ -342,8 +384,13 @@ show_usage_instructions() {
         echo "}"
         echo ""
         echo "dependencies {"
+        echo "    // Main SDK "
         echo "    debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
-        echo "    releaseImplementation(\"io.github.jdumasleon:jarvis-android-sdk-noop:$NEW_VERSION\")"
+        echo ""
+        echo "    // individual modules:"
+        echo "    debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-core:$NEW_VERSION\")"
+        echo "    debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-features-inspector:$NEW_VERSION\")"
+        echo "    debugImplementation(\"io.github.jdumasleon:jarvis-android-sdk-features-preferences:$NEW_VERSION\")"
         echo "}"
         echo ""
     fi

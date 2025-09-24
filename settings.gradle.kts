@@ -34,7 +34,6 @@ rootProject.name = "JarvisDemo"
 
 include(":app")
 include(":jarvis")
-include(":jarvis-noop")
 include(":core")
 include(":features:inspector")
 include(":features:preferences")

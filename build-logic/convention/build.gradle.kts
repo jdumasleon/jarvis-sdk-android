@@ -67,10 +67,6 @@ gradlePlugin {
             id = libs.plugins.jarvis.android.library.jacoco.get().pluginId
             implementationClass = "AndroidLibraryJacocoConventionPlugin"
         }
-        register("androidLibraryMavenPublish") {
-            id = libs.plugins.jarvis.android.library.maven.publish.get().pluginId
-            implementationClass = "com.jarvis.buildlogic.AndroidLibraryMavenPublishConventionPlugin"
-        }
         register("androidTest") {
             id = libs.plugins.jarvis.android.test.get().pluginId
             implementationClass = "AndroidTestConventionPlugin"
@@ -90,10 +86,6 @@ gradlePlugin {
         register("jvmLibrary") {
             id = libs.plugins.jarvis.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
-        }
-        register("jarvisModulePublish") {
-            id = "jarvis.module.publish"
-            implementationClass = "com.jarvis.buildlogic.JarvisModulePublishConventionPlugin"
         }
     }
 }

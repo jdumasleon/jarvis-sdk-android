@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.jarvis.android.library)
     alias(libs.plugins.jarvis.android.library.compose)
@@ -5,8 +7,8 @@ plugins {
     alias(libs.plugins.jarvis.hilt)
     alias(libs.plugins.jarvis.android.library.jacoco)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.vanniktech.maven.publish)
     alias(libs.plugins.metalava)
+    id("com.vanniktech.maven.publish")
 }
 
 android {
@@ -40,6 +42,8 @@ metalava {
     includeSignatureVersion.set(false)
 }
 
+// Publishing configuration is handled by jarvis.android.library.vanniktech.publish convention plugin
+
 dependencies {
     // Core dependency
     api(projects.core)
@@ -71,9 +75,10 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
 }
 
-// Configure Maven Publishing
+// Configure Vanniktech Maven Publish Plugin
 mavenPublishing {
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
 
     coordinates(
         groupId = "io.github.jdumasleon",
@@ -90,8 +95,8 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Jarvis Android SDK Inspector")
-        description.set("Network inspection and monitoring tools for Jarvis Android SDK")
+        name.set("Jarvis SDK - Inspector Feature")
+        description.set("Network inspector feature module for Jarvis SDK")
         url.set("https://github.com/jdumasleon/jarvis-sdk-android")
 
         licenses {
@@ -113,6 +118,20 @@ mavenPublishing {
             connection.set("scm:git:git://github.com/jdumasleon/jarvis-sdk-android.git")
             developerConnection.set("scm:git:ssh://github.com/jdumasleon/jarvis-sdk-android.git")
             url.set("https://github.com/jdumasleon/jarvis-sdk-android")
+        }
+    }
+}
+
+// Add GitHub Packages repository
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/jdumasleon/jarvis-sdk-android")
+            credentials {
+                username = project.findProperty("gpr.usr") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
