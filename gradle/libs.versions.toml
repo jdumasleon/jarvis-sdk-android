@@ -1,5 +1,5 @@
 [versions]
-jarvisVersion = "1.2.1"
+jarvisVersion = "1.2.8"
 appVersionCode = "1"
 appVersionName = "1.0.0"
 compileSdkVersion = "36"
