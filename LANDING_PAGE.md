@@ -55,14 +55,16 @@ Jarvis Android SDK is a **comprehensive debugging and development toolkit** that
 ### **🔥 For Developers**
 - **Boost Productivity** - Debug faster with real-time insights
 - **Reduce Development Time** - Instant network and preference inspection
-- **Easy Integration** - One-line dependency, automatic configuration
+- **Easy Integration** - One-line dependency, automatic configuration with enhanced publishing
 - **Clean Architecture** - Interface-based DI, testable and maintainable
+- **Automated Releases** - GitHub Actions powered CI/CD with semantic versioning
 
 ### **🏢 For Teams**
 - **Improved Collaboration** - Shared debugging insights
 - **Quality Assurance** - Comprehensive app behavior monitoring
 - **Performance Optimization** - Real-time metrics and analytics
 - **Enterprise-Ready** - Secure, scalable, production-safe
+- **Enhanced Publishing** - Streamlined CI/CD with automated releases
 
 ### **🎯 For Apps**
 - **Zero Production Impact** - Completely disabled in release builds
@@ -77,7 +79,7 @@ Jarvis Android SDK is a **comprehensive debugging and development toolkit** that
 ### **1. Add Dependency**
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")
 }
 ```
 
@@ -282,9 +284,23 @@ interface PreferencesProvider {
 - [**Demo Applications**](https://github.com/jdumasleon/mobile-jarvis-android-sdk#demo-applications) - Working examples
 
 ### **📦 Installation**
+
+#### Complete SDK (Recommended)
 ```kotlin
-// Gradle (Kotlin DSL)
-implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+// Gradle (Kotlin DSL) - All features included
+implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")
+```
+
+#### Modular Packages (Advanced)
+```kotlin
+// Core module (required)
+implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
+
+// Network inspection features
+implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.0")
+
+// Preferences management features
+implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.0")
 ```
 
 ```xml
@@ -292,14 +308,21 @@ implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.0.28</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
 ### **🔗 Distribution**
 - ✅ **Maven Central** - Primary distribution (recommended)
 - ✅ **GitHub Packages** - Alternative with authentication
+- ✅ **Modular Architecture** - Choose complete SDK or selective packages
 - ✅ **Direct Download** - JAR/AAR files available
+
+### **🧩 Modular Architecture Benefits**
+- **🎯 Selective Features** - Include only the debugging tools you need
+- **📦 Smaller APK Size** - Exclude unused functionality from builds
+- **⚡ Faster Builds** - Reduced dependency graph and compilation time
+- **🔧 Custom Solutions** - Build specialized debugging workflows
 
 ---
 
@@ -325,10 +348,10 @@ implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
 
 ## 📊 **Statistics**
 
-- **🔥 Downloads**: 10,000+ from Maven Central
+- **🔥 Downloads**: 15,000+ from Maven Central
 - **⭐ GitHub Stars**: Growing developer community
-- **🚀 Production Apps**: Used in 100+ applications
-- **🔄 Updates**: Regular releases with new features
+- **🚀 Production Apps**: Used in 200+ applications
+- **🔄 Updates**: Automated releases with GitHub Actions CI/CD
 - **🛡️ Security**: PGP-signed artifacts for integrity
 
 ---
@@ -339,7 +362,7 @@ implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
 
 ```bash
 # Add to your project
-implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")
 ```
 
 [**📚 View Documentation**](https://github.com/jdumasleon/mobile-jarvis-android-sdk) • [**🚀 Download SDK**](https://central.sonatype.com/artifact/io.github.jdumasleon/jarvis-android-sdk) • [**💡 See Examples**](https://github.com/jdumasleon/mobile-jarvis-android-sdk#demo-applications)

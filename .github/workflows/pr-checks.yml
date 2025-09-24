@@ -86,8 +86,15 @@ jobs:
       - name: 🏗️ Build Release APK
         run: ./gradlew :app:assembleProdComposeRelease
         
-      - name: 📦 Build SDK
-        run: ./gradlew :jarvis:bundleProdComposeReleaseAar
+      - name: 📦 Build SDK Components
+        run: |
+          # Build main SDK
+          ./gradlew :jarvis:bundleProdComposeReleaseAar
+
+          # Build modular components
+          ./gradlew :core:bundleProdComposeReleaseAar
+          ./gradlew :features:inspector:bundleProdComposeReleaseAar
+          ./gradlew :features:preferences:bundleProdComposeReleaseAar
         
       - name: 📤 Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -96,6 +103,9 @@ jobs:
           path: |
             app/build/outputs/apk/**/*.apk
             jarvis/build/outputs/aar/*.aar
+            core/build/outputs/aar/*.aar
+            features/inspector/build/outputs/aar/*.aar
+            features/preferences/build/outputs/aar/*.aar
           retention-days: 7
 
   codeql:
@@ -149,13 +159,14 @@ jobs:
             const repository = context.repo;
             
             const comment = `## 📱 Preview Build Ready!
-            
+
             Your PR build is complete and ready for testing:
-            
+
             ### 🚀 Download Links
             - [📥 Debug APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
             - [📥 Release APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
-            - [📦 SDK AAR](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [📦 Complete SDK AAR](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [🧩 Modular Components](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId}) (Core, Inspector, Preferences)
             
             ### 🔍 Build Status
             - ✅ Lint checks passed
