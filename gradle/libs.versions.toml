@@ -1,5 +1,5 @@
 [versions]
-jarvisVersion = "1.2.8"
+jarvisVersion = "1.2.14"
 appVersionCode = "1"
 appVersionName = "1.0.0"
 compileSdkVersion = "36"
@@ -241,6 +241,8 @@ jarvis-android-application-jacoco = { id = "jarvis.android.application.jacoco" }
 jarvis-android-feature = { id = "jarvis.android.feature" }
 jarvis-android-library = { id = "jarvis.android.library" }
 jarvis-android-library-maven-publish = { id = "jarvis.android.library.maven.publish" }
+jarvis-android-library-vanniktech-publish = { id = "jarvis.android.library.vanniktech.publish" }
+jarvis-vanniktech-publish = { id = "jarvis.vanniktech.publish" }
 jarvis-android-library-compose = { id = "jarvis.android.library.compose" }
 jarvis-android-library-jacoco = { id = "jarvis.android.library.jacoco" }
 jarvis-android-lint = { id = "jarvis.android.lint" }
