@@ -193,7 +193,7 @@ fun DSDrawer(
     val animationConfig = rememberDrawerAnimationConfig()
     
     // Track container size for anchors setup - only recalculate when size changes
-    var containerWidth by rememberSaveable { mutableStateOf(0f) }
+    var containerWidth by rememberSaveable { mutableFloatStateOf(0f) }
     
     // Only calculate offsets when offset actually changes
     val currentOffset by remember { derivedStateOf { drawerState.offset } }

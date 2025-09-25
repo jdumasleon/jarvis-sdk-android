@@ -59,7 +59,6 @@ metalava {
     // Include signature version info
     includeSignatureVersion.set(false)
 }
-
 // Configure Vanniktech Maven Publishing
 mavenPublishing {
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)

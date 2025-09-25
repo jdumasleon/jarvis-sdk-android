@@ -229,7 +229,7 @@ fun DSJarvisRingsRealtime(
             label = "trigger"
         )
     } else {
-        remember { mutableStateOf(0f) }
+        remember { mutableFloatStateOf(0f) }
     }
     val animationTrigger by animationTriggerState
 

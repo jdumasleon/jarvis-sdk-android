@@ -4,6 +4,7 @@ package com.jarvis.internal.feature.home.presentation.components
 import androidx.annotation.RestrictTo
 
 import androidx.compose.animation.core.animateFloatAsState
+import java.util.Locale
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -180,7 +181,7 @@ private fun StorageEfficiencyBadge(
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         DSText(
-            text = "${String.format("%.0f", efficiency)}% efficient",
+            text = "${String.format(Locale.US, "%.0f", efficiency)}% efficient",
             style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Medium,
             color = color
@@ -308,7 +309,7 @@ private fun PreferenceTypeLegendItem(
         }
 
         DSText(
-            text = "${String.format("%.1f", typeData.percentage)}%",
+            text = "${String.format(Locale.US, "%.1f", typeData.percentage)}%",
             style = DSJarvisTheme.typography.body.small,
             fontWeight = FontWeight.Medium,
             color = Color(android.graphics.Color.parseColor(typeData.color))
@@ -352,7 +353,7 @@ private fun StorageUsageSection(
             )
             StorageMetricItem(
                 label = "Efficiency",
-                value = "${String.format("%.0f", storageUsage.storageEfficiency)}%",
+                value = "${String.format(Locale.US, "%.0f", storageUsage.storageEfficiency)}%",
                 color = when {
                     storageUsage.storageEfficiency >= 80f -> Color(0xFF4CAF50)
                     storageUsage.storageEfficiency >= 60f -> Color(0xFFFFC107)
@@ -500,7 +501,7 @@ private fun SizeDistributionChip(
                 color = DSJarvisTheme.colors.neutral.neutral80
             )
             DSText(
-                text = "${String.format("%.1f", sizeData.percentage * progress)}%",
+                text = "${String.format(Locale.US, "%.1f", sizeData.percentage * progress)}%",
                 style = DSJarvisTheme.typography.body.small,
                 color = DSJarvisTheme.colors.neutral.neutral60
             )
@@ -569,9 +570,9 @@ private fun formatBytes(bytes: Long): String {
     val gb = mb * 1024
     return when {
         bytes < 1024 -> "${bytes}B"
-        bytes < mb -> "${String.format("%.1f", bytes / kb)}KB"
-        bytes < gb -> "${String.format("%.1f", bytes / mb)}MB"
-        else -> "${String.format("%.1f", bytes / gb)}GB"
+        bytes < mb -> "${String.format(Locale.US, "%.1f", bytes / kb)}KB"
+        bytes < gb -> "${String.format(Locale.US, "%.1f", bytes / mb)}MB"
+        else -> "${String.format(Locale.US, "%.1f", bytes / gb)}GB"
     }
 }
 

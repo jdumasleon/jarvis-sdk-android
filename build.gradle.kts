@@ -57,4 +57,3 @@ apiValidation {
     // Generate API files in each module
     apiDumpDirectory = "api"
 }
-

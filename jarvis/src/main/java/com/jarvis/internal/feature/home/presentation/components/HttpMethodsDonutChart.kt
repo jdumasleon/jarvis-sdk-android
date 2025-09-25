@@ -4,6 +4,7 @@ package com.jarvis.internal.feature.home.presentation.components
 import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
+import java.util.Locale
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -143,7 +144,7 @@ private fun HttpMethodLegendItem(
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
                 DSText(
-                    text = String.format("%.1f%%", methodData.percentage),
+                    text = String.format(Locale.US, "%.1f%%", methodData.percentage),
                     style = DSJarvisTheme.typography.body.small,
                     color = DSJarvisTheme.colors.neutral.neutral60
                 )
@@ -152,7 +153,7 @@ private fun HttpMethodLegendItem(
 
         // Average response time
         DSText(
-            text = String.format("%.0fms", methodData.averageResponseTime),
+            text = String.format(Locale.US, "%.0fms", methodData.averageResponseTime),
             style = DSJarvisTheme.typography.body.small,
             color = safeParseColor(methodData.color)
         )
@@ -321,12 +322,12 @@ private fun HttpMethodDetailItem(
                 color = DSJarvisTheme.colors.neutral.neutral60
             )
             DSText(
-                text = String.format("%.1f%%", methodData.percentage),
+                text = String.format(Locale.US, "%.1f%%", methodData.percentage),
                 style = DSJarvisTheme.typography.body.medium,
                 color = DSJarvisTheme.colors.neutral.neutral60
             )
             DSText(
-                text = String.format("%.0fms", methodData.averageResponseTime),
+                text = String.format(Locale.US, "%.0fms", methodData.averageResponseTime),
                 style = DSJarvisTheme.typography.body.medium,
                 color = safeParseColor(methodData.color)
             )

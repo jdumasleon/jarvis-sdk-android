@@ -4,6 +4,7 @@ package com.jarvis.internal.feature.home.presentation.components
 import androidx.annotation.RestrictTo
 
 import androidx.compose.foundation.layout.*
+import java.util.Locale
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -191,7 +192,7 @@ fun HealthSummary(
 
                 HealthMetricItem(
                     label = stringResource(R.string.error_rate),
-                    value = String.format("%.1f%%", healthScore.keyMetrics.errorRate),
+                    value = String.format(Locale.US, "%.1f%%", healthScore.keyMetrics.errorRate),
                     color = if (healthScore.keyMetrics.errorRate < 5f)
                         DSJarvisTheme.colors.success.success100
                     else DSJarvisTheme.colors.error.error100
@@ -199,13 +200,13 @@ fun HealthSummary(
 
                 HealthMetricItem(
                     label = stringResource(R.string.avg_response),
-                    value = String.format("%.0fms", healthScore.keyMetrics.averageResponseTime),
+                    value = String.format(Locale.US, "%.0fms", healthScore.keyMetrics.averageResponseTime),
                     color = DSJarvisTheme.colors.chart.secondary
                 )
 
                 HealthMetricItem(
                     label = stringResource(R.string.performance),
-                    value = String.format("%.0f", healthScore.keyMetrics.performanceScore),
+                    value = String.format(Locale.US, "%.0f", healthScore.keyMetrics.performanceScore),
                     color = DSJarvisTheme.colors.chart.tertiary
                 )
             }

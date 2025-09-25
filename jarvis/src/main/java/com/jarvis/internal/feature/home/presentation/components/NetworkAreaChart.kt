@@ -4,6 +4,7 @@ package com.jarvis.internal.feature.home.presentation.components
 import androidx.annotation.RestrictTo
 
 import android.content.res.Configuration
+import java.util.Locale
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
@@ -583,12 +584,12 @@ fun NetworkOverviewCard(
                 )
                 NetworkMetricItem(
                     label = stringResource(R.string.avg_time),
-                    value = String.format("%.0fms", averageResponseTime),
+                    value = String.format(Locale.US, "%.0fms", averageResponseTime),
                     color = DSJarvisTheme.colors.chart.secondary
                 )
                 NetworkMetricItem(
                     label = stringResource(R.string.error_rate),
-                    value = String.format("%.1f%%", errorRate),
+                    value = String.format(Locale.US, "%.1f%%", errorRate),
                     color = if (errorRate < 5f) DSJarvisTheme.colors.success.success100 else DSJarvisTheme.colors.error.error100
                 )
             }

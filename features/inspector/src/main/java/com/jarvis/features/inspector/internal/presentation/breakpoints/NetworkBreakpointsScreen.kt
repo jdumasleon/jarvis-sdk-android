@@ -115,7 +115,7 @@ private fun NetworkBreakpointsContent(
 ) {
     val listState = rememberLazyListState()
     var isHeaderVisible by rememberSaveable { mutableStateOf(true) }
-    var headerHeightPx by remember { mutableStateOf(0) }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     
     // Optimized nested scroll connection with debouncing

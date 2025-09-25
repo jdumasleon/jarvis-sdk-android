@@ -231,11 +231,11 @@ private fun ImageViewer(imageData: String, context: Context) {
             imageData.startsWith("data:image") -> {
                 // Handle base64 data URLs (data:image/png;base64,...)
                 val base64Data = imageData.substringAfter("base64,")
-                displayBase64Image(base64Data)
+                DisplayBase64Image(base64Data)
             }
             isPngData(imageData) -> {
                 // Handle raw PNG file data
-                displayBase64Image(imageData)
+                DisplayBase64Image(imageData)
             }
             else -> {
                 // Try to decode as base64 in case it's raw base64 data
@@ -266,7 +266,7 @@ private fun ImageViewer(imageData: String, context: Context) {
 }
 
 @Composable
-private fun displayBase64Image(base64Data: String) {
+private fun DisplayBase64Image(base64Data: String) {
     val bitmap = remember(base64Data) {
         try {
             val bytes = Base64.decode(base64Data, Base64.DEFAULT)

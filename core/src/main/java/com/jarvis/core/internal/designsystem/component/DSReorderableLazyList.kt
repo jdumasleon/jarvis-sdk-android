@@ -147,7 +147,7 @@ fun rememberReorderableLazyListState(
         top = with(density) { scrollThresholdPadding.calculateTopPadding().toPx() },
         bottom = with(density) { scrollThresholdPadding.calculateBottomPadding().toPx() },
     )
-    val orientation by derivedStateOf { lazyListState.layoutInfo.orientation }
+    val orientation by remember { derivedStateOf { lazyListState.layoutInfo.orientation } }
     val state = remember(
         scope,
         lazyListState,

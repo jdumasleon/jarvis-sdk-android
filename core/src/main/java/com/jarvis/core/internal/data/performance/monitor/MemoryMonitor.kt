@@ -74,11 +74,7 @@ class MemoryMonitor @Inject constructor(
         
         // System memory
         val availableMemoryMB = memoryInfo.availMem / (1024f * 1024f)
-        val totalMemoryMB = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            memoryInfo.totalMem / (1024f * 1024f)
-        } else {
-            getTotalMemoryLegacy() / (1024f * 1024f)
-        }
+        val totalMemoryMB = memoryInfo.totalMem / (1024f * 1024f)
         
         val memoryPressure = calculateMemoryPressure(memoryInfo, heapUsedMB, heapMaxMB)
         
@@ -162,11 +158,7 @@ class MemoryMonitor @Inject constructor(
             "native_heap_mb" to Debug.getNativeHeapAllocatedSize() / (1024f * 1024f),
             "native_heap_total_mb" to Debug.getNativeHeapSize() / (1024f * 1024f),
             "system_available_mb" to memoryInfo.availMem / (1024f * 1024f),
-            "system_total_mb" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                memoryInfo.totalMem / (1024f * 1024f)
-            } else {
-                getTotalMemoryLegacy() / (1024f * 1024f)
-            },
+            "system_total_mb" to memoryInfo.totalMem / (1024f * 1024f),
             "low_memory_threshold" to memoryInfo.threshold / (1024f * 1024f),
             "is_low_memory" to memoryInfo.lowMemory,
             "pss_mb" to debugMemoryInfo.totalPss / 1024f,

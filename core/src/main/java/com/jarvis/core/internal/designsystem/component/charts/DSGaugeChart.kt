@@ -32,8 +32,8 @@ import kotlin.math.sin
 @Composable
 fun DSGaugeChart(
     value: Float,
-    maxValue: Float = 100f,
     modifier: Modifier = Modifier,
+    maxValue: Float = 100f,
     size: Dp = 200.dp,
     strokeWidth: Dp = 20.dp,
     startAngle: Float = 135f,
