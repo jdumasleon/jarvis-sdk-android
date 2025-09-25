@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import com.github.anrwatchdog.ANRWatchDog
 import com.jarvis.api.JarvisSDK
 import com.jarvis.config.JarvisConfig
 import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
