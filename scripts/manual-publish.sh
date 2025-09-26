@@ -193,66 +193,88 @@ fi
 # Step 5: Build artifacts
 log_step "Step 5: Building Artifacts"
 
-echo "  🏗️ Building main SDK AAR..."
+echo "  🏗️ Building jarvis SDK AAR..."
 ./gradlew :jarvis:bundleProdComposeReleaseAar --quiet
 
-echo "  📄 Building main SDK sources JAR..."
+echo "  📄 Building jarvis SDK sources JAR..."
 ./gradlew :jarvis:sourceProdComposeReleaseJar --quiet
 
-echo "  📚 Building main SDK Javadoc JAR..."
+echo "  📚 Building jarvis SDK Javadoc JAR..."
 ./gradlew :jarvis:javaDocProdComposeReleaseJar --quiet
 
-echo "  🔄 Building no-op SDK AAR..."
-./gradlew :jarvis-noop:bundleProdComposeReleaseAar --quiet
+echo "  🏗️ Building core module AAR..."
+./gradlew :core:bundleProdComposeReleaseAar --quiet
 
-echo "  📄 Building no-op SDK sources JAR..."
-./gradlew :jarvis-noop:sourceProdComposeReleaseJar --quiet
+echo "  📄 Building core module sources JAR..."
+./gradlew :core:sourceProdComposeReleaseJar --quiet
 
-echo "  📚 Building no-op SDK Javadoc JAR..."
-./gradlew :jarvis-noop:javaDocProdComposeReleaseJar --quiet
+echo "  📚 Building core module Javadoc JAR..."
+./gradlew :core:javaDocProdComposeReleaseJar --quiet
 
-log_success "All artifacts built successfully (main SDK + no-op SDK)"
+echo "  🏗️ Building features:inspector module AAR..."
+./gradlew :features:inspector:bundleProdComposeReleaseAar --quiet
+
+echo "  📄 Building features:inspector module sources JAR..."
+./gradlew :features:inspector:sourceProdComposeReleaseJar --quiet
+
+echo "  📚 Building features:inspector module Javadoc JAR..."
+./gradlew :features:inspector:javaDocProdComposeReleaseJar --quiet
+
+echo "  🏗️ Building features:preferences module AAR..."
+./gradlew :features:preferences:bundleProdComposeReleaseAar --quiet
+
+echo "  📄 Building features:preferences module sources JAR..."
+./gradlew :features:preferences:sourceProdComposeReleaseJar --quiet
+
+echo "  📚 Building features:preferences module Javadoc JAR..."
+./gradlew :features:preferences:javaDocProdComposeReleaseJar --quiet
+
+log_success "All artifacts built successfully (jarvis, core, features:inspector, features:preferences)"
 
 # Step 6: Publishing
 log_step "Step 6: Publishing Artifacts"
 
 publish_local() {
     echo "  🏠 Publishing to local repository..."
-    
-    echo "    📦 Publishing main SDK..."
-    if ./gradlew :jarvis:publishReleasePublicationToLocalRepository --quiet; then
-        log_success "Main SDK published to local repository"
+
+    echo "    📦 Publishing all modules to local repository..."
+    if ./gradlew publishAllPublicationsToLocalRepository --quiet; then
+        log_success "All modules published to local repository"
     else
-        log_error "Failed to publish main SDK to local repository"
+        log_error "Failed to publish modules to local repository"
         return 1
     fi
-    
-    echo "    🔄 Publishing no-op SDK..."
-    if ./gradlew :jarvis-noop:publishReleasePublicationToLocalRepository --quiet; then
-        log_success "No-op SDK published to local repository"
-    else
-        log_error "Failed to publish no-op SDK to local repository"
-        return 1
-    fi
-    
+
     # Verify local publication
-    LOCAL_PATH_MAIN="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
-    LOCAL_PATH_NOOP="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-noop/$NEW_VERSION"
-    
-    if [ -d "$LOCAL_PATH_MAIN" ]; then
-        echo "    📁 Main SDK artifacts: $LOCAL_PATH_MAIN"
-        ls -la "$LOCAL_PATH_MAIN" | head -5
+    LOCAL_PATH_JARVIS="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
+    LOCAL_PATH_CORE="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-core/$NEW_VERSION"
+    LOCAL_PATH_INSPECTOR="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-inspector/$NEW_VERSION"
+    LOCAL_PATH_PREFERENCES="$HOME/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-preferences/$NEW_VERSION"
+
+    if [ -d "$LOCAL_PATH_JARVIS" ]; then
+        echo "    📁 Jarvis SDK artifacts: $LOCAL_PATH_JARVIS"
+        ls -la "$LOCAL_PATH_JARVIS" | head -5
     fi
-    
-    if [ -d "$LOCAL_PATH_NOOP" ]; then
-        echo "    📁 No-op SDK artifacts: $LOCAL_PATH_NOOP"  
-        ls -la "$LOCAL_PATH_NOOP" | head -5
+
+    if [ -d "$LOCAL_PATH_CORE" ]; then
+        echo "    📁 Core module artifacts: $LOCAL_PATH_CORE"
+        ls -la "$LOCAL_PATH_CORE" | head -5
+    fi
+
+    if [ -d "$LOCAL_PATH_INSPECTOR" ]; then
+        echo "    📁 Inspector module artifacts: $LOCAL_PATH_INSPECTOR"
+        ls -la "$LOCAL_PATH_INSPECTOR" | head -5
+    fi
+
+    if [ -d "$LOCAL_PATH_PREFERENCES" ]; then
+        echo "    📁 Preferences module artifacts: $LOCAL_PATH_PREFERENCES"
+        ls -la "$LOCAL_PATH_PREFERENCES" | head -5
     fi
 }
 
 publish_github() {
     echo "  📦 Publishing to GitHub Packages..."
-    
+
     # Check GitHub credentials
     if [ -z "$GITHUB_TOKEN" ] && [ -z "$GITHUB_ACTOR" ]; then
         if [ -f "github.properties" ]; then
@@ -261,28 +283,19 @@ publish_github() {
             log_warning "GitHub credentials not found in environment or github.properties"
         fi
     fi
-    
-    echo "    📦 Publishing main SDK..."
-    if ./gradlew :jarvis:publishReleasePublicationToGitHubPackagesRepository --quiet; then
-        log_success "Main SDK published to GitHub Packages"
+
+    echo "    📦 Publishing all modules to GitHub Packages..."
+    if ./gradlew publishAllPublicationsToGitHubPackagesRepository --quiet; then
+        log_success "All modules published to GitHub Packages"
     else
-        log_error "Failed to publish main SDK to GitHub Packages"
-        return 1
-    fi
-    
-    echo "    🔄 Publishing no-op SDK..."
-    if ./gradlew :jarvis-noop:publishReleasePublicationToGitHubPackagesRepository --quiet; then
-        log_success "No-op SDK published to GitHub Packages"
-        echo "    🔗 View at: https://github.com/jdumasleon/jarvis-sdk-android/packages"
-    else
-        log_error "Failed to publish no-op SDK to GitHub Packages"
+        log_error "Failed to publish modules to GitHub Packages"
         return 1
     fi
 }
 
 publish_maven() {
     echo "  🌍 Publishing to Maven Central..."
-    
+
     # Check Maven Central credentials
     if [ -f "publishing.properties" ]; then
         log_info "Using publishing.properties for authentication"
@@ -292,22 +305,12 @@ publish_maven() {
         log_error "Maven Central credentials not found"
         return 1
     fi
-    
-    echo "    📦 Publishing main SDK..."
-    if ./gradlew :jarvis:publishReleasePublicationToCentralPortalOSSRHRepository --quiet; then
-        log_success "Main SDK published to Maven Central staging"
+
+    echo "    📦 Publishing all modules to Maven Central..."
+    if ./gradlew publishAllPublicationsToCentralPortalOSSRHRepository --quiet; then
+        log_success "All modules published to Maven Central staging"
     else
-        log_error "Failed to publish main SDK to Maven Central"
-        return 1
-    fi
-    
-    echo "    🔄 Publishing no-op SDK..."
-    if ./gradlew :jarvis-noop:publishReleasePublicationToCentralPortalOSSRHRepository --quiet; then
-        log_success "No-op SDK published to Maven Central staging"
-        echo "    🔗 Monitor at: https://central.sonatype.com/"
-        log_info "Note: You may need to manually release from staging in Central Portal"
-    else
-        log_error "Failed to publish no-op SDK to Maven Central"
+        log_error "Failed to publish modules to Maven Central"
         return 1
     fi
 }
@@ -373,7 +376,10 @@ echo
 case $PUBLISH_TARGET in
     "local"|"all")
         echo "📍 Local Repository:"
-        echo "  📁 Path: ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
+        echo "  📁 Jarvis SDK: ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION"
+        echo "  📁 Core: ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-core/$NEW_VERSION"
+        echo "  📁 Inspector: ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-inspector/$NEW_VERSION"
+        echo "  📁 Preferences: ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-preferences/$NEW_VERSION"
         ;;
 esac
 
@@ -381,7 +387,10 @@ case $PUBLISH_TARGET in
     "github"|"all")
         echo "📦 GitHub Packages:"
         echo "  🔗 URL: https://github.com/jdumasleon/jarvis-sdk-android/packages"
-        echo "  📋 Usage: implementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
+        echo "  📋 Jarvis SDK: implementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
+        echo "  📋 Core: implementation(\"io.github.jdumasleon:jarvis-android-sdk-core:$NEW_VERSION\")"
+        echo "  📋 Inspector: implementation(\"io.github.jdumasleon:jarvis-android-sdk-inspector:$NEW_VERSION\")"
+        echo "  📋 Preferences: implementation(\"io.github.jdumasleon:jarvis-android-sdk-preferences:$NEW_VERSION\")"
         ;;
 esac
 
@@ -390,7 +399,10 @@ case $PUBLISH_TARGET in
         echo "🌍 Maven Central:"
         echo "  🔗 Portal: https://central.sonatype.com/"
         echo "  🔗 Search: https://central.sonatype.com/artifact/io.github.jdumasleon/jarvis-android-sdk"
-        echo "  📋 Usage: implementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
+        echo "  📋 Jarvis SDK: implementation(\"io.github.jdumasleon:jarvis-android-sdk:$NEW_VERSION\")"
+        echo "  📋 Core: implementation(\"io.github.jdumasleon:jarvis-android-sdk-core:$NEW_VERSION\")"
+        echo "  📋 Inspector: implementation(\"io.github.jdumasleon:jarvis-android-sdk-inspector:$NEW_VERSION\")"
+        echo "  📋 Preferences: implementation(\"io.github.jdumasleon:jarvis-android-sdk-preferences:$NEW_VERSION\")"
         ;;
 esac
 
@@ -416,8 +428,18 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     if [[ "$PUBLISH_TARGET" == "local" || "$PUBLISH_TARGET" == "all" ]]; then
         echo "📍 Local Repository:"
-        echo "  ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION/"
-        ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION/ 2>/dev/null || echo "  (Directory not found)"
+        echo "  📦 Jarvis SDK:"
+        echo "    ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION/"
+        ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk/$NEW_VERSION/ 2>/dev/null || echo "    (Directory not found)"
+        echo "  📦 Core:"
+        echo "    ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-core/$NEW_VERSION/"
+        ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-core/$NEW_VERSION/ 2>/dev/null || echo "    (Directory not found)"
+        echo "  📦 Inspector:"
+        echo "    ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-inspector/$NEW_VERSION/"
+        ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-inspector/$NEW_VERSION/ 2>/dev/null || echo "    (Directory not found)"
+        echo "  📦 Preferences:"
+        echo "    ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-preferences/$NEW_VERSION/"
+        ls -la ~/.m2/repository/io/github/jdumasleon/jarvis-android-sdk-preferences/$NEW_VERSION/ 2>/dev/null || echo "    (Directory not found)"
         echo
     fi
     

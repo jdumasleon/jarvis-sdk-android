@@ -1,0 +1,2017 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.2)" variant="all" version="8.11.2">
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        ResourceStateContent("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="112"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            resourceState = uiState,"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="113"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            onRetry = { onEvent(PreferencesEvent.LoadAllPreferences) },"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="114"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            onDismiss = { onEvent(PreferencesEvent.ClearError) },"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="115"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            loadingMessage = &quot;Loading preferences...&quot;,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="116"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            emptyMessage = &quot;No preferences found&quot;,"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="117"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            emptyActionText = &quot;Load Preferences&quot;,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="118"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            onEmptyAction = { onEvent(PreferencesEvent.LoadAllPreferences) }"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="119"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.ResourceStateContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        ) { uiData ->"
+        errorLine2="          ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="120"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSPullToRefreshKt.DSPullToRefresh can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSPullToRefresh("
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="235"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSPullToRefreshKt.DSPullToRefresh can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onRefresh = { onEvent(PreferencesEvent.RefreshPreferences) }"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="237"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSPullToRefreshKt.DSPullToRefresh can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            ) {"
+        errorLine2="              ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="238"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.EmptyContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    EmptyContent("
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="240"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.EmptyContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        message = &quot;No ${uiData.selectedTab.name} preferences recorded yet&quot;,"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="241"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.EmptyContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        actionText = &quot;Refresh&quot;,"
+        errorLine2="                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="242"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.EmptyContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        onAction = { onEvent(PreferencesEvent.RefreshCurrentTab) },"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="243"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="BaseScreenComponentsKt.EmptyContent can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="244"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                DSCard("
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="281"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                    modifier = Modifier.fillMaxWidth(),"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="282"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                    shape = DSJarvisTheme.shapes.m,"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="283"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                ) {"
+        errorLine2="                                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="285"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                        DSText("
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="290"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                                        DSText("
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="295"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSearchBarKt.DSSearchBar can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        DSSearchBar("
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="395"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSearchBarKt.DSSearchBar can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            searchText = filter.searchQuery,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="396"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSearchBarKt.DSSearchBar can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            onValueChange = onSearchQueryChange,"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="397"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSearchBarKt.DSSearchBar can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            onTextClean = { onSearchQueryChange(&quot;&quot;) },"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="398"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSearchBarKt.DSSearchBar can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            modifier = Modifier"
+        errorLine2="                       ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="399"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        DSText("
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="434"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                DSFilterChip("
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="445"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    onClick = {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="446"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    label = getPreferenceTypeName(preferencesType),"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="449"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    selectedGradient = gradient"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="451"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        DSText("
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="468"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSFilterChip("
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="478"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = { onTypeFilterChange(null) },"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="480"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                label = stringResource(R.string.features_preferences_presentation_all),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="481"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                selectedGradient = gradient"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="482"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                DSFilterChip("
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="487"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    onClick = {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="489"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    label = type.name,"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="493"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSFilterChipKt.DSFilterChip can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    selectedGradient = gradient"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="494"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        DSText("
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="518"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDropdownMenuKt.DSThreeDotsMenu-eaDK9VM can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        DSThreeDotsMenu("
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="527"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDropdownMenuKt.DSThreeDotsMenu-eaDK9VM can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            modifier = Modifier"
+        errorLine2="                       ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="528"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDropdownMenuKt.DSThreeDotsMenu-eaDK9VM can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            items = buildList {"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="539"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSCard("
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="595"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        modifier = modifier"
+        errorLine2="                   ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="596"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        shape = DSJarvisTheme.shapes.m,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="599"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSCardKt.DSCard-PjBVjQc can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="601"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    DSText("
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="611"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    DSText("
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="617"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        DSText("
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="624"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    DSText("
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="635"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                        DSText("
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="642"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                DSText("
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="656"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                DSIconButton("
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="666"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    onClick = onEditClick,"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="667"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    imageVector = Icons.Default.Edit,"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="668"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    contentDescription = &quot;Edit&quot;,"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="669"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    tint = DSIconTint.Solid(DSJarvisTheme.colors.primary.primary100)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="670"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                DSIconButton("
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="673"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    modifier = Modifier.padding(DSJarvisTheme.spacing.none),"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="674"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    onClick = onDeleteClick,"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="675"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    imageVector = Icons.Default.Delete,"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="676"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    contentDescription = &quot;Delete&quot;,"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="677"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSIconButtonKt.DSIconButton can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                    tint = DSIconTint.Solid(DSJarvisTheme.colors.error.error100)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="678"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSBottomSheetKt.DSBottomSheet can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSBottomSheet("
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="699"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_add_preference)) },"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="701"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSText("
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="703"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSTextField("
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="712"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = key,"
+        errorLine2="                       ~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="713"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onValueChange = onKeyChange,"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="714"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                title = stringResource(R.string.features_preferences_presentation_key),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="715"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                placeholder = &quot;preference_key&quot;,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="716"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="717"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSSelectField("
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="720"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                options = PreferenceType.entries,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="721"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                selectedOption = selectedType,"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="722"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onSelectionChange = { selectedType = it },"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="723"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                displayText = { it.name },"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="724"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                label = &quot;Type&quot;,"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="725"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                placeholder = &quot;Select type&quot;,"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="726"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSSelectFieldKt.DSSelectField can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="727"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSTextField("
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="730"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = value,"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="731"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onValueChange = onValueChange,"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="732"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                title = &quot;Value&quot;,"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="733"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                placeholder = when (selectedType) {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="734"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="745"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="749"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_add),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="750"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = {"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="751"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.PRIMARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="759"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="760"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="761"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="765"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_cancel),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="766"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onDismiss,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="767"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.SECONDARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="768"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="769"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="770"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSBottomSheetKt.DSBottomSheet can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSBottomSheet("
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="787"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_edit_preference)) },"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="789"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSText("
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="791"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSText("
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="800"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSTextField("
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="809"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = value,"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="810"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onValueChange = onValueChange,"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="811"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                title = stringResource(R.string.features_preferences_presentation_value),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="812"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                placeholder = stringResource(R.string.features_preferences_presentation_enter_new_value),"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="813"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextFieldKt.DSTextField-h0_S5lU can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="814"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="818"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_save),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="819"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = {"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="820"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.PRIMARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="828"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="829"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="830"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="834"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_cancel_edit),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="835"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onDismiss,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="836"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.SECONDARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="837"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="838"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="839"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSDialog("
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="851"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        onDismissRequest = onDismiss,"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="852"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_delete_preference)) },"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="853"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_delete_preference)) },"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="853"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        text = {"
+        errorLine2="               ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="854"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSText("
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="855"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        confirmButton = {"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="861"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="862"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_delete),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="863"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onConfirm,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="864"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.PRIMARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="865"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.SMALL,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="866"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="867"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        dismissButton = {"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="870"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="871"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_cancel_delete),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="872"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onDismiss,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="873"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.SECONDARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="874"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.SMALL,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="875"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="876"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSDialog("
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="888"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        onDismissRequest = onDismiss,"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="889"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_clear_all_preferences)) },"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="890"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        title = { DSText(stringResource(R.string.features_preferences_presentation_clear_all_preferences)) },"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="890"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        text = {"
+        errorLine2="               ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="891"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSTextKt.DSText can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSText("
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="892"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        confirmButton = {"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="898"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="899"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_clear_all_dialog),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="900"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onConfirm,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="901"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.PRIMARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="902"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="903"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="904"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSDialogKt.DSDialog can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="        dismissButton = {"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="907"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="            DSButton("
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="908"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                text = stringResource(R.string.features_preferences_presentation_cancel_clear_dialog),"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="909"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                onClick = onDismiss,"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="910"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                style = DSButtonStyle.SECONDARY,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="911"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                size = DSButtonSize.MEDIUM,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="912"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSButtonKt.DSButton-XuDz_50 can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="                modifier = Modifier.fillMaxWidth()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="913"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="940"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="940"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="951"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="951"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="962"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="962"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="973"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="973"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="984"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="984"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="998"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="998"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="1009"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="1009"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="1030"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DSThemeKt.DSJarvisTheme can only be called from within the same library group (referenced groupId=`JarvisDemo` from groupId=`JarvisDemo.features`)"
+        errorLine1="    DSJarvisTheme {"
+        errorLine2="                  ^">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/presentation/PreferencesScreen.kt"
+            line="1030"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="            val editor = sharedPrefs.edit()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/data/local/SharedPreferencesScanner.kt"
+            line="185"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="            sharedPrefs.edit().remove(key).apply()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/data/local/SharedPreferencesScanner.kt"
+            line="208"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="            sharedPrefs.edit().clear().apply()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/jarvis/features/preferences/internal/data/local/SharedPreferencesScanner.kt"
+            line="218"
+            column="13"/>
+    </issue>
+
+</issues>

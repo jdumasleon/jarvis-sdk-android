@@ -1,6 +1,6 @@
 package com.jarvis.demo.presentation.inspector
 
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.demo.data.repository.ApiCallResult
 
 typealias InspectorUiState = ResourceState<InspectorUiData>

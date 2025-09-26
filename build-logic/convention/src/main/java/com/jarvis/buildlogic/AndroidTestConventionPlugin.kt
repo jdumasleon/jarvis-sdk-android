@@ -1,6 +1,7 @@
 import com.android.build.gradle.TestExtension
 import com.jarvis.buildlogic.extensions.configureGradleManagedDevices
 import com.jarvis.buildlogic.extensions.configureKotlinAndroid
+import com.jarvis.buildlogic.extensions.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -15,7 +16,7 @@ class AndroidTestConventionPlugin : Plugin<Project> {
 
             extensions.configure<TestExtension> {
                 configureKotlinAndroid(this)
-                defaultConfig.targetSdk = 35
+                defaultConfig.targetSdk = libs.findVersion("targetSdkVersion").get().toString().toInt()
                 configureGradleManagedDevices(this)
             }
         }

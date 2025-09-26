@@ -2,9 +2,12 @@ package com.jarvis.demo.presentation.preferences
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
-import com.jarvis.core.presentation.state.ResourceState
-import com.jarvis.demo.data.preferences.DemoPreferencesRepository
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
+import com.jarvis.core.internal.presentation.state.ResourceState
+import com.jarvis.demo.domain.usecase.preferences.GetSharedPreferencesUseCase
+import com.jarvis.demo.domain.usecase.preferences.GetDataStorePreferencesUseCase
+import com.jarvis.demo.domain.usecase.preferences.GetProtoDataStorePreferencesUseCase
+import com.jarvis.demo.domain.usecase.preferences.ManagePreferencesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +21,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    private val demoPreferencesRepository: DemoPreferencesRepository,
+    private val getSharedPreferencesUseCase: GetSharedPreferencesUseCase,
+    private val getDataStorePreferencesUseCase: GetDataStorePreferencesUseCase,
+    private val getProtoDataStorePreferencesUseCase: GetProtoDataStorePreferencesUseCase,
+    private val managePreferencesUseCase: ManagePreferencesUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
@@ -54,9 +60,9 @@ class PreferencesViewModel @Inject constructor(
             try {
                 // Set up reactive subscription to all three preference stores
                 combine(
-                    demoPreferencesRepository.getSharedPreferencesFlow(),
-                    demoPreferencesRepository.getDataStorePreferencesFlow(),
-                    demoPreferencesRepository.getProtoDataStorePreferencesFlow()
+                    getSharedPreferencesUseCase(),
+                    getDataStorePreferencesUseCase(),
+                    getProtoDataStorePreferencesUseCase()
                 ) { sharedPrefs, dataStorePrefs, protoPrefs ->
                     PreferencesUiData(
                         sharedPreferences = sharedPrefs,
@@ -82,8 +88,8 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             try {
                 // Generate sample data for all three storage types
-                demoPreferencesRepository.clearAllPreferences()
-                demoPreferencesRepository.generateAllSampleData()
+                managePreferencesUseCase.clearAllPreferences()
+                managePreferencesUseCase.generateAllSampleData()
                 loadPreferences()
                 // The reactive flow will automatically update the UI state
             } catch (exception: Exception) {
@@ -150,9 +156,9 @@ class PreferencesViewModel @Inject constructor(
             try {
                 // Collect the combined preferences flow
                 combine(
-                    demoPreferencesRepository.getSharedPreferencesFlow(),
-                    demoPreferencesRepository.getDataStorePreferencesFlow(),
-                    demoPreferencesRepository.getProtoDataStorePreferencesFlow()
+                    getSharedPreferencesUseCase(),
+                    getDataStorePreferencesUseCase(),
+                    getProtoDataStorePreferencesUseCase()
                 ) { sharedPrefs, dataStorePrefs, protoPrefs ->
                     PreferencesUiData(
                         sharedPreferences = sharedPrefs,
@@ -187,13 +193,13 @@ class PreferencesViewModel @Inject constructor(
                 // Clear based on selected tab
                 when (currentData.selectedTab) {
                     PreferenceStorageType.SHARED_PREFERENCES -> {
-                        demoPreferencesRepository.clearSharedPreferences()
+                        managePreferencesUseCase.clearSharedPreferences()
                     }
                     PreferenceStorageType.PREFERENCES_DATASTORE -> {
-                        demoPreferencesRepository.clearDataStorePreferences()
+                        managePreferencesUseCase.clearDataStorePreferences()
                     }
                     PreferenceStorageType.PROTO_DATASTORE -> {
-                        demoPreferencesRepository.clearProtoDataStorePreferences()
+                        managePreferencesUseCase.clearProtoDataStorePreferences()
                     }
                 }
                 // The reactive flow will automatically update the UI state
@@ -224,7 +230,7 @@ class PreferencesViewModel @Inject constructor(
                     PreferenceStorageType.PREFERENCES_DATASTORE -> {
                         // Extract the actual key without file prefix
                         val actualKey = key.substringAfterLast(".")
-                        demoPreferencesRepository.getDataStorePreferencesFlow()
+                        getDataStorePreferencesUseCase()
                         // DataStore deletion is complex, would need repository enhancement
                         _uiState.update { 
                             ResourceState.Error(Exception("Delete operation requires repository enhancement"), 
@@ -262,15 +268,15 @@ class PreferencesViewModel @Inject constructor(
                         }
                     }
                     PreferenceStorageType.PREFERENCES_DATASTORE -> {
-                        // For DataStore updates, delegate to repository methods
+                        // For DataStore updates, delegate to use case methods
                         when (type) {
-                            PreferenceType.STRING -> demoPreferencesRepository.updateDataStorePreference(key, value)
-                            PreferenceType.BOOLEAN -> demoPreferencesRepository.updateDataStorePreference(key, value.toBoolean())
+                            PreferenceType.STRING -> managePreferencesUseCase.updateDataStorePreference(key, value)
+                            PreferenceType.BOOLEAN -> managePreferencesUseCase.updateDataStorePreference(key, value.toBoolean())
                             PreferenceType.NUMBER -> {
                                 if (value.contains(".")) {
-                                    demoPreferencesRepository.updateDataStorePreference(key, value.toFloat())
+                                    managePreferencesUseCase.updateDataStorePreference(key, value.toFloat())
                                 } else {
-                                    demoPreferencesRepository.updateDataStorePreference(key, value.toInt())
+                                    managePreferencesUseCase.updateDataStorePreference(key, value.toInt())
                                 }
                             }
                             PreferenceType.PROTO -> {
@@ -285,9 +291,9 @@ class PreferencesViewModel @Inject constructor(
                     PreferenceStorageType.PROTO_DATASTORE -> {
                         // For Proto updates, use specific proto methods
                         when (key) {
-                            "username" -> demoPreferencesRepository.updateProtoUsername(value)
-                            "theme_preference" -> demoPreferencesRepository.updateProtoTheme(value)
-                            "analytics_enabled" -> demoPreferencesRepository.updateProtoAnalytics(value.toBoolean())
+                            "username" -> managePreferencesUseCase.updateProtoUsername(value)
+                            "theme_preference" -> managePreferencesUseCase.updateProtoTheme(value)
+                            "analytics_enabled" -> managePreferencesUseCase.updateProtoAnalytics(value.toBoolean())
                             else -> {
                                 _uiState.update { 
                                     ResourceState.Error(Exception("Update for key '$key' not supported in Proto DataStore"), 

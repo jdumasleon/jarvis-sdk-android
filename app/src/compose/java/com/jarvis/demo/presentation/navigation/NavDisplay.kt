@@ -2,10 +2,10 @@ package com.jarvis.demo.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.jarvis.core.navigation.EntryProviderInstaller
-import com.jarvis.core.navigation.NavigationRoute
-import com.jarvis.core.navigation.Navigator
-import com.jarvis.core.presentation.navigation.ModularNavDisplay
+import com.jarvis.core.internal.navigation.EntryProviderInstaller
+import com.jarvis.core.internal.navigation.NavigationRoute
+import com.jarvis.core.internal.navigation.Navigator
+import com.jarvis.core.internal.presentation.navigation.ModularNavDisplay
 
 @Composable
 fun JarvisDemoNavDisplay(

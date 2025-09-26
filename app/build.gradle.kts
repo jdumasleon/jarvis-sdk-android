@@ -65,11 +65,11 @@ dependencies {
     // For demo purposes - using local project reference
     // In host applications, use: implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
     implementation(projects.jarvis)
+    implementation(projects.features.inspector)
+    implementation(projects.features.preferences)
     
     // Core modules are now accessible through the main jarvis module via API dependencies
-    api(projects.core.common)
-    api(projects.core.designsystem)  
-    api(projects.core.presentation)
+    api(projects.core)
 
     // Common dependencies for both flavors
     implementation(libs.androidx.core.ktx)
@@ -81,7 +81,6 @@ dependencies {
 
     "composeImplementation"(libs.androidx.navigation3.ui.android)
     "composeImplementation"(libs.androidx.lifecycle.viewmodel.compose)
-    "composeImplementation"(libs.androidx.material3)
     "composeImplementation"(libs.androidx.activity.compose)
     "composeImplementation"(libs.androidx.compose.material3)
     "composeImplementation"(libs.androidx.compose.material3.adaptive)

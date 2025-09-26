@@ -5,6 +5,13 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  security-events: write
+  actions: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -53,15 +60,25 @@ jobs:
         run: ./gradlew ktlintCheck detekt lint
         
       - name: 🧪 Run Tests
-        run: ./gradlew test testProdComposeReleaseUnitTest
-        
+        run: ./gradlew test testProdComposeReleaseUnitTest --continue
+
+      - name: 📋 List Test Results
+        if: always()
+        run: |
+          echo "Looking for test result files..."
+          find . -name "*.xml" -path "*/test-results/*" -type f | head -20 || true
+          echo "Test result directories:"
+          find . -path "*/build/test-results" -type d || true
+
       - name: 📊 Generate Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: always()
+        continue-on-error: true
         with:
           name: 🧪 Test Results
           path: '**/build/test-results/**/*.xml'
           reporter: java-junit
+          fail-on-error: false
           
       - name: 🏗️ Build Debug APK
         run: ./gradlew :app:assembleProdComposeDebug
@@ -69,8 +86,15 @@ jobs:
       - name: 🏗️ Build Release APK
         run: ./gradlew :app:assembleProdComposeRelease
         
-      - name: 📦 Build SDK
-        run: ./gradlew :jarvis:bundleProdComposeReleaseAar
+      - name: 📦 Build SDK Components
+        run: |
+          # Build main SDK
+          ./gradlew :jarvis:bundleProdComposeReleaseAar
+
+          # Build modular components
+          ./gradlew :core:bundleProdComposeReleaseAar
+          ./gradlew :features:inspector:bundleProdComposeReleaseAar
+          ./gradlew :features:preferences:bundleProdComposeReleaseAar
         
       - name: 📤 Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -79,21 +103,45 @@ jobs:
           path: |
             app/build/outputs/apk/**/*.apk
             jarvis/build/outputs/aar/*.aar
+            core/build/outputs/aar/*.aar
+            features/inspector/build/outputs/aar/*.aar
+            features/preferences/build/outputs/aar/*.aar
           retention-days: 7
 
-  security:
-    name: 🔒 Security Scan
+  codeql:
+    name: 🔒 CodeQL
     runs-on: ubuntu-latest
-    
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
     steps:
       - name: 🏗️ Checkout
         uses: actions/checkout@v4
-        
-      - name: 🔍 Run Security Scan
-        uses: securecodewarrior/github-action-add-sarif@v1
+
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
         with:
-          sarif-file: 'security-scan.sarif'
-        continue-on-error: true
+          java-version: '18'
+          distribution: 'corretto'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+
+      - name: 🔧 Init CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+
+      - name: 🏗️ Custom Build
+        run: |
+          # Build the project for CodeQL analysis
+          ./gradlew assembleDevClassicDebug --no-daemon --continue
+
+      - name: 📈 Analyze (uploads SARIF)
+        uses: github/codeql-action/analyze@v3
 
   preview:
     name: 📱 Preview Build
@@ -111,13 +159,14 @@ jobs:
             const repository = context.repo;
             
             const comment = `## 📱 Preview Build Ready!
-            
+
             Your PR build is complete and ready for testing:
-            
+
             ### 🚀 Download Links
             - [📥 Debug APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
             - [📥 Release APK](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
-            - [📦 SDK AAR](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [📦 Complete SDK AAR](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId})
+            - [🧩 Modular Components](https://github.com/${repository.owner}/${repository.repo}/actions/runs/${runId}) (Core, Inspector, Preferences)
             
             ### 🔍 Build Status
             - ✅ Lint checks passed

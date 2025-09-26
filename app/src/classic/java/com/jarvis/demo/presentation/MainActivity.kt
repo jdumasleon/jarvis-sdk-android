@@ -140,6 +140,6 @@ class MainActivity : AppCompatActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = demoConfig, hostActivity = this)
+        jarvisSDK.initializeAsync(config = demoConfig, hostActivity = this)
     }
 }

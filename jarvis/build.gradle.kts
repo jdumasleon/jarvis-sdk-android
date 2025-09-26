@@ -1,13 +1,5 @@
 import java.util.Properties
-import java.util.Base64
-import com.vanniktech.maven.publish.SonatypeHost
-
-val githubProperties: Properties = Properties().apply {
-    val bitbucketPropertiesFile = rootProject.file("bitbucket.properties")
-    if (bitbucketPropertiesFile.exists()) {
-        load(bitbucketPropertiesFile.inputStream())
-    }
-}
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
 
 val securityProperties: Properties = Properties().apply {
     val securityPropertiesFile = rootProject.file("security.properties")
@@ -23,80 +15,61 @@ plugins {
     alias(libs.plugins.jarvis.hilt)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.vanniktech.maven.publish)
+    alias(libs.plugins.metalava)
+    id("com.vanniktech.maven.publish")
 }
 
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         // Set manifest placeholders for Sentry configuration
         manifestPlaceholders["sentryDsn"] = securityProperties["SENTRY_DSN"] ?: "https://dummy-sentry-dsn-replace-with-actual@sentry.io/project-id"
+
+        // Add SDK version to BuildConfig
+        buildConfigField("String", "SDK_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
     }
 
     namespace = "com.jarvis.library"
-    
+
     buildFeatures {
         buildConfig = true
     }
-    
-    buildTypes {
-        getByName("debug") {
-            // Debug builds get full functionality
-            buildConfigField("boolean", "JARVIS_ENABLED", "true")
-            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
-        }
-        getByName("release") {
-            // Release builds get no-op functionality
-            buildConfigField("boolean", "JARVIS_ENABLED", "false")
-            buildConfigField("String", "JARVIS_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
-        }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = false
+        warningsAsErrors = false
+        checkReleaseBuilds = false
+        ignoreWarnings = false
     }
 }
 
-// Configure repositories
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/jdumasleon/jarvis-sdk-android")
-            credentials {
-                username = githubProperties.getProperty("gpr.usr") ?: System.getenv("GITHUB_ACTOR") ?: "jdumasleon"
-                password = githubProperties.getProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN") ?: ""
-            }
-        }
-    }
-}
+// Configure Metalava for API tracking
+metalava {
+    // Source paths for API generation
+    sourcePaths.setFrom("src/main/java")
 
-// Configure Vanniktech Maven Publish Plugin for Central Portal
+    // Output API file
+    filename.set("api/jarvis-api.txt")
+
+    // Report lint issues as errors
+    reportLintsAsErrors.set(false)
+
+    // Include signature version info
+    includeSignatureVersion.set(false)
+}
+// Configure Vanniktech Maven Publishing
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    
-    // Configure signing for Central Portal with base64 key decoding
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
     signAllPublications()
-    
-    // Decode base64 PGP key if provided
-    val base64Key = project.findProperty("signingInMemoryKey") as String?
-    if (base64Key != null && base64Key.isNotEmpty()) {
-        try {
-            val decodedKey = String(Base64.getDecoder().decode(base64Key))
-            if (decodedKey.contains("BEGIN PGP PRIVATE KEY")) {
-                project.ext.set("signing.key", decodedKey)
-                project.ext.set("signing.password", project.findProperty("signingInMemoryKeyPassword"))
-            }
-        } catch (e: Exception) {
-            // If decoding fails, assume it's already in correct format
-            project.ext.set("signing.key", base64Key)
-            project.ext.set("signing.password", project.findProperty("signingInMemoryKeyPassword"))
-        }
-    }
-    
+
     coordinates(
         groupId = "io.github.jdumasleon",
         artifactId = "jarvis-android-sdk",
         version = libs.versions.jarvisVersion.get()
     )
-    
+
     configure(
         com.vanniktech.maven.publish.AndroidSingleVariantLibrary(
             variant = "prodComposeRelease",
@@ -104,19 +77,19 @@ mavenPublishing {
             publishJavadocJar = true
         )
     )
-    
+
     pom {
         name.set("Jarvis Android SDK")
         description.set("Android SDK for Jarvis network inspection and debugging toolkit")
         url.set("https://github.com/jdumasleon/jarvis-sdk-android")
-        
+
         licenses {
             license {
                 name.set("MIT License")
                 url.set("https://opensource.org/licenses/MIT")
             }
         }
-        
+
         developers {
             developer {
                 id.set("jdumasleon")
@@ -124,7 +97,7 @@ mavenPublishing {
                 email.set("jdumasleon@gmail.com")
             }
         }
-        
+
         scm {
             connection.set("scm:git:git://github.com/jdumasleon/jarvis-sdk-android.git")
             developerConnection.set("scm:git:ssh://github.com/jdumasleon/jarvis-sdk-android.git")
@@ -133,38 +106,75 @@ mavenPublishing {
     }
 }
 
+val githubProperties: Properties = Properties().apply {
+    val githubPropertiesFile = rootProject.file("github.properties")
+    if (githubPropertiesFile.exists()) {
+        load(githubPropertiesFile.inputStream())
+    }
+}
+
+// Add GitHub Packages repository manually
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/jdumasleon/jarvis-sdk-android")
+            credentials {
+                username = githubProperties["gpr.usr"]?.toString() ?: System.getenv("GITHUB_ACTOR")
+                password = githubProperties["gpr.key"]?.toString() ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+// Disable Gradle metadata generation to prevent dependency resolution issues
+tasks.withType<GenerateModuleMetadata> {
+    enabled = false
+}
+
 dependencies {
-    implementation(projects.core.common)
-    implementation(projects.core.data)
-    implementation(projects.core.designsystem)
-    implementation(projects.core.presentation)
+    // Use implementation to include internal modules in AAR
+    api(projects.core)
 
-    implementation(projects.features.home.lib)
-    implementation(projects.features.inspector.lib)
-    implementation(projects.features.preferences.lib)
-    implementation(projects.features.settings.lib)
-    implementation(projects.features.preferences.domain)
+    // Features that remain as separate modules
+    api(projects.features.inspector)
+    api(projects.features.preferences)
 
-    implementation(projects.platform.lib)
-    implementation(projects.core.navigation)
-    
+    // Dependencies from consolidated home and settings modules
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences.core)
+    implementation(libs.androidx.dataStore.preferences)
     implementation(libs.protobuf.kotlin.lite)
-    
+
+    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.navigation3.ui.android)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
+
+
+    // UI and lifecycle dependencies from home/settings presentation layers
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+
+    // Network dependencies from settings data layer
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofitConverterGson)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.gson)
 
     api(libs.okhttp)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }
 

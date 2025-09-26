@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="11">
+    <bytecodeTargetLevel target="21">
       <module name="JarvisDemo.app-classic" target="21" />
+      <module name="JarvisDemo.core.common" target="21" />
+      <module name="JarvisDemo.core.data" target="21" />
+      <module name="JarvisDemo.core.designsystem" target="21" />
+      <module name="JarvisDemo.core.domain" target="21" />
       <module name="JarvisDemo.core.firebase.api" target="21" />
       <module name="JarvisDemo.core.firebase.data" target="21" />
       <module name="JarvisDemo.core.firebase.lib" target="21" />
+      <module name="JarvisDemo.core.navigation" target="21" />
+      <module name="JarvisDemo.core.presentation" target="21" />
+      <module name="JarvisDemo.features.home.data" target="21" />
+      <module name="JarvisDemo.features.home.lib" target="21" />
+      <module name="JarvisDemo.features.home.presentation" target="21" />
+      <module name="JarvisDemo.features.inspector.data" target="21" />
+      <module name="JarvisDemo.features.inspector.domain" target="21" />
+      <module name="JarvisDemo.features.inspector.lib" target="21" />
+      <module name="JarvisDemo.features.inspector.presentation" target="21" />
+      <module name="JarvisDemo.features.preferences.data" target="21" />
+      <module name="JarvisDemo.features.preferences.domain" target="21" />
+      <module name="JarvisDemo.features.preferences.lib" target="21" />
+      <module name="JarvisDemo.features.preferences.presentation" target="21" />
+      <module name="JarvisDemo.features.settings.data" target="21" />
+      <module name="JarvisDemo.features.settings.domain" target="21" />
+      <module name="JarvisDemo.features.settings.lib" target="21" />
+      <module name="JarvisDemo.features.settings.presentation" target="21" />
+      <module name="JarvisDemo.platform.api" target="21" />
+      <module name="JarvisDemo.platform.data" target="21" />
+      <module name="JarvisDemo.platform.lib" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

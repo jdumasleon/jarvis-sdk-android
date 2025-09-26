@@ -19,7 +19,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.demo.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

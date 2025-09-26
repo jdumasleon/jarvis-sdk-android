@@ -19,7 +19,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.demo.R
 import com.jarvis.demo.data.repository.ApiCallResult
 import dagger.hilt.android.AndroidEntryPoint

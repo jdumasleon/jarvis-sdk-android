@@ -18,7 +18,7 @@ import com.google.android.material.textview.MaterialTextView
 import android.widget.Toast
 import android.content.res.ColorStateList
 import androidx.core.content.ContextCompat
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.demo.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
