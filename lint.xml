@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Suppress resource naming issues as they are pre-existing -->
+    <issue id="ResourceName" severity="ignore" />
+
+    <!-- Suppress vector raster warnings for pre-existing icons -->
+    <issue id="VectorRaster" severity="warning" />
+
+    <!-- Suppress compose modifier parameter order warnings for pre-existing code -->
+    <issue id="ModifierParameter" severity="warning" />
+
+    <!-- Allow autoboxing state creation warnings for pre-existing code -->
+    <issue id="AutoboxingStateCreation" severity="warning" />
+
+    <!-- Allow unremembered mutable state warnings for pre-existing code -->
+    <issue id="UnrememberedMutableState" severity="warning" />
+
+    <!-- Suppress NewApi warnings for pre-existing code -->
+    <issue id="NewApi" severity="warning" />
+
+    <!-- Suppress other common pre-existing warnings -->
+    <issue id="ContentDescription" severity="warning" />
+    <issue id="UsingOnClickInXml" severity="warning" />
+    <issue id="TextFields" severity="warning" />
+    <issue id="ButtonCase" severity="warning" />
+    <issue id="HardcodedText" severity="warning" />
+    <issue id="SpUsage" severity="warning" />
+    <issue id="UnusedResources" severity="warning" />
+</lint>

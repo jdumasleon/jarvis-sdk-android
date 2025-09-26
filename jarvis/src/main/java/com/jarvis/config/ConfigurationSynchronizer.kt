@@ -1,7 +1,7 @@
 package com.jarvis.config
 
-import com.jarvis.features.preferences.domain.config.PreferencesConfiguration
-import com.jarvis.features.preferences.domain.config.PreferencesConfigProvider
+import com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration
+import com.jarvis.features.preferences.internal.domain.config.PreferencesConfigProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 

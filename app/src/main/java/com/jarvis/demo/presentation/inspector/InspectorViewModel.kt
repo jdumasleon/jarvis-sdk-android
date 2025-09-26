@@ -2,10 +2,10 @@ package com.jarvis.demo.presentation.inspector
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jarvis.core.common.di.CoroutineDispatcherModule.IoDispatcher
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
+import com.jarvis.core.internal.presentation.state.ResourceState
 import com.jarvis.demo.data.repository.ApiCallResult
-import com.jarvis.demo.data.repository.DemoApiRepository
+import com.jarvis.demo.domain.usecase.inspector.PerformApiCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InspectorViewModel @Inject constructor(
-    private val demoApiRepository: DemoApiRepository,
+    private val performApiCallsUseCase: PerformApiCallsUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
@@ -58,8 +58,8 @@ class InspectorViewModel @Inject constructor(
                 val completedCalls = mutableListOf<ApiCallResult>()
                 
                 val apiCallJobs = (1..numberOfCalls).map {
-                    async { 
-                        val result = demoApiRepository.performRandomApiCall()
+                    async {
+                        val result = performApiCallsUseCase.performRandomApiCall()
                         // Add to the list as each call completes
                         synchronized(completedCalls) {
                             completedCalls.add(result)
@@ -99,7 +99,7 @@ class InspectorViewModel @Inject constructor(
             try {
                 val currentData = _uiState.value.getDataOrNull() ?: return@launch
                 
-                val result = demoApiRepository.performRandomApiCall()
+                val result = performApiCallsUseCase.performRandomApiCall()
                 val updatedCalls = listOf(result) + currentData.apiCalls
                 val updatedData = currentData.copy(
                     apiCalls = updatedCalls,
@@ -140,7 +140,7 @@ class InspectorViewModel @Inject constructor(
                 // Perform new API calls
                 val apiCallJobs = (1..3).map { // Fewer calls for refresh
                     async {
-                        val result = demoApiRepository.performRandomApiCall()
+                        val result = performApiCallsUseCase.performRandomApiCall()
                         
                         // Update state with each new call
                         _uiState.value.getDataOrNull()?.let { data ->

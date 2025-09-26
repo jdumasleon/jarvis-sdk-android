@@ -1,0 +1,990 @@
+// Signature format: 4.0
+package com.jarvis.features.inspector.api {
+
+  @javax.inject.Singleton public final class JarvisNetworkInspector {
+    ctor @javax.inject.Inject public JarvisNetworkInspector(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context, com.jarvis.features.inspector.internal.data.network.JarvisNetworkCollector networkCollector, com.jarvis.features.inspector.internal.data.network.JarvisNetworkInterceptor networkInterceptor);
+    method public void clearOldTransactions(long beforeTimestamp);
+    method public void clearTransactions();
+    method public okhttp3.Interceptor createInterceptor();
+    method public static okhttp3.Interceptor createInterceptor(android.content.Context context);
+    method public suspend Object? getTransactionCount(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    field public static final com.jarvis.features.inspector.api.JarvisNetworkInspector.Companion Companion;
+  }
+
+  public static final class JarvisNetworkInspector.Companion {
+    method public okhttp3.Interceptor createInterceptor(android.content.Context context);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.local.dao {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.room.Dao public interface NetworkTransactionDao {
+    method @androidx.room.Query("DELETE FROM network_transactions") public suspend Object? deleteAllTransactions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @androidx.room.Query("DELETE FROM network_transactions WHERE start_time < :beforeTimestamp") public suspend Object? deleteOldTransactions(long beforeTimestamp, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @androidx.room.Query("DELETE FROM network_transactions WHERE id = :id") public suspend Object? deleteTransaction(String id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @androidx.room.Query("SELECT * FROM network_transactions ORDER BY start_time DESC LIMIT 1000") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getAllTransactions();
+    method @androidx.room.Query("\n        SELECT DISTINCT method FROM network_transactions \n        ORDER BY method ASC\n    ") public suspend Object? getDistinctMethods(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method @androidx.room.Query("\n        SELECT DISTINCT status FROM network_transactions \n        ORDER BY status ASC\n    ") public suspend Object? getDistinctStatuses(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method @androidx.room.Query("SELECT * FROM network_transactions WHERE start_time >= :afterTimestamp ORDER BY start_time DESC LIMIT :limit") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getRecentTransactions(optional long afterTimestamp, optional int limit);
+    method @androidx.room.Query("SELECT * FROM network_transactions WHERE id = :id") public kotlinx.coroutines.flow.Flow<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity> getTransaction(String id);
+    method @androidx.room.Query("SELECT COUNT(*) FROM network_transactions") public suspend Object? getTransactionCount(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method @androidx.room.Query("\n        SELECT * FROM network_transactions \n        WHERE method = :method \n        ORDER BY start_time DESC\n    ") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getTransactionsByMethod(String method);
+    method @androidx.room.Query("\n        SELECT * FROM network_transactions \n        WHERE status = :status \n        ORDER BY start_time DESC\n    ") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getTransactionsByStatus(String status);
+    method @androidx.room.Query("\n        SELECT * FROM network_transactions \n        WHERE start_time >= :startTime AND start_time <= :endTime \n        ORDER BY start_time DESC\n    ") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getTransactionsByTimeRange(long startTime, long endTime);
+    method @androidx.room.Query("SELECT * FROM network_transactions ORDER BY start_time DESC LIMIT :limit OFFSET :offset") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> getTransactionsPaged(int limit, int offset);
+    method @androidx.room.Insert(onConflict=androidx.room.OnConflictStrategy.Companion.REPLACE) public suspend Object? insertTransaction(com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @androidx.room.Query("\n        SELECT * FROM network_transactions \n        WHERE url LIKE \'%\' || :query || \'%\' \n        OR method LIKE \'%\' || :query || \'%\'\n        OR response_status_code LIKE \'%\' || :query || \'%\'\n        ORDER BY start_time DESC\n    ") public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity>> searchTransactions(String query);
+    method @androidx.room.Update public suspend Object? updateTransaction(com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.local.database {
+
+  @androidx.room.Database(entities={NetworkTransactionEntity::class}, version=1, exportSchema=false) public abstract class InspectorDatabase extends androidx.room.RoomDatabase {
+    ctor public InspectorDatabase();
+    method public abstract com.jarvis.features.inspector.internal.data.local.dao.NetworkTransactionDao networkTransactionDao();
+    field public static final com.jarvis.features.inspector.internal.data.local.database.InspectorDatabase.Companion Companion;
+    field public static final String DATABASE_NAME = "inspector_database";
+  }
+
+  public static final class InspectorDatabase.Companion {
+    method public com.jarvis.features.inspector.internal.data.local.database.InspectorDatabase create(android.content.Context context);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.local.entity {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.room.Entity(tableName="network_transactions") public final class NetworkTransactionEntity {
+    ctor public NetworkTransactionEntity(@androidx.room.PrimaryKey String id, @androidx.room.ColumnInfo(name="url") String url, @androidx.room.ColumnInfo(name="method") String method, @androidx.room.ColumnInfo(name="request_headers") String requestHeaders, @androidx.room.ColumnInfo(name="request_body") String? requestBody, @androidx.room.ColumnInfo(name="request_content_type") String? requestContentType, @androidx.room.ColumnInfo(name="request_body_size") long requestBodySize, @androidx.room.ColumnInfo(name="response_status_code") Integer? responseStatusCode, @androidx.room.ColumnInfo(name="response_status_message") String? responseStatusMessage, @androidx.room.ColumnInfo(name="response_headers") String? responseHeaders, @androidx.room.ColumnInfo(name="response_body") String? responseBody, @androidx.room.ColumnInfo(name="response_content_type") String? responseContentType, @androidx.room.ColumnInfo(name="response_body_size") Long? responseBodySize, @androidx.room.ColumnInfo(name="start_time") long startTime, @androidx.room.ColumnInfo(name="end_time") Long? endTime, @androidx.room.ColumnInfo(name="status") String status, @androidx.room.ColumnInfo(name="error") String? error, @androidx.room.ColumnInfo(name="request_timestamp") long requestTimestamp, @androidx.room.ColumnInfo(name="response_timestamp") Long? responseTimestamp);
+    method public String component1();
+    method public String? component10();
+    method public String? component11();
+    method public String? component12();
+    method public Long? component13();
+    method public long component14();
+    method public Long? component15();
+    method public String component16();
+    method public String? component17();
+    method public long component18();
+    method public Long? component19();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public String? component5();
+    method public String? component6();
+    method public long component7();
+    method public Integer? component8();
+    method public String? component9();
+    method public com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity copy(String id, String url, String method, String requestHeaders, String? requestBody, String? requestContentType, long requestBodySize, Integer? responseStatusCode, String? responseStatusMessage, String? responseHeaders, String? responseBody, String? responseContentType, Long? responseBodySize, long startTime, Long? endTime, String status, String? error, long requestTimestamp, Long? responseTimestamp);
+    method public Long? getEndTime();
+    method public String? getError();
+    method public String getId();
+    method public String getMethod();
+    method public String? getRequestBody();
+    method public long getRequestBodySize();
+    method public String? getRequestContentType();
+    method public String getRequestHeaders();
+    method public long getRequestTimestamp();
+    method public String? getResponseBody();
+    method public Long? getResponseBodySize();
+    method public String? getResponseContentType();
+    method public String? getResponseHeaders();
+    method public Integer? getResponseStatusCode();
+    method public String? getResponseStatusMessage();
+    method public Long? getResponseTimestamp();
+    method public long getStartTime();
+    method public String getStatus();
+    method public String getUrl();
+    property public final Long? endTime;
+    property public final String? error;
+    property public final String id;
+    property public final String method;
+    property public final String? requestBody;
+    property public final long requestBodySize;
+    property public final String? requestContentType;
+    property public final String requestHeaders;
+    property public final long requestTimestamp;
+    property public final String? responseBody;
+    property public final Long? responseBodySize;
+    property public final String? responseContentType;
+    property public final String? responseHeaders;
+    property public final Integer? responseStatusCode;
+    property public final String? responseStatusMessage;
+    property public final Long? responseTimestamp;
+    property public final long startTime;
+    property public final String status;
+    property public final String url;
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.mapper {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class NetworkTransactionMapper {
+    ctor @javax.inject.Inject public NetworkTransactionMapper(com.google.gson.Gson gson);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction toDomain(com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity entity);
+    method public com.jarvis.features.inspector.internal.data.local.entity.NetworkTransactionEntity toEntity(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.network {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class JarvisNetworkCollector {
+    ctor @javax.inject.Inject public JarvisNetworkCollector(com.jarvis.features.inspector.internal.domain.repository.NetworkRepository networkRepository);
+    method public void clearAll();
+    method public void clearOldTransactions(long beforeTimestamp);
+    method public suspend Object? getTransactionCount(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public suspend Object? onFailure(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, Throwable error, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onRequestSent(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onResponseReceived(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class JarvisNetworkInterceptor implements okhttp3.Interceptor {
+    ctor @javax.inject.Inject public JarvisNetworkInterceptor(com.jarvis.features.inspector.internal.data.network.JarvisNetworkCollector collector, com.jarvis.features.inspector.internal.domain.usecase.rules.ApplyNetworkRulesUseCase applyNetworkRulesUseCase);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public okhttp3.Response intercept(okhttp3.Interceptor.Chain chain) throws java.io.IOException;
+    field public static final com.jarvis.features.inspector.internal.data.network.JarvisNetworkInterceptor.Companion Companion;
+  }
+
+  public static final class JarvisNetworkInterceptor.Builder {
+    ctor public JarvisNetworkInterceptor.Builder();
+    method public com.jarvis.features.inspector.internal.data.network.JarvisNetworkInterceptor build();
+    method public error.NonExistentClass! collector(com.jarvis.features.inspector.internal.data.network.JarvisNetworkCollector collector);
+    method public error.NonExistentClass! maxContentLength(long length);
+    method public error.NonExistentClass! redactHeaders(java.lang.String... headers);
+    method public error.NonExistentClass! rulesUseCase(com.jarvis.features.inspector.internal.domain.usecase.rules.ApplyNetworkRulesUseCase useCase);
+  }
+
+  public static final class JarvisNetworkInterceptor.Companion {
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.data.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class NetworkRepositoryImpl implements com.jarvis.features.inspector.internal.domain.repository.NetworkRepository {
+    ctor @javax.inject.Inject public NetworkRepositoryImpl(com.jarvis.features.inspector.internal.data.local.dao.NetworkTransactionDao dao, com.jarvis.features.inspector.internal.data.mapper.NetworkTransactionMapper mapper);
+    method public suspend Object? deleteAllTransactions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteOldTransactions(long beforeTimestamp, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteTransaction(String id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getAllTransactions();
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> getTransaction(String id);
+    method public suspend Object? getTransactionCount(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsByMethod(String method);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsByStatus(String status);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsPaged(int limit, int offset);
+    method public suspend Object? insertTransaction(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> searchTransactions(String query);
+    method public suspend Object? updateTransaction(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @javax.inject.Singleton public final class NetworkRulesRepositoryImpl implements com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository {
+    ctor @javax.inject.Inject public NetworkRulesRepositoryImpl(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context);
+    method public suspend Object? clearRuleApplicationHistory(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteRule(String id, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? exportRules(kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.lang.String>>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> getAllRules();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> getEnabledRules();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult>> getRuleApplicationHistory();
+    method public suspend Object? getRuleById(String id, kotlin.coroutines.Continuation<? super com.jarvis.features.inspector.internal.domain.entity.NetworkRule>);
+    method public suspend Object? importRules(String rulesJson, kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.util.List<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>>);
+    method public suspend Object? recordRuleApplication(com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult result, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? saveRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+    method public suspend Object? toggleRuleStatus(String id, boolean isEnabled, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.di.data {
+
+  @dagger.Module @dagger.hilt.InstallIn(SingletonComponent::class) public abstract class JarvisInspectorDataModule {
+    ctor public JarvisInspectorDataModule();
+    method @dagger.Binds @javax.inject.Singleton public abstract com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository bindNetworkRepository(com.jarvis.features.inspector.internal.data.repository.NetworkRulesRepositoryImpl networkRulesRepositoryImpl);
+    method @dagger.Binds @javax.inject.Singleton public abstract com.jarvis.features.inspector.internal.domain.repository.NetworkRepository bindNetworkRulesRepository(com.jarvis.features.inspector.internal.data.repository.NetworkRepositoryImpl networkRepositoryImpl);
+    field public static final com.jarvis.features.inspector.internal.di.data.JarvisInspectorDataModule.Companion Companion;
+  }
+
+  public static final class JarvisInspectorDataModule.Companion {
+    method @dagger.Provides @javax.inject.Singleton public com.google.gson.Gson provideGson();
+    method @dagger.Provides @javax.inject.Singleton public com.jarvis.features.inspector.internal.data.local.database.InspectorDatabase provideInspectorDatabase(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context);
+    method @dagger.Provides @javax.inject.Singleton public com.jarvis.features.inspector.internal.data.network.JarvisNetworkInterceptor provideJarvisNetworkInterceptor(com.jarvis.features.inspector.internal.data.network.JarvisNetworkCollector collector, com.jarvis.features.inspector.internal.domain.usecase.rules.ApplyNetworkRulesUseCase applyNetworkRulesUseCase);
+    method @dagger.Provides @javax.inject.Singleton public com.jarvis.features.inspector.internal.data.local.dao.NetworkTransactionDao provideNetworkTransactionDao(com.jarvis.features.inspector.internal.data.local.database.InspectorDatabase database);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.di.presentation {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.Module @dagger.hilt.InstallIn(ActivityRetainedComponent::class) public final class JarvisInspectorPresentationModule {
+    method @dagger.Provides @dagger.multibindings.IntoSet public error.NonExistentClass! provideEntryProviderInstaller();
+    field public static final com.jarvis.features.inspector.internal.di.presentation.JarvisInspectorPresentationModule INSTANCE;
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.domain.entity {
+
+  public enum HttpMethod {
+    method public static com.jarvis.features.inspector.internal.domain.entity.HttpMethod valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.inspector.internal.domain.entity.HttpMethod[] values();
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod CONNECT;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod DELETE;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod GET;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod HEAD;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod OPTIONS;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod PATCH;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod POST;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod PUT;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod TRACE;
+    field public static final com.jarvis.features.inspector.internal.domain.entity.HttpMethod.Companion Companion;
+  }
+
+  public static final class HttpMethod.Companion {
+    method public com.jarvis.features.inspector.internal.domain.entity.HttpMethod fromString(String method);
+  }
+
+  public final class NetworkRequest {
+    ctor public NetworkRequest(String url, com.jarvis.features.inspector.internal.domain.entity.HttpMethod method, optional java.util.Map<java.lang.String,java.lang.String> headers, optional String? body, optional String? contentType, optional long bodySize, optional long timestamp);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.domain.entity.HttpMethod component2();
+    method public java.util.Map<java.lang.String,java.lang.String> component3();
+    method public String? component4();
+    method public String? component5();
+    method public long component6();
+    method public long component7();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRequest copy(String url, com.jarvis.features.inspector.internal.domain.entity.HttpMethod method, java.util.Map<java.lang.String,java.lang.String> headers, String? body, String? contentType, long bodySize, long timestamp);
+    method public String? getBody();
+    method public long getBodySize();
+    method public String? getContentType();
+    method public boolean getHasBody();
+    method public java.util.Map<java.lang.String,java.lang.String> getHeaders();
+    method public String getHost();
+    method public com.jarvis.features.inspector.internal.domain.entity.HttpMethod getMethod();
+    method public String getPath();
+    method public String getProtocol();
+    method public long getTimestamp();
+    method public String getUrl();
+    method public boolean isGraphQL();
+    property public final String? body;
+    property public final long bodySize;
+    property public final String? contentType;
+    property public final boolean hasBody;
+    property public final java.util.Map<java.lang.String,java.lang.String> headers;
+    property public final String host;
+    property public final boolean isGraphQL;
+    property public final com.jarvis.features.inspector.internal.domain.entity.HttpMethod method;
+    property public final String path;
+    property public final String protocol;
+    property public final long timestamp;
+    property public final String url;
+  }
+
+  public final class NetworkResponse {
+    ctor public NetworkResponse(int statusCode, String statusMessage, optional java.util.Map<java.lang.String,java.lang.String> headers, optional String? body, optional String? contentType, optional long bodySize, optional long timestamp);
+    method public int component1();
+    method public String component2();
+    method public java.util.Map<java.lang.String,java.lang.String> component3();
+    method public String? component4();
+    method public String? component5();
+    method public long component6();
+    method public long component7();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkResponse copy(int statusCode, String statusMessage, java.util.Map<java.lang.String,java.lang.String> headers, String? body, String? contentType, long bodySize, long timestamp);
+    method public String? getBody();
+    method public long getBodySize();
+    method public String? getContentType();
+    method public boolean getHasBody();
+    method public java.util.Map<java.lang.String,java.lang.String> getHeaders();
+    method public com.jarvis.features.inspector.internal.domain.entity.StatusCategory getStatusCategory();
+    method public int getStatusCode();
+    method public String getStatusMessage();
+    method public long getTimestamp();
+    method public boolean isClientError();
+    method public boolean isHtml();
+    method public boolean isImage();
+    method public boolean isJson();
+    method public boolean isRedirect();
+    method public boolean isServerError();
+    method public boolean isSuccessful();
+    method public boolean isText();
+    method public boolean isXml();
+    property public final String? body;
+    property public final long bodySize;
+    property public final String? contentType;
+    property public final boolean hasBody;
+    property public final java.util.Map<java.lang.String,java.lang.String> headers;
+    property public final boolean isClientError;
+    property public final boolean isHtml;
+    property public final boolean isImage;
+    property public final boolean isJson;
+    property public final boolean isRedirect;
+    property public final boolean isServerError;
+    property public final boolean isSuccessful;
+    property public final boolean isText;
+    property public final boolean isXml;
+    property public final com.jarvis.features.inspector.internal.domain.entity.StatusCategory statusCategory;
+    property public final int statusCode;
+    property public final String statusMessage;
+    property public final long timestamp;
+  }
+
+  @kotlinx.serialization.Serializable public final class NetworkRule {
+    ctor public NetworkRule(optional String id, String name, optional boolean isEnabled, com.jarvis.features.inspector.internal.domain.entity.RuleOrigin origin, com.jarvis.features.inspector.internal.domain.entity.RuleMode mode, optional com.jarvis.features.inspector.internal.domain.entity.RequestModifications? requestModifications, optional com.jarvis.features.inspector.internal.domain.entity.ResponseModifications? responseModifications, optional long created, optional long lastModified);
+    method public String component1();
+    method public String component2();
+    method public boolean component3();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleOrigin component4();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleMode component5();
+    method public com.jarvis.features.inspector.internal.domain.entity.RequestModifications? component6();
+    method public com.jarvis.features.inspector.internal.domain.entity.ResponseModifications? component7();
+    method public long component8();
+    method public long component9();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule copy(String id, String name, boolean isEnabled, com.jarvis.features.inspector.internal.domain.entity.RuleOrigin origin, com.jarvis.features.inspector.internal.domain.entity.RuleMode mode, com.jarvis.features.inspector.internal.domain.entity.RequestModifications? requestModifications, com.jarvis.features.inspector.internal.domain.entity.ResponseModifications? responseModifications, long created, long lastModified);
+    method public long getCreated();
+    method public String getId();
+    method public long getLastModified();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleMode getMode();
+    method public String getName();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleOrigin getOrigin();
+    method public com.jarvis.features.inspector.internal.domain.entity.RequestModifications? getRequestModifications();
+    method public com.jarvis.features.inspector.internal.domain.entity.ResponseModifications? getResponseModifications();
+    method public boolean isEnabled();
+    property public final long created;
+    property public final String id;
+    property public final boolean isEnabled;
+    property public final long lastModified;
+    property public final com.jarvis.features.inspector.internal.domain.entity.RuleMode mode;
+    property public final String name;
+    property public final com.jarvis.features.inspector.internal.domain.entity.RuleOrigin origin;
+    property public final com.jarvis.features.inspector.internal.domain.entity.RequestModifications? requestModifications;
+    property public final com.jarvis.features.inspector.internal.domain.entity.ResponseModifications? responseModifications;
+  }
+
+  public final class NetworkTransaction {
+    ctor public NetworkTransaction(optional String id, com.jarvis.features.inspector.internal.domain.entity.NetworkRequest request, optional com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? response, optional long startTime, optional Long? endTime, optional com.jarvis.features.inspector.internal.domain.entity.TransactionStatus status, optional String? error);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRequest component2();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? component3();
+    method public long component4();
+    method public Long? component5();
+    method public com.jarvis.features.inspector.internal.domain.entity.TransactionStatus component6();
+    method public String? component7();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction copy(String id, com.jarvis.features.inspector.internal.domain.entity.NetworkRequest request, com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? response, long startTime, Long? endTime, com.jarvis.features.inspector.internal.domain.entity.TransactionStatus status, String? error);
+    method public Long? getDuration();
+    method public Long? getEndTime();
+    method public String? getError();
+    method public String getId();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRequest getRequest();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? getResponse();
+    method public long getStartTime();
+    method public com.jarvis.features.inspector.internal.domain.entity.TransactionStatus getStatus();
+    method public boolean isCompleted();
+    method public boolean isFailed();
+    method public boolean isPending();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction withError(String error);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction withResponse(com.jarvis.features.inspector.internal.domain.entity.NetworkResponse response);
+    property public final Long? duration;
+    property public final Long? endTime;
+    property public final String? error;
+    property public final String id;
+    property public final boolean isCompleted;
+    property public final boolean isFailed;
+    property public final boolean isPending;
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkRequest request;
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? response;
+    property public final long startTime;
+    property public final com.jarvis.features.inspector.internal.domain.entity.TransactionStatus status;
+  }
+
+  @kotlinx.serialization.Serializable public final class RequestModifications {
+    ctor public RequestModifications(optional java.util.Map<java.lang.String,java.lang.String> addHeaders, optional java.util.Map<java.lang.String,java.lang.String> modifyHeaders, optional java.util.List<java.lang.String> removeHeaders, optional String? modifyBody, optional String? modifyUrl, optional String? modifyMethod);
+    method public java.util.Map<java.lang.String,java.lang.String> component1();
+    method public java.util.Map<java.lang.String,java.lang.String> component2();
+    method public java.util.List<java.lang.String> component3();
+    method public String? component4();
+    method public String? component5();
+    method public String? component6();
+    method public com.jarvis.features.inspector.internal.domain.entity.RequestModifications copy(java.util.Map<java.lang.String,java.lang.String> addHeaders, java.util.Map<java.lang.String,java.lang.String> modifyHeaders, java.util.List<java.lang.String> removeHeaders, String? modifyBody, String? modifyUrl, String? modifyMethod);
+    method public java.util.Map<java.lang.String,java.lang.String> getAddHeaders();
+    method public String? getModifyBody();
+    method public java.util.Map<java.lang.String,java.lang.String> getModifyHeaders();
+    method public String? getModifyMethod();
+    method public String? getModifyUrl();
+    method public java.util.List<java.lang.String> getRemoveHeaders();
+    property public final java.util.Map<java.lang.String,java.lang.String> addHeaders;
+    property public final String? modifyBody;
+    property public final java.util.Map<java.lang.String,java.lang.String> modifyHeaders;
+    property public final String? modifyMethod;
+    property public final String? modifyUrl;
+    property public final java.util.List<java.lang.String> removeHeaders;
+  }
+
+  @kotlinx.serialization.Serializable public final class ResponseModifications {
+    ctor public ResponseModifications(optional Integer? statusCode, optional String? statusMessage, optional java.util.Map<java.lang.String,java.lang.String> addHeaders, optional java.util.Map<java.lang.String,java.lang.String> modifyHeaders, optional java.util.List<java.lang.String> removeHeaders, optional String? modifyBody, optional long delay);
+    method public Integer? component1();
+    method public String? component2();
+    method public java.util.Map<java.lang.String,java.lang.String> component3();
+    method public java.util.Map<java.lang.String,java.lang.String> component4();
+    method public java.util.List<java.lang.String> component5();
+    method public String? component6();
+    method public long component7();
+    method public com.jarvis.features.inspector.internal.domain.entity.ResponseModifications copy(Integer? statusCode, String? statusMessage, java.util.Map<java.lang.String,java.lang.String> addHeaders, java.util.Map<java.lang.String,java.lang.String> modifyHeaders, java.util.List<java.lang.String> removeHeaders, String? modifyBody, long delay);
+    method public java.util.Map<java.lang.String,java.lang.String> getAddHeaders();
+    method public long getDelay();
+    method public String? getModifyBody();
+    method public java.util.Map<java.lang.String,java.lang.String> getModifyHeaders();
+    method public java.util.List<java.lang.String> getRemoveHeaders();
+    method public Integer? getStatusCode();
+    method public String? getStatusMessage();
+    property public final java.util.Map<java.lang.String,java.lang.String> addHeaders;
+    property public final long delay;
+    property public final String? modifyBody;
+    property public final java.util.Map<java.lang.String,java.lang.String> modifyHeaders;
+    property public final java.util.List<java.lang.String> removeHeaders;
+    property public final Integer? statusCode;
+    property public final String? statusMessage;
+  }
+
+  @kotlinx.serialization.Serializable public final class RuleApplicationResult {
+    ctor public RuleApplicationResult(String ruleId, String ruleName, com.jarvis.features.inspector.internal.domain.entity.RuleMode mode, boolean applied, java.util.List<java.lang.String> modificationsApplied, optional long timestamp);
+    method public String component1();
+    method public String component2();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleMode component3();
+    method public boolean component4();
+    method public java.util.List<java.lang.String> component5();
+    method public long component6();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult copy(String ruleId, String ruleName, com.jarvis.features.inspector.internal.domain.entity.RuleMode mode, boolean applied, java.util.List<java.lang.String> modificationsApplied, long timestamp);
+    method public boolean getApplied();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleMode getMode();
+    method public java.util.List<java.lang.String> getModificationsApplied();
+    method public String getRuleId();
+    method public String getRuleName();
+    method public long getTimestamp();
+    property public final boolean applied;
+    property public final com.jarvis.features.inspector.internal.domain.entity.RuleMode mode;
+    property public final java.util.List<java.lang.String> modificationsApplied;
+    property public final String ruleId;
+    property public final String ruleName;
+    property public final long timestamp;
+  }
+
+  @kotlinx.serialization.Serializable public enum RuleMode {
+    method public static com.jarvis.features.inspector.internal.domain.entity.RuleMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.inspector.internal.domain.entity.RuleMode[] values();
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.RuleMode INSPECT;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.RuleMode MOCK;
+  }
+
+  @kotlinx.serialization.Serializable public final class RuleOrigin {
+    ctor public RuleOrigin(optional java.util.List<java.lang.String> protocols, optional String? hostUrl, optional Integer? port, optional String? path, optional String? query, optional String? method);
+    method public java.util.List<java.lang.String> component1();
+    method public String? component2();
+    method public Integer? component3();
+    method public String? component4();
+    method public String? component5();
+    method public String? component6();
+    method public com.jarvis.features.inspector.internal.domain.entity.RuleOrigin copy(java.util.List<java.lang.String> protocols, String? hostUrl, Integer? port, String? path, String? query, String? method);
+    method public String? getHostUrl();
+    method public String? getMethod();
+    method public String? getPath();
+    method public Integer? getPort();
+    method public java.util.List<java.lang.String> getProtocols();
+    method public String? getQuery();
+    method public boolean matches(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction);
+    property public final String? hostUrl;
+    property public final String? method;
+    property public final String? path;
+    property public final Integer? port;
+    property public final java.util.List<java.lang.String> protocols;
+    property public final String? query;
+  }
+
+  public enum StatusCategory {
+    method public static com.jarvis.features.inspector.internal.domain.entity.StatusCategory valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.inspector.internal.domain.entity.StatusCategory[] values();
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory CLIENT_ERROR;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory INFORMATIONAL;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory REDIRECT;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory SERVER_ERROR;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory SUCCESS;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.StatusCategory UNKNOWN;
+  }
+
+  public enum TransactionStatus {
+    method public static com.jarvis.features.inspector.internal.domain.entity.TransactionStatus valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.inspector.internal.domain.entity.TransactionStatus[] values();
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.TransactionStatus COMPLETED;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.TransactionStatus FAILED;
+    enum_constant public static final com.jarvis.features.inspector.internal.domain.entity.TransactionStatus PENDING;
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.domain.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface NetworkRepository {
+    method public suspend Object? deleteAllTransactions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteOldTransactions(long beforeTimestamp, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteTransaction(String id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getAllTransactions();
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> getTransaction(String id);
+    method public suspend Object? getTransactionCount(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsByMethod(String method);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsByStatus(String status);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> getTransactionsPaged(optional int limit, optional int offset);
+    method public suspend Object? insertTransaction(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>> searchTransactions(String query);
+    method public suspend Object? updateTransaction(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface NetworkRulesRepository {
+    method public suspend Object? clearRuleApplicationHistory(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteRule(String id, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? exportRules(kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.lang.String>>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> getAllRules();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> getEnabledRules();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult>> getRuleApplicationHistory();
+    method public suspend Object? getRuleById(String id, kotlin.coroutines.Continuation<? super com.jarvis.features.inspector.internal.domain.entity.NetworkRule>);
+    method public suspend Object? importRules(String rulesJson, kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.util.List<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>>);
+    method public suspend Object? recordRuleApplication(com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult result, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? saveRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+    method public suspend Object? toggleRuleStatus(String id, boolean isEnabled, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.domain.usecase.rules {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ApplyNetworkRulesUseCase {
+    ctor @javax.inject.Inject public ApplyNetworkRulesUseCase(com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository repository);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRequest applyRequestModifications(com.jarvis.features.inspector.internal.domain.entity.NetworkRequest originalRequest, com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkResponse applyResponseModifications(com.jarvis.features.inspector.internal.domain.entity.NetworkResponse originalResponse, com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkResponse createMockResponse(com.jarvis.features.inspector.internal.domain.entity.NetworkRequest request, com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public suspend Object? findMatchingRules(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, optional boolean enabledRulesOnly, optional kotlin.coroutines.Continuation<? super java.util.List<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+    method public suspend Object? recordRuleApplication(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule, com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, java.util.List<java.lang.String> modificationsApplied, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetNetworkRulesUseCase {
+    ctor @javax.inject.Inject public GetNetworkRulesUseCase(com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository repository);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> getEnabledRules();
+    method public suspend Object? getRuleById(String id, kotlin.coroutines.Continuation<? super com.jarvis.features.inspector.internal.domain.entity.NetworkRule>);
+    method public operator kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule>> invoke();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ManageNetworkRulesUseCase {
+    ctor @javax.inject.Inject public ManageNetworkRulesUseCase(com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository repository);
+    method public suspend Object? deleteRule(String id, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? exportRules(kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.lang.String>>);
+    method public suspend Object? importRules(String rulesJson, kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.util.List<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>>);
+    method public suspend Object? saveRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+    method public suspend Object? toggleRuleStatus(String id, boolean isEnabled, kotlin.coroutines.Continuation<? super kotlin.Result<? extends com.jarvis.features.inspector.internal.domain.entity.NetworkRule>>);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.presentation.breakpoints {
+
+  public final class NetworkBreakpointsData {
+    ctor public NetworkBreakpointsData(optional java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule> rules, optional int enabledRulesCount, optional java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult> applicationHistory, optional com.jarvis.features.inspector.internal.domain.entity.NetworkRule? selectedRule, optional boolean showRuleEditor, optional boolean showImportExport);
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule> component1();
+    method public int component2();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult> component3();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule? component4();
+    method public boolean component5();
+    method public boolean component6();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData copy(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule> rules, int enabledRulesCount, java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult> applicationHistory, com.jarvis.features.inspector.internal.domain.entity.NetworkRule? selectedRule, boolean showRuleEditor, boolean showImportExport);
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult> getApplicationHistory();
+    method public int getEnabledRulesCount();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule> getRules();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule? getSelectedRule();
+    method public boolean getShowImportExport();
+    method public boolean getShowRuleEditor();
+    property public final java.util.List<com.jarvis.features.inspector.internal.domain.entity.RuleApplicationResult> applicationHistory;
+    property public final int enabledRulesCount;
+    property public final java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkRule> rules;
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkRule? selectedRule;
+    property public final boolean showImportExport;
+    property public final boolean showRuleEditor;
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData.Companion Companion;
+  }
+
+  public static final class NetworkBreakpointsData.Companion {
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData empty();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData mockBreakpointsData();
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkBreakpointsScreenKt {
+    method @androidx.compose.runtime.Composable public static void NetworkBreakpointsScreen(String actionKey, optional androidx.compose.ui.Modifier modifier, optional com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsViewModel viewModel);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class NetworkBreakpointsViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public NetworkBreakpointsViewModel(com.jarvis.features.inspector.internal.domain.usecase.rules.GetNetworkRulesUseCase getRulesUseCase, com.jarvis.features.inspector.internal.domain.usecase.rules.ManageNetworkRulesUseCase manageRulesUseCase, com.jarvis.features.inspector.internal.domain.repository.NetworkRulesRepository repository, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData>> getUiState();
+    method public void onEvent(com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkBreakpointsData>> uiState;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkRuleEditorDialogKt {
+    method @androidx.compose.runtime.Composable public static void NetworkRuleEditorDialog(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule, kotlin.jvm.functions.Function1<? super com.jarvis.features.inspector.internal.domain.entity.NetworkRule,kotlin.Unit> onSave, kotlin.jvm.functions.Function0<kotlin.Unit> onDismiss, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public abstract sealed class NetworkRulesEvent {
+  }
+
+  public static final class NetworkRulesEvent.ClearError extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ClearError INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.ClearHistory extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ClearHistory INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.CreateNewRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.CreateNewRule INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.DeleteRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.DeleteRule(String ruleId);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.DeleteRule copy(String ruleId);
+    method public String getRuleId();
+    property public final String ruleId;
+  }
+
+  public static final class NetworkRulesEvent.EditRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.EditRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.EditRule copy(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule getRule();
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule;
+  }
+
+  public static final class NetworkRulesEvent.ExportRules extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ExportRules INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.ImportRules extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.ImportRules(String rulesJson);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ImportRules copy(String rulesJson);
+    method public String getRulesJson();
+    property public final String rulesJson;
+  }
+
+  public static final class NetworkRulesEvent.LoadRules extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.LoadRules INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.RefreshRules extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.RefreshRules INSTANCE;
+  }
+
+  public static final class NetworkRulesEvent.SaveRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.SaveRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.SaveRule copy(com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule getRule();
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkRule rule;
+  }
+
+  public static final class NetworkRulesEvent.SelectRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.SelectRule(com.jarvis.features.inspector.internal.domain.entity.NetworkRule? rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule? component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.SelectRule copy(com.jarvis.features.inspector.internal.domain.entity.NetworkRule? rule);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkRule? getRule();
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkRule? rule;
+  }
+
+  public static final class NetworkRulesEvent.ShowImportExport extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.ShowImportExport(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ShowImportExport copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class NetworkRulesEvent.ShowRuleEditor extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.ShowRuleEditor(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ShowRuleEditor copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class NetworkRulesEvent.ToggleRule extends com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent {
+    ctor public NetworkRulesEvent.ToggleRule(String ruleId, boolean enabled);
+    method public String component1();
+    method public boolean component2();
+    method public com.jarvis.features.inspector.internal.presentation.breakpoints.NetworkRulesEvent.ToggleRule copy(String ruleId, boolean enabled);
+    method public boolean getEnabled();
+    method public String getRuleId();
+    property public final boolean enabled;
+    property public final String ruleId;
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.presentation.components {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class EnhancedBodyViewerKt {
+    method @androidx.compose.runtime.Composable public static void EnhancedBodyViewer(String title, String? body, String? contentType, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final class NetworkTransactionGroup {
+    ctor public NetworkTransactionGroup(String date, long timestamp, java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions);
+    method public String component1();
+    method public long component2();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> component3();
+    method public com.jarvis.features.inspector.internal.presentation.components.NetworkTransactionGroup copy(String date, long timestamp, java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions);
+    method public String getDate();
+    method public long getTimestamp();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> getTransactions();
+    property public final String date;
+    property public final long timestamp;
+    property public final java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkTransactionGroupHeaderKt {
+    method @androidx.compose.runtime.Composable public static void NetworkTransactionGroupHeader(String title, int transactionCount, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkTransactionGroupKt {
+    method public static String formatRelativeTime(long);
+    method public static String formatTime(long);
+    method public static java.util.List<com.jarvis.features.inspector.internal.presentation.components.NetworkTransactionGroup> groupByDate(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction>);
+    field public static final String TODAY = "Today";
+    field public static final String YESTERDAY = "Yesterday";
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class TransactionDetailTabsKt {
+    method @androidx.compose.runtime.Composable public static void TransactionOverviewTab(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable public static void TransactionRequestTab(com.jarvis.features.inspector.internal.domain.entity.NetworkRequest request, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable public static void TransactionResponseTab(com.jarvis.features.inspector.internal.domain.entity.NetworkResponse? response, optional androidx.compose.ui.Modifier modifier);
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.presentation.transactions {
+
+  public sealed interface NetworkInspectorEvent {
+  }
+
+  public static final class NetworkInspectorEvent.ClearAllTransactions implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.ClearAllTransactions INSTANCE;
+  }
+
+  public static final class NetworkInspectorEvent.ClearError implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.ClearError INSTANCE;
+  }
+
+  public static final class NetworkInspectorEvent.DeleteTransaction implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.DeleteTransaction(String transactionId);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.DeleteTransaction copy(String transactionId);
+    method public String getTransactionId();
+    property public final String transactionId;
+  }
+
+  public static final class NetworkInspectorEvent.LoadMoreTransactions implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.LoadMoreTransactions INSTANCE;
+  }
+
+  public static final class NetworkInspectorEvent.LoadTransactions implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.LoadTransactions INSTANCE;
+  }
+
+  public static final class NetworkInspectorEvent.MethodFilterChanged implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.MethodFilterChanged(String? method);
+    method public String? component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.MethodFilterChanged copy(String? method);
+    method public String? getMethod();
+    property public final String? method;
+  }
+
+  public static final class NetworkInspectorEvent.RefreshTransactions implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.RefreshTransactions INSTANCE;
+  }
+
+  public static final class NetworkInspectorEvent.SearchQueryChanged implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.SearchQueryChanged(String query);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.SearchQueryChanged copy(String query);
+    method public String getQuery();
+    property public final String query;
+  }
+
+  public static final class NetworkInspectorEvent.ShowClearConfirmation implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.ShowClearConfirmation(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.ShowClearConfirmation copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class NetworkInspectorEvent.StatusFilterChanged implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.StatusFilterChanged(String? status);
+    method public String? component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.StatusFilterChanged copy(String? status);
+    method public String? getStatus();
+    property public final String? status;
+  }
+
+  public static final class NetworkInspectorEvent.TransactionSelected implements com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent {
+    ctor public NetworkInspectorEvent.TransactionSelected(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent.TransactionSelected copy(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction getTransaction();
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkInspectorScreenKt {
+    method @androidx.compose.runtime.Composable public static void NetworkInspectorRoute(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onNavigateToDetail, kotlin.jvm.functions.Function0<kotlin.Unit> onNavigateToRules, optional com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorViewModel viewModel);
+    method @androidx.compose.runtime.Composable public static void NetworkInspectorScreen(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent,kotlin.Unit> onEvent, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onNavigateToDetail, kotlin.jvm.functions.Function0<kotlin.Unit> onNavigateToRules, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final class NetworkInspectorUiData {
+    ctor public NetworkInspectorUiData(optional java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions, optional java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> allLoadedTransactions, optional String searchQuery, optional String? selectedMethod, optional String? selectedStatus, optional java.util.List<java.lang.String> availableMethods, optional java.util.List<java.lang.String> availableStatuses, optional boolean showClearConfirmation, optional com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction? selectedTransaction, optional boolean isRefreshing, optional int currentPage, optional boolean hasMorePages, optional boolean isLoadingMore);
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> component1();
+    method public boolean component10();
+    method public int component11();
+    method public boolean component12();
+    method public boolean component13();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> component2();
+    method public String component3();
+    method public String? component4();
+    method public String? component5();
+    method public java.util.List<java.lang.String> component6();
+    method public java.util.List<java.lang.String> component7();
+    method public boolean component8();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction? component9();
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData copy(java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions, java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> allLoadedTransactions, String searchQuery, String? selectedMethod, String? selectedStatus, java.util.List<java.lang.String> availableMethods, java.util.List<java.lang.String> availableStatuses, boolean showClearConfirmation, com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction? selectedTransaction, boolean isRefreshing, int currentPage, boolean hasMorePages, boolean isLoadingMore);
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> getAllLoadedTransactions();
+    method public java.util.List<java.lang.String> getAvailableMethods();
+    method public java.util.List<java.lang.String> getAvailableStatuses();
+    method public int getCurrentPage();
+    method public boolean getHasMorePages();
+    method public String getSearchQuery();
+    method public String? getSelectedMethod();
+    method public String? getSelectedStatus();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction? getSelectedTransaction();
+    method public boolean getShowClearConfirmation();
+    method public java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> getTransactions();
+    method public boolean isLoadingMore();
+    method public boolean isRefreshing();
+    property public final java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> allLoadedTransactions;
+    property public final java.util.List<java.lang.String> availableMethods;
+    property public final java.util.List<java.lang.String> availableStatuses;
+    property public final int currentPage;
+    property public final boolean hasMorePages;
+    property public final boolean isLoadingMore;
+    property public final boolean isRefreshing;
+    property public final String searchQuery;
+    property public final String? selectedMethod;
+    property public final String? selectedStatus;
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction? selectedTransaction;
+    property public final boolean showClearConfirmation;
+    property public final java.util.List<com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction> transactions;
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData.Companion Companion;
+  }
+
+  public static final class NetworkInspectorUiData.Companion {
+    method public com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData getMockNetworkInspectorUiData();
+    property public final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData mockNetworkInspectorUiData;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class NetworkInspectorViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public NetworkInspectorViewModel(com.jarvis.features.inspector.internal.domain.repository.NetworkRepository networkRepository, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData>> getUiState();
+    method public void onEvent(com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorUiData>> uiState;
+    field public static final com.jarvis.features.inspector.internal.presentation.transactions.NetworkInspectorViewModel.Companion Companion;
+  }
+
+  public static final class NetworkInspectorViewModel.Companion {
+  }
+
+}
+
+package com.jarvis.features.inspector.internal.presentation.transactionsDetails {
+
+  public sealed interface NetworkTransactionDetailEvent {
+  }
+
+  public static final class NetworkTransactionDetailEvent.ClearError implements com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent.ClearError INSTANCE;
+  }
+
+  public static final class NetworkTransactionDetailEvent.DeleteTransaction implements com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent {
+    field public static final com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent.DeleteTransaction INSTANCE;
+  }
+
+  public static final class NetworkTransactionDetailEvent.LoadTransaction implements com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent {
+    ctor public NetworkTransactionDetailEvent.LoadTransaction(String transactionId);
+    method public String component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent.LoadTransaction copy(String transactionId);
+    method public String getTransactionId();
+    property public final String transactionId;
+  }
+
+  public static final class NetworkTransactionDetailEvent.SelectTab implements com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent {
+    ctor public NetworkTransactionDetailEvent.SelectTab(int tabIndex);
+    method public int component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent.SelectTab copy(int tabIndex);
+    method public int getTabIndex();
+    property public final int tabIndex;
+  }
+
+  public static final class NetworkTransactionDetailEvent.ShowDeleteConfirmation implements com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent {
+    ctor public NetworkTransactionDetailEvent.ShowDeleteConfirmation(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent.ShowDeleteConfirmation copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class NetworkTransactionDetailScreenKt {
+    method @androidx.compose.runtime.Composable public static void NetworkTransactionDetailRoute(String transactionId, optional androidx.compose.ui.Modifier modifier, optional com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailViewModel viewModel);
+    method @androidx.compose.runtime.Composable public static void NetworkTransactionDetailScreen(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent,kotlin.Unit> onEvent, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true, name="Transaction Detail - Delete Confirmation") public static void NetworkTransactionDetailScreenDeleteConfirmationPreview();
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true, name="Transaction Detail - Error Response") public static void NetworkTransactionDetailScreenErrorPreview();
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true, name="Transaction Detail - Error") public static void NetworkTransactionDetailScreenErrorStatePreview();
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true, name="Transaction Detail - Loading") public static void NetworkTransactionDetailScreenLoadingPreview();
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.tooling.preview.Preview(showBackground=true, name="Transaction Detail - Success") public static void NetworkTransactionDetailScreenSuccessPreview();
+  }
+
+  public final class NetworkTransactionDetailUiData {
+    ctor public NetworkTransactionDetailUiData(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, optional int selectedTab, optional boolean showDeleteConfirmation, optional java.util.List<java.lang.String> availableTabs);
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction component1();
+    method public int component2();
+    method public boolean component3();
+    method public java.util.List<java.lang.String> component4();
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData copy(com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction, int selectedTab, boolean showDeleteConfirmation, java.util.List<java.lang.String> availableTabs);
+    method public java.util.List<java.lang.String> getAvailableTabs();
+    method public int getSelectedTab();
+    method public boolean getShowDeleteConfirmation();
+    method public com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction getTransaction();
+    property public final java.util.List<java.lang.String> availableTabs;
+    property public final int selectedTab;
+    property public final boolean showDeleteConfirmation;
+    property public final com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction transaction;
+    field public static final com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData.Companion Companion;
+  }
+
+  public static final class NetworkTransactionDetailUiData.Companion {
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData getMockErrorTransactionDetailUiData();
+    method public com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData getMockNetworkTransactionDetailUiData();
+    property public final com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData mockErrorTransactionDetailUiData;
+    property public final com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData mockNetworkTransactionDetailUiData;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class NetworkTransactionDetailViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public NetworkTransactionDetailViewModel(com.jarvis.features.inspector.internal.domain.repository.NetworkRepository networkRepository, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData>> getUiState();
+    method public void onEvent(com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.inspector.internal.presentation.transactionsDetails.NetworkTransactionDetailUiData>> uiState;
+  }
+
+}
+

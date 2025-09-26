@@ -11,7 +11,10 @@ data class PreferencesConfig(
     // DataStore configuration
     val autoDiscoverDataStores: Boolean = true,
     val includeDataStores: List<String> = emptyList(),
-    val excludeDataStores: List<String> = emptyList(),
+    val excludeDataStores: List<String> = listOf(
+        "platform_preferences",        // SDK internal platform preferences
+        "jarvis_internal_preferences"  // SDK internal preferences (header state, etc.)
+    ),
     
     // SharedPreferences configuration  
     val autoDiscoverSharedPrefs: Boolean = true,

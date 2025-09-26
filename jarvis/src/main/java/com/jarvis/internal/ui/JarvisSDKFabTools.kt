@@ -1,0 +1,64 @@
+package com.jarvis.internal.ui
+
+import androidx.annotation.RestrictTo
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
+import com.jarvis.internal.ui.components.JarvisFabButton
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+
+/**
+ * Main Jarvis SDK overlay component
+ * Provides floating UI and shake detection for development tools
+ */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun JarvisSDKFabTools(
+    modifier: Modifier = Modifier,
+    onShowOverlay: () -> Unit,
+    onShowInspector: () -> Unit = {},
+    onShowPreferences: () -> Unit = {},
+    onCloseSDK: () -> Unit = {},
+    isJarvisActive: Boolean = false
+) {
+    var isJarvisVisible by rememberSaveable { mutableStateOf(isJarvisActive) }
+
+    LaunchedEffect(isJarvisActive) {
+        isJarvisVisible = isJarvisActive
+    }
+    
+    Box(modifier = modifier.fillMaxSize()) {
+        if (isJarvisVisible) {
+            JarvisFabButton(
+                onInspectorClick = onShowInspector,
+                onPreferencesClick = onShowPreferences,
+                onHomeClick = onShowOverlay,
+                onCloseClick = {
+                    isJarvisVisible = false
+                    onCloseSDK()
+                },
+                modifier = Modifier.zIndex(Float.MAX_VALUE)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JarvisSDKFabToolsPreview() {
+    DSJarvisTheme {
+        JarvisSDKFabTools(
+            onShowOverlay = {},
+            isJarvisActive = true
+        )
+    }
+}

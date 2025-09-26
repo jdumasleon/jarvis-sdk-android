@@ -1,8 +1,3 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
-
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-import io.gitlab.arturbosch.detekt.Detekt
-
 buildscript {
     repositories {
         google {
@@ -22,10 +17,9 @@ buildscript {
     }
     dependencies {
         classpath(libs.google.oss.licenses.plugin) {
-            //exclude(group = "com.google.protobuf")
+            // exclude(group = "com.google.protobuf")
         }
     }
-
 }
 
 // Lists all plugins used throughout the project
@@ -48,4 +42,18 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false // Plugin applied to allow module graph generation
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.ktlint) apply true
+    alias(libs.plugins.binaryCompatibilityValidator) apply true
+    alias(libs.plugins.vanniktech.maven.publish) apply false
+}
+
+// Configure Binary Compatibility Validator for API tracking
+apiValidation {
+    // Only validate these modules (our SDK modules)
+    validationDisabled = false
+
+    // Track these modules for binary compatibility
+    ignoredProjects += listOf("app") // Exclude demo app
+
+    // Generate API files in each module
+    apiDumpDirectory = "api"
 }
