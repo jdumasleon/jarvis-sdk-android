@@ -73,7 +73,7 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 }
 ```
 
@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = config, hostActivity = this)
+        jarvisSDK.initializeAsync(config = config, hostActivity = this)
     }
 
     override fun onDestroy() {
@@ -183,27 +183,9 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // Single artifact automatically provides full functionality in debug, optimized in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.1.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 }
 ```
-
-#### Alternative: Modular Artifacts (Advanced)
-
-For fine-grained control and selective feature integration, you can use modular artifacts:
-
-```kotlin
-dependencies {
-    // Core module (required)
-    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
-
-    // Optional: Network inspection module
-    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.0")
-
-    // Optional: Preferences management module
-    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.0")
-}
-```
-
 This approach allows you to include only the features you need, reducing the final APK size.
 
 ### Maven Central
@@ -212,7 +194,7 @@ This approach allows you to include only the features you need, reducing the fin
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -239,7 +221,7 @@ Choose between the complete SDK or modular packages based on your needs:
 #### Complete SDK (Recommended)
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")  // All features included
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")  // All features included
 }
 ```
 - ✅ **All features included** - Network inspection, preferences management, and core functionality
@@ -328,7 +310,7 @@ class MainActivity : ComponentActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = config, hostActivity = this)
+        jarvisSDK.initializeAsync(config = config, hostActivity = this)
     }
 
     override fun onDestroy() {
@@ -351,42 +333,16 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        networkInspectorProvider: NetworkInspectorProvider
+        jarvisNetworkInspector: JarvisNetworkInspector
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .apply {
-                // Add Jarvis network interceptor if available
-                networkInspectorProvider.createInterceptor()?.let { interceptor ->
-                    addInterceptor(interceptor)
-                }
-            }
+            .addInterceptor(jarvisNetworkInspector.createInterceptor())
             .build()
     }
 }
 ```
 
-**Note:** The `NetworkInspectorProvider` is automatically available for injection when Jarvis SDK is included.
-
-**Manual Network Logging:**
-
-```kotlin
-// For custom network clients
-JarvisNetworkLogger.logRequest(
-    url = "https://api.example.com/data",
-    method = "POST",
-    headers = mapOf("Authorization" to "Bearer token"),
-    body = requestBody
-)
-
-JarvisNetworkLogger.logResponse(
-    requestId = requestId,
-    statusCode = 200,
-    responseBody = responseBody,
-    duration = 1500L
-)
-```
+**Note:** The `JarvisNetworkInspector` is automatically available for injection when Jarvis SDK is included.
 
 #### 4. DataStore Integration
 
@@ -455,7 +411,7 @@ private fun initializeJarvisSDK() {
 // app/build.gradle.kts
 dependencies {
     // Complete SDK (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 
     // Or modular approach for selective features
     // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
@@ -508,7 +464,7 @@ private fun initializeJarvisModular() {
         }
         .build()
 
-    jarvisSDK.initialize(config = config, hostActivity = this)
+    jarvisSDK.initializeAsync(config = config, hostActivity = this)
 }
 ```
 
@@ -632,26 +588,6 @@ Jarvis automatically intercepts network traffic when enabled. No additional setu
 - **Retrofit** - Built-in support
 - **Volley** - Automatic request tracking
 - **Custom networking** - Manual integration available
-
-#### Manual Network Logging
-```kotlin
-// Log a custom network request
-JarvisNetworkLogger.logRequest(
-    url = "https://api.example.com/data",
-    method = "POST",
-    headers = mapOf("Authorization" to "Bearer token"),
-    body = requestBody
-)
-
-// Log the response
-JarvisNetworkLogger.logResponse(
-    requestId = requestId,
-    statusCode = 200,
-    headers = responseHeaders,
-    body = responseBody,
-    duration = 1500L
-)
-```
 
 ### Preferences Management
 
@@ -872,21 +808,6 @@ jarvis/
 - **ConfigurationSynchronizer** - Cross-module configuration management
 - **PerformanceManager** - Real-time performance monitoring
 
-## Proguard/R8 Configuration
-
-Add to your `proguard-rules.pro`:
-
-```proguard
-# Jarvis SDK
--keep class com.jarvis.api.** { *; }
--keep class com.jarvis.core.** { public *; }
--dontwarn com.jarvis.**
-
-# Network monitoring
--keepattributes Signature
--keepattributes *Annotation*
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -953,7 +874,15 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.3.0 (Latest)
+### Version 1.3.1 (Latest)
+- 🧪 **Comprehensive Test Suite** - Added minimal test classes across all SDK modules (core, jarvis, inspector, preferences)
+- 🔧 **Lint Issues Resolution** - Fixed 25+ lint issues across modules including DefaultLocale, ComposableNaming, and AutoboxingStateCreation
+- 🐛 **Build Fixes** - Resolved app module compilation error with ANRWatchDog dependency configuration
+- 📊 **Lint Analysis Report** - Detailed documentation of remaining lint baseline issues and recommended fixes
+- ✅ **Code Quality Improvements** - Enhanced error handling, URL parsing, and state management patterns
+- 🎯 **Test Coverage** - Unit tests for utility functions, configuration builders, network entities, and preference management
+
+### Version 1.3.0
 - 🚀 **Enhanced Publishing Configuration** - Streamlined build system with improved publishing scripts and automation
 - ✅ **GitHub Actions Integration** - Automated release workflow with semantic versioning based on PR titles
 - 🔧 **Build System Improvements** - Enhanced Gradle configuration for better dependency management and module publishing

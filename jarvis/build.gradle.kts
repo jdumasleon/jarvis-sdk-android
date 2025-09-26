@@ -137,8 +137,8 @@ dependencies {
     api(projects.core)
 
     // Features that remain as separate modules
-    implementation(projects.features.inspector)
-    implementation(projects.features.preferences)
+    api(projects.features.inspector)
+    api(projects.features.preferences)
 
     // Dependencies from consolidated home and settings modules
     implementation(libs.androidx.dataStore.core)
