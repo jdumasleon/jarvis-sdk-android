@@ -235,13 +235,13 @@ For fine-grained control over features and APK size:
 ```kotlin
 dependencies {
     // Core module (required for modular approach)
-    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
 
     // Network inspection features
-    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
 
     // Preferences management features
-    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
 }
 ```
 
@@ -414,9 +414,9 @@ dependencies {
     implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 
     // Or modular approach for selective features
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.0")
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.0")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
 }
 ```
 
@@ -436,9 +436,9 @@ For projects using modular packages, ensure proper feature initialization:
 ```kotlin
 // When using modular packages
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.0")
-    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.0")
-    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.0")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
 }
 ```
 
