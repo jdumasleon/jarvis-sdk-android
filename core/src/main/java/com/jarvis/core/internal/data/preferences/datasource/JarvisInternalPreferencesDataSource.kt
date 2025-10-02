@@ -18,7 +18,7 @@ import javax.inject.Singleton
  * This handles the actual DataStore operations for internal SDK state.
  */
 @Singleton
-internal class JarvisInternalPreferencesDataSource @Inject constructor(
+class JarvisInternalPreferencesDataSource @Inject constructor(
     @JarvisInternalDataStore private val dataStore: DataStore<Preferences>
 ) {
 

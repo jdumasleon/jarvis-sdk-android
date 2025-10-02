@@ -33,6 +33,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "JarvisDemo"
 
 include(":app")
+include(":app-koin")
 include(":jarvis")
 include(":core")
 include(":features:inspector")

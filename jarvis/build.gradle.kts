@@ -147,6 +147,12 @@ dependencies {
     implementation(libs.protobuf.kotlin.lite)
 
     implementation(libs.androidx.compose.material.iconsExtended)
+
+    // Koin - Optional dependency for Koin integration
+    // Apps using Koin can use the integration classes in com.jarvis.integration.koin package
+    compileOnly(libs.koin.android)
+    compileOnly(libs.koin.core)
+    compileOnly(libs.koin.androidx.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

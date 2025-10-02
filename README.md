@@ -77,8 +77,9 @@ dependencies {
 }
 ```
 
-### 2. Enable Hilt in Application
+### 2. Setup Dependency Injection
 
+**Option A: With Hilt**
 ```kotlin
 @HiltAndroidApp
 class MyApplication : Application() {
@@ -86,8 +87,26 @@ class MyApplication : Application() {
 }
 ```
 
+**Option B: With Koin**
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidContext(this@MyApplication)
+            modules(
+                *allJarvisKoinModules.toTypedArray(),
+                jarvisInspectorKoinModule,
+                jarvisPreferencesKoinModule
+            )
+        }
+    }
+}
+```
+
 ### 3. Initialize in Activity
 
+**With Hilt:**
 ```kotlin
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -123,6 +142,49 @@ class MainActivity : ComponentActivity() {
             .build()
 
         jarvisSDK.initializeAsync(config = config, hostActivity = this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        jarvisSDK.dismiss()
+    }
+}
+```
+
+**With Koin:**
+```kotlin
+class MainActivity : ComponentActivity() {
+
+    private val jarvisSDK: JarvisSDK by inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate()
+
+        // Initialize Jarvis SDK with configuration
+        initializeJarvisSDK()
+
+        setContent {
+            MyAppContent()
+        }
+    }
+
+    private fun initializeJarvisSDK() {
+        val config = JarvisConfig.builder()
+            .enableShakeDetection(true)
+            .enableDebugLogging(true)
+            .networkInspection {
+                enableNetworkLogging(true)
+                enableRequestLogging(true)
+                enableResponseLogging(true)
+            }
+            .preferences {
+                autoDiscoverDataStores(true)
+                autoDiscoverSharedPrefs(true)
+                enablePreferenceEditing(true)
+            }
+            .build()
+
+        jarvisSDK.initializeWithKoin(config = config, hostActivity = this)
     }
 
     override fun onDestroy() {
@@ -258,7 +320,7 @@ dependencies {
 **🔧 Required:**
 - Android API 24+ (Android 7.0 Nougat)
 - Kotlin 2.2+
-- Hilt for dependency injection
+- Dependency Injection: **Hilt** or **Koin** (choose one)
 - Jetpack Compose (recommended) or Android Views
 
 **📦 Optional but Recommended:**
@@ -268,7 +330,11 @@ dependencies {
 
 ### Step-by-Step Integration
 
-#### 1. Application Setup
+The Jarvis SDK supports both **Hilt** and **Koin** for dependency injection. Choose the integration method that matches your project's DI framework.
+
+#### Option A: Integration with Hilt
+
+##### 1. Application Setup
 
 Add `@HiltAndroidApp` to your Application class:
 
@@ -279,7 +345,7 @@ class MyApplication : Application() {
 }
 ```
 
-#### 2. Activity Integration
+##### 2. Activity Integration
 
 ```kotlin
 @AndroidEntryPoint
@@ -320,11 +386,93 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
+#### Option B: Integration with Koin
+
+##### 1. Application Setup
+
+Configure Koin with Jarvis SDK modules:
+
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin {
+            androidContext(this@MyApplication)
+            modules(
+                // Your app modules
+                appModule,
+
+                // Jarvis SDK modules
+                *allJarvisKoinModules.toTypedArray(),
+                jarvisInspectorKoinModule,    // Network inspection
+                jarvisPreferencesKoinModule   // Preferences management
+            )
+        }
+    }
+}
+```
+
+**Required imports for Koin integration:**
+```kotlin
+import com.jarvis.integration.koin.*
+import com.jarvis.features.inspector.integration.koin.jarvisInspectorKoinModule
+import com.jarvis.features.preferences.integration.koin.jarvisPreferencesKoinModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+```
+
+##### 2. Activity Integration
+
+```kotlin
+class MainActivity : ComponentActivity() {
+
+    private val jarvisSDK: JarvisSDK by inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Initialize Jarvis SDK with Koin
+        initializeJarvisSDK()
+
+        setContent {
+            MyAppTheme {
+                MyAppContent()
+            }
+        }
+    }
+
+    private fun initializeJarvisSDK() {
+        val config = JarvisConfig.builder()
+            .enableShakeDetection(true)
+            .enableDebugLogging(true)
+            .networkInspection {
+                enableNetworkLogging(true)
+            }
+            .build()
+
+        jarvisSDK.initializeWithKoin(config = config, hostActivity = this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        jarvisSDK.dismiss()
+    }
+}
+```
+
+**Key differences for Koin:**
+- Use `by inject()` instead of `@Inject lateinit var`
+- Call `initializeWithKoin()` instead of `initializeAsync()`
+- No `@AndroidEntryPoint` annotation needed
+- Include all Jarvis Koin modules in your Koin configuration
+
 #### 3. Network Monitoring Setup (Optional)
 
 **Automatic Network Interception:**
 Network requests are automatically intercepted when using OkHttp. For manual integration:
 
+**With Hilt:**
 ```kotlin
 @Module
 @InstallIn(SingletonComponent::class)
@@ -337,6 +485,17 @@ object NetworkModule {
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(jarvisNetworkInspector.createInterceptor())
+            .build()
+    }
+}
+```
+
+**With Koin:**
+```kotlin
+val networkModule = module {
+    single {
+        OkHttpClient.Builder()
+            .addInterceptor(get<JarvisNetworkInspector>().createInterceptor())
             .build()
     }
 }
@@ -533,9 +692,17 @@ private fun createAdvancedJarvisConfig(): JarvisConfig {
 
 Before deploying to production, verify:
 
+**For Hilt Integration:**
 - ✅ **Hilt Setup**: `@HiltAndroidApp` on Application class
 - ✅ **Activity Annotations**: `@AndroidEntryPoint` on Activities using SDK
-- ✅ **SDK Initialization**: Called in Activity `onCreate()`
+- ✅ **SDK Initialization**: `jarvisSDK.initializeAsync()` called in Activity `onCreate()`
+
+**For Koin Integration:**
+- ✅ **Koin Setup**: `startKoin` configured in Application with all Jarvis modules
+- ✅ **Module Inclusion**: `allJarvisKoinModules`, `jarvisInspectorKoinModule`, `jarvisPreferencesKoinModule` added
+- ✅ **SDK Initialization**: `jarvisSDK.initializeWithKoin()` called in Activity `onCreate()`
+
+**Common Checklist:**
 - ✅ **SDK Cleanup**: `dismiss()` called in Activity `onDestroy()`
 - ✅ **Build Variants**: Different behavior for debug/release confirmed
 - ✅ **Network Integration**: OkHttp interceptor added if using network monitoring

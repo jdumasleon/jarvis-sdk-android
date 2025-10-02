@@ -68,6 +68,12 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.coil.compose)
 
+    // Koin - Optional dependency for Koin integration
+    // Apps using Koin can use the integration module in com.jarvis.features.inspector.integration.koin
+    compileOnly(libs.koin.android)
+    compileOnly(libs.koin.core)
+    compileOnly(libs.koin.androidx.compose)
+
     // Test dependencies
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

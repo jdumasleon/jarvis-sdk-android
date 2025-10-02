@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="NightAdjusted.Theme.Jarvis" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background_dark</item>
+        <item name="android:statusBarColor">@color/splash_background_dark</item>
+        <item name="android:navigationBarColor">@color/splash_background_dark</item>
+    </style>
+
+    <style name="Theme.Jarvis" parent="NightAdjusted.Theme.Jarvis" />
+
+</resources>
