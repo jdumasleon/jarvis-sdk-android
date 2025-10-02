@@ -58,7 +58,8 @@ A comprehensive debugging and development toolkit for Android applications, prov
   - [Support](#support)
 - [License](#license)
 - [Changelog](#changelog)
-  - [Version 1.0.28 (Latest)](#version-1028-latest)
+  - [Version 1.1.0 (Latest)](#version-110-latest)
+  - [Version 1.0.28](#version-1028)
   - [Version 1.0.20](#version-1020)
   - [Version 1.0.0-1.0.19](#version-100-1019)
 
@@ -72,7 +73,7 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 }
 ```
 
@@ -121,7 +122,7 @@ class MainActivity : ComponentActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = config, hostActivity = this)
+        jarvisSDK.initializeAsync(config = config, hostActivity = this)
     }
 
     override fun onDestroy() {
@@ -181,24 +182,11 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 
 ```kotlin
 dependencies {
-    // Single artifact automatically provides full functionality in debug, no-op in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    // Single artifact automatically provides full functionality in debug, optimized in release
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 }
 ```
-
-#### Alternative: Separate Artifacts (Advanced)
-
-For fine-grained control, you can use separate artifacts:
-
-```kotlin
-dependencies {
-    // Full SDK for debug builds
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
-
-    // No-op version for release builds (zero overhead)
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
-}
-```
+This approach allows you to include only the features you need, reducing the final APK size.
 
 ### Maven Central
 
@@ -206,7 +194,7 @@ dependencies {
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.0.28</version>
+    <version>1.3.1</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -226,31 +214,42 @@ repositories {
 }
 ```
 
-### Automatic Debug/Release Optimization
+### Available Packages
 
-The Jarvis SDK automatically adapts based on your build type:
+Choose between the complete SDK or modular packages based on your needs:
 
-#### Single Artifact Approach (Recommended)
-- ✅ **Automatic switching** - Full functionality in debug, no-op in release
-- ✅ **Zero overhead in production** - All methods become no-ops in release builds
-- ✅ **Same API everywhere** - No code changes needed
-- ✅ **ProGuard/R8 optimization** - Dead code elimination removes unused code
+#### Complete SDK (Recommended)
+```kotlin
+dependencies {
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")  // All features included
+}
+```
+- ✅ **All features included** - Network inspection, preferences management, and core functionality
+- ✅ **Zero overhead in production** - Automatically disabled in release builds
+- ✅ **Easy integration** - Single dependency with automatic feature detection
+- ✅ **ProGuard/R8 optimized** - Dead code elimination removes unused code
+
+#### Modular Packages (Advanced)
+For fine-grained control over features and APK size:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")  // Works everywhere
+    // Core module (required for modular approach)
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+
+    // Network inspection features
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+
+    // Preferences management features
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
 }
 ```
 
-#### Separate Artifacts (Advanced)
-For projects requiring explicit control:
-
-```kotlin
-dependencies {
-    debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")        // Full features
-    releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28") // Zero overhead
-}
-```
+**Modular Package Benefits:**
+- 🎯 **Selective features** - Include only what you need
+- 📦 **Smaller APK size** - Exclude unused functionality
+- 🔧 **Custom integrations** - Build specialized debugging solutions
+- ⚡ **Faster builds** - Reduced dependency graph
 
 ## Integration Guide
 
@@ -311,7 +310,7 @@ class MainActivity : ComponentActivity() {
             }
             .build()
 
-        jarvisSDK.initialize(config = config, hostActivity = this)
+        jarvisSDK.initializeAsync(config = config, hostActivity = this)
     }
 
     override fun onDestroy() {
@@ -334,42 +333,16 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        networkInspectorProvider: NetworkInspectorProvider
+        jarvisNetworkInspector: JarvisNetworkInspector
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .apply {
-                // Add Jarvis network interceptor if available
-                networkInspectorProvider.createInterceptor()?.let { interceptor ->
-                    addInterceptor(interceptor)
-                }
-            }
+            .addInterceptor(jarvisNetworkInspector.createInterceptor())
             .build()
     }
 }
 ```
 
-**Note:** The `NetworkInspectorProvider` is automatically available for injection when Jarvis SDK is included.
-
-**Manual Network Logging:**
-
-```kotlin
-// For custom network clients
-JarvisNetworkLogger.logRequest(
-    url = "https://api.example.com/data",
-    method = "POST",
-    headers = mapOf("Authorization" to "Bearer token"),
-    body = requestBody
-)
-
-JarvisNetworkLogger.logResponse(
-    requestId = requestId,
-    statusCode = 200,
-    responseBody = responseBody,
-    duration = 1500L
-)
-```
+**Note:** The `JarvisNetworkInspector` is automatically available for injection when Jarvis SDK is included.
 
 #### 4. DataStore Integration
 
@@ -436,26 +409,14 @@ private fun initializeJarvisSDK() {
 
 ```kotlin
 // app/build.gradle.kts
-android {
-    buildTypes {
-        debug {
-            // Jarvis SDK is automatically enabled in debug builds
-            buildConfigField("boolean", "JARVIS_ENABLED", "true")
-        }
-        release {
-            // Jarvis SDK is automatically disabled in release builds
-            buildConfigField("boolean", "JARVIS_ENABLED", "false")
-        }
-    }
-}
-
 dependencies {
-    // Single artifact approach (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
+    // Complete SDK (recommended)
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
 
-    // Or separate artifacts for explicit control
-    // debugImplementation("io.github.jdumasleon:jarvis-android-sdk:1.0.28")
-    // releaseImplementation("io.github.jdumasleon:jarvis-android-sdk-noop:1.0.28")
+    // Or modular approach for selective features
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
 }
 ```
 
@@ -466,6 +427,45 @@ Add to your `AndroidManifest.xml` if you want network monitoring:
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
+#### 7. Modular Integration (Advanced)
+
+For projects using modular packages, ensure proper feature initialization:
+
+```kotlin
+// When using modular packages
+dependencies {
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
+}
+```
+
+**Feature-Specific Configuration:**
+```kotlin
+private fun initializeJarvisModular() {
+    val config = JarvisConfig.builder()
+        .enableShakeDetection(true)
+        .enableDebugLogging(true)
+
+        // Inspector module configuration (if included)
+        .networkInspection {
+            enableNetworkLogging(true)
+            enableRequestLogging(true)
+            enableResponseLogging(true)
+        }
+
+        // Preferences module configuration (if included)
+        .preferences {
+            autoDiscoverDataStores(true)
+            autoDiscoverSharedPrefs(true)
+            enablePreferenceEditing(true)
+        }
+        .build()
+
+    jarvisSDK.initializeAsync(config = config, hostActivity = this)
+}
 ```
 
 ### Complete Configuration Options
@@ -589,26 +589,6 @@ Jarvis automatically intercepts network traffic when enabled. No additional setu
 - **Volley** - Automatic request tracking
 - **Custom networking** - Manual integration available
 
-#### Manual Network Logging
-```kotlin
-// Log a custom network request
-JarvisNetworkLogger.logRequest(
-    url = "https://api.example.com/data",
-    method = "POST",
-    headers = mapOf("Authorization" to "Bearer token"),
-    body = requestBody
-)
-
-// Log the response
-JarvisNetworkLogger.logResponse(
-    requestId = requestId,
-    statusCode = 200,
-    headers = responseHeaders,
-    body = responseBody,
-    duration = 1500L
-)
-```
-
 ### Preferences Management
 
 #### Automatic Detection
@@ -709,12 +689,12 @@ jarvisSDK.initialize(config = updatedConfig, hostActivity = this)
 
 ### Production Build Behavior
 
-In release builds, the Jarvis SDK automatically becomes a no-op implementation:
+In release builds, the Jarvis SDK automatically optimizes for production:
 
 ```kotlin
-// All these methods become no-ops in release builds
-jarvisSDK.initialize(config, hostActivity) // Does nothing
-jarvisSDK.activate()                        // Does nothing  
+// All these methods are optimized in release builds
+jarvisSDK.initialize(config, hostActivity) // Minimal initialization
+jarvisSDK.activate()                        // Disabled in production
 jarvisSDK.toggle()                          // Returns false
 jarvisSDK.isActive()                        // Returns false
 jarvisSDK.getPlatform()                     // Returns null
@@ -828,21 +808,6 @@ jarvis/
 - **ConfigurationSynchronizer** - Cross-module configuration management
 - **PerformanceManager** - Real-time performance monitoring
 
-## Proguard/R8 Configuration
-
-Add to your `proguard-rules.pro`:
-
-```proguard
-# Jarvis SDK
--keep class com.jarvis.api.** { *; }
--keep class com.jarvis.core.** { public *; }
--dontwarn com.jarvis.**
-
-# Network monitoring
--keepattributes Signature
--keepattributes *Annotation*
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -868,7 +833,7 @@ Add to your `proguard-rules.pro`:
 #### Performance Issues
 1. Reduce performance metrics collection interval
 2. Disable heavy features in production builds
-3. Use release no-op version for production
+3. Verify production build optimization
 4. Monitor memory usage
 
 ### Debug Mode
@@ -909,7 +874,37 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.0.28 (Latest)
+### Version 1.3.1 (Latest)
+- 🧪 **Comprehensive Test Suite** - Added minimal test classes across all SDK modules (core, jarvis, inspector, preferences)
+- 🔧 **Lint Issues Resolution** - Fixed 25+ lint issues across modules including DefaultLocale, ComposableNaming, and AutoboxingStateCreation
+- 🐛 **Build Fixes** - Resolved app module compilation error with ANRWatchDog dependency configuration
+- 📊 **Lint Analysis Report** - Detailed documentation of remaining lint baseline issues and recommended fixes
+- ✅ **Code Quality Improvements** - Enhanced error handling, URL parsing, and state management patterns
+- 🎯 **Test Coverage** - Unit tests for utility functions, configuration builders, network entities, and preference management
+
+### Version 1.3.0
+- 🚀 **Enhanced Publishing Configuration** - Streamlined build system with improved publishing scripts and automation
+- ✅ **GitHub Actions Integration** - Automated release workflow with semantic versioning based on PR titles
+- 🔧 **Build System Improvements** - Enhanced Gradle configuration for better dependency management and module publishing
+- 📦 **Dual Repository Support** - Optimized publishing to both Maven Central and GitHub Packages simultaneously
+- 🛠️ **Developer Experience** - Improved build scripts and release automation for easier maintenance
+- 🔐 **Security Enhancements** - Enhanced PGP signing and credential management in CI/CD pipeline
+
+### Version 1.1.1
+- 🔧 **Critical Dependency Fix** - Resolved Maven Central dependency resolution issues with internal project dependencies
+- ✅ **Clean POM Generation** - Removed problematic "JarvisDemo.core:common:unspecified" dependencies from published artifacts
+- 🚀 **Improved Consumer Experience** - SDK now properly resolves all dependencies when added to consumer projects
+- 🛠️ **Build System** - Enhanced publishing configuration to exclude internal project dependencies from transitive resolution
+
+### Version 1.1.0
+- ✅ **Enhanced DSIcon Tint System** - Migrated to DSIconTint sealed interface for better type safety and gradient support
+- ✅ **Improved Design System** - Updated all icon components to use new tint system with solid colors and gradients
+- ✅ **Maven Central Validation** - Fixed dependency version information for okhttp to meet Maven Central publishing requirements
+- ✅ **Build System Improvements** - Enhanced gradle configuration for better dependency management
+- 🛠️ **Code Quality** - Comprehensive DSIcon component updates across all features and design system
+- 🔧 **Type Safety** - Better compile-time validation for icon tinting throughout the SDK
+
+### Version 1.0.28
 - ✅ **Interface-Based DI** - Clean dependency injection with NetworkInspectorProvider and PreferencesProvider
 - ✅ **Enhanced DSFilterChip** - Fixed visual state issues with proper interaction feedback
 - ✅ **Improved Architecture** - Cleaner separation between public API and internal implementation

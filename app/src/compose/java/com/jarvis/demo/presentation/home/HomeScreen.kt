@@ -18,16 +18,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jarvis.core.presentation.components.ResourceStateContent
-import com.jarvis.core.presentation.state.ResourceState
-import com.jarvis.core.designsystem.component.DSButton
-import com.jarvis.core.designsystem.component.DSButtonStyle
-import com.jarvis.core.designsystem.component.DSCard
-import com.jarvis.core.designsystem.component.DSTag
-import com.jarvis.core.designsystem.component.DSTagStyle
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.navigation.ActionRegistry
+import com.jarvis.core.internal.presentation.components.ResourceStateContent
+import com.jarvis.core.internal.presentation.state.ResourceState
+import com.jarvis.core.internal.designsystem.component.DSButton
+import com.jarvis.core.internal.designsystem.component.DSButtonStyle
+import com.jarvis.core.internal.designsystem.component.DSCard
+import com.jarvis.core.internal.designsystem.component.DSTag
+import com.jarvis.core.internal.designsystem.component.DSTagStyle
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.navigation.ActionRegistry
 import com.jarvis.demo.R
 
 @Composable

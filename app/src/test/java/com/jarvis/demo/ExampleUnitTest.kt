@@ -1,4 +1,4 @@
-package com.hiberus.jarvisdemo
+package com.jarvis.demo
 
 import org.junit.Test
 

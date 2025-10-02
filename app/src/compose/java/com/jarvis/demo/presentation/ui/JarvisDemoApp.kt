@@ -36,20 +36,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.jarvis.core.designsystem.component.DSBackground
-import com.jarvis.core.designsystem.component.DSDrawer
-import com.jarvis.core.designsystem.component.DSDrawerValue
-import com.jarvis.core.designsystem.component.DSIcon
-import com.jarvis.core.designsystem.component.DSTopAppBar
-import com.jarvis.core.designsystem.component.DSText
-import com.jarvis.core.designsystem.component.rememberDSDrawerState
-import com.jarvis.core.designsystem.icons.DSIcons
-import com.jarvis.core.designsystem.component.DSIconTint
-import com.jarvis.core.designsystem.theme.DSJarvisTheme
-import com.jarvis.core.navigation.ActionRegistry
-import com.jarvis.core.navigation.EntryProviderInstaller
-import com.jarvis.core.navigation.NavigationRoute
-import com.jarvis.core.navigation.Navigator
+import com.jarvis.core.internal.designsystem.component.DSBackground
+import com.jarvis.core.internal.designsystem.component.DSDrawer
+import com.jarvis.core.internal.designsystem.component.DSDrawerValue
+import com.jarvis.core.internal.designsystem.component.DSIcon
+import com.jarvis.core.internal.designsystem.component.DSTopAppBar
+import com.jarvis.core.internal.designsystem.component.DSText
+import com.jarvis.core.internal.designsystem.component.rememberDSDrawerState
+import com.jarvis.core.internal.designsystem.icons.DSIcons
+import com.jarvis.core.internal.designsystem.component.DSIconTint
+import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
+import com.jarvis.core.internal.navigation.ActionRegistry
+import com.jarvis.core.internal.navigation.EntryProviderInstaller
+import com.jarvis.core.internal.navigation.NavigationRoute
+import com.jarvis.core.internal.navigation.Navigator
 import com.jarvis.demo.R
 import com.jarvis.demo.presentation.home.HomeGraph
 import com.jarvis.demo.presentation.inspector.InspectorGraph
@@ -180,7 +180,7 @@ fun DrawerContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(com.jarvis.core.designsystem.R.drawable.ic_jarvis_logo),
+                        painter = painterResource(com.jarvis.core.R.drawable.ic_jarvis_logo),
                         contentDescription = "Jarvis Logo",
                         modifier = Modifier.size(DSJarvisTheme.dimensions.xxxxxxxxxl)
                     )
@@ -281,7 +281,6 @@ private fun JarvisTopBar(
             actionIconContentDescription = destination.actionIconContentDescription?.let {
                 stringResource(id = it)
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
             onActionClick = {
                 destination.actionKey?.let { actionKey ->
                     ActionRegistry.executeAction(actionKey)

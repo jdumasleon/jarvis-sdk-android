@@ -1,0 +1,583 @@
+// Signature format: 4.0
+package com.jarvis.features.preferences.api {
+
+  public final class JarvisPreferences {
+    field public static final com.jarvis.features.preferences.api.JarvisPreferences INSTANCE;
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.data.config {
+
+  @javax.inject.Singleton public final class PreferencesConfigProviderImpl implements com.jarvis.features.preferences.internal.domain.config.PreferencesConfigProvider {
+    ctor @javax.inject.Inject public PreferencesConfigProviderImpl();
+    method public com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration getConfiguration();
+    method public com.jarvis.features.preferences.internal.data.config.PreferencesDataConfig getDataConfig();
+    method public void updateConfiguration(com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration config);
+  }
+
+  public final class PreferencesDataConfig {
+    ctor public PreferencesDataConfig(optional boolean autoDiscoverDataStores, optional java.util.List<java.lang.String> includeDataStores, optional java.util.List<java.lang.String> excludeDataStores, optional boolean autoDiscoverSharedPrefs, optional java.util.List<java.lang.String> includeSharedPrefs, optional java.util.List<java.lang.String> excludeSharedPrefs, optional boolean autoDiscoverProtoDataStores, optional java.util.List<java.lang.String> includeProtoDataStores, optional java.util.List<java.lang.String> excludeProtoDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, optional java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, optional long maxFileSize, optional boolean enablePreferenceEditing, optional boolean showSystemPreferences);
+    method public boolean component1();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> component10();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> component11();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> component12();
+    method public long component13();
+    method public boolean component14();
+    method public boolean component15();
+    method public java.util.List<java.lang.String> component2();
+    method public java.util.List<java.lang.String> component3();
+    method public boolean component4();
+    method public java.util.List<java.lang.String> component5();
+    method public java.util.List<java.lang.String> component6();
+    method public boolean component7();
+    method public java.util.List<java.lang.String> component8();
+    method public java.util.List<java.lang.String> component9();
+    method public com.jarvis.features.preferences.internal.data.config.PreferencesDataConfig copy(boolean autoDiscoverDataStores, java.util.List<java.lang.String> includeDataStores, java.util.List<java.lang.String> excludeDataStores, boolean autoDiscoverSharedPrefs, java.util.List<java.lang.String> includeSharedPrefs, java.util.List<java.lang.String> excludeSharedPrefs, boolean autoDiscoverProtoDataStores, java.util.List<java.lang.String> includeProtoDataStores, java.util.List<java.lang.String> excludeProtoDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, long maxFileSize, boolean enablePreferenceEditing, boolean showSystemPreferences);
+    method public boolean getAutoDiscoverDataStores();
+    method public boolean getAutoDiscoverProtoDataStores();
+    method public boolean getAutoDiscoverSharedPrefs();
+    method public boolean getEnablePreferenceEditing();
+    method public java.util.List<java.lang.String> getExcludeDataStores();
+    method public java.util.List<java.lang.String> getExcludeProtoDataStores();
+    method public java.util.List<java.lang.String> getExcludeSharedPrefs();
+    method public java.util.List<java.lang.String> getIncludeDataStores();
+    method public java.util.List<java.lang.String> getIncludeProtoDataStores();
+    method public java.util.List<java.lang.String> getIncludeSharedPrefs();
+    method public long getMaxFileSize();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> getProtoExtractors();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> getRegisteredDataStores();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> getRegisteredProtoDataStores();
+    method public boolean getShowSystemPreferences();
+    property public final boolean autoDiscoverDataStores;
+    property public final boolean autoDiscoverProtoDataStores;
+    property public final boolean autoDiscoverSharedPrefs;
+    property public final boolean enablePreferenceEditing;
+    property public final java.util.List<java.lang.String> excludeDataStores;
+    property public final java.util.List<java.lang.String> excludeProtoDataStores;
+    property public final java.util.List<java.lang.String> excludeSharedPrefs;
+    property public final java.util.List<java.lang.String> includeDataStores;
+    property public final java.util.List<java.lang.String> includeProtoDataStores;
+    property public final java.util.List<java.lang.String> includeSharedPrefs;
+    property public final long maxFileSize;
+    property public final java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> protoExtractors;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> registeredProtoDataStores;
+    property public final boolean showSystemPreferences;
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.data.local {
+
+  @javax.inject.Singleton public final class PreferencesDataStoreScanner {
+    ctor @javax.inject.Inject public PreferencesDataStoreScanner(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context, com.jarvis.features.preferences.internal.data.config.PreferencesConfigProviderImpl configProvider);
+    method public suspend Object? clearAllPreferencesDataStore(kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? deletePreferencesDataStoreKey(String key, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? scanAllPreferencesDataStores(kotlin.coroutines.Continuation<? super java.util.List<? extends com.jarvis.features.preferences.internal.domain.entity.AppPreference>>);
+    method public suspend Object? updatePreferencesDataStoreValue(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+  }
+
+  @javax.inject.Singleton public final class ProtoDataStoreScanner {
+    ctor @javax.inject.Inject public ProtoDataStoreScanner(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context, com.jarvis.features.preferences.internal.data.config.PreferencesConfigProviderImpl configProvider);
+    method public suspend Object? deleteProtoPreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? scanAllProtoDataStores(kotlin.coroutines.Continuation<? super java.util.List<? extends com.jarvis.features.preferences.internal.domain.entity.AppPreference>>);
+    method public suspend Object? updateProtoPreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, Object newValue, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+  }
+
+  @javax.inject.Singleton public final class SharedPreferencesScanner {
+    ctor @javax.inject.Inject public SharedPreferencesScanner(@dagger.hilt.android.qualifiers.ApplicationContext android.content.Context context, com.jarvis.features.preferences.internal.data.config.PreferencesConfigProviderImpl configProvider);
+    method public suspend Object? clearSharedPreferences(String prefsFileName, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? deleteSharedPreference(String prefsFileName, String key, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? scanAllSharedPreferences(kotlin.coroutines.Continuation<? super java.util.List<? extends com.jarvis.features.preferences.internal.domain.entity.AppPreference>>);
+    method public suspend Object? updateSharedPreference(String prefsFileName, String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.di.data {
+
+  @dagger.Module @dagger.hilt.InstallIn(SingletonComponent::class) public abstract class JarvisPreferencesDataModule {
+    ctor public JarvisPreferencesDataModule();
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.domain.config {
+
+  public interface PreferencesConfigProvider {
+    method public com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration getConfiguration();
+    method public void updateConfiguration(com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration config);
+  }
+
+  public final class PreferencesConfiguration {
+    ctor public PreferencesConfiguration(optional boolean autoDiscoverDataStores, optional java.util.List<java.lang.String> includeDataStores, optional java.util.List<java.lang.String> excludeDataStores, optional boolean autoDiscoverSharedPrefs, optional java.util.List<java.lang.String> includeSharedPrefs, optional java.util.List<java.lang.String> excludeSharedPrefs, optional boolean autoDiscoverProtoDataStores, optional java.util.List<java.lang.String> includeProtoDataStores, optional java.util.List<java.lang.String> excludeProtoDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, optional java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, optional java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, optional long maxFileSize, optional boolean enablePreferenceEditing, optional boolean showSystemPreferences);
+    method public boolean component1();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> component10();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> component11();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> component12();
+    method public long component13();
+    method public boolean component14();
+    method public boolean component15();
+    method public java.util.List<java.lang.String> component2();
+    method public java.util.List<java.lang.String> component3();
+    method public boolean component4();
+    method public java.util.List<java.lang.String> component5();
+    method public java.util.List<java.lang.String> component6();
+    method public boolean component7();
+    method public java.util.List<java.lang.String> component8();
+    method public java.util.List<java.lang.String> component9();
+    method public com.jarvis.features.preferences.internal.domain.config.PreferencesConfiguration copy(boolean autoDiscoverDataStores, java.util.List<java.lang.String> includeDataStores, java.util.List<java.lang.String> excludeDataStores, boolean autoDiscoverSharedPrefs, java.util.List<java.lang.String> includeSharedPrefs, java.util.List<java.lang.String> excludeSharedPrefs, boolean autoDiscoverProtoDataStores, java.util.List<java.lang.String> includeProtoDataStores, java.util.List<java.lang.String> excludeProtoDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores, java.util.Map<java.lang.String,? extends androidx.datastore.core.DataStore<?>> registeredProtoDataStores, java.util.Map<java.lang.String,? extends kotlin.jvm.functions.Function1<java.lang.Object,? extends java.util.Map<java.lang.String,?>>> protoExtractors, long maxFileSize, boolean enablePreferenceEditing, boolean showSystemPreferences);
+    method public boolean getAutoDiscoverDataStores();
+    method public boolean getAutoDiscoverProtoDataStores();
+    method public boolean getAutoDiscoverSharedPrefs();
+    method public boolean getEnablePreferenceEditing();
+    method public java.util.List<java.lang.String> getExcludeDataStores();
+    method public java.util.List<java.lang.String> getExcludeProtoDataStores();
+    method public java.util.List<java.lang.String> getExcludeSharedPrefs();
+    method public java.util.List<java.lang.String> getIncludeDataStores();
+    method public java.util.List<java.lang.String> getIncludeProtoDataStores();
+    method public java.util.List<java.lang.String> getIncludeSharedPrefs();
+    method public long getMaxFileSize();
+    method public java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> getProtoExtractors();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> getRegisteredDataStores();
+    method public java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> getRegisteredProtoDataStores();
+    method public boolean getShowSystemPreferences();
+    property public final boolean autoDiscoverDataStores;
+    property public final boolean autoDiscoverProtoDataStores;
+    property public final boolean autoDiscoverSharedPrefs;
+    property public final boolean enablePreferenceEditing;
+    property public final java.util.List<java.lang.String> excludeDataStores;
+    property public final java.util.List<java.lang.String> excludeProtoDataStores;
+    property public final java.util.List<java.lang.String> excludeSharedPrefs;
+    property public final java.util.List<java.lang.String> includeDataStores;
+    property public final java.util.List<java.lang.String> includeProtoDataStores;
+    property public final java.util.List<java.lang.String> includeSharedPrefs;
+    property public final long maxFileSize;
+    property public final java.util.Map<java.lang.String,kotlin.jvm.functions.Function1<java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>>> protoExtractors;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> registeredDataStores;
+    property public final java.util.Map<java.lang.String,androidx.datastore.core.DataStore<?>> registeredProtoDataStores;
+    property public final boolean showSystemPreferences;
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.domain.entity {
+
+  public final class AppPreference {
+    ctor public AppPreference(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, optional String displayName, optional String? description, optional boolean isSystemPreference, optional boolean isEditable, optional String? filePath);
+    method public String component1();
+    method public Object component2();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType component3();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component4();
+    method public String component5();
+    method public String? component6();
+    method public boolean component7();
+    method public boolean component8();
+    method public String? component9();
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference copy(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, String displayName, String? description, boolean isSystemPreference, boolean isEditable, String? filePath);
+    method public String? getDescription();
+    method public String getDisplayName();
+    method public String? getFilePath();
+    method public String getKey();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getStorageType();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType getType();
+    method public Object getValue();
+    method public boolean isEditable();
+    method public boolean isSystemPreference();
+    property public final String? description;
+    property public final String displayName;
+    property public final String? filePath;
+    property public final boolean isEditable;
+    property public final boolean isSystemPreference;
+    property public final String key;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceType type;
+    property public final Object value;
+  }
+
+  public final class PreferenceFilter {
+    ctor public PreferenceFilter(optional String searchQuery, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceType? typeFilter, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageTypeFilter, optional boolean showSystemPreferences);
+    method public String component1();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType? component2();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? component3();
+    method public boolean component4();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter copy(String searchQuery, com.jarvis.features.preferences.internal.domain.entity.PreferenceType? typeFilter, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageTypeFilter, boolean showSystemPreferences);
+    method public String getSearchQuery();
+    method public boolean getShowSystemPreferences();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? getStorageTypeFilter();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType? getTypeFilter();
+    property public final String searchQuery;
+    property public final boolean showSystemPreferences;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageTypeFilter;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceType? typeFilter;
+  }
+
+  public final class PreferenceGroup {
+    ctor public PreferenceGroup(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, optional java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences, optional boolean isLoading, optional String? error);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component1();
+    method public java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> component2();
+    method public boolean component3();
+    method public String? component4();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences, boolean isLoading, String? error);
+    method public String? getError();
+    method public java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> getPreferences();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getStorageType();
+    method public boolean isLoading();
+    property public final String? error;
+    property public final boolean isLoading;
+    property public final java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> preferences;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType;
+  }
+
+  public enum PreferenceStorageType {
+    method public static com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType[] values();
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType PREFERENCES_DATASTORE;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType PROTO_DATASTORE;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType SHARED_PREFERENCES;
+  }
+
+  public enum PreferenceType {
+    method public static com.jarvis.features.preferences.internal.domain.entity.PreferenceType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static com.jarvis.features.preferences.internal.domain.entity.PreferenceType[] values();
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType BOOLEAN;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType BYTES;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType DOUBLE;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType FLOAT;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType INTEGER;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType LONG;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType PROTO_MESSAGE;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType STRING;
+    enum_constant public static final com.jarvis.features.preferences.internal.domain.entity.PreferenceType STRING_SET;
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.domain.repository {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface PreferencesRepository {
+    method public suspend Object? addPreference(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? clearAllPreferences(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? clearPreferences(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deletePreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? exportPreferences(optional com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageType, optional kotlin.coroutines.Continuation<? super java.lang.String>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference>> getAllPreferences();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference>> getFilteredPreferences(com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter filter);
+    method public kotlinx.coroutines.flow.Flow<com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup> getPreferencesByStorageType(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public suspend Object? importPreferences(String data, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType targetStorageType, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    method public suspend Object? updatePreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, Object newValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.domain.usecase {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class AddPreferenceUseCase {
+    ctor @javax.inject.Inject public AddPreferenceUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ClearAllPreferencesUseCase {
+    ctor @javax.inject.Inject public ClearAllPreferencesUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DeletePreferenceUseCase {
+    ctor @javax.inject.Inject public DeletePreferenceUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ExportPreferencesUseCase {
+    ctor @javax.inject.Inject public ExportPreferencesUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageType, kotlin.coroutines.Continuation<? super java.lang.String>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetAllPreferencesUseCase {
+    ctor @javax.inject.Inject public GetAllPreferencesUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public operator kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference>> invoke();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetFilteredPreferencesUseCase {
+    ctor @javax.inject.Inject public GetFilteredPreferencesUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public operator kotlinx.coroutines.flow.Flow<java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference>> invoke(com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter filter);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class GetPreferencesByStorageTypeUseCase {
+    ctor @javax.inject.Inject public GetPreferencesByStorageTypeUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public operator kotlinx.coroutines.flow.Flow<com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup> invoke(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImportPreferencesUseCase {
+    ctor @javax.inject.Inject public ImportPreferencesUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(String data, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType targetStorageType, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class UpdatePreferenceUseCase {
+    ctor @javax.inject.Inject public UpdatePreferenceUseCase(com.jarvis.features.preferences.internal.domain.repository.PreferencesRepository repository);
+    method public suspend operator Object? invoke(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, Object newValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+}
+
+package com.jarvis.features.preferences.internal.presentation {
+
+  public sealed interface PreferencesEvent {
+  }
+
+  public static final class PreferencesEvent.AddPreference implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.AddPreference(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public String component1();
+    method public Object component2();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType component3();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component4();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.AddPreference copy(String key, Object value, com.jarvis.features.preferences.internal.domain.entity.PreferenceType type, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public String getKey();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getStorageType();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType getType();
+    method public Object getValue();
+    property public final String key;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceType type;
+    property public final Object value;
+  }
+
+  public static final class PreferencesEvent.ChangeStorageType implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ChangeStorageType(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ChangeStorageType copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getStorageType();
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType;
+  }
+
+  public static final class PreferencesEvent.ClearError implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    field public static final com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ClearError INSTANCE;
+  }
+
+  public static final class PreferencesEvent.ClearPreferences implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ClearPreferences(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ClearPreferences copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getStorageType();
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType storageType;
+  }
+
+  public static final class PreferencesEvent.DeletePreference implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.DeletePreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference);
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.DeletePreference copy(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference);
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference getPreference();
+    property public final com.jarvis.features.preferences.internal.domain.entity.AppPreference preference;
+  }
+
+  public static final class PreferencesEvent.ExportPreferences implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ExportPreferences(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ExportPreferences copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageType);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? getStorageType();
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType? storageType;
+  }
+
+  public static final class PreferencesEvent.ImportPreferences implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ImportPreferences(String data, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType targetStorageType);
+    method public String component1();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component2();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ImportPreferences copy(String data, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType targetStorageType);
+    method public String getData();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getTargetStorageType();
+    property public final String data;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType targetStorageType;
+  }
+
+  public static final class PreferencesEvent.LoadAllPreferences implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    field public static final com.jarvis.features.preferences.internal.presentation.PreferencesEvent.LoadAllPreferences INSTANCE;
+  }
+
+  public static final class PreferencesEvent.RefreshCurrentTab implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    field public static final com.jarvis.features.preferences.internal.presentation.PreferencesEvent.RefreshCurrentTab INSTANCE;
+  }
+
+  public static final class PreferencesEvent.RefreshPreferences implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    field public static final com.jarvis.features.preferences.internal.presentation.PreferencesEvent.RefreshPreferences INSTANCE;
+  }
+
+  public static final class PreferencesEvent.SelectPreference implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.SelectPreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference);
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.SelectPreference copy(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference);
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference getPreference();
+    property public final com.jarvis.features.preferences.internal.domain.entity.AppPreference preference;
+  }
+
+  public static final class PreferencesEvent.ShowAddDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowAddDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowAddDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowClearAllDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowClearAllDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowClearAllDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowDeleteDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowDeleteDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowDeleteDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowDetailDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowDetailDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowDetailDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowEditDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowEditDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowEditDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowExportDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowExportDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowExportDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.ShowImportDialog implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.ShowImportDialog(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.ShowImportDialog copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.UpdatePreference implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.UpdatePreference(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, Object newValue);
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference component1();
+    method public Object component2();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.UpdatePreference copy(com.jarvis.features.preferences.internal.domain.entity.AppPreference preference, Object newValue);
+    method public Object getNewValue();
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference getPreference();
+    property public final Object newValue;
+    property public final com.jarvis.features.preferences.internal.domain.entity.AppPreference preference;
+  }
+
+  public static final class PreferencesEvent.UpdateSearchQuery implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.UpdateSearchQuery(String query);
+    method public String component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.UpdateSearchQuery copy(String query);
+    method public String getQuery();
+    property public final String query;
+  }
+
+  public static final class PreferencesEvent.UpdateSystemPreferencesVisibility implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.UpdateSystemPreferencesVisibility(boolean show);
+    method public boolean component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.UpdateSystemPreferencesVisibility copy(boolean show);
+    method public boolean getShow();
+    property public final boolean show;
+  }
+
+  public static final class PreferencesEvent.UpdateTypeFilter implements com.jarvis.features.preferences.internal.presentation.PreferencesEvent {
+    ctor public PreferencesEvent.UpdateTypeFilter(com.jarvis.features.preferences.internal.domain.entity.PreferenceType? type);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType? component1();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesEvent.UpdateTypeFilter copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceType? type);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceType? getType();
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceType? type;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class PreferencesScreenKt {
+    method @androidx.compose.runtime.Composable public static void PreferencesRoute(optional androidx.compose.ui.Modifier modifier, optional com.jarvis.features.preferences.internal.presentation.PreferencesViewModel viewModel);
+    method @androidx.compose.runtime.Composable public static void PreferencesScreen(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.preferences.internal.presentation.PreferencesUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.features.preferences.internal.presentation.PreferencesEvent,kotlin.Unit> onEvent, optional androidx.compose.ui.Modifier modifier);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.compose.runtime.Composable public static void PreferencesScreenWithDialogs(com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.preferences.internal.presentation.PreferencesUiData> uiState, kotlin.jvm.functions.Function1<? super com.jarvis.features.preferences.internal.presentation.PreferencesEvent,kotlin.Unit> onEvent, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final class PreferencesUiData {
+    ctor public PreferencesUiData(optional com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup sharedPreferencesGroup, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup dataStorePreferencesGroup, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup protoDataStoreGroup, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType selectedTab, optional com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter filter, optional com.jarvis.features.preferences.internal.domain.entity.AppPreference? selectedPreference, optional boolean showAddDialog, optional boolean showEditDialog, optional boolean showDeleteDialog, optional boolean showClearAllDialog, optional boolean showExportDialog, optional boolean showImportDialog, optional boolean showDetailDialog, optional String? exportData, optional String? importError, optional String? globalError, optional boolean isRefreshing);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup component1();
+    method public boolean component10();
+    method public boolean component11();
+    method public boolean component12();
+    method public boolean component13();
+    method public String? component14();
+    method public String? component15();
+    method public String? component16();
+    method public boolean component17();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup component2();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup component3();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType component4();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter component5();
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference? component6();
+    method public boolean component7();
+    method public boolean component8();
+    method public boolean component9();
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesUiData copy(com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup sharedPreferencesGroup, com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup dataStorePreferencesGroup, com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup protoDataStoreGroup, com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType selectedTab, com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter filter, com.jarvis.features.preferences.internal.domain.entity.AppPreference? selectedPreference, boolean showAddDialog, boolean showEditDialog, boolean showDeleteDialog, boolean showClearAllDialog, boolean showExportDialog, boolean showImportDialog, boolean showDetailDialog, String? exportData, String? importError, String? globalError, boolean isRefreshing);
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup getCurrentGroup();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup getDataStorePreferencesGroup();
+    method public String? getExportData();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter getFilter();
+    method public java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> getFilteredPreferences();
+    method public String? getGlobalError();
+    method public String? getImportError();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup getProtoDataStoreGroup();
+    method public com.jarvis.features.preferences.internal.domain.entity.AppPreference? getSelectedPreference();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType getSelectedTab();
+    method public com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup getSharedPreferencesGroup();
+    method public boolean getShowAddDialog();
+    method public boolean getShowClearAllDialog();
+    method public boolean getShowDeleteDialog();
+    method public boolean getShowDetailDialog();
+    method public boolean getShowEditDialog();
+    method public boolean getShowExportDialog();
+    method public boolean getShowImportDialog();
+    method public boolean isRefreshing();
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup currentGroup;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup dataStorePreferencesGroup;
+    property public final String? exportData;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceFilter filter;
+    property public final java.util.List<com.jarvis.features.preferences.internal.domain.entity.AppPreference> filteredPreferences;
+    property public final String? globalError;
+    property public final String? importError;
+    property public final boolean isRefreshing;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup protoDataStoreGroup;
+    property public final com.jarvis.features.preferences.internal.domain.entity.AppPreference? selectedPreference;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceStorageType selectedTab;
+    property public final com.jarvis.features.preferences.internal.domain.entity.PreferenceGroup sharedPreferencesGroup;
+    property public final boolean showAddDialog;
+    property public final boolean showClearAllDialog;
+    property public final boolean showDeleteDialog;
+    property public final boolean showDetailDialog;
+    property public final boolean showEditDialog;
+    property public final boolean showExportDialog;
+    property public final boolean showImportDialog;
+    field public static final com.jarvis.features.preferences.internal.presentation.PreferencesUiData.Companion Companion;
+  }
+
+  public static final class PreferencesUiData.Companion {
+    method public com.jarvis.features.preferences.internal.presentation.PreferencesUiData getMockPreferencesInspectorUiData();
+    property public final com.jarvis.features.preferences.internal.presentation.PreferencesUiData mockPreferencesInspectorUiData;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @dagger.hilt.android.lifecycle.HiltViewModel public final class PreferencesViewModel extends androidx.lifecycle.ViewModel {
+    ctor @javax.inject.Inject public PreferencesViewModel(com.jarvis.features.preferences.internal.domain.usecase.GetPreferencesByStorageTypeUseCase getPreferencesByStorageTypeUseCase, com.jarvis.features.preferences.internal.domain.usecase.UpdatePreferenceUseCase updatePreferenceUseCase, com.jarvis.features.preferences.internal.domain.usecase.DeletePreferenceUseCase deletePreferenceUseCase, com.jarvis.features.preferences.internal.domain.usecase.AddPreferenceUseCase addPreferenceUseCase, com.jarvis.features.preferences.internal.domain.usecase.ClearAllPreferencesUseCase clearAllPreferencesUseCase, com.jarvis.features.preferences.internal.domain.usecase.ExportPreferencesUseCase exportPreferencesUseCase, com.jarvis.features.preferences.internal.domain.usecase.ImportPreferencesUseCase importPreferencesUseCase, @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher kotlinx.coroutines.CoroutineDispatcher ioDispatcher);
+    method public kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.preferences.internal.presentation.PreferencesUiData>> getUiState();
+    method public void onEvent(com.jarvis.features.preferences.internal.presentation.PreferencesEvent event);
+    property public final kotlinx.coroutines.flow.StateFlow<com.jarvis.core.internal.presentation.state.ResourceState<com.jarvis.features.preferences.internal.presentation.PreferencesUiData>> uiState;
+  }
+
+}
+

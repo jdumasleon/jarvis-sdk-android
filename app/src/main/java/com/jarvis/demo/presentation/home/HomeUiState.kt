@@ -1,6 +1,6 @@
 package com.jarvis.demo.presentation.home
 
-import com.jarvis.core.presentation.state.ResourceState
+import com.jarvis.core.internal.presentation.state.ResourceState
 
 typealias HomeUiState = ResourceState<HomeUiData>
 
