@@ -1,8 +1,6 @@
 package com.jarvis.demo.presentation
 
 import android.os.Bundle
-import android.os.StrictMode
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,7 +14,6 @@ import com.jarvis.demo.data.preferences.PreferencesDataStoreManager
 import com.jarvis.demo.data.preferences.ProtoDataStoreManager
 import com.jarvis.demo.data.preferences.proto.UserSettings
 import com.jarvis.demo.presentation.home.HomeGraph
-import com.jarvis.core.internal.presentation.performance.JarvisPerformanceProfiler
 import com.jarvis.demo.presentation.ui.JarvisDemoApp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -38,9 +35,6 @@ class MainActivity : ComponentActivity() {
     
     @Inject
     lateinit var protoDataStoreManager: ProtoDataStoreManager
-    
-    @Inject
-    lateinit var performanceProfiler: JarvisPerformanceProfiler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

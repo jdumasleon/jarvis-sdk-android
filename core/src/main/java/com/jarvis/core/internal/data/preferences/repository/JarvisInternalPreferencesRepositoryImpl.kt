@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * This handles the business logic for internal SDK preferences management.
  */
 @Singleton
-internal class JarvisInternalPreferencesRepositoryImpl @Inject constructor(
+class JarvisInternalPreferencesRepositoryImpl @Inject constructor(
     private val dataSource: JarvisInternalPreferencesDataSource
 ) : JarvisInternalPreferencesRepository {
 
