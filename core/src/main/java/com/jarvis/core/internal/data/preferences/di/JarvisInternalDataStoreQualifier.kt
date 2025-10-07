@@ -10,4 +10,4 @@ import javax.inject.Qualifier
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-internal annotation class JarvisInternalDataStore
+annotation class JarvisInternalDataStore

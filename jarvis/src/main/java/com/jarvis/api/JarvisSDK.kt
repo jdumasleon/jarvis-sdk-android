@@ -172,6 +172,116 @@ class JarvisSDK @Inject constructor(
         initialize(config, hostActivity)
     }
 
+    /**
+     * Initialize SDK with externally-provided entry providers (for Koin integration).
+     * This method bypasses Hilt's EntryPointAccessors and instead accepts entry providers
+     * directly, allowing Koin-based apps to integrate the SDK without Hilt.
+     *
+     * @param config SDK configuration
+     * @param hostActivity The host activity
+     * @param entryProviders Set of entry provider installers from Koin
+     */
+    suspend fun initializeWithEntryProviders(
+        config: JarvisConfig = JarvisConfig(),
+        hostActivity: Activity,
+        entryProviders: Set<EntryProviderInstaller>
+    ) {
+        if (!coreInitialized) {
+            configuration = config
+
+            withContext(ioDispatcher) {
+                val old = StrictMode.allowThreadDiskReads()
+                try {
+                    configurationSynchronizer.updateConfigurations(config)
+                    performanceManager.initialize()
+                    jarvisPlatform.initialize()
+                    jarvisPlatform.onAppStart()
+                } finally {
+                    StrictMode.setThreadPolicy(old)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                // Use provided entry providers instead of getting them from Hilt
+                entryProviderBuilders = entryProviders
+            }
+
+            _isShowing = false
+            coreInitialized = true
+        } else {
+            previousJarvisActiveState = _isJarvisActive
+            previousShowingState = _isShowing
+
+            composeView?.let { old ->
+                (old.parent as? ViewGroup)?.removeView(old)
+            }
+            composeView = null
+        }
+
+        withContext(Dispatchers.Main) {
+            val view = ComposeView(hostActivity).apply {
+                id = R.id.jarvis_compose_view
+                setViewTreeLifecycleOwner(hostActivity as LifecycleOwner)
+                setViewTreeViewModelStoreOwner(hostActivity as ViewModelStoreOwner)
+                setViewTreeSavedStateRegistryOwner(hostActivity as SavedStateRegistryOwner)
+
+                setContent {
+                    val darkTheme = isSystemInDarkTheme()
+
+                    LaunchedEffect(Unit) {
+                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
+                        if (previousShowingState) _isShowing = previousShowingState
+                    }
+
+                    DSJarvisTheme(darkTheme = darkTheme) {
+
+                        if (coreInitialized && _isJarvisActive) {
+                            JarvisSDKFabTools(
+                                onShowOverlay = {
+                                    navigator.goTo(JarvisSDKHomeGraph.JarvisHome)
+                                    _isShowing = true
+                                },
+                                onShowInspector = {
+                                    navigator.goTo(JarvisSDKInspectorGraph.JarvisInspectorTransactions)
+                                    _isShowing = true
+                                },
+                                onShowPreferences = {
+                                    navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
+                                    _isShowing = true
+                                },
+                                onCloseSDK = { this@JarvisSDK.deactivate() },
+                                isJarvisActive = this@JarvisSDK.isActive(),
+                            )
+                        }
+
+                        if (this@JarvisSDK.getConfiguration().enableShakeDetection) {
+                            ShakeDetectorEffect(
+                                onShakeDetected = { this@JarvisSDK.toggle() }
+                            )
+                        }
+
+                        if (_isShowing) {
+                            JarvisSDKApplication(
+                                navigator = navigator,
+                                entryProviderBuilders = entryProviderBuilders,
+                                onDismiss = { this@JarvisSDK.hideOverlay() }
+                            )
+                        }
+                    }
+                }
+            }
+
+            hostActivity.addContentView(
+                view,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+            composeView = view
+        }
+    }
+
     fun dismiss() {
         CoroutineScope(ioDispatcher).launch {
             try {

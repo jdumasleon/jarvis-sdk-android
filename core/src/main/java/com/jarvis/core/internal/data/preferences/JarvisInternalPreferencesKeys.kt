@@ -10,7 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
  * Internal SDK DataStore preference keys
  * These keys are used for SDK internal state management and should not be exposed externally.
  */
-internal object JarvisInternalPreferencesKeys {
+object JarvisInternalPreferencesKeys {
 
     // Header content preferences
     val HEADER_CONTENT_DISMISSED = booleanPreferencesKey("header_content_dismissed")
