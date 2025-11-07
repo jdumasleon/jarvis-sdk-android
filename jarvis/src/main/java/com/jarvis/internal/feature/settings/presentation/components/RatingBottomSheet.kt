@@ -47,14 +47,13 @@ fun RatingBottomSheet(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Handle default description when submitting
     val handleSubmit = {
-        // If description is empty, set it to "awesome" before submitting
         if (ratingData.description.isBlank()) {
             onDescriptionChange("awesome")
         }
         onSubmit()
     }
+
     DSBottomSheet(
         modifier = modifier,
         onDismissRequest = onCancel,
@@ -126,12 +125,12 @@ private fun StarRating(
             DSIcon(
                 imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
                 contentDescription = stringResource(R.string.star_rating, starIndex),
+                size = DSJarvisTheme.dimensions.xxxl,
                 tint = DSIconTint.Solid(if (isSelected)
                     DSJarvisTheme.colors.warning.warning60
                 else
                     DSJarvisTheme.colors.neutral.neutral60),
                 modifier = Modifier
-                    .size(DSJarvisTheme.dimensions.xxxxl)
                     .clickable(
                         indication = null,
                         interactionSource = interactionSource

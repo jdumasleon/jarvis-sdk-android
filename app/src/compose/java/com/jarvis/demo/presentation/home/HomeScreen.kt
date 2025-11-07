@@ -1,6 +1,7 @@
 package com.jarvis.demo.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -91,88 +92,95 @@ private fun HomeContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Welcome card
-        DSCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = DSJarvisTheme.shapes.m,
-            elevation = DSJarvisTheme.elevations.none,
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(DSJarvisTheme.spacing.xl)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            DSCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = DSJarvisTheme.shapes.m,
+                elevation = DSJarvisTheme.elevations.none,
             ) {
-                // App name and title
-                DSText(
-                    text = uiData.welcomeMessage,
-                    style = DSJarvisTheme.typography.heading.large,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = DSJarvisTheme.colors.primary.primary60
-                )
-                
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-                
-                // Description
-                DSText(
-                    text = uiData.description,
-                    style = DSJarvisTheme.typography.body.large,
-                    textAlign = TextAlign.Center,
-                    color = DSJarvisTheme.colors.neutral.neutral100
-                )
-                
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-                
-                // Version and Status
+                // Contenido principal
                 Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(DSJarvisTheme.spacing.xl),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // App name and title
+                    DSText(
+                        text = uiData.welcomeMessage,
+                        style = DSJarvisTheme.typography.heading.large,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = DSJarvisTheme.colors.primary.primary60
+                    )
+
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+
+                    // Description
+                    DSText(
+                        text = uiData.description,
+                        style = DSJarvisTheme.typography.body.large,
+                        textAlign = TextAlign.Center,
+                        color = DSJarvisTheme.colors.neutral.neutral100
+                    )
+
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
+
+                    // Version text
                     DSText(
                         text = uiData.version,
                         style = DSJarvisTheme.typography.body.small,
                         textAlign = TextAlign.Center,
                         color = DSJarvisTheme.colors.neutral.neutral80
                     )
-                    
-                    if (uiData.isJarvisActive) {
-                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-                        DSTag(
-                            tag = "ACTIVE",
-                            style = DSTagStyle.Info
+
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
+
+                    // Instructions
+                    DSText(
+                        text = uiData.shakeInstructions,
+                        style = DSJarvisTheme.typography.body.medium,
+                        textAlign = TextAlign.Center,
+                        color = DSJarvisTheme.colors.neutral.neutral100,
+                    )
+
+                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.l))
+
+                    // Toggle button
+                    DSButton(
+                        text = if (uiData.isJarvisActive) "Deactivate Jarvis" else "Activate Jarvis",
+                        style = if (uiData.isJarvisActive) DSButtonStyle.DESTRUCTIVE else DSButtonStyle.PRIMARY,
+                        onClick = { onEvent(HomeEvent.ToggleJarvisMode) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Last refresh time
+                    uiData.lastRefreshTime?.let { timestamp ->
+                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+                        DSText(
+                            text = stringResource(
+                                R.string.last_updated,
+                                java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                                    .format(java.util.Date(timestamp))
+                            ),
+                            style = DSJarvisTheme.typography.body.small,
+                            color = DSJarvisTheme.colors.neutral.neutral80
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.m))
-                
-                // Instructions
-                DSText(
-                    text = uiData.shakeInstructions,
-                    style = DSJarvisTheme.typography.body.medium,
-                    textAlign = TextAlign.Center,
-                    color = DSJarvisTheme.colors.neutral.neutral100,
+            }
+
+            if (uiData.isJarvisActive) {
+                DSTag(
+                    tag = "ACTIVE",
+                    style = DSTagStyle.Info,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(DSJarvisTheme.spacing.m)
                 )
-                
-                Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.l))
-                
-                // Toggle button
-                DSButton(
-                    text = if (uiData.isJarvisActive) "Deactivate Jarvis" else "Activate Jarvis",
-                    style = DSButtonStyle.PRIMARY,
-                    onClick = { onEvent(HomeEvent.ToggleJarvisMode) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                // Last refresh time
-                uiData.lastRefreshTime?.let { timestamp ->
-                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-                    DSText(
-                        text = stringResource(R.string.last_updated, java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(timestamp))),
-                        style = DSJarvisTheme.typography.body.small,
-                        color = DSJarvisTheme.colors.neutral.neutral80
-                    )
-                }
             }
         }
     }

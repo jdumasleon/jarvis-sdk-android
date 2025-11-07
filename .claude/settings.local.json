@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(find:*)",
+      "Bash(for module in core jarvis features/inspector features/preferences)",
+      "Bash(do echo \"=== $module ===\")",
+      "Bash(if [ -f \"./$module/lint-baseline.xml\" ])",
+      "Bash(then grep 'id=' \"./$module/lint-baseline.xml\")",
+      "Bash(fi)",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

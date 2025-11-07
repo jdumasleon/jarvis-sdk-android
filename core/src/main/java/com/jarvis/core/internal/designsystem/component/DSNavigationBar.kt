@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -121,25 +122,30 @@ fun DSNavigationBar(
         animationSpec = tween(300),
         label = "navigationBarBackgroundColor"
     )
-    
+
     val currentBackgroundColor = if (enableScrollColorChange) {
         lerp(defaultBackgroundColor, scrollDownBackgroundColor, backgroundColorProgress)
     } else {
         containerColor
     }
-    
+
     val shape = RoundedCornerShape(topStart = topCornerRadius, topEnd = topCornerRadius)
 
     Surface(
+        modifier = modifier.shadow(
+            elevation = tonalElevation,
+            shape = shape,
+            clip = false
+        ),
         color = currentBackgroundColor,
-        tonalElevation = tonalElevation,
+        tonalElevation = 0.dp,
         shape = shape
     ) {
         NavigationBar(
-            modifier = modifier.clip(shape),
+            modifier = Modifier.clip(shape),
             containerColor = Color.Transparent,
             contentColor = contentColor,
-            tonalElevation = tonalElevation,
+            tonalElevation = 0.dp,
             content = content,
         )
     }

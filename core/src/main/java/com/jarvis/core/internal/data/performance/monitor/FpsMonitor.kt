@@ -8,7 +8,11 @@ import com.jarvis.core.internal.domain.performance.FpsMetrics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,42 +25,59 @@ class FpsMonitor @Inject constructor() {
     private val maxHistorySize = 60 // Keep last 60 frames for calculations
     private var lastFrameTime = 0L
     private var isMonitoring = false
+
+    // Target frame time in nanoseconds (16.67ms for 60fps)
     private var frameCallback: Choreographer.FrameCallback? = null
     
-    // Target frame time in nanoseconds (16.67ms for 60fps)
-    private val targetFrameTimeNs = 16_666_667L
-    
-    fun getFpsMetricsFlow(intervalMs: Long = 1000): Flow<FpsMetrics> = flow {
-        startMonitoring()
-        
-        try {
-            var monitoringTime = 0L
-            val maxMonitoringTime = 180_000L // 3 minutes max monitoring
-            val safeIntervalMs = intervalMs.coerceAtLeast(1000) // Min 1s interval for stability
-            
-            while (monitoringTime < maxMonitoringTime && isMonitoring) {
-                val metrics = calculateCurrentFpsMetrics()
-                emit(metrics)
-                kotlinx.coroutines.delay(safeIntervalMs)
-                monitoringTime += safeIntervalMs
-            }
-        } catch (e: Exception) {
-            emit(FpsMetrics(0f, 0f, 0f, 0f, 0, 0, 60f))
-        } finally {
-            stopMonitoring()
-        }
-    }.flowOn(Dispatchers.Main)
-    
-    private fun startMonitoring() {
+    private val _fpsMetrics = MutableSharedFlow<FpsMetrics>(replay = 1)
+    val fpsMetrics: Flow<FpsMetrics> = _fpsMetrics.asSharedFlow()
+
+    private var monitoringJob: Job? = null
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+
+    fun start() {
         if (isMonitoring) return
-        
+
         isMonitoring = true
         lastFrameTime = System.nanoTime()
-        
-        // Start frame callback monitoring without suspending
+
         scheduleFrameCallback()
+
+        monitoringJob = coroutineScope.launch {
+            while (isMonitoring) {
+                val metrics = calculateCurrentFpsMetrics()
+                _fpsMetrics.emit(metrics)
+                kotlinx.coroutines.delay(1000)
+            }
+        }
     }
-    
+
+    fun stop() {
+        if (!isMonitoring) return
+
+        isMonitoring = false
+        monitoringJob?.cancel()
+
+        // Must remove frame callback on the main thread
+        coroutineScope.launch(Dispatchers.Main) {
+            try {
+                frameCallback?.let {
+                    Choreographer.getInstance().removeFrameCallback(it)
+                    frameCallback = null
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FpsMonitor", "Failed to remove frame callback", e)
+            }
+        }
+
+        frameTimeHistory.clear()
+        lastFrameTime = 0L
+    }
+
+    fun getFpsMetricsFlow(): Flow<FpsMetrics> {
+        return fpsMetrics
+    }
+
     private fun scheduleFrameCallback() {
         if (frameCallback != null) return // Already have a callback scheduled
         
@@ -173,18 +194,7 @@ class FpsMonitor @Inject constructor() {
         }
     }
     
-    fun stopMonitoring() {
-        isMonitoring = false
-        
-        // Remove any pending frame callback
-        frameCallback?.let { callback ->
-            Choreographer.getInstance().removeFrameCallback(callback)
-            frameCallback = null
-        }
-        
-        frameTimeHistory.clear()
-        lastFrameTime = 0L
-    }
+
     
     /**
      * Get detailed frame timing information for debugging

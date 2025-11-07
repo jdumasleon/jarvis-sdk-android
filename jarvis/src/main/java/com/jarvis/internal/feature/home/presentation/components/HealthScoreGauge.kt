@@ -38,13 +38,27 @@ fun HealthScoreGauge(
     animationDurationMs: Int = 1000
 ) {
     val context = LocalContext.current
-    val contentDesc = stringResource(
-        R.string.health_score_accessibility,
-        healthScore.overallScore.toInt(),
-        healthScore.rating.displayName
-    )
 
-    // Create health-specific gradient
+    // Optimize: Remember computed values to prevent recalculation
+    val contentDesc = remember(healthScore.overallScore, healthScore.rating) {
+        context.getString(
+            R.string.health_score_accessibility,
+            healthScore.overallScore.toInt(),
+            healthScore.rating.displayName
+        )
+    }
+
+    // Optimize: Track if animation has already been played
+    var hasAnimated by remember(healthScore.overallScore) { mutableStateOf(false) }
+    val finalAnimationDuration = if (hasAnimated) 0 else animationDurationMs
+
+    LaunchedEffect(healthScore.overallScore) {
+        if (!hasAnimated) {
+            hasAnimated = true
+        }
+    }
+
+    // Create health-specific gradient (already inside @Composable)
     val healthGradient = createHealthGradient(healthScore.overallScore)
 
     Box(
@@ -63,7 +77,7 @@ fun HealthScoreGauge(
             gradient = healthGradient,
             indicatorCount = indicatorCount,
             showIndicators = true,
-            animationDurationMs = animationDurationMs,
+            animationDurationMs = finalAnimationDuration,  // Use optimized duration
             contentDescription = contentDesc
         )
 

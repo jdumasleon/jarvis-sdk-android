@@ -86,7 +86,7 @@ fun SettingsItemRow(
             }
             .padding(
                 horizontal = DSJarvisTheme.spacing.s,
-                vertical = DSJarvisTheme.spacing.s
+                vertical = DSJarvisTheme.spacing.xs
             ),
     ) {
         Row(
@@ -120,6 +120,17 @@ fun SettingsItemRow(
                         else -> DSJarvisTheme.colors.extra.onSurface
                     }
                 )
+
+                item.description?.let {
+                    DSText(
+                        text = item.description,
+                        style = DSJarvisTheme.typography.body.small,
+                        color = when {
+                            !item.isEnabled -> DSJarvisTheme.colors.neutral.neutral40
+                            else -> DSJarvisTheme.colors.neutral.neutral80
+                        }
+                    )
+                }
             }
 
             item.value?.let {
@@ -175,19 +186,19 @@ private fun SettingsIcon.toImageVector(): ImageVector = when (this) {
 
 @Composable
 private fun SettingsIcon.toTintColor(): Color = when (this) {
-    SettingsIcon.INSPECTOR -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.PREFERENCES -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.LOGS -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.STAR -> DSJarvisTheme.colors.success.success100
-    SettingsIcon.SHARE -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.INFO -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.LINK -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.EMAIL -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.VERSION -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.TWITTER -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.GITHUB -> DSJarvisTheme.colors.primary.primary60
+    SettingsIcon.INSPECTOR,
+    SettingsIcon.PREFERENCES,
+    SettingsIcon.LOGS,
+    SettingsIcon.SHARE,
+    SettingsIcon.INFO,
+    SettingsIcon.LINK,
+    SettingsIcon.EMAIL,
+    SettingsIcon.VERSION,
+    SettingsIcon.TWITTER,
+    SettingsIcon.GITHUB,
     SettingsIcon.RELEASE_NOTES -> DSJarvisTheme.colors.primary.primary60
-    SettingsIcon.APP -> DSJarvisTheme.colors.success.success100
+    SettingsIcon.APP,
+    SettingsIcon.STAR-> DSJarvisTheme.colors.success.success100
 }
 
 @Preview(showBackground = true, name = "Settings Item - Action")

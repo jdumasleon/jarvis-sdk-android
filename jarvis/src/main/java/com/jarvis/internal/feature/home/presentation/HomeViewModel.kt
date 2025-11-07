@@ -37,29 +37,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         onEvent(HomeEvent.RefreshDashboard)
-        startContinuousPerformanceMonitoring()
-    }
-    
-    private fun startContinuousPerformanceMonitoring() {
-        viewModelScope.launch(ioDispatcher) {
-            getPerformanceMetricsUseCase()
-                .catch { /* Handle errors gracefully */ }
-                .collect { performanceSnapshot ->
-                    _uiState.update { currentState ->
-                        when (currentState) {
-                            is ResourceState.Success -> {
-                                ResourceState.Success(
-                                    currentState.data.copy(
-                                        performanceSnapshot = performanceSnapshot,
-                                        lastUpdated = System.currentTimeMillis()
-                                    )
-                                )
-                            }
-                            else -> currentState
-                        }
-                    }
-                }
-        }
     }
 
     fun onEvent(event: HomeEvent) {
@@ -100,10 +77,10 @@ class HomeViewModel @Inject constructor(
                     currentData?.enhancedMetrics
                 }
 
+                // Get session snapshot or live metrics if not available yet
                 val performanceSnapshot = try {
-                    getPerformanceMetricsUseCase()
-                        .timeout(2.seconds) // 2 second timeout for lighter operation
-                        .first()
+                    getPerformanceMetricsUseCase.getSessionSnapshot()
+                        ?: getPerformanceMetricsUseCase().timeout(2.seconds).first()
                 } catch (_: Exception) {
                     currentData?.performanceSnapshot
                 }
@@ -174,10 +151,10 @@ class HomeViewModel @Inject constructor(
                     null
                 }
 
+                // Get session snapshot or current metrics if not available yet
                 val performanceSnapshot = try {
-                    getPerformanceMetricsUseCase()
-                        .timeout(2.seconds)
-                        .first()
+                    getPerformanceMetricsUseCase.getSessionSnapshot()
+                        ?: getPerformanceMetricsUseCase().timeout(2.seconds).first()
                 } catch (_: Exception) {
                     currentData?.performanceSnapshot
                 }

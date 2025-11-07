@@ -77,8 +77,17 @@ fun PreferencesOverviewChart(
     donutSize: Dp = 140.dp,
     donutStroke: Dp = 18.dp
 ){
-    var animationPlayed by remember(preferencesMetrics) { mutableStateOf(false) }
-    LaunchedEffect(preferencesMetrics) { animationPlayed = true }
+    // Optimize: Create stable key based on data content
+    val dataKey = remember(preferencesMetrics) {
+        "${preferencesMetrics.totalPreferences}:${preferencesMetrics.storageUsage.totalSize}"
+    }
+
+    var animationPlayed by remember(dataKey) { mutableStateOf(false) }
+    LaunchedEffect(dataKey) {
+        if (!animationPlayed) {
+            animationPlayed = true
+        }
+    }
 
     Column(
         modifier = modifier.testTag("PreferencesOverviewChart"),

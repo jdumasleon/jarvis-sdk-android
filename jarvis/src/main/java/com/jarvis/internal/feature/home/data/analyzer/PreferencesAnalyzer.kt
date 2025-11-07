@@ -164,12 +164,12 @@ class PreferencesAnalyzer @Inject constructor() {
                     )
                 }.reversed()
             }
-            SessionFilter.GENERAL -> {
-                // Generate daily points for the last 7 days
-                (0..7).map { day ->
+            SessionFilter.LAST_24H -> {
+                // Generate hourly points for the last 24 hours
+                (0..24).map { hour ->
                     TimeSeriesDataPoint(
-                        timestamp = currentTime - (day * 24 * 60 * 60 * 1000),
-                        value = (preferences.size / 7f) * (0.7f + Math.random().toFloat() * 0.6f)
+                        timestamp = currentTime - (hour * 60 * 60 * 1000),
+                        value = (preferences.size / 24f) * (0.7f + Math.random().toFloat() * 0.6f)
                     )
                 }.reversed()
             }
