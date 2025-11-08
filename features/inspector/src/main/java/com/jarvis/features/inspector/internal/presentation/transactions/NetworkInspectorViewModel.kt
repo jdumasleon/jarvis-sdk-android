@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.internal.presentation.state.ResourceState
+import com.jarvis.features.inspector.internal.domain.entity.HttpMethod
 import com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction
+import com.jarvis.features.inspector.internal.domain.entity.TransactionStatus
 import com.jarvis.features.inspector.internal.domain.repository.NetworkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -65,8 +67,8 @@ class NetworkInspectorViewModel @Inject constructor(
                         searchQuery = "",
                         selectedMethod = null,
                         selectedStatus = null,
-                        availableMethods = transactions.map { it.request.method.name }.distinct(),
-                        availableStatuses = transactions.map { it.status.name }.distinct(),
+                        availableMethods = HttpMethod.entries.map { it.name }.distinct(),
+                        availableStatuses = TransactionStatus.entries.map { it.name }.distinct(),
                         currentPage = 0,
                         hasMorePages = transactions.size >= INITIAL_PAGE_SIZE,
                         isLoadingMore = false

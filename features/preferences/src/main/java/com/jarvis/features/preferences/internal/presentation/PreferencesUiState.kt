@@ -19,7 +19,6 @@ data class PreferencesUiData(
     val selectedTab: PreferenceStorageType = PreferenceStorageType.SHARED_PREFERENCES,
     val filter: PreferenceFilter = PreferenceFilter(),
     val selectedPreference: AppPreference? = null,
-    val showAddDialog: Boolean = false,
     val showEditDialog: Boolean = false,
     val showDeleteDialog: Boolean = false,
     val showClearAllDialog: Boolean = false,
@@ -144,11 +143,9 @@ sealed interface PreferencesEvent {
     data class SelectPreference(val preference: AppPreference) : PreferencesEvent
     data class UpdatePreference(val preference: AppPreference, val newValue: Any) : PreferencesEvent
     data class DeletePreference(val preference: AppPreference) : PreferencesEvent
-    data class AddPreference(val key: String, val value: Any, val type: PreferenceType, val storageType: PreferenceStorageType) : PreferencesEvent
     data class ClearPreferences(val storageType: PreferenceStorageType) : PreferencesEvent
     data class ExportPreferences(val storageType: PreferenceStorageType?) : PreferencesEvent
     data class ImportPreferences(val data: String, val targetStorageType: PreferenceStorageType) : PreferencesEvent
-    data class ShowAddDialog(val show: Boolean) : PreferencesEvent
     data class ShowEditDialog(val show: Boolean) : PreferencesEvent
     data class ShowDeleteDialog(val show: Boolean) : PreferencesEvent
     data class ShowClearAllDialog(val show: Boolean) : PreferencesEvent

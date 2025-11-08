@@ -320,19 +320,7 @@ fun PreferencesScreenWithDialogs(
     modifier: Modifier = Modifier
 ) {
     PreferencesScreen(uiState, onEvent, modifier)
-    
-    // Add Preference Bottom Sheet
-    if (uiState is ResourceState.Success && uiState.data.showAddDialog) {
-        AddPreferenceBottomSheet(
-            selectedStorageType = uiState.data.selectedTab,
-            onSave = { key, value, type ->
-                onEvent(PreferencesEvent.AddPreference(key, value, type, uiState.data.selectedTab))
-                onEvent(PreferencesEvent.ShowAddDialog(false))
-            },
-            onDismiss = { onEvent(PreferencesEvent.ShowAddDialog(false)) }
-        )
-    }
-    
+
     // Edit Preference Bottom Sheet
     if (uiState is ResourceState.Success && uiState.data.showEditDialog && uiState.data.selectedPreference != null) {
         EditPreferenceBottomSheet(
@@ -539,13 +527,6 @@ private fun PreferencesActions(
             items = buildList {
                 add(
                     DSDropdownMenuItem(
-                        text = stringResource(R.string.features_preferences_presentation_add),
-                        icon = Icons.Default.Add,
-                        onClick = { onEvent(PreferencesEvent.ShowAddDialog(true)) }
-                    )
-                )
-                add(
-                    DSDropdownMenuItem(
                         text = if (uiData.filter.showSystemPreferences) {
                             stringResource(R.string.features_preferences_presentation_hide_system)
                         } else {
@@ -680,97 +661,6 @@ private fun PreferenceItem(
             }
         }
     }
-}
-
-@Composable
-private fun AddPreferenceBottomSheet(
-    selectedStorageType: PreferenceStorageType,
-    onSave: (String, Any, PreferenceType) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var key by remember { mutableStateOf("") }
-    var value by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(PreferenceType.STRING) }
-    
-    // ✅ PERFORMANCE: Memoize callbacks to prevent DSTextField recreation
-    val onKeyChange = remember { { newKey: String -> key = newKey } }
-    val onValueChange = remember { { newValue: String -> value = newValue } }
-    
-    DSBottomSheet(
-        onDismissRequest = onDismiss,
-        title = { DSText(stringResource(R.string.features_preferences_presentation_add_preference)) },
-        content = {
-            DSText(
-                text = stringResource(
-                    R.string.features_preferences_presentation_add_new_preference_to_storage,
-                    getPreferenceTypeName(selectedStorageType)
-                ),
-                style = DSJarvisTheme.typography.body.small,
-                color = DSJarvisTheme.colors.neutral.neutral60
-            )
-            
-            DSTextField(
-                text = key,
-                onValueChange = onKeyChange,
-                title = stringResource(R.string.features_preferences_presentation_key),
-                placeholder = "preference_key",
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            DSSelectField(
-                options = PreferenceType.entries,
-                selectedOption = selectedType,
-                onSelectionChange = { selectedType = it },
-                displayText = { it.name },
-                label = "Type",
-                placeholder = "Select type",
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            DSTextField(
-                text = value,
-                onValueChange = onValueChange,
-                title = "Value",
-                placeholder = when (selectedType) {
-                    PreferenceType.STRING -> stringResource(R.string.features_preferences_presentation_string_value)
-                    PreferenceType.INTEGER -> "123"
-                    PreferenceType.FLOAT -> "123.45"
-                    PreferenceType.BOOLEAN -> "true/false"
-                    PreferenceType.LONG -> "123456789"
-                    PreferenceType.STRING_SET -> "item1,item2,item3"
-                    PreferenceType.DOUBLE -> "123.456789"
-                    PreferenceType.BYTES -> "base64encoded"
-                    PreferenceType.PROTO_MESSAGE -> stringResource(R.string.features_preferences_presentation_proto_message)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            DSButton(
-                text = stringResource(R.string.features_preferences_presentation_add),
-                onClick = {
-                    if (key.isNotEmpty() && value.isNotEmpty()) {
-                        val parsedValue = parseValueForType(value, selectedType)
-                        if (parsedValue != null) {
-                            onSave(key, parsedValue, selectedType)
-                        }
-                    }
-                },
-                style = DSButtonStyle.PRIMARY,
-                size = DSButtonSize.MEDIUM,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        dismissButton = {
-            DSButton(
-                text = stringResource(R.string.features_preferences_presentation_cancel),
-                onClick = onDismiss,
-                style = DSButtonStyle.SECONDARY,
-                size = DSButtonSize.MEDIUM,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    )
 }
 
 @Composable

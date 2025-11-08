@@ -59,11 +59,9 @@ class PreferencesViewModel @Inject constructor(
             is PreferencesEvent.SelectPreference -> selectPreference(event.preference)
             is PreferencesEvent.UpdatePreference -> updatePreference(event.preference, event.newValue)
             is PreferencesEvent.DeletePreference -> deletePreference(event.preference)
-            is PreferencesEvent.AddPreference -> addPreference(event.key, event.value, event.type, event.storageType)
             is PreferencesEvent.ClearPreferences -> clearPreferences(event.storageType)
             is PreferencesEvent.ExportPreferences -> exportPreferences(event.storageType)
             is PreferencesEvent.ImportPreferences -> importPreferences(event.data, event.targetStorageType)
-            is PreferencesEvent.ShowAddDialog -> showAddDialog(event.show)
             is PreferencesEvent.ShowEditDialog -> showEditDialog(event.show)
             is PreferencesEvent.ShowDeleteDialog -> showDeleteDialog(event.show)
             is PreferencesEvent.ShowClearAllDialog -> showClearAllDialog(event.show)
@@ -312,23 +310,6 @@ class PreferencesViewModel @Inject constructor(
         }
     }
     
-    private fun addPreference(key: String, value: Any, type: PreferenceType, storageType: PreferenceStorageType) {
-        viewModelScope.launch(ioDispatcher) {
-            try {
-                addPreferenceUseCase(key, value, type, storageType)
-                // ✅ PERFORMANCE: Only reload the specific storage type, not all preferences
-                when (storageType) {
-                    PreferenceStorageType.SHARED_PREFERENCES -> loadSharedPrefs()
-                    PreferenceStorageType.PREFERENCES_DATASTORE -> loadPrefsDataStore()
-                    PreferenceStorageType.PROTO_DATASTORE -> loadProtoDataStore()
-                }
-            } catch (exception: Exception) {
-                _uiState.update { 
-                    ResourceState.Error(exception, "Failed to add preference")
-                }
-            }
-        }
-    }
     
     private fun clearPreferences(storageType: PreferenceStorageType) {
         viewModelScope.launch(ioDispatcher) {
@@ -407,17 +388,6 @@ class PreferencesViewModel @Inject constructor(
                 _uiState.update { 
                     ResourceState.Error(exception, "Failed to import preferences")
                 }
-            }
-        }
-    }
-    
-    private fun showAddDialog(show: Boolean) {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is ResourceState.Success -> {
-                    ResourceState.Success(currentState.data.copy(showAddDialog = show))
-                }
-                else -> currentState
             }
         }
     }
