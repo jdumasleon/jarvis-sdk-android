@@ -39,6 +39,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -55,6 +58,8 @@ class JarvisSDK @Inject constructor(
     private var coreInitialized = false
     private var configuration = JarvisConfig()
     private var _isJarvisActive by mutableStateOf(false)
+    private val _activeState = MutableStateFlow(false)
+    val activeState: StateFlow<Boolean> = _activeState.asStateFlow()
     private var _isShowing by mutableStateOf(false)
 
     /**
@@ -138,7 +143,7 @@ class JarvisSDK @Inject constructor(
                     val darkTheme = isSystemInDarkTheme()
 
                     LaunchedEffect(Unit) {
-                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
+                        if (previousJarvisActiveState) setJarvisActive(previousJarvisActiveState)
                         if (previousShowingState) setIsShowing(previousShowingState)
                     }
 
@@ -259,7 +264,7 @@ class JarvisSDK @Inject constructor(
                     val darkTheme = isSystemInDarkTheme()
 
                     LaunchedEffect(Unit) {
-                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
+                        if (previousJarvisActiveState) setJarvisActive(previousJarvisActiveState)
                         if (previousShowingState) setIsShowing(previousShowingState)
                     }
 
@@ -325,7 +330,7 @@ class JarvisSDK @Inject constructor(
         composeView?.let { v -> (v.parent as? ViewGroup)?.removeView(v) }
         composeView = null
         setIsShowing(false)
-        _isJarvisActive = false
+        setJarvisActive(false)
     }
 
     fun getConfiguration(): JarvisConfig = configuration
@@ -335,10 +340,10 @@ class JarvisSDK @Inject constructor(
         setIsShowing(false)
     }
 
-    fun activate() { if (coreInitialized) _isJarvisActive = true }
+    fun activate() { if (coreInitialized) setJarvisActive(true) }
 
     fun deactivate() {
-        _isJarvisActive = false
+        setJarvisActive(false)
         hideOverlay()
     }
 
@@ -348,4 +353,12 @@ class JarvisSDK @Inject constructor(
 
     fun getPlatform(): JarvisPlatform? =
         if (coreInitialized && jarvisPlatform.isInitialized()) jarvisPlatform else null
+
+    fun observeActiveState(): StateFlow<Boolean> = activeState
+
+    private fun setJarvisActive(active: Boolean) {
+        if (_isJarvisActive == active) return
+        _isJarvisActive = active
+        _activeState.value = active
+    }
 }

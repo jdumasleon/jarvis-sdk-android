@@ -215,7 +215,7 @@ private val SessionFilter.icon: ImageVector
 private val SessionFilter.displayName: String
     get() = when (this) {
         SessionFilter.LAST_SESSION -> "SESSION"
-        SessionFilter.LAST_24H -> "Last 24h"
+        SessionFilter.LAST_24H -> "LAST 24H"
     }
 
 private val SessionFilter.description: String

@@ -2,6 +2,7 @@ package com.jarvis.demo.domain.usecase.home
 
 import android.util.Log
 import com.jarvis.api.JarvisSDK
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class ManageJarvisModeUseCase @Inject constructor(
@@ -17,6 +18,10 @@ class ManageJarvisModeUseCase @Inject constructor(
 
     fun isJarvisActive(): Boolean {
         return jarvisSDK.isActive()
+    }
+
+    fun observeJarvisActiveState(): StateFlow<Boolean> {
+        return jarvisSDK.observeActiveState()
     }
 
     fun activateJarvis() {

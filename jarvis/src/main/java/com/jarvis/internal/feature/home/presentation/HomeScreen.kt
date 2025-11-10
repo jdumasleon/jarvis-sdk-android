@@ -225,7 +225,9 @@ private fun HeaderContent(
                 style = FlagStyle.Info,
                 closable = true,
                 onClose = onDismissHeader,
-                modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+                modifier = Modifier
+                    .padding(horizontal = DSJarvisTheme.spacing.m)
+                    .padding(bottom = DSJarvisTheme.spacing.s)
             )
         }
         
@@ -249,6 +251,7 @@ private fun DateFilterTypesChips(
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
             text = stringResource(R.string.filter_label).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral100
