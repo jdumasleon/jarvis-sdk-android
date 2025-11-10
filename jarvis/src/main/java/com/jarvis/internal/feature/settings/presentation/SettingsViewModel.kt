@@ -100,7 +100,7 @@ class SettingsViewModel @Inject constructor(
             val rating = Rating(
                 stars = currentData.ratingStars,
                 description = currentData.ratingDescription,
-                version = currentData.appInfo?.version
+                version = currentData.settingsAppInfo?.sdkInfo?.version
             )
 
             submitRatingUseCase(rating).collectLatest { result ->

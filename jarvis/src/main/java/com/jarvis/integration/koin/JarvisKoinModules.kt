@@ -185,6 +185,7 @@ val jarvisPerformanceKoinModule = module {
     single { FpsMonitor() }
     single { ModuleLoadMonitor() }
     single { JankMonitor() }
+    single { BatteryMonitor(androidContext()) }
     single { Gson() }
 
     // Performance Repository
@@ -195,13 +196,14 @@ val jarvisPerformanceKoinModule = module {
             fpsMonitor = get(),
             moduleLoadMonitor = get(),
             jankMonitor = get(),
+            batteryMonitor = get(),
             gson = get(),
             ioDispatcher = get(named("IO"))
         )
     }
 
     // Performance Manager
-    single { PerformanceManager(get()) }
+    single { PerformanceManager(get(), get()) }
 }
 
 /**
@@ -250,7 +252,8 @@ val jarvisViewModelsKoinModule = module {
     single { RefreshDashboardMetricsUseCase(repository = get()) }
     single {
         com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase(
-            repository = get()
+            repository = get(),
+            performanceManager = get()
         )
     }
 
@@ -271,7 +274,7 @@ val jarvisViewModelsKoinModule = module {
 
     single<Retrofit>(named("RatingApi")) {
         Retrofit.Builder()
-            .baseUrl("https://api.jarvis-sdk.com/")
+            .baseUrl(com.jarvis.library.BuildConfig.RATING_API_BASE_URL)
             .client(get(named("RatingApiOkHttp")))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -413,11 +416,41 @@ val jarvisSDKKoinModule = module {
         )
     }
 
+    // WorkerFactory for Koin-based apps
+    single<androidx.work.WorkerFactory> {
+        object : androidx.work.WorkerFactory() {
+            override fun createWorker(
+                appContext: android.content.Context,
+                workerClassName: String,
+                workerParameters: androidx.work.WorkerParameters
+            ): androidx.work.ListenableWorker? {
+                return when (workerClassName) {
+                    com.jarvis.internal.data.work.NetworkCleanupWorker::class.java.name -> {
+                        com.jarvis.internal.data.work.NetworkCleanupWorker(
+                            context = appContext,
+                            params = workerParameters,
+                            networkRepository = get()
+                        )
+                    }
+                    else -> null
+                }
+            }
+        }
+    }
+
+    single<com.jarvis.internal.data.work.NetworkCleanupScheduler> {
+        com.jarvis.internal.data.work.NetworkCleanupScheduler(
+            context = get(),
+            workerFactory = get()
+        )
+    }
+
     single<JarvisSDK> {
         JarvisSDK(
             configurationSynchronizer = get(),
             performanceManager = get(),
             jarvisPlatform = get(),
+            networkCleanupScheduler = get(),
             navigator = get(named("jarvis_sdk")),
             ioDispatcher = get(named("IO"))
         )

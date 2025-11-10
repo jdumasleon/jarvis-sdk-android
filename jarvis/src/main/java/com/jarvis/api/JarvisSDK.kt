@@ -23,6 +23,7 @@ import com.jarvis.config.ConfigurationSynchronizer
 import com.jarvis.config.JarvisConfig
 import com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher
 import com.jarvis.core.internal.data.performance.PerformanceManager
+import com.jarvis.internal.data.work.NetworkCleanupScheduler
 import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.internal.designsystem.utils.ShakeDetectorEffect
 import com.jarvis.core.internal.navigation.EntryProviderInstaller
@@ -38,6 +39,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -47,13 +51,38 @@ class JarvisSDK @Inject constructor(
     private val configurationSynchronizer: ConfigurationSynchronizer,
     private val performanceManager: PerformanceManager,
     private val jarvisPlatform: JarvisPlatform,
+    private val networkCleanupScheduler: NetworkCleanupScheduler,
     @JarvisSDKNavigator private val navigator: Navigator,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
     private var coreInitialized = false
     private var configuration = JarvisConfig()
     private var _isJarvisActive by mutableStateOf(false)
+    private val _activeState = MutableStateFlow(false)
+    val activeState: StateFlow<Boolean> = _activeState.asStateFlow()
     private var _isShowing by mutableStateOf(false)
+
+    /**
+     * Update Jarvis visibility state and pause/resume performance collection accordingly
+     */
+    private fun setIsShowing(showing: Boolean) {
+        if (_isShowing != showing) {
+            _isShowing = showing
+
+            // Pause/resume performance collection based on Jarvis visibility
+            if (showing) {
+                // Jarvis opened - pause collection and capture session snapshot
+                CoroutineScope(ioDispatcher).launch {
+                    performanceManager.pauseCollection()
+                    android.util.Log.d("JarvisSDK", "Jarvis opened - paused and captured session snapshot")
+                }
+            } else {
+                // Jarvis closed - resume collection to monitor host app
+                performanceManager.resumeCollection()
+                android.util.Log.d("JarvisSDK", "Jarvis closed - resuming performance collection")
+            }
+        }
+    }
 
     private lateinit var entryProviderBuilders: Set<EntryProviderInstaller>
     private var composeView: ComposeView? = null
@@ -75,6 +104,9 @@ class JarvisSDK @Inject constructor(
                     performanceManager.initialize()
                     jarvisPlatform.initialize()
                     jarvisPlatform.onAppStart()
+
+                    // Schedule periodic cleanup of old network requests
+                    networkCleanupScheduler.scheduleCleanup()
                 } finally {
                     StrictMode.setThreadPolicy(old)
                 }
@@ -88,7 +120,7 @@ class JarvisSDK @Inject constructor(
                 entryProviderBuilders = ep.entryProviderBuilders()
             }
 
-            _isShowing = false
+            setIsShowing(false)
             coreInitialized = true
         } else {
             previousJarvisActiveState = _isJarvisActive
@@ -111,8 +143,8 @@ class JarvisSDK @Inject constructor(
                     val darkTheme = isSystemInDarkTheme()
 
                     LaunchedEffect(Unit) {
-                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
-                        if (previousShowingState) _isShowing = previousShowingState
+                        if (previousJarvisActiveState) setJarvisActive(previousJarvisActiveState)
+                        if (previousShowingState) setIsShowing(previousShowingState)
                     }
 
                     DSJarvisTheme(darkTheme = darkTheme) {
@@ -121,15 +153,15 @@ class JarvisSDK @Inject constructor(
                             JarvisSDKFabTools(
                                 onShowOverlay = {
                                     navigator.goTo(JarvisSDKHomeGraph.JarvisHome)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onShowInspector = {
                                     navigator.goTo(JarvisSDKInspectorGraph.JarvisInspectorTransactions)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onShowPreferences = {
                                     navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onCloseSDK = { this@JarvisSDK.deactivate() },
                                 isJarvisActive = this@JarvisSDK.isActive(),
@@ -196,6 +228,9 @@ class JarvisSDK @Inject constructor(
                     performanceManager.initialize()
                     jarvisPlatform.initialize()
                     jarvisPlatform.onAppStart()
+
+                    // Schedule periodic cleanup of old network requests
+                    networkCleanupScheduler.scheduleCleanup()
                 } finally {
                     StrictMode.setThreadPolicy(old)
                 }
@@ -206,7 +241,7 @@ class JarvisSDK @Inject constructor(
                 entryProviderBuilders = entryProviders
             }
 
-            _isShowing = false
+            setIsShowing(false)
             coreInitialized = true
         } else {
             previousJarvisActiveState = _isJarvisActive
@@ -229,8 +264,8 @@ class JarvisSDK @Inject constructor(
                     val darkTheme = isSystemInDarkTheme()
 
                     LaunchedEffect(Unit) {
-                        if (previousJarvisActiveState) _isJarvisActive = previousJarvisActiveState
-                        if (previousShowingState) _isShowing = previousShowingState
+                        if (previousJarvisActiveState) setJarvisActive(previousJarvisActiveState)
+                        if (previousShowingState) setIsShowing(previousShowingState)
                     }
 
                     DSJarvisTheme(darkTheme = darkTheme) {
@@ -239,15 +274,15 @@ class JarvisSDK @Inject constructor(
                             JarvisSDKFabTools(
                                 onShowOverlay = {
                                     navigator.goTo(JarvisSDKHomeGraph.JarvisHome)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onShowInspector = {
                                     navigator.goTo(JarvisSDKInspectorGraph.JarvisInspectorTransactions)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onShowPreferences = {
                                     navigator.goTo(JarvisSDKPreferencesGraph.JarvisPreferences)
-                                    _isShowing = true
+                                    setIsShowing(true)
                                 },
                                 onCloseSDK = { this@JarvisSDK.deactivate() },
                                 isJarvisActive = this@JarvisSDK.isActive(),
@@ -294,21 +329,21 @@ class JarvisSDK @Inject constructor(
         navigator.clear()
         composeView?.let { v -> (v.parent as? ViewGroup)?.removeView(v) }
         composeView = null
-        _isShowing = false
-        _isJarvisActive = false
+        setIsShowing(false)
+        setJarvisActive(false)
     }
 
     fun getConfiguration(): JarvisConfig = configuration
 
     fun hideOverlay() {
         navigator.clear()
-        _isShowing = false
+        setIsShowing(false)
     }
 
-    fun activate() { if (coreInitialized) _isJarvisActive = true }
+    fun activate() { if (coreInitialized) setJarvisActive(true) }
 
     fun deactivate() {
-        _isJarvisActive = false
+        setJarvisActive(false)
         hideOverlay()
     }
 
@@ -318,4 +353,12 @@ class JarvisSDK @Inject constructor(
 
     fun getPlatform(): JarvisPlatform? =
         if (coreInitialized && jarvisPlatform.isInitialized()) jarvisPlatform else null
+
+    fun observeActiveState(): StateFlow<Boolean> = activeState
+
+    private fun setJarvisActive(active: Boolean) {
+        if (_isJarvisActive == active) return
+        _isJarvisActive = active
+        _activeState.value = active
+    }
 }

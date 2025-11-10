@@ -9,10 +9,10 @@ import com.jarvis.demo.domain.usecase.home.RefreshDataUseCase
 import com.jarvis.demo.domain.usecase.home.ManageJarvisModeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,9 +28,11 @@ class HomeViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow<HomeUiState>(ResourceState.Idle)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private var latestJarvisActive = manageJarvisModeUseCase.isJarvisActive()
     
     init {
         Log.d("HomeViewModel", "ViewModel initialized with state: ${_uiState.value}")
+        observeJarvisState()
         onEvent(HomeEvent.RefreshData)
     }
     
@@ -56,7 +58,7 @@ class HomeViewModel @Inject constructor(
 
                 val uiData = HomeUiData(
                     lastRefreshTime = System.currentTimeMillis(),
-                    isJarvisActive = manageJarvisModeUseCase.isJarvisActive()
+                    isJarvisActive = latestJarvisActive
                 )
 
                 _uiState.update { ResourceState.Success(uiData) }
@@ -71,6 +73,7 @@ class HomeViewModel @Inject constructor(
     
     private fun toggleJarvisMode() {
         val newActiveState = manageJarvisModeUseCase.toggleJarvisMode()
+        latestJarvisActive = newActiveState
 
         // Update UI state regardless of current data state
         val currentData = _uiState.value.getDataOrNull() ?: HomeUiData()
@@ -84,6 +87,19 @@ class HomeViewModel @Inject constructor(
             _uiState.update { ResourceState.Success(currentData) }
         } else {
             onEvent(HomeEvent.RefreshData)
+        }
+    }
+
+    private fun observeJarvisState() {
+        viewModelScope.launch {
+            manageJarvisModeUseCase.observeJarvisActiveState()
+                .collectLatest { isActive ->
+                    latestJarvisActive = isActive
+                    val currentData = _uiState.value.getDataOrNull()
+                    if (currentData != null) {
+                        _uiState.update { ResourceState.Success(currentData.copy(isJarvisActive = isActive)) }
+                    }
+                }
         }
     }
 }

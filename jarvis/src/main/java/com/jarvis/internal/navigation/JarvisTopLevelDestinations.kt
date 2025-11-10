@@ -53,8 +53,8 @@ enum class JarvisTopLevelDestinations(
         destination = JarvisSDKSettingsGraph.JarvisSettings,
         route = JarvisSDKSettingsGraph.JarvisSettings::class,
         titleRes = R.string.settings_title,
-        icon = DSIcons.Outlined.moreHoriz,
+        icon = DSIcons.Outlined.settings,
         iconContentDescription = R.string.jarvis_settings_bottom_bar_icon_content_description,
-        selectedIcon = DSIcons.Filled.moreHoriz
+        selectedIcon = DSIcons.Filled.settings
     )
 }

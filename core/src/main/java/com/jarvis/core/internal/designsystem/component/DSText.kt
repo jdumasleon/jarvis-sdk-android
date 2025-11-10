@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.internal.designsystem.theme.LocalDSContentEmphasis
-import com.jarvis.core.internal.designsystem.theme.Neutral100
 import com.jarvis.core.internal.designsystem.theme.applyEmphasis
 
 @Composable

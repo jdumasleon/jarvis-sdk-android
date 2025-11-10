@@ -7,7 +7,7 @@ import androidx.annotation.RestrictTo
  * Session filter options for dashboard data
  */
 enum class SessionFilter {
-    GENERAL,        // All historical data
+    LAST_24H,       // Last 24 hours data only
     LAST_SESSION    // Current app session only
 }
 

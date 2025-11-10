@@ -91,15 +91,6 @@ fun PerformanceOverviewCharts(
     performanceSnapshot: PerformanceSnapshot,
     modifier: Modifier = Modifier
 ) {
-    var isUpdating by remember { mutableStateOf(false) }
-    
-    // Visual feedback for real-time updates
-    LaunchedEffect(performanceSnapshot.timestamp) {
-        isUpdating = true
-        delay(300) // Show update indicator for 300ms
-        isUpdating = false
-    }
-
     Column(modifier = modifier) {
         // Header with real-time indicator
         Row(
@@ -107,20 +98,12 @@ fun PerformanceOverviewCharts(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isUpdating) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .background(Color(0xFF10B981), CircleShape) // Green dot
-                )
-            } else {
-                DSText(
-                    text = "Live",
-                    style = DSJarvisTheme.typography.body.small,
-                    color = Color(0xFF10B981),
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            DSText(
+                text = "Avg.",
+                style = DSJarvisTheme.typography.body.small,
+                color = DSJarvisTheme.colors.neutral.neutral80,
+                fontWeight = FontWeight.Medium
+            )
         }
 
         Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))

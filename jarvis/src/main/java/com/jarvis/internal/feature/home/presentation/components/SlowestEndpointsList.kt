@@ -67,13 +67,28 @@ fun SlowestEndpointsList(
     slowEndpoints: List<SlowEndpointData>,
     maxItems: Int = 5
 ) {
-    // Sort once to ensure consistent ranking and visual scale
-    val sorted = remember(slowEndpoints) { slowEndpoints.sortedByDescending { it.averageResponseTime } }
-    val topSlowEndpoints = remember(sorted, maxItems) { sorted.take(maxItems) }
-    val worstAvg = remember(sorted) { sorted.maxOfOrNull { it.averageResponseTime } ?: 1f }
+    // Optimize: Use derivedStateOf for expensive sorting operations
+    val sorted by remember(slowEndpoints) {
+        derivedStateOf { slowEndpoints.sortedByDescending { it.averageResponseTime } }
+    }
+    val topSlowEndpoints by remember(sorted, maxItems) {
+        derivedStateOf { sorted.take(maxItems) }
+    }
+    val worstAvg by remember(sorted) {
+        derivedStateOf { sorted.maxOfOrNull { it.averageResponseTime } ?: 1f }
+    }
 
-    var animationPlayed by remember(sorted) { mutableStateOf(false) }
-    LaunchedEffect(sorted) { animationPlayed = true }
+    // Optimize: Create stable key based on data content
+    val dataKey = remember(topSlowEndpoints) {
+        topSlowEndpoints.joinToString("|") { "${it.endpoint}:${it.averageResponseTime.toInt()}" }
+    }
+
+    var animationPlayed by remember(dataKey) { mutableStateOf(false) }
+    LaunchedEffect(dataKey) {
+        if (!animationPlayed) {
+            animationPlayed = true
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.xs)

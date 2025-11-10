@@ -10,7 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed as staggeredItemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.animation.core.animateFloatAsState
@@ -41,6 +41,7 @@ import com.jarvis.core.internal.designsystem.component.DSPullToRefresh
 import com.jarvis.core.internal.designsystem.component.DSReorderableItem
 import com.jarvis.core.internal.designsystem.component.DSText
 import com.jarvis.core.internal.designsystem.component.rememberReorderableLazyStaggeredGridState
+import com.jarvis.core.internal.designsystem.component.DSIconButton
 import com.jarvis.core.internal.designsystem.component.DSIconTint
 import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.internal.presentation.components.ResourceStateContent
@@ -60,7 +61,6 @@ import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetrics
 import com.jarvis.internal.feature.home.domain.entity.EnhancedDashboardMetricsMock
 import com.jarvis.core.internal.designsystem.component.DSFlag
 import com.jarvis.core.internal.designsystem.component.FlagStyle
-import com.jarvis.core.internal.designsystem.component.DSIconButton
 import com.jarvis.core.internal.domain.performance.PerformanceSnapshot
 import com.jarvis.core.internal.domain.performance.PerformanceSnapshotMock
 import com.jarvis.internal.feature.home.presentation.components.HealthSummary
@@ -225,7 +225,9 @@ private fun HeaderContent(
                 style = FlagStyle.Info,
                 closable = true,
                 onClose = onDismissHeader,
-                modifier = Modifier.padding(horizontal = DSJarvisTheme.spacing.m)
+                modifier = Modifier
+                    .padding(horizontal = DSJarvisTheme.spacing.m)
+                    .padding(bottom = DSJarvisTheme.spacing.s)
             )
         }
         
@@ -249,6 +251,7 @@ private fun DateFilterTypesChips(
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
     ) {
         DSText(
+            modifier = Modifier.padding(start = DSJarvisTheme.spacing.m),
             text = stringResource(R.string.filter_label).uppercase(),
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral100
@@ -287,6 +290,7 @@ private fun DraggableCardGrid(
             onCardMove(from.index, to.index)
             haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
+
     LazyVerticalStaggeredGrid(
         state = lazyStaggeredGridState,
         columns = StaggeredGridCells.Adaptive(300.dp),
@@ -297,7 +301,7 @@ private fun DraggableCardGrid(
             .padding(bottom = DSJarvisTheme.spacing.m)
             .fillMaxSize()
     ) {
-        itemsIndexed(cardOrder, key = { _, cardType -> cardType.name }) { index, cardType ->
+        staggeredItemsIndexed(cardOrder, key = { _, cardType -> cardType.name }) { index, cardType ->
             DSReorderableItem(
                 state = reorderableLazyStaggeredGridState,
                 key = cardType.name,
@@ -384,7 +388,8 @@ private fun DraggableCardGrid(
                                 )
                             }
 
-                            key(cardType.name, enhancedMetrics?.lastUpdated, performanceSnapshot?.timestamp) {
+                            // Optimize: Use stable key to prevent cross-contamination between cards
+                            key(cardType.name) {
                                 DashboardCardContent(
                                     cardType = cardType,
                                     enhancedMetrics = enhancedMetrics,
@@ -412,81 +417,101 @@ private fun DashboardCardContent(
         when (cardType) {
             DashboardCardType.HEALTH_SUMMARY -> {
                 enhancedMetrics?.healthScore?.let { healthScore ->
-                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-                    HealthSummary(
-                        healthScore = healthScore,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                top = DSJarvisTheme.spacing.m,
-                                start = DSJarvisTheme.spacing.m,
-                                end = DSJarvisTheme.spacing.m
-                            )
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("health_${healthScore.overallScore}") {
+                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+                        HealthSummary(
+                            healthScore = healthScore,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = DSJarvisTheme.spacing.m,
+                                    start = DSJarvisTheme.spacing.m,
+                                    end = DSJarvisTheme.spacing.m
+                                )
+                        )
+                    }
                 }
             }
 
             DashboardCardType.PERFORMANCE_METRICS -> {
                 performanceSnapshot?.let { snapshot ->
-                    PerformanceOverviewCharts(
-                        performanceSnapshot = snapshot,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                top = DSJarvisTheme.spacing.m,
-                                start = DSJarvisTheme.spacing.m,
-                                end = DSJarvisTheme.spacing.m,
-                                bottom = DSJarvisTheme.spacing.m
-                            )
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("perf_${snapshot.timestamp}") {
+                        PerformanceOverviewCharts(
+                            performanceSnapshot = snapshot,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = DSJarvisTheme.spacing.m,
+                                    start = DSJarvisTheme.spacing.m,
+                                    end = DSJarvisTheme.spacing.m,
+                                    bottom = DSJarvisTheme.spacing.m
+                                )
+                        )
+                    }
                 }
             }
 
             DashboardCardType.NETWORK_OVERVIEW -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
-                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-                    NetworkAreaChart(
-                        dataPoints = networkMetrics.requestsOverTime,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("network_${networkMetrics.requestsOverTime.size}") {
+                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+                        NetworkAreaChart(
+                            dataPoints = networkMetrics.requestsOverTime,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
             DashboardCardType.PREFERENCES_OVERVIEW -> {
                 enhancedMetrics?.enhancedPreferencesMetrics?.let { prefsMetrics ->
-                    Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
-                    PreferencesOverviewChart(
-                        preferencesMetrics = prefsMetrics,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("prefs_${prefsMetrics.totalPreferences}") {
+                        Spacer(modifier = Modifier.height(DSJarvisTheme.spacing.s))
+                        PreferencesOverviewChart(
+                            preferencesMetrics = prefsMetrics,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
             DashboardCardType.HTTP_METHODS -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
-                    HttpMethodsWithDetails(
-                        httpMethods = networkMetrics.httpMethodDistribution,
-                        inline = true,
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("http_${networkMetrics.httpMethodDistribution.size}") {
+                        HttpMethodsWithDetails(
+                            httpMethods = networkMetrics.httpMethodDistribution,
+                            inline = true,
+                        )
+                    }
                 }
             }
 
             DashboardCardType.TOP_ENDPOINTS -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
-                    TopEndpointsBarChart(
-                        endpoints = networkMetrics.topEndpoints,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("top_${networkMetrics.topEndpoints.size}") {
+                        TopEndpointsBarChart(
+                            endpoints = networkMetrics.topEndpoints,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
             DashboardCardType.SLOW_ENDPOINTS -> {
                 enhancedMetrics?.enhancedNetworkMetrics?.let { networkMetrics ->
-                    SlowestEndpointsList(
-                        slowEndpoints = networkMetrics.slowestEndpoints,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    // Optimize: Wrap chart in key() to prevent recomposition from other charts
+                    key("slow_${networkMetrics.slowestEndpoints.size}") {
+                        SlowestEndpointsList(
+                            slowEndpoints = networkMetrics.slowestEndpoints,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }

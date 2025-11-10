@@ -16,8 +16,9 @@ interface PerformanceRepository {
      */
     fun getCpuMetricsFlow(): Flow<CpuMetrics>
     fun getMemoryMetricsFlow(): Flow<MemoryMetrics>
-    fun getFpsMetricsFlow(): Flow<FpsMetrics>
+
     fun getModuleMetricsFlow(): Flow<ModuleMetrics>
+    fun getBatteryLevelFlow(): Flow<Float>
     
     /**
      * Historical data

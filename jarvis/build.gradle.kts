@@ -28,6 +28,9 @@ android {
 
         // Add SDK version to BuildConfig
         buildConfigField("String", "SDK_VERSION", "\"${libs.versions.jarvisVersion.get()}\"")
+
+        // Add API URLs to BuildConfig
+        buildConfigField("String", "RATING_API_BASE_URL", "\"https://porfolio-keystone-server-production.up.railway.app/api/\"")
     }
 
     namespace = "com.jarvis.library"
@@ -168,6 +171,10 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
+
+    // WorkManager for background tasks
+    implementation(libs.androidx.work.ktx)
+    implementation(libs.hilt.ext.work)
 
     // Network dependencies from settings data layer
     implementation(libs.squareup.retrofit)

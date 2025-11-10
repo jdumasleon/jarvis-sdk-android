@@ -2,6 +2,7 @@ package com.jarvis.demo.koin.domain.usecase.home
 
 import android.util.Log
 import com.jarvis.api.JarvisSDK
+import kotlinx.coroutines.flow.StateFlow
 
 class ManageJarvisModeUseCase (
     private val jarvisSDK: JarvisSDK
@@ -17,6 +18,8 @@ class ManageJarvisModeUseCase (
     fun isJarvisActive(): Boolean {
         return jarvisSDK.isActive()
     }
+
+    fun observeJarvisActiveState(): StateFlow<Boolean> = jarvisSDK.observeActiveState()
 
     fun activateJarvis() {
         jarvisSDK.activate()

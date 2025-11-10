@@ -31,8 +31,10 @@ import com.jarvis.core.internal.designsystem.theme.Neutral40
 import com.jarvis.core.internal.designsystem.theme.Neutral80
 import com.jarvis.core.internal.designsystem.theme.Primary100
 import com.jarvis.core.R
+import com.jarvis.core.internal.designsystem.theme.Error100
+import com.jarvis.core.internal.designsystem.theme.Error60
 
-enum class DSButtonStyle { PRIMARY, SECONDARY, OUTLINE, TEXT, LINK }
+enum class DSButtonStyle { PRIMARY, SECONDARY, OUTLINE, TEXT, LINK, DESTRUCTIVE }
 
 enum class DSButtonSize {
     EXTRA_SMALL, SMALL, MEDIUM, LARGE;
@@ -71,11 +73,13 @@ fun DSButton(
     val backgroundColor = when (style) {
         PRIMARY -> if (disabled || isLoading) Neutral40 else Primary100
         SECONDARY -> if (disabled || isLoading) Neutral40 else Neutral0
+        DESTRUCTIVE -> if (disabled || isLoading) Neutral40 else Error100
         OUTLINE, TEXT, LINK -> Color.Transparent
     }
     val color = textColor ?: when (style) {
         PRIMARY -> if (disabled || isLoading) Neutral80 else Neutral0
         SECONDARY, OUTLINE -> if (disabled || isLoading) Neutral80 else Primary100
+        DESTRUCTIVE -> if (disabled || isLoading) Neutral80 else Neutral0
         TEXT, LINK -> if (disabled || isLoading) Neutral80 else Primary100
     }
 

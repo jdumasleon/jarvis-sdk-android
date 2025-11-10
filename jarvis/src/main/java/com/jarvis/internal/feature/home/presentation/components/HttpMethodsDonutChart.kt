@@ -43,19 +43,38 @@ fun HttpMethodsDonutChart(
     animationDurationMs: Int = 1200,
     showCenterTotal: Boolean = true
 ) {
-    // Convert HttpMethodData to DSDonutChartData
-    val chartData = remember(httpMethods) {
-        val normalized = normalizePercentages(httpMethods)
-        normalized.map { method ->
-            DSDonutChartData(
-                value = method.count.toFloat(),
-                label = method.method,
-                color = safeParseColor(method.color)
-            )
+    // Optimize: Create stable key based on data content, not hashCode
+    val dataKey = remember(httpMethods) {
+        httpMethods.joinToString("|") { "${it.method}:${it.count}" }
+    }
+
+    // Optimize: Track if animation has already been played
+    var hasAnimated by remember(dataKey) { mutableStateOf(false) }
+    val finalAnimationDuration = if (hasAnimated) 0 else animationDurationMs
+
+    LaunchedEffect(dataKey) {
+        if (!hasAnimated) {
+            hasAnimated = true
         }
     }
-    
-    val totalRequests = remember(chartData) { chartData.sumOf { it.value.toInt() } }
+
+    // Optimize: Use derivedStateOf for expensive data conversion
+    val chartData by remember(httpMethods) {
+        derivedStateOf {
+            val normalized = normalizePercentages(httpMethods)
+            normalized.map { method ->
+                DSDonutChartData(
+                    value = method.count.toFloat(),
+                    label = method.method,
+                    color = safeParseColor(method.color)
+                )
+            }
+        }
+    }
+
+    val totalRequests by remember(chartData) {
+        derivedStateOf { chartData.sumOf { it.value.toInt() } }
+    }
     
     val contentDesc = stringResource(
         R.string.donut_chart_accessibility,
@@ -73,7 +92,7 @@ fun HttpMethodsDonutChart(
             strokeWidth = strokeWidth,
             colors = DSJarvisTheme.colors.chart.colors,
             backgroundColor = DSJarvisTheme.colors.neutral.neutral20,
-            animationDurationMs = animationDurationMs,
+            animationDurationMs = finalAnimationDuration,  // Use optimized duration
             contentDescription = contentDesc
         )
 
@@ -185,6 +204,7 @@ fun HttpMethodsCard(
     }
 }
 
+// Optimize: Break down large composable to reduce compiler memory
 @Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun HttpMethodsWithDetails(
@@ -193,93 +213,140 @@ fun HttpMethodsWithDetails(
     chartSize: Dp = 180.dp,
     inline: Boolean = false
 ) {
-    val sorted = remember(httpMethods) { httpMethods.sortedByDescending { it.count } }
-    val dataKey = remember(sorted) { sorted.hashCode() }
+    // Optimize: Use derivedStateOf for expensive sorting operation
+    val sorted by remember(httpMethods) {
+        derivedStateOf { httpMethods.sortedByDescending { it.count } }
+    }
+
+    // Optimize: Create stable key based on data content, not hashCode
+    val dataKey = remember(sorted) {
+        sorted.joinToString("|") { "${it.method}:${it.count}" }
+    }
+
     var played by remember(dataKey) { mutableStateOf(false) }
-    val progress by animateFloatAsState(
-        targetValue = if (played) 1f else 0f,
-        animationSpec = tween(900),
-        label = "methods_card_anim"
+
+    // Optimize: Skip animation entirely if already played
+    val progress by if (!played) {
+        animateFloatAsState(
+            targetValue = if (played) 1f else 0f,
+            animationSpec = tween(900),
+            label = "methods_card_anim"
+        )
+    } else {
+        remember { mutableStateOf(1f) }
+    }
+
+    LaunchedEffect(dataKey) {
+        if (!played) {
+            played = true
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)) {
+        HttpMethodsHeader(title, sorted)
+        HttpMethodsChartSection(sorted, chartSize, inline, progress)
+        if (!inline) {
+            HttpMethodsDetailedList(sorted, chartSize)
+        }
+    }
+}
+
+// Optimize: Extract header
+@Composable
+private fun HttpMethodsHeader(title: String?, sorted: List<HttpMethodData>) {
+    title?.let {
+        DSText(
+            text = stringResource(R.string.http_methods_distribution),
+            style = DSJarvisTheme.typography.heading.large,
+            fontWeight = FontWeight.Bold,
+            color = DSJarvisTheme.colors.neutral.neutral100
+        )
+    }
+    val total = sorted.sumOf { it.count }
+    DSText(
+        text = stringResource(R.string.total_requests, total, 0),
+        style = DSJarvisTheme.typography.body.medium,
+        color = DSJarvisTheme.colors.neutral.neutral60
     )
-    LaunchedEffect(dataKey) { played = true }
+}
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)
+// Optimize: Extract chart section
+@Composable
+private fun HttpMethodsChartSection(
+    sorted: List<HttpMethodData>,
+    chartSize: Dp,
+    inline: Boolean,
+    progress: Float
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        HttpMethodsDonutChart(
+            modifier = Modifier.weight(1f),
+            httpMethods = sorted,
+            size = chartSize,
+            showCenterTotal = true
+        )
+        Spacer(Modifier.width(DSJarvisTheme.spacing.m))
+        if (inline) {
+            HttpMethodsLegend(sorted, progress)
+        }
+    }
+}
 
-        title?.let {
-            DSText(
-                text = stringResource(R.string.http_methods_distribution),
-                style = DSJarvisTheme.typography.heading.large,
-                fontWeight = FontWeight.Bold,
-                color = DSJarvisTheme.colors.neutral.neutral100
+// Optimize: Extract legend
+@Composable
+private fun RowScope.HttpMethodsLegend(sorted: List<HttpMethodData>, progress: Float) {
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
+    ) {
+        sorted.forEach { method ->
+            HttpMethodLegendItem(
+                methodData = method,
+                animationProgress = progress
             )
         }
-        val total = sorted.sumOf { it.count }
+    }
+}
+
+// Optimize: Extract detailed list
+@Composable
+private fun HttpMethodsDetailedList(sorted: List<HttpMethodData>, chartSize: Dp) {
+    if (sorted.isNotEmpty()) {
+        Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
+            DSText(
+                text = stringResource(R.string.http_methods_distribution),
+                style = DSJarvisTheme.typography.body.medium,
+                fontWeight = FontWeight.Medium,
+                color = DSJarvisTheme.colors.neutral.neutral80
+            )
+
+            sorted.forEach { method ->
+                HttpMethodDetailItem(methodData = method)
+            }
+        }
+    } else {
+        HttpMethodsEmptyState(chartSize)
+    }
+}
+
+// Optimize: Extract empty state
+@Composable
+private fun HttpMethodsEmptyState(chartSize: Dp) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(chartSize),
+        contentAlignment = Alignment.Center
+    ) {
         DSText(
-            text = stringResource(R.string.total_requests, total, 0),
+            text = stringResource(R.string.no_network_data_available),
             style = DSJarvisTheme.typography.body.medium,
             color = DSJarvisTheme.colors.neutral.neutral60
         )
-
-        // Donut chart + leyenda (top 6)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HttpMethodsDonutChart(
-                modifier = Modifier.weight(1f),
-                httpMethods = sorted,
-                size = chartSize,
-                showCenterTotal = true
-            )
-            Spacer(Modifier.width(DSJarvisTheme.spacing.m))
-            if (inline) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)
-                ) {
-                    sorted.forEach { method ->
-                        HttpMethodLegendItem(
-                            methodData = method,
-                            animationProgress = progress
-                        )
-                    }
-                }
-            }
-        }
-
-        // Detailed list as sample
-        if (!inline) {
-            if (sorted.isNotEmpty()) {
-                Column(verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.s)) {
-                    DSText(
-                        text = stringResource(R.string.http_methods_distribution),
-                        style = DSJarvisTheme.typography.body.medium,
-                        fontWeight = FontWeight.Medium,
-                        color = DSJarvisTheme.colors.neutral.neutral80
-                    )
-
-                    sorted.forEach { method ->
-                        HttpMethodDetailItem(methodData = method)
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(chartSize),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DSText(
-                        text = stringResource(R.string.no_network_data_available),
-                        style = DSJarvisTheme.typography.body.medium,
-                        color = DSJarvisTheme.colors.neutral.neutral60
-                    )
-                }
-            }
-        }
     }
 }
 

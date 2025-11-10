@@ -7,11 +7,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,13 +27,16 @@ import com.jarvis.core.internal.designsystem.component.rememberJarvisPrimaryGrad
 import com.jarvis.core.internal.designsystem.component.DSMediumTopAppBar
 import com.jarvis.core.internal.designsystem.component.DSNavigationBar
 import com.jarvis.core.internal.designsystem.component.DSNavigationBarItem
+import com.jarvis.core.internal.designsystem.component.DSText
 import com.jarvis.core.internal.designsystem.component.DSTopAppBar
+import com.jarvis.core.internal.designsystem.theme.DSColors
 import com.jarvis.core.internal.designsystem.theme.DSJarvisTheme
 import com.jarvis.core.internal.navigation.ActionRegistry
 import com.jarvis.core.internal.navigation.EntryProviderInstaller
 import com.jarvis.core.internal.navigation.NavigationRoute
 import com.jarvis.core.internal.navigation.Navigator
 import com.jarvis.core.internal.navigation.TopAppBarType
+import kotlin.collections.listOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,11 +217,13 @@ private fun JarvisSDKBottomBar(
     currentDestination: NavigationRoute?,
     navigator: Navigator
 ) {
-    val iconGradientTint = DSIconTint.Gradient(rememberJarvisPrimaryGradient())
+    val gradientBrush = rememberJarvisPrimaryGradient()
+    val iconGradientTint = DSIconTint.Gradient(gradientBrush)
+
     currentDestination?.takeIf { it.shouldShowBottomBar }?.let {
         DSNavigationBar(
             topCornerRadius = DSJarvisTheme.dimensions.l,
-            tonalElevation = DSJarvisTheme.elevations.level4,
+            tonalElevation = DSJarvisTheme.elevations.level5,
         ) {
             JarvisTopLevelDestinations.entries.forEachIndexed { _, item ->
                 DSNavigationBarItem(
@@ -224,7 +231,7 @@ private fun JarvisSDKBottomBar(
                         DSIcon(
                             imageVector = item.icon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
-                            tint = iconGradientTint
+                            tint = DSIconTint.Solid(DSJarvisTheme.colors.neutral.neutral60)
                         )
                     },
                     selectedIcon = {
@@ -232,6 +239,23 @@ private fun JarvisSDKBottomBar(
                             imageVector = item.selectedIcon,
                             contentDescription = item.iconContentDescription?.let { resId -> stringResource(resId) },
                             tint = iconGradientTint
+                        )
+                    },
+                    label = {
+                        DSText(
+                            text = stringResource(item.titleRes),
+                            style = if (isDestinationSelected(currentDestination, item.destination)) {
+                                DSJarvisTheme.typography.label.small.copy(brush = gradientBrush)
+                            } else {
+                                DSJarvisTheme.typography.label.small.copy(
+                                    brush = Brush.linearGradient(
+                                        listOf(
+                                            DSJarvisTheme.colors.neutral.neutral60,
+                                            DSJarvisTheme.colors.neutral.neutral60
+                                        )
+                                    )
+                                )
+                            },
                         )
                     },
                     selected = isDestinationSelected(currentDestination, item.destination),

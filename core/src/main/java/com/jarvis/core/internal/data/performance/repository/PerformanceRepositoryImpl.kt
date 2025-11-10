@@ -3,6 +3,8 @@ package com.jarvis.core.internal.data.performance.repository
 import androidx.annotation.RestrictTo
 
 import com.google.gson.Gson
+import com.jarvis.core.internal.data.performance.model.RawMetrics
+import com.jarvis.core.internal.data.performance.monitor.BatteryMonitor
 import com.jarvis.core.internal.data.performance.monitor.CpuMonitor
 import com.jarvis.core.internal.data.performance.monitor.FpsMonitor
 import com.jarvis.core.internal.data.performance.monitor.JankMonitor
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,6 +36,7 @@ class PerformanceRepositoryImpl @Inject constructor(
     private val fpsMonitor: FpsMonitor,
     private val moduleLoadMonitor: ModuleLoadMonitor,
     private val jankMonitor: JankMonitor,
+    private val batteryMonitor: BatteryMonitor,
     private val gson: Gson,
     @com.jarvis.core.internal.common.di.CoroutineDispatcherModule.IoDispatcher 
     private val ioDispatcher: CoroutineDispatcher
@@ -41,26 +45,33 @@ class PerformanceRepositoryImpl @Inject constructor(
     private val performanceHistory = ConcurrentLinkedQueue<PerformanceSnapshot>()
     private val _config = MutableStateFlow(PerformanceConfig())
     private val _isMonitoring = MutableStateFlow(false)
-    
+
     override fun getPerformanceMetricsFlow(): Flow<PerformanceSnapshot> {
-        return combine(
+        val metricsFlow: Flow<RawMetrics> = combine(
             getCpuMetricsFlow().flowOn(ioDispatcher),
             getMemoryMetricsFlow().flowOn(ioDispatcher),
-            getFpsMetricsFlow(),
-            getModuleMetricsFlow().flowOn(ioDispatcher)
-        ) { cpu, memory, fps, modules ->
-            val snapshot = PerformanceSnapshot(
-                cpuUsage = cpu,
-                memoryUsage = memory,
-                fpsMetrics = fps,
-                moduleMetrics = modules
-            )
-            
-            addToHistory(snapshot)
-            snapshot
+            fpsMonitor.fpsMetrics.flowOn(ioDispatcher),
+            getModuleMetricsFlow().flowOn(ioDispatcher),
+            getBatteryLevelFlow().flowOn(ioDispatcher)
+        ) { cpu, memory, fps, modules, battery ->
+            RawMetrics(cpu, memory, fps, modules, battery)
         }
+
+        return metricsFlow
+            .combine(_config) { metrics, config ->
+                PerformanceSnapshot(
+                    cpuUsage = if (config.enableCpuMonitoring) metrics.cpu else null,
+                    memoryUsage = if (config.enableMemoryMonitoring) metrics.memory else null,
+                    fpsMetrics = if (config.enableFpsMonitoring) metrics.fps else null,
+                    moduleMetrics = if (config.enableModuleMonitoring) metrics.modules else null,
+                    batteryLevel = if (config.enableBatteryMonitoring) metrics.battery else null
+                )
+            }
+            .onEach { snapshot ->
+                addToHistory(snapshot)
+            }
     }
-    
+
     override fun getCpuMetricsFlow(): Flow<CpuMetrics> {
         return cpuMonitor.getCpuMetricsFlow(_config.value.samplingIntervalMs)
     }
@@ -69,8 +80,10 @@ class PerformanceRepositoryImpl @Inject constructor(
         return memoryMonitor.getMemoryMetricsFlow(_config.value.samplingIntervalMs)
     }
     
-    override fun getFpsMetricsFlow(): Flow<FpsMetrics> {
-        return fpsMonitor.getFpsMetricsFlow(_config.value.samplingIntervalMs)
+
+
+    override fun getBatteryLevelFlow(): Flow<Float> {
+        return batteryMonitor.getBatteryLevelFlow()
     }
     
     override fun getModuleMetricsFlow(): Flow<ModuleMetrics> {
@@ -90,7 +103,7 @@ class PerformanceRepositoryImpl @Inject constructor(
     
     override suspend fun stopMonitoring() {
         _isMonitoring.value = false
-        fpsMonitor.stopMonitoring()
+
     }
     
     override suspend fun isMonitoring(): Boolean {

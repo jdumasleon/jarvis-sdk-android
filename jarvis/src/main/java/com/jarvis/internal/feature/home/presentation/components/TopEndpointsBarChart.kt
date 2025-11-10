@@ -74,18 +74,40 @@ fun TopEndpointsBarChart(
     endpoints: List<EndpointData>,
     maxItems: Int = 5
 ) {
-    // Defensive sorting so ranking and bar scaling are consistent
-    val sorted = remember(endpoints) { endpoints.sortedByDescending { it.requestCount } }
-    val topEndpoints = remember(sorted, maxItems) { sorted.take(maxItems) }
-    val maxRequests = remember(sorted) { sorted.maxOfOrNull { it.requestCount } ?: 1 }
+    // Optimize: Use derivedStateOf for expensive sorting operations
+    val sorted by remember(endpoints) {
+        derivedStateOf { endpoints.sortedByDescending { it.requestCount } }
+    }
+    val topEndpoints by remember(sorted, maxItems) {
+        derivedStateOf { sorted.take(maxItems) }
+    }
+    val maxRequests by remember(sorted) {
+        derivedStateOf { sorted.maxOfOrNull { it.requestCount } ?: 1 }
+    }
 
-    var played by remember(sorted) { mutableStateOf(false) }
-    val progress by animateFloatAsState(
-        targetValue = if (played) 1f else 0f,
-        animationSpec = tween(durationMillis = 900),
-        label = "bar_chart_animation"
-    )
-    LaunchedEffect(sorted) { played = true }
+    // Optimize: Create stable key based on data content
+    val dataKey = remember(topEndpoints) {
+        topEndpoints.joinToString("|") { "${it.endpoint}:${it.requestCount}" }
+    }
+
+    var played by remember(dataKey) { mutableStateOf(false) }
+
+    // Optimize: Skip animation entirely if already played
+    val progress by if (!played) {
+        animateFloatAsState(
+            targetValue = if (played) 1f else 0f,
+            animationSpec = tween(durationMillis = 900),
+            label = "bar_chart_animation"
+        )
+    } else {
+        remember { mutableStateOf(1f) }
+    }
+
+    LaunchedEffect(dataKey) {
+        if (!played) {
+            played = true
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(DSJarvisTheme.spacing.m)

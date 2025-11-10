@@ -3,6 +3,7 @@ package com.jarvis.internal.feature.home.di
 
 import androidx.annotation.RestrictTo
 
+import com.jarvis.core.internal.data.performance.PerformanceManager
 import com.jarvis.core.internal.domain.performance.GetPerformanceMetricsUseCase
 import com.jarvis.core.internal.domain.performance.PerformanceRepository
 import com.jarvis.internal.feature.home.data.analyzer.PreferencesAnalyzer
@@ -56,6 +57,7 @@ object HomeUseCaseModule {
     @Provides
     @Singleton
     fun provideGetPerformanceMetricsUseCase(
-        repository: PerformanceRepository
-    ): GetPerformanceMetricsUseCase = GetPerformanceMetricsUseCase(repository)
+        repository: PerformanceRepository,
+        performanceManager: PerformanceManager
+    ): GetPerformanceMetricsUseCase = GetPerformanceMetricsUseCase(repository, performanceManager)
 }

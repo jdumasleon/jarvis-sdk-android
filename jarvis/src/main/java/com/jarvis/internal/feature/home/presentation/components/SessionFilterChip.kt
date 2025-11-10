@@ -209,19 +209,19 @@ private fun SessionFilterCard(
 private val SessionFilter.icon: ImageVector
     get() = when (this) {
         SessionFilter.LAST_SESSION -> Icons.Default.AccessTime
-        SessionFilter.GENERAL -> Icons.Default.ViewList
+        SessionFilter.LAST_24H -> Icons.Default.ViewList
     }
 
 private val SessionFilter.displayName: String
     get() = when (this) {
         SessionFilter.LAST_SESSION -> "SESSION"
-        SessionFilter.GENERAL -> "All"
+        SessionFilter.LAST_24H -> "LAST 24H"
     }
 
 private val SessionFilter.description: String
     get() = when (this) {
         SessionFilter.LAST_SESSION -> "Shows metrics from your current app session only. Useful for debugging current behavior and real-time monitoring."
-        SessionFilter.GENERAL -> "Shows all historical data across all app sessions. Provides comprehensive insights and long-term trends."
+        SessionFilter.LAST_24H -> "Shows data from the last 24 hours only. Keeps the interface fast and responsive with recent data."
     }
 
 @Preview(showBackground = true)
@@ -235,7 +235,7 @@ private fun SessionFilterChipPreview() {
                 onSelected = {}
             )
             SessionFilterChip(
-                filter = SessionFilter.GENERAL,
+                filter = SessionFilter.LAST_24H,
                 isSelected = false,
                 onSelected = {}
             )

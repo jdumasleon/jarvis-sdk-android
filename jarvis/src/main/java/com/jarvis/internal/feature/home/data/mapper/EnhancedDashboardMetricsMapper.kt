@@ -40,12 +40,12 @@ class EnhancedDashboardMetricsMapper @Inject constructor(
         // Filter data based on session
         val filteredTransactions = when (sessionFilter) {
             SessionFilter.LAST_SESSION -> filterLastSession(networkTransactions)
-            SessionFilter.GENERAL -> networkTransactions
+            SessionFilter.LAST_24H -> filterLast24Hours(networkTransactions)
         }
-        
+
         val filteredPreferences = when (sessionFilter) {
             SessionFilter.LAST_SESSION -> filterLastSessionPreferences(preferences)
-            SessionFilter.GENERAL -> preferences
+            SessionFilter.LAST_24H -> preferences // Preferences are current state, include all
         }
         
         // Generate basic metrics for backward compatibility
@@ -73,17 +73,26 @@ class EnhancedDashboardMetricsMapper @Inject constructor(
     
     private fun filterLastSession(transactions: List<NetworkTransaction>): List<NetworkTransaction> {
         if (transactions.isEmpty()) return emptyList()
-        
+
         // Find the start of the current session (last app launch)
         // For now, we'll consider the last hour as the current session
         val sessionStartTime = System.currentTimeMillis() - (60 * 60 * 1000) // 1 hour ago
-        
+
         return transactions.filter { it.startTime >= sessionStartTime }
     }
-    
+
+    private fun filterLast24Hours(transactions: List<NetworkTransaction>): List<NetworkTransaction> {
+        if (transactions.isEmpty()) return emptyList()
+
+        // Filter for last 24 hours to keep UI responsive and data manageable
+        val last24HoursTime = System.currentTimeMillis() - (24 * 60 * 60 * 1000) // 24 hours ago
+
+        return transactions.filter { it.startTime >= last24HoursTime }
+    }
+
     private fun filterLastSessionPreferences(preferences: List<AppPreference>): List<AppPreference> {
         if (preferences.isEmpty()) return emptyList()
-        
+
         // For preferences, we'll include all as they represent current state
         return preferences
     }
@@ -116,9 +125,24 @@ class HealthScoreCalculator @Inject constructor() {
             return getDefaultHealthScore()
         }
         
-        val successfulTransactions = transactions.filter { it.response?.statusCode in 200..299 }
-        val errorRate = if (transactions.isNotEmpty()) {
-            ((transactions.size - successfulTransactions.size).toFloat() / transactions.size) * 100f
+        // Only count completed transactions (have a response)
+        val completedTransactions = transactions.filter { it.response != null }
+
+        // Successful: 2xx and 3xx (redirects are successful)
+        val successfulTransactions = completedTransactions.filter {
+            val status = it.response?.statusCode ?: 0
+            status in 200..399
+        }
+
+        // Errors: Only 4xx (client errors) and 5xx (server errors)
+        val errorTransactions = completedTransactions.filter {
+            val status = it.response?.statusCode ?: 0
+            status >= 400
+        }
+
+        // Calculate error rate only from completed transactions
+        val errorRate = if (completedTransactions.isNotEmpty()) {
+            (errorTransactions.size.toFloat() / completedTransactions.size) * 100f
         } else 0f
         
         val averageResponseTime = successfulTransactions
@@ -151,7 +175,7 @@ class HealthScoreCalculator @Inject constructor() {
         }
         
         val keyMetrics = HealthKeyMetrics(
-            totalRequests = transactions.size,
+            totalRequests = completedTransactions.size, // Only count completed requests
             errorRate = errorRate,
             averageResponseTime = averageResponseTime,
             performanceScore = factors.networkPerformance,

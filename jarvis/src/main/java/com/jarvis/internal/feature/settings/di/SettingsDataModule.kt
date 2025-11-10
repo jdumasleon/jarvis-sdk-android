@@ -3,6 +3,7 @@ package com.jarvis.internal.feature.settings.di
 
 import androidx.annotation.RestrictTo
 
+import com.jarvis.library.BuildConfig
 import com.jarvis.internal.feature.settings.domain.repository.SettingsRepository
 import com.jarvis.internal.feature.settings.data.remote.RatingApiService
 import com.jarvis.internal.feature.settings.data.repository.RatingRepositoryImpl
@@ -14,6 +15,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
@@ -49,7 +51,7 @@ abstract class SettingsDataModule {
         @Named("RatingApi")
         fun provideRatingRetrofit(@Named("RatingApiOkHttp") okHttpClient: OkHttpClient): Retrofit {
             return Retrofit.Builder()
-                .baseUrl("https://api.jarvis-sdk.com/") // Rating API base URL
+                .baseUrl(BuildConfig.RATING_API_BASE_URL)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

@@ -2,7 +2,7 @@ package com.jarvis.core.internal.data.di
 
 import androidx.annotation.RestrictTo
 
-import com.jarvis.core.internal.data.performance.PerformanceManager
+import com.jarvis.core.internal.data.performance.monitor.FpsMonitor
 import com.jarvis.core.internal.data.performance.repository.PerformanceRepositoryImpl
 import com.jarvis.core.internal.domain.performance.PerformanceRepository
 import dagger.Binds
@@ -27,7 +27,12 @@ abstract class PerformanceModule {
         @Provides
         @Singleton
         internal fun providePerformanceManager(
-            performanceRepository: PerformanceRepository
-        ): PerformanceManager = PerformanceManager(performanceRepository)
+            performanceRepository: PerformanceRepository,
+            fpsMonitor: com.jarvis.core.internal.data.performance.monitor.FpsMonitor
+        ): com.jarvis.core.internal.data.performance.PerformanceManager = com.jarvis.core.internal.data.performance.PerformanceManager(performanceRepository, fpsMonitor)
+
+        @Provides
+        @Singleton
+        internal fun provideFpsMonitor(): FpsMonitor = FpsMonitor()
     }
 }

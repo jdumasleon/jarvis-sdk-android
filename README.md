@@ -73,7 +73,7 @@ Add to your `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.3")
 }
 ```
 
@@ -245,7 +245,7 @@ Add the Jarvis SDK to your `app/build.gradle` file:
 ```kotlin
 dependencies {
     // Single artifact automatically provides full functionality in debug, optimized in release
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.3")
 }
 ```
 This approach allows you to include only the features you need, reducing the final APK size.
@@ -256,7 +256,7 @@ This approach allows you to include only the features you need, reducing the fin
 <dependency>
     <groupId>io.github.jdumasleon</groupId>
     <artifactId>jarvis-android-sdk</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.3</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -283,7 +283,7 @@ Choose between the complete SDK or modular packages based on your needs:
 #### Complete SDK (Recommended)
 ```kotlin
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")  // All features included
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.3")  // All features included
 }
 ```
 - ✅ **All features included** - Network inspection, preferences management, and core functionality
@@ -297,13 +297,13 @@ For fine-grained control over features and APK size:
 ```kotlin
 dependencies {
     // Core module (required for modular approach)
-    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.3")
 
     // Network inspection features
-    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.3")
 
     // Preferences management features
-    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.3")
 }
 ```
 
@@ -570,12 +570,12 @@ private fun initializeJarvisSDK() {
 // app/build.gradle.kts
 dependencies {
     // Complete SDK (recommended)
-    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk:1.3.3")
 
     // Or modular approach for selective features
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
-    // implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.3")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.3")
+    // implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.3")
 }
 ```
 
@@ -595,9 +595,9 @@ For projects using modular packages, ensure proper feature initialization:
 ```kotlin
 // When using modular packages
 dependencies {
-    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.1")
-    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.1")
-    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.1")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-core:1.3.3")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-inspector:1.3.3")
+    implementation("io.github.jdumasleon:jarvis-android-sdk-preferences:1.3.3")
 }
 ```
 
@@ -1041,13 +1041,12 @@ limitations under the License.
 
 ## Changelog
 
-### Version 1.3.1 (Latest)
-- 🧪 **Comprehensive Test Suite** - Added minimal test classes across all SDK modules (core, jarvis, inspector, preferences)
-- 🔧 **Lint Issues Resolution** - Fixed 25+ lint issues across modules including DefaultLocale, ComposableNaming, and AutoboxingStateCreation
-- 🐛 **Build Fixes** - Resolved app module compilation error with ANRWatchDog dependency configuration
-- 📊 **Lint Analysis Report** - Detailed documentation of remaining lint baseline issues and recommended fixes
-- ✅ **Code Quality Improvements** - Enhanced error handling, URL parsing, and state management patterns
-- 🎯 **Test Coverage** - Unit tests for utility functions, configuration builders, network entities, and preference management
+### Version 1.3.3 (Latest)
+- 🔄 **Reactive Activation State** – `JarvisSDK.observeActiveState()` now emits whenever the SDK activates/deactivates (including shake gestures), so host apps can react instantly.
+- 🧭 **Demo Home Sync** – Both Hilt and Koin demo Home screens subscribe to that flow, keeping CTA buttons and status indicators accurate without manual refreshes.
+- 🎨 **Refined Filter Chips** – Updated `DSFilterChip` keeps selected chips on the Jarvis gradient, restores pristine white for deselected chips, and adds a subtle pressed overlay for better feedback.
+- 🧱 **Reusable Presentation Kit** – Shared empty states, loading states, status cards, filter chips, and base view models extracted into the core presentation module.
+- ⚙️ **GraphQL + WorkManager Plumbing** – Internal modules now include shared GraphQL helpers plus a background cleanup worker for long-lived network logs.
 
 ### Version 1.3.0
 - 🚀 **Enhanced Publishing Configuration** - Streamlined build system with improved publishing scripts and automation

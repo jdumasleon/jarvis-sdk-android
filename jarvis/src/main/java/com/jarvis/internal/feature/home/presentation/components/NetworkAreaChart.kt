@@ -95,14 +95,16 @@ fun NetworkAreaChart(
             hasAnimated = true
         }
     }
-    // Convert TimeSeriesDataPoint to DSChartDataPoint
-    val chartDataPoints = remember(dataPoints) {
-        dataPoints.sortedBy { it.timestamp }.mapIndexed { index, point ->
-            DSChartDataPoint(
-                x = index.toFloat(),
-                y = point.value,
-                label = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(point.timestamp))
-            )
+    // Optimize: Use derivedStateOf for expensive conversion operation
+    val chartDataPoints by remember(dataPoints) {
+        derivedStateOf {
+            dataPoints.sortedBy { it.timestamp }.mapIndexed { index, point ->
+                DSChartDataPoint(
+                    x = index.toFloat(),
+                    y = point.value,
+                    label = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(point.timestamp))
+                )
+            }
         }
     }
 
@@ -158,6 +160,7 @@ fun NetworkAreaChart(
     }
 }
 
+// Optimize: Break down massive composable to reduce compiler memory
 @Composable
 fun NetworkAreaChartContent(
     chartDataPoints: List<DSChartDataPoint>,
@@ -168,168 +171,217 @@ fun NetworkAreaChartContent(
     contentDesc: String
 ) {
     var tooltipData by remember { mutableStateOf<TooltipData?>(null) }
-    var chartSize by remember { mutableStateOf(Size.Zero) }
-    var interactionState by remember { mutableStateOf(ChartInteractionState()) }
-    val density = LocalDensity.current
-    val scope = rememberCoroutineScope()
 
-    // Animated indicator line position
-    val indicatorXPosition = remember { Animatable(0f) }
+    Column {
+        NetworkChartWithYAxis(
+            chartDataPoints = chartDataPoints,
+            dataPoints = dataPoints,
+            height = height,
+            showGrid = showGrid,
+            animationDurationMs = animationDurationMs,
+            contentDesc = contentDesc,
+            onTooltipShow = { tooltip -> tooltipData = tooltip },
+            onTooltipHide = { tooltipData = null }
+        )
 
-    // Animation spec for smooth indicator movement
-    val indicatorAnimationSpec: AnimationSpec<Float> = spring(
-        dampingRatio = 0.8f,
-        stiffness = 300f
-    )
-    
-    // Calculate Y-axis values for the right side
-    val yAxisValues = remember(dataPoints) {
+        // Time axis labels
         if (dataPoints.isNotEmpty()) {
-            val maxValue = dataPoints.maxOf { it.value }
-            val minValue = dataPoints.minOf { it.value }
-            val range = maxValue - minValue
-            listOf(
-                maxValue,
-                minValue + (range * 0.75f),
-                minValue + (range * 0.5f),
-                minValue + (range * 0.25f),
-                minValue
+            NetworkTimeAxisLabels(
+                dataPoints = dataPoints,
+                modifier = Modifier.fillMaxWidth()
             )
-        } else {
-            emptyList()
         }
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Chart area (takes most of the space)
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(height)
-                    .onSizeChanged { size ->
-                        chartSize = size.toSize()
-                    }
-                    .pointerInput(chartDataPoints) {
-                        detectTapGestures { offset ->
-                            if (dataPoints.isNotEmpty() && chartSize.width > 0) {
-                                // Calculate which data point was touched
-                                val tapX = offset.x
-                                val chartWidth = chartSize.width
+    // Tooltip overlay
+    tooltipData?.let { tooltip ->
+        NetworkChartTooltip(
+            tooltipData = tooltip,
+            onDismiss = { tooltipData = null }
+        )
+    }
+}
 
-                                // Find the closest data point index
-                                val normalizedX = (tapX / chartWidth).coerceIn(0f, 1f)
-                                val index = (normalizedX * (dataPoints.size - 1)).roundToInt()
-                                    .coerceIn(0, dataPoints.lastIndex)
+// Optimize: Extract chart + Y-axis into separate composable
+@Composable
+private fun NetworkChartWithYAxis(
+    chartDataPoints: List<DSChartDataPoint>,
+    dataPoints: List<TimeSeriesDataPoint>,
+    height: Dp,
+    showGrid: Boolean,
+    animationDurationMs: Int,
+    contentDesc: String,
+    onTooltipShow: (TooltipData) -> Unit,
+    onTooltipHide: () -> Unit
+) {
+    // Optimize: Use derivedStateOf for Y-axis calculation
+    val yAxisValues by remember(dataPoints) {
+        derivedStateOf {
+            if (dataPoints.isNotEmpty()) {
+                val maxValue = dataPoints.maxOf { it.value }
+                val minValue = dataPoints.minOf { it.value }
+                val range = maxValue - minValue
+                listOf(
+                    maxValue,
+                    minValue + (range * 0.75f),
+                    minValue + (range * 0.5f),
+                    minValue + (range * 0.25f),
+                    minValue
+                )
+            } else emptyList()
+        }
+    }
 
-                                if (index in dataPoints.indices) {
-                                    // Update interaction state for indicator line
-                                    interactionState = ChartInteractionState(
-                                        selectedXPosition = tapX,
-                                        selectedDataIndex = index,
-                                        isIndicatorVisible = true
-                                    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        InteractiveNetworkChart(
+            chartDataPoints = chartDataPoints,
+            dataPoints = dataPoints,
+            height = height,
+            showGrid = showGrid,
+            animationDurationMs = animationDurationMs,
+            contentDesc = contentDesc,
+            onTooltipShow = onTooltipShow,
+            onTooltipHide = onTooltipHide,
+            modifier = Modifier.weight(1f)
+        )
 
-                                    // Animate indicator line to the tapped position
-                                    scope.launch {
-                                        indicatorXPosition.animateTo(
-                                            targetValue = tapX,
-                                            animationSpec = indicatorAnimationSpec
-                                        )
-                                    }
+        if (yAxisValues.isNotEmpty()) {
+            YAxisLabels(yAxisValues, height)
+        }
+    }
+}
 
-                                    tooltipData = TooltipData(
-                                        value = dataPoints[index].value,
-                                        time = dataPoints[index].timestamp,
-                                        x = offset.x,
-                                        y = offset.y
-                                    )
+// Optimize: Extract Y-axis into tiny composable
+@Composable
+private fun YAxisLabels(values: List<Float>, height: Dp) {
+    Column(
+        modifier = Modifier
+            .width(48.dp)
+            .height(height)
+            .padding(start = DSJarvisTheme.spacing.xs),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.Start
+    ) {
+        values.forEach { value ->
+            DSText(
+                text = value.roundToInt().toString(),
+                style = DSJarvisTheme.typography.label.small,
+                color = DSJarvisTheme.colors.neutral.neutral60,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 
-                                    // Auto-hide tooltip and indicator after 4 seconds
-                                    scope.launch {
-                                        delay(4000)
-                                        tooltipData = null
-                                        interactionState = interactionState.copy(isIndicatorVisible = false)
-                                    }
-                                }
+// Optimize: Extract interactive chart logic
+@Composable
+private fun InteractiveNetworkChart(
+    chartDataPoints: List<DSChartDataPoint>,
+    dataPoints: List<TimeSeriesDataPoint>,
+    height: Dp,
+    showGrid: Boolean,
+    animationDurationMs: Int,
+    contentDesc: String,
+    onTooltipShow: (TooltipData) -> Unit,
+    onTooltipHide: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var chartSize by remember { mutableStateOf(Size.Zero) }
+    var interactionState by remember { mutableStateOf(ChartInteractionState()) }
+    val scope = rememberCoroutineScope()
+    val indicatorXPosition = remember { Animatable(0f) }
+
+    Box(
+        modifier = modifier
+            .height(height)
+            .onSizeChanged { chartSize = it.toSize() }
+            .pointerInput(chartDataPoints) {
+                detectTapGestures { offset ->
+                    if (dataPoints.isNotEmpty() && chartSize.width > 0) {
+                        val tapX = offset.x
+                        val normalizedX = (tapX / chartSize.width).coerceIn(0f, 1f)
+                        val index = (normalizedX * (dataPoints.size - 1)).roundToInt()
+                            .coerceIn(0, dataPoints.lastIndex)
+
+                        if (index in dataPoints.indices) {
+                            interactionState = ChartInteractionState(
+                                selectedXPosition = tapX,
+                                selectedDataIndex = index,
+                                isIndicatorVisible = true
+                            )
+
+                            scope.launch {
+                                indicatorXPosition.animateTo(
+                                    tapX,
+                                    spring(dampingRatio = 0.8f, stiffness = 300f)
+                                )
+                            }
+
+                            onTooltipShow(
+                                TooltipData(
+                                    value = dataPoints[index].value,
+                                    time = dataPoints[index].timestamp,
+                                    x = offset.x,
+                                    y = offset.y
+                                )
+                            )
+
+                            scope.launch {
+                                delay(4000)
+                                onTooltipHide()
+                                interactionState = interactionState.copy(isIndicatorVisible = false)
                             }
                         }
                     }
-            ) {
-                DSAreaChart(
-                    dataPoints = chartDataPoints,
-                    modifier = Modifier.fillMaxSize(),
-                    lineColor = DSJarvisTheme.colors.chart.primary,
-                    fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
-                    fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
-                    backgroundColor = DSJarvisTheme.colors.extra.surface,
-                    gridColor = DSJarvisTheme.colors.neutral.neutral20,
-                    showGrid = showGrid,
-                    animationDurationMs = animationDurationMs,
-                    contentDescription = contentDesc
-                )
-
-                // Vertical indicator line overlay
-                if (interactionState.isIndicatorVisible && interactionState.selectedDataIndex != null) {
-                    val lineColor = DSJarvisTheme.colors.chart.primary
-                    val backgroundColor = DSJarvisTheme.colors.extra.surface
-
-                    Canvas(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        drawVerticalIndicator(
-                            xPosition = indicatorXPosition.value,
-                            chartSize = size,
-                            dataPoints = dataPoints,
-                            selectedIndex = interactionState.selectedDataIndex!!,
-                            lineColor = lineColor,
-                            pointColor = lineColor,
-                            backgroundColor = backgroundColor
-                        )
-                    }
                 }
             }
-            
-            // Y-axis numeric values on the right
-            if (yAxisValues.isNotEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(height)
-                        .padding(start = DSJarvisTheme.spacing.xs),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    yAxisValues.forEach { value ->
-                        DSText(
-                            text = value.roundToInt().toString(),
-                            style = DSJarvisTheme.typography.label.small,
-                            color = DSJarvisTheme.colors.neutral.neutral60,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-        }
-        
-        // Tooltip overlay
-        tooltipData?.let { tooltip ->
-            NetworkChartTooltip(
-                tooltipData = tooltip,
-                onDismiss = { tooltipData = null }
+    ) {
+        DSAreaChart(
+            dataPoints = chartDataPoints,
+            modifier = Modifier.fillMaxSize(),
+            lineColor = DSJarvisTheme.colors.chart.primary,
+            fillStartColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.3f),
+            fillEndColor = DSJarvisTheme.colors.chart.primary.copy(alpha = 0.05f),
+            backgroundColor = DSJarvisTheme.colors.extra.surface,
+            gridColor = DSJarvisTheme.colors.neutral.neutral20,
+            showGrid = showGrid,
+            animationDurationMs = animationDurationMs,
+            contentDescription = contentDesc
+        )
+
+        if (interactionState.isIndicatorVisible && interactionState.selectedDataIndex != null) {
+            ChartIndicatorOverlay(
+                indicatorXPosition = indicatorXPosition.value,
+                dataPoints = dataPoints,
+                selectedIndex = interactionState.selectedDataIndex!!
             )
         }
     }
+}
 
-    // Time axis labels
-    if (dataPoints.isNotEmpty()) {
-        NetworkTimeAxisLabels(
+// Optimize: Extract indicator overlay
+@Composable
+private fun ChartIndicatorOverlay(
+    indicatorXPosition: Float,
+    dataPoints: List<TimeSeriesDataPoint>,
+    selectedIndex: Int
+) {
+    val lineColor = DSJarvisTheme.colors.chart.primary
+    val backgroundColor = DSJarvisTheme.colors.extra.surface
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        drawVerticalIndicator(
+            xPosition = indicatorXPosition,
+            chartSize = size,
             dataPoints = dataPoints,
-            modifier = Modifier.fillMaxWidth()
+            selectedIndex = selectedIndex,
+            lineColor = lineColor,
+            pointColor = lineColor,
+            backgroundColor = backgroundColor
         )
     }
 }
