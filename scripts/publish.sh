@@ -118,7 +118,7 @@ check_credentials() {
                 missing_creds=true
             elif [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]; then
                 log_info "Setting up PGP signing for GitHub Packages..."
-                export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=""
+                export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="jarvis2025"
                 export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat new_pgp_key.asc)"
                 log_success "PGP signing configured for GitHub Packages"
             else
@@ -143,7 +143,7 @@ check_credentials() {
             missing_creds=true
         elif [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]; then
             log_info "Setting up PGP signing..."
-            export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=""
+            export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="jarvis2025"
             export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat new_pgp_key.asc)"
             # Also set the signing key ID if available
             if [ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]; then
@@ -162,7 +162,7 @@ check_credentials() {
             log_info "Local publishing will use dummy signing"
         elif [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]; then
             log_info "Setting up PGP signing for local publishing..."
-            export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=""
+            export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="jarvis2025"
             export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat new_pgp_key.asc)"
             log_success "PGP signing configured for local publishing"
         else
