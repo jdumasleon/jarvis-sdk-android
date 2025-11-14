@@ -44,6 +44,7 @@ plugins {
     alias(libs.plugins.ktlint) apply true
     alias(libs.plugins.binaryCompatibilityValidator) apply true
     alias(libs.plugins.vanniktech.maven.publish) apply false
+    alias(libs.plugins.google.firebase.appdistribution) apply false
 }
 
 // Configure Binary Compatibility Validator for API tracking

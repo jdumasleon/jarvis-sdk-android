@@ -101,6 +101,7 @@ val DarkInfo40 = Color(0xFF1A2C4A)
 val DarkInfo20 = Color(0xFF131F33)
 
 val DarkBackground0 = Color(0xFF000000)
+val DarkWhite = Color(0xFF1C1C1E)
 
 // Chart Colors - optimized for both light and dark themes
 val ChartColors = listOf(
@@ -284,8 +285,8 @@ fun darkColors() = DSColors(
         background = DarkBackground0,
         surface = DarkNeutral0,
         onSurface = DarkNeutral100,
-        white = Color.White,
-        black = Color.Black,
+        white = DarkWhite,
+        black = Color.White,
         transparent = Color.Transparent
     ),
     chart = Chart()

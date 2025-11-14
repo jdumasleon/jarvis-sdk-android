@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.jarvis.demo" />
+                  <option name="mobileSdkAppId" value="1:240732460892:android:018d520ab00188ea8e1399" />
+                  <option name="projectId" value="jarvis-c9cbb" />
+                  <option name="projectNumber" value="240732460892" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
