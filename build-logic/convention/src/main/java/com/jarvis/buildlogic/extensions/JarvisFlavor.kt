@@ -18,7 +18,7 @@ enum class FlavorDimension {
 enum class JarvisFlavor(val dimension: FlavorDimension, val applicationIdSuffix: String? = null) {
     dev(FlavorDimension.contentType, applicationIdSuffix = ""),
     prod(FlavorDimension.contentType),
-    classic(FlavorDimension.uiType, applicationIdSuffix = ".classic"),
+    classic(FlavorDimension.uiType, applicationIdSuffix = ""),
     compose(FlavorDimension.uiType, applicationIdSuffix = "")
 }
 
