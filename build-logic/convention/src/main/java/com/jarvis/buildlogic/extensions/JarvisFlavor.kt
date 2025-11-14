@@ -16,10 +16,10 @@ enum class FlavorDimension {
 // These two product flavors reflect this behaviour.
 @Suppress("EnumEntryName")
 enum class JarvisFlavor(val dimension: FlavorDimension, val applicationIdSuffix: String? = null) {
-    dev(FlavorDimension.contentType, applicationIdSuffix = ".dev"),
+    dev(FlavorDimension.contentType, applicationIdSuffix = ""),
     prod(FlavorDimension.contentType),
-    classic(FlavorDimension.uiType, applicationIdSuffix = ".classic"),
-    compose(FlavorDimension.uiType, applicationIdSuffix = ".compose")
+    classic(FlavorDimension.uiType, applicationIdSuffix = ""),
+    compose(FlavorDimension.uiType, applicationIdSuffix = "")
 }
 
 fun configureFlavors(

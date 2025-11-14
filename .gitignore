@@ -12,6 +12,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/appInsightsSettings.xml
 
 # GITHUB
 PUBLISHING_GUIDE.md
@@ -26,9 +27,11 @@ new_pgp_key.asc
 .cxx
 
 # Publishing credentials (NEVER commit these!)
+keystore.properties
 security.properties
 publishing.properties
 github.properties
+/keystore/*
 
 # Local testing and publishing artifacts
 /repo

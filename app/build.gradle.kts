@@ -1,5 +1,15 @@
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 import com.jarvis.buildlogic.extensions.JarvisBuildType
 import org.gradle.kotlin.dsl.debugImplementation
+
+import java.util.Properties
+
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) {
+        f.inputStream().use(::load)
+    }
+}
 
 plugins {
     alias(libs.plugins.jarvis.android.application)
@@ -12,6 +22,8 @@ plugins {
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.google.firebase.appdistribution)
+    alias(libs.plugins.gms)
 }
 
 android {
@@ -27,6 +39,21 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystoreProps.isNotEmpty()) {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = JarvisBuildType.DEBUG.applicationIdSuffix
@@ -36,12 +63,19 @@ android {
             applicationIdSuffix = JarvisBuildType.RELEASE.applicationIdSuffix
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
-            // To publish on the Play store a private signing key is required, but to allow anyone
-            // who clones the code to sign and run the release variant, use the debug signing key.
-            // TODO: Abstract the signing configuration to a separate file to avoid hardcoding this.
-            signingConfig = signingConfigs.named("debug").get()
+            signingConfig = if (keystoreProps.isNotEmpty()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+
             // Ensure Baseline Profile is fresh for release builds.
             baselineProfile.automaticGenerationDuringBuild = true
+
+            firebaseAppDistribution {
+                releaseNotesFile="app/releasenotes.md"
+                testers="jdumasleon@gmail.com"
+            }
         }
     }
 
@@ -105,6 +139,10 @@ dependencies {
     "classicImplementation"("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     debugImplementation("com.github.anrwatchdog:anrwatchdog:1.4.0")
+
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.crashlytics)
+    implementation(libs.google.firebase.analytics)
 
     implementation(libs.androidx.metrics)
     implementation(libs.androidx.dataStore)

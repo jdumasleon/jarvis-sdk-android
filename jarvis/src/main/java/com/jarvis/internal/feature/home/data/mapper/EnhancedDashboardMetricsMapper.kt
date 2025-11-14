@@ -19,6 +19,7 @@ import com.jarvis.internal.feature.home.domain.entity.SlowEndpointData
 import com.jarvis.internal.feature.home.domain.entity.TimeSeriesDataPoint
 import com.jarvis.features.inspector.internal.domain.entity.NetworkTransaction
 import com.jarvis.features.preferences.internal.domain.entity.AppPreference
+import kotlin.math.ceil
 import javax.inject.Inject
 
 /**
@@ -321,7 +322,6 @@ class NetworkAnalyzer @Inject constructor() {
         val intervalMs = 60_000L // 1 minute intervals
         val startTime = transactions.minOf { it.startTime }
         val endTime = transactions.maxOf { it.startTime }
-        
         val dataPoints = mutableListOf<TimeSeriesDataPoint>()
         var currentTime = startTime
         
@@ -340,7 +340,31 @@ class NetworkAnalyzer @Inject constructor() {
             currentTime += intervalMs
         }
         
-        return dataPoints
+        return if (dataPoints.size > MAX_TIME_SERIES_POINTS) {
+            downsampleDataPoints(dataPoints, MAX_TIME_SERIES_POINTS)
+        } else {
+            dataPoints
+        }
+    }
+
+    private fun downsampleDataPoints(
+        points: List<TimeSeriesDataPoint>,
+        targetCount: Int
+    ): List<TimeSeriesDataPoint> {
+        if (points.size <= targetCount) return points
+
+        val bucketSize = ceil(points.size.toDouble() / targetCount.toDouble()).toInt().coerceAtLeast(1)
+
+        return points.chunked(bucketSize).mapNotNull { bucket ->
+            val firstPoint = bucket.firstOrNull() ?: return@mapNotNull null
+            val totalValue = bucket.sumOf { it.value.toDouble() }.toFloat()
+
+            TimeSeriesDataPoint(
+                timestamp = firstPoint.timestamp,
+                value = totalValue,
+                label = firstPoint.label
+            )
+        }
     }
     
     private fun analyzeHttpMethods(transactions: List<NetworkTransaction>): List<HttpMethodData> {
@@ -467,5 +491,9 @@ class NetworkAnalyzer @Inject constructor() {
             responseTimeDistribution = ResponseTimeDistribution(0, 0, 0, 0, 0),
             sessionFilter = sessionFilter
         )
+    }
+
+    private companion object {
+        private const val MAX_TIME_SERIES_POINTS = 20
     }
 }
