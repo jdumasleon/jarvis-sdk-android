@@ -102,6 +102,7 @@ class JarvisSDK @Inject constructor(
                 try {
                     configurationSynchronizer.updateConfigurations(config)
                     performanceManager.initialize()
+
                     jarvisPlatform.initialize()
                     jarvisPlatform.onAppStart()
 
@@ -226,8 +227,11 @@ class JarvisSDK @Inject constructor(
                 try {
                     configurationSynchronizer.updateConfigurations(config)
                     performanceManager.initialize()
-                    jarvisPlatform.initialize()
-                    jarvisPlatform.onAppStart()
+
+                    if(config.enableInternalTracking) {
+                        jarvisPlatform.initialize()
+                        jarvisPlatform.onAppStart()
+                    }
 
                     // Schedule periodic cleanup of old network requests
                     networkCleanupScheduler.scheduleCleanup()
