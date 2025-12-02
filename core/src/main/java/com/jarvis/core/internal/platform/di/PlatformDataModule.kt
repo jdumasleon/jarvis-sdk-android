@@ -7,7 +7,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.jarvis.core.internal.data.preferences.datasource.JarvisInternalPreferencesDataSource
 import com.jarvis.core.internal.data.preferences.di.JarvisInternalDataStore
 import com.jarvis.core.internal.data.preferences.repository.JarvisInternalPreferencesRepositoryImpl
 import com.jarvis.core.internal.domain.preferences.repository.JarvisInternalPreferencesRepository
@@ -44,7 +43,7 @@ abstract class PlatformDataModule {
     internal abstract fun bindAnalytics(
         postHogAnalytics: PostHogAnalytics
     ): Analytics
-    
+
     @Binds
     @Singleton
     internal abstract fun bindCrashReporter(
